@@ -1,5 +1,4 @@
 ﻿#include "SceneController.h"
-#include "EffekseerResourceManager.h"
 #include "Scene.h"
 
 SceneController::SceneController()
