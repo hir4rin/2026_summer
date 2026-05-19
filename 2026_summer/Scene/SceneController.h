@@ -1,20 +1,10 @@
 ﻿#pragma once
 #include <memory>
 #include <list>
-#include "Player.h"
+
 
 class Input;
 class Scene;
-class EffekseerResourceManager;
-
-struct PlayerInformation
-{
-	PlayerType s_type;
-	int s_hp;
-	int s_Life;
-
-
-};
 
 /// <summary>
 /// シーンを内部に保持し、切り替えを提供する
@@ -23,12 +13,6 @@ class SceneController
 {
 public:
 	SceneController();
-	//プレイヤーの情報を保存
-	PlayerInformation m_savePlayer;
-	//プレイヤーの情報を更新
-	void SetPlayerInfo(PlayerType type,int hp,int life);
-	std::shared_ptr<EffekseerResourceManager> m_EfReManager;
-
 private:
 	// 現在スタックに積まれているシーン
 	// 最後に積んだものだけがUpdateされる
@@ -70,6 +54,5 @@ public:
 	/// 内部に持ってるシーンのDrawを呼び出す
 	/// </summary>
 	void Draw();
-	std::shared_ptr<EffekseerResourceManager> GetEffekseerResourceManager();
 };
 
