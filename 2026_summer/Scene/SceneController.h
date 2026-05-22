@@ -48,7 +48,7 @@ public:
 	/// <summary>
 	/// 内部に持ってるシーンのUpdateを呼び出す
 	/// </summary>
-	void Update(Input& input);
+	void Update();
 
 	/// <summary>
 	/// 内部に持ってるシーンのDrawを呼び出す

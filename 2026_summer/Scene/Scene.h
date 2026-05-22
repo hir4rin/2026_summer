@@ -22,8 +22,7 @@ public:
 	/// <summary>
 	/// シーンの情報の更新
 	/// </summary>
-	/// <param name="input">入力情報</param>
-	virtual void Update(Input& input) = 0;
+	virtual void Update() = 0;
 
 	/// <summary>
 	/// シーンの描画(シーンの持ち物も描画する)

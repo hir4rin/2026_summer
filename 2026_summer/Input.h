@@ -1,11 +1,11 @@
-#pragma once
+ï»¿#pragma once
 #include<array>
 #include<map>
 #include<string>
 #include<vector>
 
 /// <summary>
-/// ü•Ó‹@Šíí•Ê
+/// å‘¨è¾ºæ©Ÿå™¨ç¨®åˆ¥
 /// </summary>
 enum class PeripheralType {
 	keyboard,
@@ -13,39 +13,39 @@ enum class PeripheralType {
 };
 
 /// <summary>
-/// “ü—Í‘Î‰î•ñ
+/// å…¥åŠ›å¯¾å¿œæƒ…å ±
 /// </summary>
 struct InputState
 {
-	PeripheralType type;// “ü—Í‚³‚ê‚½‹@Ší‚Ìí•Ê
-	int id;//“ü—Íî•ñ‚ª“ü‚é(ƒL[ƒ{[ƒh‚Ìê‡‚ÍƒCƒ“ƒfƒbƒNƒXAƒpƒbƒh‚Ìê‡‚Íƒrƒbƒg)
+	PeripheralType type;// å…¥åŠ›ã•ã‚ŒãŸæ©Ÿå™¨ã®ç¨®åˆ¥
+	int id;//å…¥åŠ›æƒ…å ±ãŒå…¥ã‚‹(ã‚­ãƒ¼ãƒœãƒ¼ãƒ‰ã®å ´åˆã¯ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ã€ãƒ‘ãƒƒãƒ‰ã®å ´åˆã¯ãƒ“ãƒƒãƒˆ)
 };
 
 
 /// <summary>
-/// “ü—Í‚ğ’ŠÛ‰»‚·‚é‚½‚ß‚ÌƒNƒ‰ƒX
+/// å…¥åŠ›ã‚’æŠ½è±¡åŒ–ã™ã‚‹ãŸã‚ã®ã‚¯ãƒ©ã‚¹
 /// </summary>
 class Input
 {
 private:
-	std::map<std::string, std::vector<InputState>>inputTable_;// ƒCƒxƒ“ƒg–¼‚ÆÀÛ‚Ì“ü—Í‚Ì‘Î‰•\
-	std::map<std::string, bool>inputData_;//ÀÛ‚É“ü—Í‚³‚ê‚½‚©‚Ç‚¤‚©‚Ìƒf[ƒ^
-	std::map<std::string, bool>lastInputData_;//ÅŒã‚É“ü—Í‚³‚ê‚½‚©‚Ç‚¤‚©‚Ìƒf[ƒ^
+	std::map<std::string, std::vector<InputState>>m_inputTable;// ã‚¤ãƒ™ãƒ³ãƒˆåã¨å®Ÿéš›ã®å…¥åŠ›ã®å¯¾å¿œè¡¨
+	std::map<std::string, bool>m_inputData;//å®Ÿéš›ã«å…¥åŠ›ã•ã‚ŒãŸã‹ã©ã†ã‹ã®ãƒ‡ãƒ¼ã‚¿
+	std::map<std::string, bool>m_lastInputData;//æœ€å¾Œã«å…¥åŠ›ã•ã‚ŒãŸã‹ã©ã†ã‹ã®ãƒ‡ãƒ¼ã‚¿
 public:
 	Input();
 	/// <summary>
-	///  ‚±‚ê‚ğ–ˆƒtƒŒ[ƒ€ŒÄ‚Ño‚·‚±‚Æ‚Å
-	/// “ü—Íî•ñ‚ªXV‚³‚ê‚Ü‚·
+	///  ã“ã‚Œã‚’æ¯ãƒ•ãƒ¬ãƒ¼ãƒ å‘¼ã³å‡ºã™ã“ã¨ã§
+	/// å…¥åŠ›æƒ…å ±ãŒæ›´æ–°ã•ã‚Œã¾ã™
 	/// </summary>
 	void Update();
-	// “Á’è‚Ìƒ{ƒ^ƒ“‚ª‰Ÿ‚³‚ê‚½‚©
-	/// <param name="name">ƒCƒxƒ“ƒg–¼</param>
-	/// <returns>‰Ÿ‚³‚ê‚Ä‚¢‚é:true/‰Ÿ‚³‚ê‚Ä‚¢‚È‚¢:false</returns>
+	// ç‰¹å®šã®ãƒœã‚¿ãƒ³ãŒæŠ¼ã•ã‚ŒãŸã‹
+	/// <param name="name">ã‚¤ãƒ™ãƒ³ãƒˆå</param>
+	/// <returns>æŠ¼ã•ã‚Œã¦ã„ã‚‹:true/æŠ¼ã•ã‚Œã¦ã„ãªã„:false</returns>
 	bool IsPressed(const char*name)const;
 
-	// “Á’è‚Ìƒ{ƒ^ƒ“‚ª¡‰Ÿ‚³‚ê‚½‚©
-	/// <param name="name">ƒCƒxƒ“ƒg–¼</param>
-	/// <returns>¡‰Ÿ‚³‚ê‚½uŠÔ:true/‰Ÿ‚³‚ê‚Ä‚¢‚È‚¢or‰Ÿ‚µ‚Á‚Ï‚È‚µ:false</returns>
+	// ç‰¹å®šã®ãƒœã‚¿ãƒ³ãŒä»ŠæŠ¼ã•ã‚ŒãŸã‹
+	/// <param name="name">ã‚¤ãƒ™ãƒ³ãƒˆå</param>
+	/// <returns>ä»ŠæŠ¼ã•ã‚ŒãŸç¬é–“:true/æŠ¼ã•ã‚Œã¦ã„ãªã„oræŠ¼ã—ã£ã±ãªã—:false</returns>
 	bool IsTriggered(const char* name)const;
 
 };

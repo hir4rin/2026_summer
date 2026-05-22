@@ -3,15 +3,9 @@
 
 SceneController::SceneController()
 {
-	m_EfReManager = std::make_shared< EffekseerResourceManager>();
 }
 
-void SceneController::SetPlayerInfo(PlayerType type, int hp, int life)
-{
-	m_savePlayer.s_type = type;
-	m_savePlayer.s_hp = hp;
-	m_savePlayer.s_Life = life;
-}
+
 
 
 
@@ -49,10 +43,10 @@ void SceneController::PopScene()
 	scenes_.pop_back();
 }
 
-void SceneController::Update(Input& input)
+void SceneController::Update()
 {
 	// 末尾の要素に対してのみUpdateする
-	scenes_.back()->Update(input);
+	scenes_.back()->Update();
 }
 
 void SceneController::Draw()
@@ -64,7 +58,3 @@ void SceneController::Draw()
 	}
 }
 
-std::shared_ptr<EffekseerResourceManager> SceneController::GetEffekseerResourceManager()
-{
-	return m_EfReManager;
-}
