@@ -1,8 +1,15 @@
 ﻿#include "Input.h"
 #include "Dxlib.h"
 
-Input::Input() :m_inputData{}, m_lastInputData{}, m_inputTable{}
+Input::Input() 
 {
+   
+}
+void Input::Init()
+{
+    //初期化
+    m_inputData = {}, m_lastInputData = {}, m_inputTable = {};
+
     //イベント名を添え字にして、右辺値に実際の入力種別と入力コードの配列をおく
     m_inputTable["A"] = { { PeripheralType::keyboard,KEY_INPUT_Z },
                           { PeripheralType::pad1,PAD_INPUT_1 } };//PADのAボタン
@@ -38,6 +45,17 @@ Input::Input() :m_inputData{}, m_lastInputData{}, m_inputTable{}
         m_inputData[inputInfo.first] = false;
         m_lastInputData[inputInfo.first] = false;
     }
+}
+
+bool Input::IsLeftStickInput()
+{
+	//十字キーのいずれかが押されているか
+    if(IsPressed("Up") || IsPressed("Down") || IsPressed("Left") || IsPressed("Right"))
+    {
+        return true;
+	}
+
+    return false;
 }
 
 void Input::Update()

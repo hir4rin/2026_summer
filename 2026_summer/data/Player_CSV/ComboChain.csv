@@ -1,0 +1,10 @@
+#animname,type,moveSpeed,nextWeakAttack,nextWeakAttack,nextHeavyAttack,seFrameRate,seName,isEffectActive
+#,type:0=弱攻撃,1=重攻撃,nextAttack:,セミコロン区切り(;),なければ空欄,,,
+Player|MainAttack1,0,0.3,10,1,6,0.06,airSlash,0
+Player|MainAttack2,0,0.2,10,2,6,0.06,airSlash,0
+Player|MainAttack3,0,0.2,10,3,6,0.16,airSlash,0
+Player|MainAttack4,0,0.2,10,4,6,0.13,airSlash,0
+Player|MainAttack5,0,0.6,15,,,0.2,airSlash,0
+Player|SubAttack1,1,0.3,10,0,6,0.2,airSlash,0
+Player|SubAttack2,1,0.2,12,,7,0.35,airSlash,0
+Player|SubAttack3,1,0.2,12,,,0.25,airSlash,0

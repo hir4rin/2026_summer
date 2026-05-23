@@ -1,13 +1,6 @@
 ﻿#pragma once
-#include "Player.h"//playerの状態を継承先が渡す用
+#include "DxLib.h"
 class SceneController; // シーンコントローラーのプロトタイプ宣言
-class Input; // 入力のプロトタイプ宣言
-
-
-constexpr int cameraMargin = 100;
-constexpr int screenWidth = 1920;
-constexpr int screenHeight = 1080;
-
 
 
 /// <summary>
@@ -23,10 +16,29 @@ public:
 	/// シーンの情報の更新
 	/// </summary>
 	virtual void Update() = 0;
+	//メンバ関数ポインタで管理
+	virtual void FadeInUpdate() = 0;
+	virtual void NormalUpdate() = 0;
+	virtual void FadeOutUpdate() = 0;
+	using UpdateFunc_t = void(Scene::*)();
+	/// <summary>
+	/// コンストラクタで継承先のポインタにキャストして代入する
+	/// </summary>
+	UpdateFunc_t m_updateFunc = nullptr;
 
 	/// <summary>
 	/// シーンの描画(シーンの持ち物も描画する)
 	/// </summary>
 	virtual void Draw() = 0;
+	//メンバ関数ポインタで管理
+	virtual void FadeInDraw() = 0;
+	virtual void NormalDraw() = 0;
+	virtual void FadeOutDraw() = 0;
+	using DrawFunc_t = void(Scene::*)();
+	/// <summary>
+	/// コンストラクタで継承先のポインタにキャストして代入する
+	/// </summary>
+	DrawFunc_t m_drawFunc = nullptr;
+
 };
 

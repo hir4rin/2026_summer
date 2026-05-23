@@ -27,12 +27,32 @@ struct InputState
 /// </summary>
 class Input
 {
+public:
+	static Input& GetInstance()
+	{
+		static Input instance;
+		return instance;
+	}
+
+	void Init();//入力の初期化//イベントと入力の対応表を作る
+	
+	bool IsLeftStickInput();
+	//何かボタンがされたかのboolとか便利な機能をいろいろ作りたい
+
+
+
+private:
+	//シングルトンクラス
+	Input();
+	~Input() = default;
+	Input(const Input&) = delete;
+	Input& operator=(const Input&) = delete;
+
 private:
 	std::map<std::string, std::vector<InputState>>m_inputTable;// イベント名と実際の入力の対応表
 	std::map<std::string, bool>m_inputData;//実際に入力されたかどうかのデータ
 	std::map<std::string, bool>m_lastInputData;//最後に入力されたかどうかのデータ
 public:
-	Input();
 	/// <summary>
 	///  これを毎フレーム呼び出すことで
 	/// 入力情報が更新されます

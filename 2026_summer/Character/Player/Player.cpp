@@ -1,0 +1,179 @@
+﻿#include "Player.h"
+#include "PlayerState.h"
+#include "PlayerStateIdle.h"
+#include "PlayerStateMove.h"
+#include "../../DataLoader/DataManager.h"
+#include "../../System.h"
+#include "../../Math/Matrix4x4.h"
+#include <cmath>
+#include <cassert>
+#include <string>
+#include <fstream>
+#include <sstream>
+
+Player::Player()
+{
+	m_modelHandle = MV1LoadModel("data/Player/Player.mv1");;
+	//モデルの初期位置を設定する//前を向いているようにする
+	Matrix4x4 rotY = Matrix4x4::MakeRotationY(DX_PI_F);
+	MATRIX transmat = MGetTranslate(m_pos.ToDxLibVector());
+	Matrix4x4 trans = Matrix4x4::FromDxLibMatrix(transmat);
+	Matrix4x4 mtx = trans * rotY;
+	MV1SetMatrix(m_modelHandle, Matrix4x4::ToDxLibMatrix(mtx));
+	//当たり判定の初期化
+	ColInit(m_pos, 50.0f, ColliderType::Sphere, Tags::Player, true);//中心点、半径、当たり判定のタイプ、タグ、当たり判定が有効かどうか
+
+	
+
+	//コンボチェーンの初期化
+	InitializeComboChain();
+	//アニメーションの名前のマップの初期化
+	const auto& animData = DataManager::GetInstance().GetPlayerAnimData();
+	m_animNames = animData.animNames;
+}
+
+Player::~Player()
+{
+	if(m_currentState)
+	{
+		m_currentState->Exit();//状態を抜ける
+	}
+	MV1DeleteModel(m_modelHandle);
+}
+
+void Player::Init()
+{
+	//初期状態をIdleにする//アニメーションの初期化
+	m_anim.Init(m_modelHandle, GetAnimName("Idle"), true);
+	m_currentState = std::make_shared<PlayerStateIdle>(weak_from_this());//後で設定
+	ChangeState(m_currentState);//初期化
+}
+
+void Player::Update(Camera& camera)
+{
+	//カメラの更新
+	m_camera = &camera;
+	
+
+	if (m_currentState)
+	{
+		m_currentState->Update();//状態の更新
+	}
+	//座標の更新
+	float timeScale = System::GetInstance().GetTimeScale();
+	m_pos += m_vel * timeScale;
+
+	//回転処理//座標も行列で更新
+	UpdateAngle();
+
+
+}
+void Player::Draw()
+{
+	MV1DrawModel(m_modelHandle);
+#ifdef _DEBUG
+	if (m_currentState)
+	{
+		m_currentState->DebugDraw();//デバッグ描画
+	}
+#endif
+}
+
+void Player::OnCollision(Collider& other)
+{
+}
+
+void Player::ChangeState(std::shared_ptr<PlayerState> newState)
+{
+	//現在の状態から抜ける
+	if(m_currentState)
+	{
+		m_currentState->Exit();
+	}
+	//newStateに更新
+	m_currentState = newState;
+	//newStateの初期化
+	if(m_currentState)
+	{
+		m_currentState->Enter();
+	}
+}
+
+void Player::InitializeComboChain()
+{
+	//コンボチェーンの初期化
+	//音の出すタイミングは、攻撃の当たり判定を有効にするタイミングと同じにする予定なので、コンボノードの中に入れる
+
+	//CSVファイルを読み込む
+	const auto& rawData = DataManager::GetInstance().GetComboRawData();
+
+	for (const auto& tokens : rawData)
+	{
+		//列数チェック
+		if (tokens.size() < 8)//vectorのサイズなので、push_backした行の数//攻撃の種類の数
+		{
+			assert(false && "ComboChain.csvの列数が不足しています");
+			continue;
+		}
+		ComboNode node;
+		node.animName = tokens[ComboNodeType::AnimName];
+		node.type = static_cast<AttackType>(std::stoi(tokens[ComboNodeType::Type]));
+		node.moveFrame = std::stof(tokens[ComboNodeType::MoveFrame]);
+		node.moveSpeed = std::stof(tokens[ComboNodeType::MoveSpeed]);
+		//nextWeakAttack(空なら空vector)
+
+		if (!tokens[ComboNodeType::NextWeakAttack].empty())
+		{
+			std::istringstream weakSS(tokens[ComboNodeType::NextWeakAttack]);
+			std::string idx;
+			while (std::getline(weakSS, idx, ';'))
+			{
+				node.nextWeakAttack.push_back(std::stoi(idx));
+			}
+		}
+		//nextHeavyAttack(空なら空vector)
+		if (!tokens[ComboNodeType::NextHeavyAttack].empty())
+		{
+			std::istringstream heavySS(tokens[ComboNodeType::NextHeavyAttack]);
+			std::string idx;
+			while (std::getline(heavySS, idx, ';'))
+			{
+				node.nextHeavyAttack.push_back(std::stoi(idx));
+			}
+		}
+		node.seFrameRate = std::stof(tokens[ComboNodeType::SeFrameRate]);
+		node.seName = tokens[ComboNodeType::SeName];
+		node.isEffectActive = false;
+		m_comboChain.push_back(node);
+	}
+
+}
+
+void Player::UpdateAngle()
+{
+	float targetAngle = 0.0f;//目標の角度
+	if (m_targetVec.Magnitude() > 0.0f)//最初の入力されないとき以外、ここを通り、モデルの向きを変える
+	{
+		//プレイヤーの移動方向にモデルの方向を近づける
+		targetAngle = atan2f(m_targetVec.x, m_targetVec.z);//移動ベクトルのx成分とz成分から、プレイヤーの向きたい方向の角度を求める
+
+
+		// Y軸回転行列を作成する//この工程は毎フレーム、原点からプレイヤーの位置に移動してから、回転する行列を作成している
+		//180土ずれてたので、回転角度を180度ずらす
+		/* m_rotAngle = targetAngle - DX_PI_F;*/
+
+		 //角度の差分を計算//回転角度を-90から90にするため(最短経路を選択)
+		float difference = targetAngle - m_rotAngleY - DX_PI_F;
+		while (difference > DX_PI_F) difference -= 2.0f * DX_PI_F;
+		while (difference < -DX_PI_F) difference += 2.0f * DX_PI_F;
+		//targetAngle + DX_PI_F
+		m_rotAngleY += difference * 0.1f;//回転角度を少しずつ目標の角度に近づける//ほぼlerp
+
+		Matrix4x4 rotY = Matrix4x4::MakeRotationY(m_rotAngleY);
+		MATRIX transmat = MGetTranslate(m_pos.ToDxLibVector());
+		Matrix4x4 trans = Matrix4x4::FromDxLibMatrix(transmat);
+
+		Matrix4x4 mtx = trans * rotY;
+		MV1SetMatrix(m_modelHandle, Matrix4x4::ToDxLibMatrix(mtx));
+	}	
+}
