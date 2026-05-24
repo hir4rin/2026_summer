@@ -12,8 +12,8 @@ kAttackAnim5,Player|MainAttack5
 kHeavyAttackAnim,Player|SubAttack1
 kHeavyAttack2Anim,Player|SubAttack2
 kHeavyAttack3Anim,Player|SubAttack3
-kAvoidBackAnim,Player|AvoidBack
-kAvoidForwardAnim,Player|AvoidForward
+AvoidBack,Player|AvoidBack
+AvoidForward,Player|AvoidForward
 kDamageAnim,Player|Hit1
 #タイトル用,
 kAllAttackAnim,Player|AllMainAttack2

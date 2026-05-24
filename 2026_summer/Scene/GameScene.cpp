@@ -51,7 +51,7 @@ void GameScene::FadeInDraw()
 
 void GameScene::NormalDraw()
 {
-	DrawFormatString(0, 0, GetColor(255, 255, 255), "GameScene");
+	DrawFormatString(300, 0, GetColor(255, 255, 255), "GameScene");
 	DrawGrid();
 
 	m_player->Draw();

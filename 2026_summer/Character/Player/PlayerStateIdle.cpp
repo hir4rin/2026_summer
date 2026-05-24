@@ -18,7 +18,7 @@ void PlayerStateIdle::Enter()
 	if (!player) return;
 	//animationの初期化
 	player->m_anim.ChangeAnim(player->GetAnimName("Idle"), true);
-	//移動速度を0にする
+	//移動速度を0にする//だんだん遅くするにする予定
 	player->m_vel = Vector3(0, 0, 0);
 
 }
@@ -30,10 +30,29 @@ void PlayerStateIdle::Update()
 	if (!player) return;
 	auto& input = Input::GetInstance();
 
+	//移動状態に遷移する
 	if (input.IsLeftStickInput())
 	{
-		//移動状態に遷移する
 		player->ChangeState(std::make_shared<PlayerStateMove>(m_owner));
+		return;
+	}
+
+	//攻撃状態に遷移する
+	if (input.IsTriggered("X"))//弱攻撃
+	{
+		player->ChangeState(std::make_shared<PlayerStateAttack>(m_owner,AttackType::lightAttack));
+		return;
+	}
+	if (input.IsTriggered("Y"))//強攻撃
+	{
+		player->ChangeState(std::make_shared<PlayerStateAttack>(m_owner,AttackType::heavyAttack));
+		return;
+	}
+
+	//回避状態に遷移する
+	if (input.IsTriggered("A") && player->IsAvoidable())
+	{
+		player->ChangeState(std::make_shared<PlayerStateAvoid>(m_owner));
 		return;
 	}
 

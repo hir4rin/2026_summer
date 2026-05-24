@@ -53,6 +53,12 @@ void Player::Update(Camera& camera)
 {
 	//カメラの更新
 	m_camera = &camera;
+
+	//回避のクールタイムの更新
+	if (m_avoidInfo.avoidCoolTimeCount > 0.0f)
+	{
+		m_avoidInfo.avoidCoolTimeCount -= 1.0f * System::GetInstance().GetTimeScale();//回避のクールタイムを減らす
+	}
 	
 
 	if (m_currentState)
@@ -176,4 +182,14 @@ void Player::UpdateAngle()
 		Matrix4x4 mtx = trans * rotY;
 		MV1SetMatrix(m_modelHandle, Matrix4x4::ToDxLibMatrix(mtx));
 	}	
+}
+
+bool Player::IsAvoidable() const
+{
+	if (m_avoidInfo.avoidCoolTimeCount > 0.0f)
+	{
+		return false;//クールタイム中は回避できない
+	}
+
+	return true;
 }

@@ -41,6 +41,26 @@ void PlayerStateMove::Update()
 		player->ChangeState(std::make_shared<PlayerStateIdle>(m_owner));
 		return;
 	}
+	//攻撃状態に遷移する
+	if (input.IsTriggered("X"))//弱攻撃
+	{
+		player->ChangeState(std::make_shared<PlayerStateAttack>(m_owner, AttackType::lightAttack));
+		return;
+	}	
+	if (input.IsTriggered("Y"))//強攻撃
+	{
+		player->ChangeState(std::make_shared<PlayerStateAttack>(m_owner, AttackType::heavyAttack));
+		return;
+	}
+
+	//回避状態に遷移する
+	if (input.IsTriggered("A") && player->IsAvoidable())
+	{
+		player->ChangeState(std::make_shared<PlayerStateAvoid>(m_owner));
+		return;
+	}
+
+
 	//アニメーションの更新
 	player->m_anim.Update();
 	//移動処理

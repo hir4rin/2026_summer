@@ -153,6 +153,8 @@
     <ClCompile Include="Character\Player\PlayerState.cpp" />
     <ClCompile Include="Character\Player\PlayerStateIdle.cpp" />
     <ClCompile Include="Character\Player\PlayerStateMove.cpp" />
+    <ClCompile Include="Character\Player\PlayerStateAvoid.cpp" />
+    <ClCompile Include="Character\Player\PlayerStateAttack.cpp" />
     <ClCompile Include="Scene\GameScene.cpp" />
     <ClCompile Include="Input.cpp" />
     <ClCompile Include="main.cpp" />
@@ -181,6 +183,9 @@
     <ClInclude Include="Character\Player\PlayerState.h" />
     <ClInclude Include="Character\Player\PlayerStateIdle.h" />
     <ClInclude Include="Character\Player\PlayerStateMove.h" />
+    <ClInclude Include="Character\Player\PlayerStateAvoid.h" />
+    <ClInclude Include="Character\Player\PlayerStateAttack.h" />
+    <ClInclude Include="Character\Player\PlayerEnums.h" />
     <ClInclude Include="Scene\GameScene.h" />
     <ClInclude Include="Input.h" />
     <ClInclude Include="Math\Matrix4x4.h" />
