@@ -49,6 +49,12 @@ void PlayerStateIdle::Update()
 		return;
 	}
 
+	if (input.IsTriggered("LB"))
+	{
+		player->ChangeState(std::make_shared<PlayerStateParry>(m_owner));
+		return;
+	}
+
 	//回避状態に遷移する
 	if (input.IsTriggered("A") && player->IsAvoidable())
 	{

@@ -43,9 +43,14 @@ Player::~Player()
 
 void Player::Init()
 {
+	//向いている方向
+	m_targetVec = Vector3(0, 0, 1);//最初は前を向いているようにする
+
 	//初期状態をIdleにする//アニメーションの初期化
 	m_anim.Init(m_modelHandle, GetAnimName("Idle"), true);
-	m_currentState = std::make_shared<PlayerStateIdle>(weak_from_this());//後で設定
+	//weak_from_this()は、shared_ptrを作成,
+	//Playerクラスのインスタンスから、Playerクラスのshared_ptrを取得できるようになる
+	m_currentState = std::make_shared<PlayerStateIdle>(weak_from_this());
 	ChangeState(m_currentState);//初期化
 }
 

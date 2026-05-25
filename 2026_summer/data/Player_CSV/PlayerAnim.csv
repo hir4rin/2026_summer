@@ -15,10 +15,4 @@ kHeavyAttack3Anim,Player|SubAttack3
 AvoidBack,Player|AvoidBack
 AvoidForward,Player|AvoidForward
 kDamageAnim,Player|Hit1
-#タイトル用,
-kAllAttackAnim,Player|AllMainAttack2
-KWalkSAnim,Player|Walk_N
-#リザルト用,
-kResultAnim,Player|PodFall
-kResultIdleAnim,Player|Idle_S
-kResultWalkAnim,Player|Walk_N
+Parry,Player|SubAttackCharge

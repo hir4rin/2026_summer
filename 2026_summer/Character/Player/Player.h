@@ -4,6 +4,7 @@
 #include "PlayerStateIdle.h"//他のStateから他のStateに遷移するため(便利)
 #include "PlayerStateMove.h"//以下同文
 #include "PlayerStateAvoid.h"//以下同文
+#include "PlayerStateParry.h"//以下同文
 #include "PlayerStateAttack.h"//以下同文
 #include "../../DataLoader/PlayerAnimData.h"
 #include <memory>
@@ -102,6 +103,7 @@ private:
 	friend class PlayerStateIdle;
 	friend class PlayerStateMove;
 	friend class PlayerStateAvoid;
+	friend class PlayerStateParry;
 	friend class PlayerStateAttack;
 
 };

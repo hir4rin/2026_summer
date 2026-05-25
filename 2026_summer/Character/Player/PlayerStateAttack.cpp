@@ -122,6 +122,10 @@ void PlayerStateAttack::AttackMoveMent()
 	{
 		player->m_vel = player->m_targetVec * node.moveSpeed;//攻撃の最初の数秒は前に突進する
 	}
+	else
+	{
+		player->m_vel = Vector3(0, 0, 0);//突進が終わったら、速度を0にする
+	}
 }
 
 void PlayerStateAttack::DetermineAttackDirection()

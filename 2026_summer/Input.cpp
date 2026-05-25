@@ -11,17 +11,29 @@ void Input::Init()
     m_inputData = {}, m_lastInputData = {}, m_inputTable = {};
 
     //イベント名を添え字にして、右辺値に実際の入力種別と入力コードの配列をおく
-    m_inputTable["A"] = { { PeripheralType::keyboard,KEY_INPUT_Z },
+	m_inputTable["A"] = { { PeripheralType::keyboard,KEY_INPUT_Z },//Zキー
                           { PeripheralType::pad1,PAD_INPUT_1 } };//PADのAボタン
 
-    m_inputTable["B"] = { { PeripheralType::keyboard,KEY_INPUT_RETURN },
+	m_inputTable["B"] = { { PeripheralType::keyboard,KEY_INPUT_RETURN },//Enterキー
                           { PeripheralType::pad1,PAD_INPUT_2 } };//PADのBボタン
 
-    m_inputTable["X"] = { { PeripheralType::keyboard,KEY_INPUT_X },
+	m_inputTable["X"] = { { PeripheralType::keyboard,KEY_INPUT_X },//Xキー
                           { PeripheralType::pad1,PAD_INPUT_3 } };//PADのXボタン
 
-    m_inputTable["Y"] = { { PeripheralType::keyboard,KEY_INPUT_C },
+	m_inputTable["Y"] = { { PeripheralType::keyboard,KEY_INPUT_C },//Cキー
                           { PeripheralType::pad1,PAD_INPUT_4 } };//PADのYボタン
+
+    m_inputTable["RB"] = { { PeripheralType::keyboard,KEY_INPUT_E },//Eキー
+                          { PeripheralType::pad1,PAD_INPUT_6 } };//PADのRBボタン
+
+   // m_inputTable["RT"] = { { PeripheralType::keyboard,KEY_INPUT_R },//Rキー
+     //                     { PeripheralType::pad1,PAD_INPUT_8 } };//PADのRTボタン
+
+    m_inputTable["LB"] = { { PeripheralType::keyboard,KEY_INPUT_W },//Wキー
+                          { PeripheralType::pad1,PAD_INPUT_5 } };//PADのLBボタン
+
+    //m_inputTable["LT"] = { { PeripheralType::keyboard,KEY_INPUT_Q },//Qキー
+      //                    { PeripheralType::pad1,PAD_INPUT_7 } };//PADのLTボタン
 
 
     m_inputTable["="] = { { PeripheralType::keyboard,KEY_INPUT_V },
