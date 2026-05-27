@@ -69,28 +69,40 @@
     <ClCompile Include="System.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Character\Player\Player.cpp">
+    <ClCompile Include="Character\Player\Base\Player.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="DataLoader\DataManager.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Character\Player\PlayerState.cpp">
+    <ClCompile Include="Character\Player\Base\PlayerState.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Character\Player\PlayerStateIdle.cpp">
+    <ClCompile Include="Character\Player\Locomotion\PlayerStateIdle.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Character\Player\PlayerStateMove.cpp">
+    <ClCompile Include="Character\Player\Locomotion\PlayerStateMove.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Character\Player\PlayerStateAvoid.cpp">
+    <ClCompile Include="Character\Player\Defence\PlayerStateAvoid.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Character\Player\PlayerStateAttack.cpp">
+    <ClCompile Include="Character\Player\Attack\PlayerStateAttack.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Character\Player\PlayerStateParry.cpp">
+    <ClCompile Include="Character\Player\Defence\PlayerStateParry.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="SubWindow\SubWindow.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="Character\Player\Locomotion\PlayerStateRun.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="Character\Player\Attack\PlayerStateDashAttack.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="Character\Player\Attack\PlayerStateSkill.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
   </ItemGroup>
@@ -149,7 +161,7 @@
     <ClInclude Include="System.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Character\Player\Player.h">
+    <ClInclude Include="Character\Player\Base\Player.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="DataLoader\DataManager.h">
@@ -158,25 +170,37 @@
     <ClInclude Include="DataLoader\PlayerAnimData.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Character\Player\PlayerState.h">
+    <ClInclude Include="Character\Player\Base\PlayerState.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Character\Player\PlayerStateIdle.h">
+    <ClInclude Include="Character\Player\Locomotion\PlayerStateIdle.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Character\Player\PlayerStateMove.h">
+    <ClInclude Include="Character\Player\Locomotion\PlayerStateMove.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Character\Player\PlayerStateAvoid.h">
+    <ClInclude Include="Character\Player\Defence\PlayerStateAvoid.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Character\Player\PlayerStateAttack.h">
+    <ClInclude Include="Character\Player\Attack\PlayerStateAttack.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Character\Player\PlayerEnums.h">
+    <ClInclude Include="Character\Player\Base\PlayerEnums.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Character\Player\PlayerStateParry.h">
+    <ClInclude Include="Character\Player\Defence\PlayerStateParry.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="SubWindow\SubWindow.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Character\Player\Locomotion\PlayerStateRun.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Character\Player\Attack\PlayerStateDashAttack.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Character\Player\Attack\PlayerStateSkill.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
   </ItemGroup>

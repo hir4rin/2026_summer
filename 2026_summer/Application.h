@@ -1,4 +1,5 @@
 ﻿#pragma once
+#include <windows.h>
 
 
 struct Size
@@ -48,6 +49,11 @@ public:
 	/// アプリケーションを終了する命令を飛ばす
 	/// </summary>
 	void RequestExit();
+	/// <summary>
+	/// サブウィンドウの作成
+	/// </summary>
+	/// <param name="hInstance">WinMainから渡されるインスタンスハンドル</param>
+	void CreateSubWindow(HINSTANCE hInstance);
 };
 
 

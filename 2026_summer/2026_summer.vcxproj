@@ -76,7 +76,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>../DxLib_h</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../DxLib_h;$(ProjectDir)Character/Player/Attack;$(ProjectDir)Character/Player/Base;$(ProjectDir)Character/Player/Defence;$(ProjectDir)Character/Player/Locomotion;$(ProjectDir)Character</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
@@ -110,7 +110,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>../DxLib_h</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../DxLib_h;$(ProjectDir)Character/Player/Attack;$(ProjectDir)Character/Player/Base;$(ProjectDir)Character/Player/Defence;$(ProjectDir)Character/Player/Locomotion;$(ProjectDir)Character</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
@@ -149,13 +149,16 @@
     <ClCompile Include="Character\Collider.cpp" />
     <ClCompile Include="DataLoader\DataManager.cpp" />
     <ClCompile Include="Managers\CollisionManager.cpp" />
-    <ClCompile Include="Character\Player\Player.cpp" />
-    <ClCompile Include="Character\Player\PlayerState.cpp" />
-    <ClCompile Include="Character\Player\PlayerStateIdle.cpp" />
-    <ClCompile Include="Character\Player\PlayerStateMove.cpp" />
-    <ClCompile Include="Character\Player\PlayerStateAvoid.cpp" />
-    <ClCompile Include="Character\Player\PlayerStateAttack.cpp" />
-    <ClCompile Include="Character\Player\PlayerStateParry.cpp" />
+    <ClCompile Include="Character\Player\Base\Player.cpp" />
+    <ClCompile Include="Character\Player\Base\PlayerState.cpp" />
+    <ClCompile Include="Character\Player\Locomotion\PlayerStateIdle.cpp" />
+    <ClCompile Include="Character\Player\Locomotion\PlayerStateMove.cpp" />
+    <ClCompile Include="Character\Player\Defence\PlayerStateAvoid.cpp" />
+    <ClCompile Include="Character\Player\Attack\PlayerStateAttack.cpp" />
+    <ClCompile Include="Character\Player\Defence\PlayerStateParry.cpp" />
+    <ClCompile Include="Character\Player\Locomotion\PlayerStateRun.cpp" />
+    <ClCompile Include="Character\Player\Attack\PlayerStateDashAttack.cpp" />
+    <ClCompile Include="Character\Player\Attack\PlayerStateSkill.cpp" />
     <ClCompile Include="Scene\GameScene.cpp" />
     <ClCompile Include="Input.cpp" />
     <ClCompile Include="main.cpp" />
@@ -164,6 +167,7 @@
     <ClCompile Include="Math\Vector3.cpp" />
     <ClCompile Include="Scene\Scene.cpp" />
     <ClCompile Include="Scene\SceneController.cpp" />
+    <ClCompile Include="SubWindow\SubWindow.cpp" />
     <ClCompile Include="System.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -179,14 +183,17 @@
     <ClInclude Include="DataLoader\PlayerAnimData.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="Managers\CollisionManager.h" />
-    <ClInclude Include="Character\Player\Player.h" />
-    <ClInclude Include="Character\Player\PlayerState.h" />
-    <ClInclude Include="Character\Player\PlayerStateIdle.h" />
-    <ClInclude Include="Character\Player\PlayerStateMove.h" />
-    <ClInclude Include="Character\Player\PlayerStateAvoid.h" />
-    <ClInclude Include="Character\Player\PlayerStateAttack.h" />
-    <ClInclude Include="Character\Player\PlayerEnums.h" />
-    <ClInclude Include="Character\Player\PlayerStateParry.h" />
+    <ClInclude Include="Character\Player\Base\Player.h" />
+    <ClInclude Include="Character\Player\Base\PlayerState.h" />
+    <ClInclude Include="Character\Player\Locomotion\PlayerStateIdle.h" />
+    <ClInclude Include="Character\Player\Locomotion\PlayerStateMove.h" />
+    <ClInclude Include="Character\Player\Defence\PlayerStateAvoid.h" />
+    <ClInclude Include="Character\Player\Attack\PlayerStateAttack.h" />
+    <ClInclude Include="Character\Player\Base\PlayerEnums.h" />
+    <ClInclude Include="Character\Player\Defence\PlayerStateParry.h" />
+    <ClInclude Include="Character\Player\Locomotion\PlayerStateRun.h" />
+    <ClInclude Include="Character\Player\Attack\PlayerStateDashAttack.h" />
+    <ClInclude Include="Character\Player\Attack\PlayerStateSkill.h" />
     <ClInclude Include="Scene\GameScene.h" />
     <ClInclude Include="Input.h" />
     <ClInclude Include="Math\Matrix4x4.h" />
@@ -194,6 +201,7 @@
     <ClInclude Include="Math\Vector3.h" />
     <ClInclude Include="Scene\Scene.h" />
     <ClInclude Include="Scene\SceneController.h" />
+    <ClInclude Include="SubWindow\SubWindow.h" />
     <ClInclude Include="System.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

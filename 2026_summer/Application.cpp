@@ -6,6 +6,7 @@
 #include "Scene/GameScene.h"
 #include "DataLoader/DataManager.h"
 #include "Input.h"
+#include "SubWindow/SubWindow.h"
 
 constexpr int kWindowSizeW = 1920;	// デフォルトウィンドウ幅
 constexpr int kWindowSizeH = 1080;	// デフォルトウィンドウ高
@@ -49,6 +50,7 @@ bool Application::Init()
 	SetDrawScreen(DX_SCREEN_BACK);
 	// カリングの設定
 	SetUseBackCulling(true);
+
 	return true;
 }
 
@@ -67,7 +69,8 @@ void Application::Run()
 		LONGLONG time = GetNowHiPerformanceCount();
 		//画面のクリア
 		ClearDrawScreen();
-
+		//サブウィンドウのテキストをクリア
+		SubWindow::ClearText();
 
 		if (CheckHitKey(KEY_INPUT_R))
 		{
@@ -83,6 +86,7 @@ void Application::Run()
 		Input::GetInstance().Update();
 		controller.Update();
 		controller.Draw();
+		SubWindow::Draw();//サブウィンドウの描画
 		//裏画面と表画面を入れ替える
 		ScreenFlip();
 
@@ -113,5 +117,11 @@ const Size& Application::GetWindowSize() const
 void Application::RequestExit()
 {
 	m_requestedExit = true;
+}
+
+void Application::CreateSubWindow(HINSTANCE hInstance)
+{
+	//サブウィンドウの作成//引数で位置とサイズを指定できるようにする
+	//SubWindow::Create(hInstance, 1300, 0, 600, 400);
 }
 

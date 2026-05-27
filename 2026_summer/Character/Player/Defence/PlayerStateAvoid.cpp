@@ -1,8 +1,9 @@
 ﻿#include "PlayerStateAvoid.h"
 #include "Player.h"
-#include "../../Input.h"
-#include "../../Camera/Camera.h"
-#include "../../System.h"
+#include "../../../Input.h"
+#include "../../../Camera/Camera.h"
+#include "../../../System.h"
+#include "../../../Input.h"
 
 namespace 
 {
@@ -39,13 +40,24 @@ void PlayerStateAvoid::Update()
 {
 	auto player = m_owner.lock();
 	if (!player) return;
+	auto& input = Input::GetInstance();
 
 	player->m_avoidInfo.avoidCount += 1.0f * System::GetInstance().GetTimeScale();
 	if(player->m_avoidInfo.avoidCount >= kAvoidFrame)
 	{
-		//回避のフレーム数を超えたら、Idle状態に遷移する
-		player->ChangeState(std::make_shared<PlayerStateIdle>(m_owner));
-		return;
+		if (input.IsLeftStickInput())
+		{
+			//入力があればRun状態に遷移する
+			player->ChangeState(std::make_shared<PlayerStateRun>(m_owner));
+			return;
+		}
+		else
+		{
+			//回避のフレーム数を超えたら、Idle状態に遷移する
+			player->ChangeState(std::make_shared<PlayerStateIdle>(m_owner));
+			return;
+		}
+		
 	}
 
 	//アニメーションの更新

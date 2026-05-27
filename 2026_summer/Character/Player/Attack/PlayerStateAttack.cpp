@@ -1,6 +1,6 @@
 ﻿#include "PlayerStateAttack.h"
 #include "Player.h"
-#include "../../Input.h"
+#include "../../../Input.h"
 
 
 namespace
@@ -71,8 +71,6 @@ void PlayerStateAttack::Update()
 		player->ChangeState(std::make_shared<PlayerStateAvoid>(m_owner));
 		return;
 	}
-
-
 	float animRate = player->m_anim.GetAnimRate();
 	//コンボに移行
 	if (animRate >= 0.5f)
@@ -91,8 +89,17 @@ void PlayerStateAttack::Update()
 	{
 		//攻撃が終了したら、Idle状態に遷移する//コンボインデックスを初期化
 		AttackFinishProcess();
-		player->ChangeState(std::make_shared<PlayerStateIdle>(m_owner));
-		return;
+		if (input.IsLeftStickInput())
+		{
+			//入力があればMove状態に遷移する
+			player->ChangeState(std::make_shared<PlayerStateMove>(m_owner));
+			return;
+		}
+		else
+		{
+			player->ChangeState(std::make_shared<PlayerStateIdle>(m_owner));
+			return;
+		}
 	}
 	
 	//アニメーションの更新

@@ -2,9 +2,9 @@
 #include "PlayerState.h"
 #include "PlayerStateIdle.h"
 #include "PlayerStateMove.h"
-#include "../../DataLoader/DataManager.h"
-#include "../../System.h"
-#include "../../Math/Matrix4x4.h"
+#include "../../../DataLoader/DataManager.h"
+#include "../../../System.h"
+#include "../../../Math/Matrix4x4.h"
 #include <cmath>
 #include <cassert>
 #include <string>
@@ -70,6 +70,9 @@ void Player::Update(Camera& camera)
 	{
 		m_currentState->Update();//状態の更新
 	}
+
+	//座標の更新の前に、当たり判定の更新をする
+
 	//座標の更新
 	float timeScale = System::GetInstance().GetTimeScale();
 	m_pos += m_vel * timeScale;

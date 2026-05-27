@@ -1,12 +1,15 @@
 ﻿#pragma once
-#include "../CharacterBase.h"
+#include "../../CharacterBase.h"
 #include "PlayerEnums.h"
 #include "PlayerStateIdle.h"//他のStateから他のStateに遷移するため(便利)
 #include "PlayerStateMove.h"//以下同文
+#include "PlayerStateRun.h"//以下同文
 #include "PlayerStateAvoid.h"//以下同文
 #include "PlayerStateParry.h"//以下同文
 #include "PlayerStateAttack.h"//以下同文
-#include "../../DataLoader/PlayerAnimData.h"
+#include "PlayerStateDashAttack.h"//以下同文
+#include "PlayerStateSkill.h"//以下同文
+#include "../../../DataLoader/PlayerAnimData.h"
 #include <memory>
 
 
@@ -53,6 +56,7 @@ namespace ComboIndex
 	constexpr int HeavyAttack1 = 5;
 	constexpr int HeavyAttack2 = 6;
 	constexpr int HeavyAttack3 = 7;
+	constexpr int DashAttack = 8;
 };
 
 struct AvoidInfo
@@ -102,9 +106,12 @@ private:
 	friend class PlayerState;//PlayerStateクラスから、Playerクラスのprivateメンバにアクセスできるようにする
 	friend class PlayerStateIdle;
 	friend class PlayerStateMove;
+	friend class PlayerStateRun;
 	friend class PlayerStateAvoid;
 	friend class PlayerStateParry;
 	friend class PlayerStateAttack;
+	friend class PlayerStateDashAttack;
+	friend class PlayerStateSkill;
 
 };
 

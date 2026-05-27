@@ -1,35 +1,35 @@
-﻿#include "PlayerStateMove.h"
+﻿#include "PlayerStateRun.h"
+#include "PlayerStateRun.h"
 #include "Player.h"
-#include "../../Input.h"
-#include "../../Camera/Camera.h"
+#include "../../../Input.h"
+#include "../../../Camera/Camera.h"
 
 
 namespace
 {
-	const float kMoveSpeed = 6.0f;//移動速度
+	const float kRunSpeed = 10.0f;//移動速度
 }
 
-
-PlayerStateMove::PlayerStateMove(std::weak_ptr<Player> player):
+PlayerStateRun::PlayerStateRun(std::weak_ptr<Player> player):
 	PlayerState(player)
 {
 	//playerが既に破棄されていたら早期リターンする
 	if (m_owner.expired())return;
 }
 
-PlayerStateMove::~PlayerStateMove()
+PlayerStateRun::~PlayerStateRun()
 {
 }
 
-void PlayerStateMove::Enter()
+void PlayerStateRun::Enter()
 {
 	auto player = m_owner.lock();
 	if (!player) return;
 	//animationの初期化
-	player->m_anim.ChangeAnim(player->GetAnimName("Walk"), true);
+	player->m_anim.ChangeAnim(player->GetAnimName("Run"), true,0.5f);
 }
 
-void PlayerStateMove::Update()
+void PlayerStateRun::Update()
 {
 	//weak_ptrからshared_ptrを取得する
 	auto player = m_owner.lock();
@@ -42,11 +42,11 @@ void PlayerStateMove::Update()
 		return;
 	}
 	//攻撃状態に遷移する
-	if (input.IsTriggered("X"))//弱攻撃
+	if (input.IsTriggered("X"))//突進攻撃
 	{
-		player->ChangeState(std::make_shared<PlayerStateAttack>(m_owner, AttackType::lightAttack));
+		player->ChangeState(std::make_shared<PlayerStateDashAttack>(m_owner));
 		return;
-	}	
+	}
 	if (input.IsTriggered("Y"))//強攻撃
 	{
 		player->ChangeState(std::make_shared<PlayerStateAttack>(m_owner, AttackType::heavyAttack));
@@ -67,34 +67,32 @@ void PlayerStateMove::Update()
 	Move(input);
 }
 
-void PlayerStateMove::Exit()
+void PlayerStateRun::Exit()
 {
 }
 
-void PlayerStateMove::DebugDraw()
+void PlayerStateRun::DebugDraw()
 {
-	DrawFormatString(10, 10, GetColor(255, 255, 255), "PlayerState:Move");
+	DrawFormatString(10, 10, GetColor(255, 255, 255), "PlayerState:Run");
 }
 
-void PlayerStateMove::Move(Input& input)
+void PlayerStateRun::Move(Input& input)
 {
 	//weak_ptrからshared_ptrを取得する
 	auto player = m_owner.lock();
-	if (!player) return;	
+	if (!player) return;
 	//移動方向の初期化//毎フレーム、カメラからプレイヤーへのベクトルを求めて、移動方向を決める
 	{
 		//前後移動を最初に決める
 		Vector3 CameraToPlayer = player->m_pos - (player->m_camera->GetCameraPos());//カメラからプレイヤーへのベクトル
 		//初期化
-		Vector3 VelSize = CameraToPlayer.Normalize() * kMoveSpeed;//カメラからプレイヤーへのベクトルを正規化して、移動速度を5にする
+		Vector3 VelSize = CameraToPlayer.Normalize();//カメラからプレイヤーへのベクトルを正規化して、移動速度を5にする
 		VelSize.y = 0.0f;//y成分は移動に関係ないので、0にする
 
 		player->forward = VelSize.Normalize();
 		player->down = player->forward * -1.0f;
 		player->left = player->forward.Cross(Vector3(0, 1, 0)).Normalize();
 		player->right = player->left * -1.0f;
-		//攻撃中のコンボ後の方向入力を検知
-		//AttackAngleInput(input);
 	}
 	//移動入力をとる
 	if (input.IsPressed("Up"))
@@ -117,6 +115,5 @@ void PlayerStateMove::Move(Input& input)
 	//移動している間は目標のベクトルを更新する
 	player->m_targetVec = player->m_vel.Normalize();
 	//初期化
-	player->m_vel = player->m_vel.Normalize() * kMoveSpeed;//移動速度を5にする
-
+	player->m_vel = player->m_vel.Normalize() * kRunSpeed;//移動速度を5にする
 }

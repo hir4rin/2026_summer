@@ -1,8 +1,7 @@
 #key,animName
 Idle,Player|Idle_SB
 Walk,Player|Jog_SB
-kRunAnim,Player|Run
-kRunAnim2,Player|RunSmp
+Run,Player|RunSmp
 kWalkLikeNightAnim,Player|Walk_SB
 kAttackAnim,Player|MainAttack1
 kAttackAnim2,Player|MainAttack2
@@ -16,3 +15,4 @@ AvoidBack,Player|AvoidBack
 AvoidForward,Player|AvoidForward
 kDamageAnim,Player|Hit1
 Parry,Player|SubAttackCharge
+DashAttack,Player|MainAttack5

@@ -1,6 +1,6 @@
 ﻿#include "PlayerStateParry.h"
 #include "Player.h"
-#include "../../Input.h"
+#include "../../../Input.h"
 
 PlayerStateParry::PlayerStateParry(std::weak_ptr<Player> player):
 	PlayerState(player)
@@ -34,6 +34,8 @@ void PlayerStateParry::Update()
 	if (!input.IsPressed("LB"))
 	{
 		//LBボタンが離されたら、Idle状態に遷移する
+
+
 		player->ChangeState(std::make_shared<PlayerStateIdle>(m_owner));
 		return;
 	}

@@ -1,6 +1,7 @@
 ﻿#include "PlayerStateIdle.h"
 #include "Player.h"
-#include "../../Input.h"
+#include "../../../Input.h"
+#include "../../../SubWindow/SubWindow.h"
 
 PlayerStateIdle::PlayerStateIdle(std::weak_ptr<Player> player) :
 	PlayerState(player)
@@ -19,6 +20,7 @@ void PlayerStateIdle::Enter()
 	//animationの初期化
 	player->m_anim.ChangeAnim(player->GetAnimName("Idle"), true);
 	//移動速度を0にする//だんだん遅くするにする予定
+	//Runの後だったら専用の切り返しモーションとかやりたい
 	player->m_vel = Vector3(0, 0, 0);
 
 }
@@ -74,4 +76,5 @@ void PlayerStateIdle::Exit()
 void PlayerStateIdle::DebugDraw()
 {
 	DrawFormatString(10, 10, GetColor(255, 255, 255), "PlayerState:Idle");
+	SubWindow::AddText("PlayerState:Idle");
 }

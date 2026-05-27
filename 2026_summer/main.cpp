@@ -11,6 +11,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	{
 		return -1;
 	}
+	app.CreateSubWindow(hInstance);
 	app.Run();
 	app.Terminate();
 	return 0;
