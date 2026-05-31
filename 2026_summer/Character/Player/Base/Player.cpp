@@ -5,6 +5,7 @@
 #include "../../../DataLoader/DataManager.h"
 #include "../../../System.h"
 #include "../../../Math/Matrix4x4.h"
+#include "../../../Camera/Camera.h"
 #include <cmath>
 #include <cassert>
 #include <string>
@@ -13,7 +14,8 @@
 
 Player::Player()
 {
-	m_modelHandle = MV1LoadModel("data/Player/Player.mv1");;
+	//m_modelHandle = MV1LoadModel("data/Player/Player.mv1");
+	m_modelHandle = MV1LoadModel("data/Player/Niinja/Niinja.mv1");
 	//モデルの初期位置を設定する//前を向いているようにする
 	Matrix4x4 rotY = Matrix4x4::MakeRotationY(DX_PI_F);
 	MATRIX transmat = MGetTranslate(m_pos.ToDxLibVector());
@@ -22,9 +24,6 @@ Player::Player()
 	MV1SetMatrix(m_modelHandle, Matrix4x4::ToDxLibMatrix(mtx));
 	//当たり判定の初期化
 	ColInit(m_pos, 50.0f, ColliderType::Sphere, Tags::Player, true);//中心点、半径、当たり判定のタイプ、タグ、当たり判定が有効かどうか
-
-	
-
 	//コンボチェーンの初期化
 	InitializeComboChain();
 	//アニメーションの名前のマップの初期化
@@ -58,6 +57,8 @@ void Player::Update(Camera& camera)
 {
 	//カメラの更新
 	m_camera = &camera;
+	//ライト(雑実装)
+	m_camera->UpdateLight();
 
 	//回避のクールタイムの更新
 	if (m_avoidInfo.avoidCoolTimeCount > 0.0f)

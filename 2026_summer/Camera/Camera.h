@@ -29,6 +29,7 @@ public:
 	void Draw();
 	virtual void FixCameraPos();//カメラの位置を調整する
 	Vector3 GetCameraPos()const { return m_pos; }
+	Vector3 GetCameraTarget()const { return m_target; }
 
 	int GetPriority()const { return m_priority; }
 	void SetPriority(int priority) { m_priority = priority; }
@@ -48,6 +49,7 @@ public:
 	/// <param name="time">揺らす時間</param>
 	void StartCameraShake(Camera& camera, float power, float time);
 	Vector3 CameraShakeUpdate();
+	void UpdateLight();//ライトの位置を更新
 protected:
 	void InputRightStick();//右スティックの入力を処理する
 protected:
@@ -65,5 +67,7 @@ protected:
 	float m_shakeTimer = 0.0f;
 	float m_shakeTimerMax = 0.0f;//減衰用のコピー
 	bool m_isShaking = false;//今カメラが揺れているかどうか
+	//ライト
+	int m_lightHandle = -1;//ライトのハンドル
 };
 

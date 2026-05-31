@@ -15,10 +15,21 @@ Camera::Camera():
 	m_target(0.0f, 0.0f, 0.0f),
 	m_pos(0.0f, 300.0f, -700.0f)
 {
+	// ライトの初期化（ディレクショナルライト）
+	m_lightHandle = CreateDirLightHandle(VGet(0.0f, -1.0f, 1.0f));	
+	SetLightDifColorHandle(m_lightHandle, GetColorF(1.0f, 1.0f, 1.0f, 1.0f));//ディフューズカラーを白に設定
+	SetLightSpcColorHandle(m_lightHandle, GetColorF(0.5f, 0.5f, 0.5f, 1.0f));//スペキュラカラーをグレーに設定
+	SetLightAmbColorHandle(m_lightHandle, GetColorF(0.3f, 0.3f, 0.3f, 1.0f));//アンビエントカラーを暗めのグレーに設定
 }
 
 Camera::~Camera()
 {
+	// ライトの削除
+	if (m_lightHandle != -1)
+	{
+		DeleteLightHandle(m_lightHandle);
+		m_lightHandle = -1;
+	}
 }
 
 void Camera::TitleInit()
@@ -76,6 +87,17 @@ Vector3 Camera::CameraShakeUpdate()
 	return mag;
 	
 
+}
+
+void Camera::UpdateLight()
+{
+	if (m_lightHandle == -1) return;
+
+	// カメラの向き（カメラから注視点へのベクトル）を計算
+	Vector3 lightDir = (m_target - m_pos).Normalize();
+
+	// ライトの方向を設定（カメラと同じ方向を照らす）
+	SetLightDirectionHandle(m_lightHandle, lightDir.ToDxLibVector());
 }
 
 void Camera::InputRightStick()
