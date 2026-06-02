@@ -4,7 +4,7 @@
 
 namespace
 {
-	constexpr int kAnimChangeFrame = 10;//アニメーションを切り替えるフレーム数//ブレンドのフレームもアニメーションごとに変えたい
+	constexpr int kAnimChangeFrame = 20;//アニメーションを切り替えるフレーム数//ブレンドのフレームもアニメーションごとに変えたい
 }
 
 Animation::Animation():
@@ -103,6 +103,7 @@ void Animation::AnimBlend()
 		//timeScale
 		float timeScale = System::GetInstance().GetTimeScale();//時間のスケールを取得する//0から1の値を返す//0.5なら、時間が半分になる
 
+		//m_animtimeScaleを足さないといけないと思った
 		m_animChangeFrame += 1.0f * timeScale;//アニメーションを切り替えるフレーム数を増やす
 		//currentAnimBlendのブレンド率を計算
 		float rate = m_animChangeFrame / kAnimChangeFrame;//アニメーションを切り替えるフレーム数で割ることで、0から1までの値を作る
@@ -138,7 +139,7 @@ void Animation::ChangeAnim(std::string name,bool isRoop, float timescale)
 {
 	m_prevAnimTimeScale = m_animtimeScale;//前のアニメーションの再生速度を保存する
 	//m_animtimeScale = timescale;//アニメーションの再生速度を設定する
-	m_animtimeScale = 0.5f;
+	m_animtimeScale = 1.0f;
 
 	//アニメーションの切り替え
 	//攻撃終了の旗、ループするかどうかの旗を初期化
