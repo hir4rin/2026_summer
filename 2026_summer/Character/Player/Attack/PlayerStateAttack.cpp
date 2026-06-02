@@ -28,7 +28,7 @@ void PlayerStateAttack::Enter()
 	//攻撃の方向を決める
 	DetermineAttackDirection();
 	//アニメーションの初期化
-	int currentComboIndex = player->m_comboInfo.currentComboIndex;
+	int currentComboIndex = player->m_comboInfo.currentComboIndex;//現在のコンボインデックスを取得する
 	if(currentComboIndex == ComboIndex::None)//コンボの段数が-1のときは、最初のコンボを再生する
 	{
 		if(m_attackType == AttackType::lightAttack)

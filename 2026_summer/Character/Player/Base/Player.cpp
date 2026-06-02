@@ -6,6 +6,7 @@
 #include "../../../System.h"
 #include "../../../Math/Matrix4x4.h"
 #include "../../../Camera/Camera.h"
+#include "../../../SubWindow/SubWindow.h"
 #include <cmath>
 #include <cassert>
 #include <string>
@@ -15,7 +16,7 @@
 Player::Player()
 {
 	//m_modelHandle = MV1LoadModel("data/Player/Player.mv1");
-	m_modelHandle = MV1LoadModel("data/Player/Niinja/Niinja.mv1");
+	m_modelHandle = MV1LoadModel("data/Player/Player.mv1");
 	//モデルの初期位置を設定する//前を向いているようにする
 	Matrix4x4 rotY = Matrix4x4::MakeRotationY(DX_PI_F);
 	MATRIX transmat = MGetTranslate(m_pos.ToDxLibVector());
@@ -46,7 +47,7 @@ void Player::Init()
 	m_targetVec = Vector3(0, 0, 1);//最初は前を向いているようにする
 
 	//初期状態をIdleにする//アニメーションの初期化
-	m_anim.Init(m_modelHandle, GetAnimName("Idle"), true);
+	m_anim.Init(m_modelHandle,GetAnimName("Idle"), true);
 	//weak_from_this()は、shared_ptrを作成,
 	//Playerクラスのインスタンスから、Playerクラスのshared_ptrを取得できるようになる
 	m_currentState = std::make_shared<PlayerStateIdle>(weak_from_this());
@@ -86,6 +87,12 @@ void Player::Update(Camera& camera)
 void Player::Draw()
 {
 	MV1DrawModel(m_modelHandle);
+	//コンボチェーンの描画
+	for(int i = 0; i < m_comboChain.size(); ++i)
+	{
+		std::string text = std::to_string(i) + ": " + m_comboChain[i].animName;
+		SubWindow::AddText(text);
+	}
 #ifdef _DEBUG
 	if (m_currentState)
 	{
@@ -124,8 +131,8 @@ void Player::InitializeComboChain()
 
 	for (const auto& tokens : rawData)
 	{
-		//列数チェック
-		if (tokens.size() < 8)//vectorのサイズなので、push_backした行の数//攻撃の種類の数
+		//列数チェック//tokensはvector<string>で、1行分のデータが入っている//横
+		if (tokens.size() < ComboNodeType::Size)//vectorのサイズなので、push_backした行の数
 		{
 			assert(false && "ComboChain.csvの列数が不足しています");
 			continue;
@@ -133,13 +140,13 @@ void Player::InitializeComboChain()
 		ComboNode node;
 		node.animName = tokens[ComboNodeType::AnimName];
 		node.type = static_cast<AttackType>(std::stoi(tokens[ComboNodeType::Type]));
-		node.moveFrame = std::stof(tokens[ComboNodeType::MoveFrame]);
+		node.index = std::stoi(tokens[ComboNodeType::Index]);
+		node.moveFrame = std::stof(tokens[ComboNodeType::MoveTimeRate]);
 		node.moveSpeed = std::stof(tokens[ComboNodeType::MoveSpeed]);
 		//nextWeakAttack(空なら空vector)
-
-		if (!tokens[ComboNodeType::NextWeakAttack].empty())
+		if (!tokens[ComboNodeType::NextLightAttack].empty())
 		{
-			std::istringstream weakSS(tokens[ComboNodeType::NextWeakAttack]);
+			std::istringstream weakSS(tokens[ComboNodeType::NextLightAttack]);
 			std::string idx;
 			while (std::getline(weakSS, idx, ';'))
 			{
@@ -158,7 +165,6 @@ void Player::InitializeComboChain()
 		}
 		node.seFrameRate = std::stof(tokens[ComboNodeType::SeFrameRate]);
 		node.seName = tokens[ComboNodeType::SeName];
-		node.isEffectActive = false;
 		m_comboChain.push_back(node);
 	}
 

@@ -18,13 +18,13 @@ struct ComboNode
 {
 	std::string animName;//アニメーションの名
 	AttackType type;//攻撃するタイプ
+	int index = -1;//攻撃の種類を管理するための変数
 	float moveFrame = -1;//突進する時間
 	float moveSpeed = -1;//突進する速度
 	std::vector<int> nextWeakAttack;//弱攻撃ボタンでつながる次のコンボ番号
 	std::vector<int> nextHeavyAttack;//強攻撃ボタンでつながる次のコンボ番号
 	float seFrameRate = -1;//攻撃のSEを鳴らすフレームの割合//アニメーションの再生時間に対する割合で指定
 	std::string seName;//攻撃のSEの名前
-	bool isEffectActive = false;//強攻撃の最終段用	
 };
 struct ComboInfo
 {
@@ -33,16 +33,17 @@ struct ComboInfo
 };
 enum ComboNodeType : int
 {
-	None = -1,
-	AnimName = 0,
-	Type = 1,
-	MoveFrame = 2,
-	MoveSpeed = 3,
-	NextWeakAttack = 4,
-	NextHeavyAttack = 5,
-	SeFrameRate = 6,
-	SeName = 7,
-	IsEffectActive = 8
+	None = 0,
+	AnimName = 1,
+	Type = 2,
+	Index = 3,
+	MoveTimeRate = 4,
+	MoveSpeed = 5,
+	NextLightAttack = 6,
+	NextHeavyAttack = 7,
+	SeFrameRate = 8,
+	SeName = 9,
+	Size = 10,
 };
 namespace ComboIndex
 {
@@ -55,8 +56,18 @@ namespace ComboIndex
 
 	constexpr int HeavyAttack1 = 5;
 	constexpr int HeavyAttack2 = 6;
-	constexpr int HeavyAttack3 = 7;
-	constexpr int DashAttack = 8;
+
+	constexpr int upAttack = 7;
+
+	constexpr int AirAttack1 = 8;
+	constexpr int AirAttack2 = 9;
+	constexpr int AirAttack3 = 10;
+	constexpr int AirAttack4 = 11;
+	constexpr int AirAttack5 = 12;
+
+	constexpr int AirHeavyAttack1 = 13;
+
+	constexpr int DashAttack = 14;
 };
 
 struct AvoidInfo
@@ -95,7 +106,7 @@ private:
 	void UpdateAngle();//回転処理
 	bool IsAvoidable()const;//回避入力を受け付けるかどうか
 private:
-
+	
 	//コンボチェーン
 	std::vector<ComboNode> m_comboChain = {};//コンボのデータ
 	ComboInfo m_comboInfo = {};//コンボの情報//現在のコンボの段数などを管理するためのもの

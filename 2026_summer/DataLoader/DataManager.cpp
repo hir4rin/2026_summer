@@ -47,4 +47,5 @@ void DataManager::LoadComboRawData()
         }
 		m_comboRawData.push_back(tokens);//分割したトークンのベクターを生データとして保存する
     }
+    int i = 0;
 }

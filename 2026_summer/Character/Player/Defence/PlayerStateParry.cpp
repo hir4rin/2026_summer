@@ -18,7 +18,7 @@ void PlayerStateParry::Enter()
 	auto player = m_owner.lock();
 	if (!player) return;
 	//パリィのアニメーションの初期化
-	player->m_anim.ChangeAnim(player->GetAnimName("Parry"), false, player->GetTimeScale());
+	player->m_anim.ChangeAnim(player->GetAnimName("AttackPose"), false, player->GetTimeScale());
 	//速度の初期化
 	player->m_vel = Vector3(0, 0, 0);//パリィ中は動かないようにする
 
