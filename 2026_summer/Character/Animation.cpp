@@ -157,6 +157,9 @@ void Animation::ChangeAnim(std::string name,bool isRoop, float timescale)
 	//デタッチしたら消えてしまうので、デタッチせず、新しいアニメーションをアタッチする
 	int animNo = MV1GetAnimIndex(m_modelHandle, name.c_str());//アニメーション名からアニメーションのインデックスを取得する
 	m_currentAnimHandle = MV1AttachAnim(m_modelHandle, animNo, -1, -1);//新しいアニメーションをアタッチする
+
+
+
 	MV1SetAttachAnimBlendRate(m_modelHandle, m_currentAnimHandle, 0.0f); // 新アニメを非表示から開始
 	MV1SetAttachAnimBlendRate(m_modelHandle, m_prevAnimHandle, 1.0f);    // 旧アニメを完全表示に明示
 	m_currentAnimCount = 0.0f;//新しいアニメーションのフレーム数を0にする

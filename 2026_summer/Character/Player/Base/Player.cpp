@@ -81,7 +81,23 @@ void Player::Update(Camera& camera)
 
 	//回転処理//座標も行列で更新
 	UpdateAngle();
+	 
+	////ルートモーションONの場合、
+	////アニメーションが適用された後のモデルの行列を取得
+	//MATRIX modelMat = MV1GetMatrix(m_modelHandle);
 
+	////モデルの行列から、移動量を取得する
+	//m_pos.x = modelMat.m[3][0];
+	//m_pos.y = modelMat.m[3][1];
+	//m_pos.z = modelMat.m[3][2];
+	////Y軸回転角度を合わせる
+	//m_rotAngleY = atan2f(modelMat.m[0][2], modelMat.m[2][2]);//モデルの行列から、Y軸の回転角度を取得する
+
+	////方向ベクトルを同期
+	//m_targetVec.x = sinf(m_rotAngleY + DX_PI_F);
+	//m_targetVec.z = cosf(m_rotAngleY + DX_PI_F);
+	//m_targetVec.y = 0.0f;
+	//m_targetVec = m_targetVec.Normalize();
 
 }
 void Player::Draw()
