@@ -109,6 +109,9 @@ void Player::Draw()
 		std::string text = std::to_string(i) + ": " + m_comboChain[i].animName;
 		SubWindow::AddText(text);
 	}
+	std::string posText = "Pos: " + std::to_string(m_pos.x) + ", " + std::to_string(m_pos.y) + ", " + std::to_string(m_pos.z);
+
+	SubWindow::AddText(posText);
 #ifdef _DEBUG
 	if (m_currentState)
 	{

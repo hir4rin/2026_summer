@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include <string>
+#include <../Math/Vector3.h>
 /// <summary>
 /// Animationクラス(アニメーションさせるものに持たせる)
 /// </summary>
@@ -24,6 +25,10 @@ public:
 	bool GetAnimEndFlag() { return m_isEndAnim;}//アニメーションが終わったかどうかのフラグを返す
 	float GetAnimRate();//アニメーションの進行率を返す//0から1の値を返す
 
+	void SetRootMotionEnable(bool enable, int rootFrameIndex = 0);//ルートモーションの有効化を設定する//rootFrameIndexはルートモーションを適用するフレームのインデックス
+	Vector3 GetRootMotionDelta();//ルートモーションの移動量を返す//前フレームと現在のフレームのルート位置の差分を返す
+	MATRIX GetRootRotationDelta();//ルートモーションの回転量を返す//前フレームと現在のフレームのルート回転の差分を返す
+
 private:
 	int m_modelHandle;//モデルのハンドル
 	int m_currentAnimHandle;//現在のアニメーションのハンドル
@@ -41,6 +46,9 @@ private:
 	float m_animtimeScale = 1.0f;//アニメーションの再生速度を管理するための変数//1.0fが通常の速度で、0.5fなら半分の速度、2.0fなら倍の速度になる
 	float m_prevAnimTimeScale = 1.0f;//前のアニメーションの再生速度を管理するための変数
 
+	MATRIX m_prevRootMatrix;//前フレームのルート行列
+	int m_rootFrameIndex;//ルートフレームのインデックス
+	bool m_enableRootMotion;//ルートモーション有効フラグ
 
 };
 

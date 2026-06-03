@@ -178,3 +178,40 @@ float Animation::GetAnimRate()
 	float rate = m_currentAnimCount / totalAnimCount;//アニメーションのフレーム数をアニメーションの総フレーム数で割ることで、0から1までの値を作る
 	return rate;
 }
+
+void Animation::SetRootMotionEnable(bool enable, int rootFrameIndex)
+{
+		m_enableRootMotion = enable;
+		m_rootFrameIndex = rootFrameIndex;
+		m_prevRootMatrix = MV1GetFrameLocalMatrix(m_modelHandle, m_rootFrameIndex);//ルートフレームの行列を保存する
+}
+
+Vector3 Animation::GetRootMotionDelta()
+{
+	if (!m_enableRootMotion)return Vector3();//ルートモーションが無効なときは、移動量を0にする
+
+	MATRIX currentRootMatrix = MV1GetFrameLocalMatrix(m_modelHandle, m_rootFrameIndex);//現在のルートフレームの行列を取得する
+
+	//移動量の計算
+	float deltaX = currentRootMatrix.m[3][0] - m_prevRootMatrix.m[3][0];//現在のルート位置と前のルート位置の差分を計算する
+	float deltaY = currentRootMatrix.m[3][1] - m_prevRootMatrix.m[3][1];
+	float deltaZ = currentRootMatrix.m[3][2] - m_prevRootMatrix.m[3][2];
+
+	Vector3 delta = Vector3(deltaX, deltaY, deltaZ);
+	m_prevRootMatrix = currentRootMatrix;//現在のルート行列を保存する
+
+	return delta;
+}
+
+MATRIX Animation::GetRootRotationDelta()
+{
+	if (!m_enableRootMotion)return MGetIdent();//ルートモーションが無効なときは、回転量を0にする
+
+	MATRIX currentRotationMatrix = MV1GetFrameLocalMatrix(m_modelHandle, m_rootFrameIndex);//現在のルートフレームの行列を取得する	
+
+	//回転量の計算
+	//前フレームの逆行列 * 現在行列 = 差分回転
+	MATRIX delta = MMult(MInverse(m_prevRootMatrix), currentRotationMatrix);
+
+	return delta;
+}

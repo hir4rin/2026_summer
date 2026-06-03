@@ -30,6 +30,8 @@ void PlayerStateAvoid::Enter()
 
 	//回避方向を決定//回避アニメーションの初期化
 	DetermineAvoidDirection();
+	//ルートモーションを有効にする
+	//player->m_anim.SetRootMotionEnable(true, 1);
 	//回避の情報を初期化
 	player->m_avoidInfo.avoidCount = 0.0f;
 	player->m_avoidInfo.avoidCoolTimeCount = kAvoidCoolTime;//回避のクールタイムを12フレームに設定
@@ -64,6 +66,8 @@ void PlayerStateAvoid::Update()
 	player->m_anim.Update();
 	//速度の指定
 	player->m_vel = player->m_avoidInfo.BaseVel.Normalize() * kAvoidSpeed;//回避の速度を0.3fに設定//回避の方向を正規化して、速度を指定する
+	//Vector3 rootDelta = player->m_anim.GetRootMotionDelta();//ルートモーションの移動量を取得する
+	//player->m_vel = rootDelta * 1.0f;//ルートモーションの移動量に回避の速度を掛けることで、回避の移動量を指定する
 
 }
 
@@ -72,6 +76,8 @@ void PlayerStateAvoid::Exit()
 	auto player = m_owner.lock();
 	if (!player) return;
 
+	//ルートモーションを無効にする
+	player->m_anim.SetRootMotionEnable(false);
 	//回避の情報をリセットする
 	player->m_avoidInfo.BaseVel = Vector3();
 	player->m_avoidInfo.avoidCount = 0.0f;
