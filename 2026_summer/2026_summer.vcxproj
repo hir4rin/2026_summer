@@ -159,6 +159,7 @@
     <ClCompile Include="Character\Player\Locomotion\PlayerStateRun.cpp" />
     <ClCompile Include="Character\Player\Attack\PlayerStateDashAttack.cpp" />
     <ClCompile Include="Character\Player\Attack\PlayerStateSkill.cpp" />
+    <ClCompile Include="Character\Player\Locomotion\PlayerStateJump.cpp" />
     <ClCompile Include="Scene\GameScene.cpp" />
     <ClCompile Include="Input.cpp" />
     <ClCompile Include="main.cpp" />
@@ -194,6 +195,7 @@
     <ClInclude Include="Character\Player\Locomotion\PlayerStateRun.h" />
     <ClInclude Include="Character\Player\Attack\PlayerStateDashAttack.h" />
     <ClInclude Include="Character\Player\Attack\PlayerStateSkill.h" />
+    <ClInclude Include="Character\Player\Locomotion\PlayerStateJump.h" />
     <ClInclude Include="Scene\GameScene.h" />
     <ClInclude Include="Input.h" />
     <ClInclude Include="Math\Matrix4x4.h" />

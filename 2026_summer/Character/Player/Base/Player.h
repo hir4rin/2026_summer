@@ -4,6 +4,7 @@
 #include "PlayerStateIdle.h"//他のStateから他のStateに遷移するため(便利)
 #include "PlayerStateMove.h"//以下同文
 #include "PlayerStateRun.h"//以下同文
+#include "PlayerStateJump.h"//以下同文
 #include "PlayerStateAvoid.h"//以下同文
 #include "PlayerStateParry.h"//以下同文
 #include "PlayerStateAttack.h"//以下同文
@@ -12,7 +13,8 @@
 #include "../../../DataLoader/PlayerAnimData.h"
 #include <memory>
 
-
+class PlayerState;
+class Camera;
 
 struct ComboNode
 {
@@ -80,8 +82,7 @@ struct AvoidInfo
 	bool isAvoidBack = false;//後ろに回避するかどうかのフラグ	
 };
 
-class PlayerState;
-class Camera;
+
 
 class Player : public CharacterBase, public std::enable_shared_from_this<Player>//Playerクラスのインスタンスから、Playerクラスのshared_ptrを取得できるようになる
 {
@@ -118,6 +119,7 @@ private:
 	friend class PlayerStateIdle;
 	friend class PlayerStateMove;
 	friend class PlayerStateRun;
+	friend class PlayerStateJump;
 	friend class PlayerStateAvoid;
 	friend class PlayerStateParry;
 	friend class PlayerStateAttack;

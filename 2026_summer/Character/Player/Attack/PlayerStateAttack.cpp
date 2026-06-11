@@ -113,6 +113,7 @@ void PlayerStateAttack::Exit()
 void PlayerStateAttack::DebugDraw()
 {
 	DrawFormatString(10, 10, GetColor(255, 255, 255), "PlayerState:Attack");
+	DrawFormatString(10, 30, GetColor(255, 255, 255), "ComboIndex:%d", m_owner.lock()->m_comboInfo.currentComboIndex);
 }
 
 void PlayerStateAttack::AttackMoveMent()

@@ -63,6 +63,12 @@ void PlayerStateIdle::Update()
 		player->ChangeState(std::make_shared<PlayerStateAvoid>(m_owner));
 		return;
 	}
+	//ジャンプ
+	if (input.IsTriggered("B"))
+	{
+		player->ChangeState(std::make_shared<PlayerStateJump>(m_owner));
+		return;
+	}
 
 
 	//アニメーションの更新

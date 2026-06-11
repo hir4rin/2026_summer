@@ -9,3 +9,4 @@ DodgeLeft,Player|DodgeLeft
 DodgeRight,Player|DodgeRight
 AttackPose,Player|AttackPose
 wallKick,Player|kabeKick
+DashAttack,Player|ChangeDirection
