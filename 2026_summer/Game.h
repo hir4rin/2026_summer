@@ -9,9 +9,9 @@ namespace Game
 	constexpr int kColorBitNum = 32;
 
 	//重力
-	constexpr float kGravity = 0.6f;//重力の加速度//この数値を変えることで、ジャンプの高さや落ちる速さを調整できる
+	constexpr float kGravity = 1.0f;//重力の加速度//この数値を変えることで、ジャンプの高さや落ちる速さを調整できる
 
 	//Playerの移動スピード
 	constexpr float kMoveSpeed = 6.0f;//移動速度
-	constexpr float kAirMaxSpeed = 4.0f;//空中での最大移動速度
+	constexpr float kAirMaxSpeed = 5.5f;//空中での最大移動速度
 }

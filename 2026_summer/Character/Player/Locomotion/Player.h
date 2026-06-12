@@ -23,7 +23,8 @@ struct ComboNode
 	AttackType type;//攻撃するタイプ
 	int index = -1;//攻撃の種類を管理するための変数
 	float moveFrame = -1;//突進する時間
-	float moveSpeed = -1;//突進する速度
+	float moveSpeedX = 0;//前方向に突進する速度
+	float moveSpeedY = 0;//垂直方向の速度
 	std::vector<int> nextWeakAttack;//弱攻撃ボタンでつながる次のコンボ番号
 	std::vector<int> nextHeavyAttack;//強攻撃ボタンでつながる次のコンボ番号
 	float seFrameRate = -1;//攻撃のSEを鳴らすフレームの割合//アニメーションの再生時間に対する割合で指定
@@ -41,12 +42,13 @@ enum ComboNodeType : int
 	Type = 2,
 	Index = 3,
 	MoveTimeRate = 4,
-	MoveSpeed = 5,
-	NextLightAttack = 6,
-	NextHeavyAttack = 7,
-	SeFrameRate = 8,
-	SeName = 9,
-	Size = 10,
+	MoveSpeedX = 5,
+	MoveSpeedY = 6,
+	NextLightAttack = 7,
+	NextHeavyAttack = 8,
+	SeFrameRate = 9,
+	SeName = 10,
+	Size = 11,
 };
 namespace ComboIndex
 {

@@ -7,7 +7,7 @@
 
 namespace
 {
-	constexpr float kJumpInitVel = 12.0f;//ジャンプの初速//この数値を変えることで、ジャンプの高さを調整できる
+	constexpr float kJumpInitVel = 16.0f;//ジャンプの初速//この数値を変えることで、ジャンプの高さを調整できる
 }
 
 

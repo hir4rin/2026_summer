@@ -92,8 +92,11 @@ void PlayerStateAttack::Update()
 			return;
 		}
 	}
-	//コンボ予約がなく、アニメーションが終わったとき
-	if (player->m_anim.GetAnimEndFlag())
+
+	//コンボ予約がなく、アニメーションが終わったとき//落下攻撃ではないとき
+	int currentComboIndex = player->m_comboInfo.currentComboIndex;
+	const ComboNode& node = player->m_comboChain[currentComboIndex];
+	if (player->m_anim.GetAnimEndFlag() && node.moveSpeedY >= 0)
 	{
 		//攻撃が終了したら、Idle状態に遷移する//コンボインデックスを初期化
 		AttackFinishProcess();
@@ -116,8 +119,18 @@ void PlayerStateAttack::Update()
 			player->ChangeState(std::make_shared<PlayerStateFall>(m_owner));
 			return;
 		}
-
-		
+	}
+	else if(node.moveSpeedY < 0)//落下攻撃の時は、地面と当たるまで//一旦地面に当たるまで
+	{
+		if (player->m_pos.y <= 0.0f)//地面と当たったとき
+		{
+			player->m_isGround = true;//地面にいる状態にする
+			player->m_pos.y = 0.0f;//地面に埋まらないようにする
+			player->m_vel.y = 0.0f;//y軸の速度を0にする
+			AttackFinishProcess();
+			player->ChangeState(std::make_shared<PlayerStateIdle>(m_owner));
+			return;
+		}
 	}
 	
 	//アニメーションの更新
@@ -143,15 +156,38 @@ void PlayerStateAttack::AttackMoveMent()
 	const ComboNode& node = player->m_comboChain[currentComboIndex];
 	float rate = player->m_anim.GetAnimRate();//アニメーションの進行率を取得
 
-	//コンボノードで設定された時間内だけ突進
-	if (rate < node.moveFrame)
+	//上下差がない攻撃とある攻撃で処理を分ける//moveSpeedYが0のときは、上下差がない攻撃とする
+	if (node.moveSpeedY == 0)
 	{
-		player->m_vel = player->m_targetVec * node.moveSpeed;//攻撃の最初の数秒は前に突進する
+		//コンボノードで設定された時間内だけ突進
+		if (rate < node.moveFrame)
+		{
+			player->m_vel = player->m_targetVec * node.moveSpeedX;//攻撃の最初の数秒は前に突進する
+		}
+		else
+		{
+			player->m_vel = Vector3(0, 0, 0);//突進が終わったら、速度を0にする
+		}
 	}
-	else
+	else//上下差あり
 	{
-		player->m_vel = Vector3(0, 0, 0);//突進が終わったら、速度を0にする
+		//下方向は時間なし//上方向は時間制限あり
+		if(node.moveSpeedY > 0)//上向き
+		{
+			if (rate < node.moveFrame)
+			{
+				player->m_vel = player->m_targetVec * node.moveSpeedX + Vector3(0, node.moveSpeedY, 0);
+			}
+			player->m_isGround = false;//ジャンプ状態
+		}
+		else//下向き//常に下方向の速度を与える
+		{
+			player->m_vel = player->m_targetVec * node.moveSpeedX + Vector3(0, node.moveSpeedY, 0);
+		}
+		
+
 	}
+	
 }
 
 void PlayerStateAttack::DetermineAttackDirection()

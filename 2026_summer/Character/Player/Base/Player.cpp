@@ -161,7 +161,8 @@ void Player::InitializeComboChain()
 		node.type = static_cast<AttackType>(std::stoi(tokens[ComboNodeType::Type]));
 		node.index = std::stoi(tokens[ComboNodeType::Index]);
 		node.moveFrame = std::stof(tokens[ComboNodeType::MoveTimeRate]);
-		node.moveSpeed = std::stof(tokens[ComboNodeType::MoveSpeed]);
+		node.moveSpeedX = std::stof(tokens[ComboNodeType::MoveSpeedX]);
+		node.moveSpeedY = std::stof(tokens[ComboNodeType::MoveSpeedY]);
 		//nextWeakAttack(空なら空vector)
 		if (!tokens[ComboNodeType::NextLightAttack].empty())
 		{

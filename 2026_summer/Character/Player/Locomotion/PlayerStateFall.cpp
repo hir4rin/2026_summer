@@ -36,6 +36,7 @@ void PlayerStateFall::Update()
 	if (player->m_pos.y <= 0.0f)
 	{
 		player->m_pos.y = 0.0f;//地面に埋まらないようにする
+		player->m_vel.y = 0.0f;//y軸の速度を0にする
 		//ジャンプ状態を解除
 		player->m_isGround = true;//地面にいる状態にする
 		if (input.IsLeftStickInput())

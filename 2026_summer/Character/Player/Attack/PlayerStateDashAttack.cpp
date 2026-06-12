@@ -67,7 +67,7 @@ void PlayerStateDashAttack::AttackMove()
 	//コンボノードで設定された時間内だけ突進
 	if (rate < node.moveFrame)
 	{
-		player->m_vel = player->m_targetVec * node.moveSpeed;//攻撃の最初の数秒は前に突進する
+		player->m_vel = player->m_targetVec * node.moveSpeedX;//攻撃の最初の数秒は前に突進する
 	}
 	else
 	{
