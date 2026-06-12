@@ -23,5 +23,11 @@ protected:
 	//状態からプレイヤーの情報にアクセスするためのもの
 	//循環参照を避けるために弱い参照を使う
 	std::weak_ptr<Player> m_owner;
+
+	//カメラと入力方向からPlayerの移動方向を決める
+	void HandlerInput();
+	//XZ平面の速度制限
+	void ClampSpeed();
+
 };
 

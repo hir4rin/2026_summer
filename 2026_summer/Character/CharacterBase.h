@@ -54,7 +54,7 @@ protected:
 	AttackPower m_attackPower = AttackPower::None;//攻撃力
 
 	float m_ownTimeScale =1.0f;//自分のtimeScale
-
+	bool m_isGround = true;//地面にいるかどうか
 	bool m_isHit = false;//攻撃を喰らったか
 	bool m_isDead = false;//死んでいるか
 	//参照用のカメラ

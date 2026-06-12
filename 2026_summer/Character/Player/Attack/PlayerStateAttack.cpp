@@ -33,11 +33,13 @@ void PlayerStateAttack::Enter()
 	{
 		if(m_attackType == AttackType::lightAttack)
 		{
-			currentComboIndex = ComboIndex::LightAttack1;//弱攻撃の最初の段数を0に設定する
+			if (player->m_isGround)currentComboIndex = ComboIndex::LightAttack1;//弱攻撃の最初の段数を0に設定する
+			else currentComboIndex = ComboIndex::AirAttack1;//空中攻撃1
 		}
 		else if(m_attackType == AttackType::heavyAttack)
 		{
-			currentComboIndex = ComboIndex::HeavyAttack1;//強攻撃の最初の段数を1に設定する//今回は、弱攻撃が0番目、強攻撃が1番目の段数から始まるようにする
+			if (player->m_isGround)currentComboIndex = ComboIndex::HeavyAttack1;//強攻撃の最初の段数を1に設定する//今回は、弱攻撃が0番目、強攻撃が1番目の段数から始まるようにする
+			else currentComboIndex = ComboIndex::AirHeavyAttack1;//空中強攻撃1
 		}
 		//現在のコンボの段数を更新する
 		player->m_comboInfo.currentComboIndex = currentComboIndex;
@@ -65,10 +67,16 @@ void PlayerStateAttack::Update()
 	//コンボ予約の入力を取る
 	AttackInputCheck();
 	//回避
-	if(input.IsTriggered("A") && player->IsAvoidable())
+	if(input.IsTriggered("B") && player->IsAvoidable())
 	{
 		AttackFinishProcess();//攻撃の段数を初期化するなどの処理
 		player->ChangeState(std::make_shared<PlayerStateAvoid>(m_owner));
+		return;
+	}
+	//ジャンプ
+	if (input.IsTriggered("A"))
+	{
+		player->ChangeState(std::make_shared<PlayerStateJump>(m_owner));
 		return;
 	}
 	float animRate = player->m_anim.GetAnimRate();
@@ -89,17 +97,27 @@ void PlayerStateAttack::Update()
 	{
 		//攻撃が終了したら、Idle状態に遷移する//コンボインデックスを初期化
 		AttackFinishProcess();
-		if (input.IsLeftStickInput())
+		if (player->m_isGround)
 		{
-			//入力があればMove状態に遷移する
-			player->ChangeState(std::make_shared<PlayerStateMove>(m_owner));
+			if (input.IsLeftStickInput())
+			{
+				//入力があればMove状態に遷移する
+				player->ChangeState(std::make_shared<PlayerStateMove>(m_owner));
+				return;
+			}
+			else
+			{
+				player->ChangeState(std::make_shared<PlayerStateIdle>(m_owner));
+				return;
+			}
+		}
+		else//空中は落下状態に移行
+		{
+			player->ChangeState(std::make_shared<PlayerStateFall>(m_owner));
 			return;
 		}
-		else
-		{
-			player->ChangeState(std::make_shared<PlayerStateIdle>(m_owner));
-			return;
-		}
+
+		
 	}
 	
 	//アニメーションの更新

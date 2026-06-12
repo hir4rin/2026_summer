@@ -1,6 +1,6 @@
 ﻿#include "GameScene.h"
 #include "../Camera/CameraManager.h"
-#include "../Character/Player/Base/Player.h"
+#include "Player.h"
 
 GameScene::GameScene(SceneController& controller):Scene(controller)
 {

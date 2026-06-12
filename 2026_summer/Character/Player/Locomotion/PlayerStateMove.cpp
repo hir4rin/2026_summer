@@ -2,12 +2,8 @@
 #include "Player.h"
 #include "../../../Input.h"
 #include "../../../Camera/Camera.h"
+#include "../../../Game.h"
 
-
-namespace
-{
-	const float kMoveSpeed = 6.0f;//移動速度
-}
 
 
 PlayerStateMove::PlayerStateMove(std::weak_ptr<Player> player):
@@ -54,9 +50,15 @@ void PlayerStateMove::Update()
 	}
 
 	//回避状態に遷移する
-	if (input.IsTriggered("A") && player->IsAvoidable())
+	if (input.IsTriggered("B") && player->IsAvoidable())
 	{
 		player->ChangeState(std::make_shared<PlayerStateAvoid>(m_owner));
+		return;
+	}
+	//ジャンプ
+	if (input.IsTriggered("A"))
+	{
+		player->ChangeState(std::make_shared<PlayerStateJump>(m_owner));
 		return;
 	}
 
@@ -81,21 +83,25 @@ void PlayerStateMove::Move(Input& input)
 	//weak_ptrからshared_ptrを取得する
 	auto player = m_owner.lock();
 	if (!player) return;	
-	//移動方向の初期化//毎フレーム、カメラからプレイヤーへのベクトルを求めて、移動方向を決める
-	{
-		//前後移動を最初に決める
-		Vector3 CameraToPlayer = player->m_pos - (player->m_camera->GetCameraPos());//カメラからプレイヤーへのベクトル
-		//初期化
-		Vector3 VelSize = CameraToPlayer.Normalize();//カメラからプレイヤーへのベクトルを正規化して、移動速度を5にする
-		VelSize.y = 0.0f;//y成分は移動に関係ないので、0にする
+	//関数化したところ
+	////移動方向の初期化//毎フレーム、カメラからプレイヤーへのベクトルを求めて、移動方向を決める
+	//{
+	//	//前後移動を最初に決める
+	//	Vector3 CameraToPlayer = player->m_pos - (player->m_camera->GetCameraPos());//カメラからプレイヤーへのベクトル
+	//	//初期化
+	//	Vector3 VelSize = CameraToPlayer.Normalize();//カメラからプレイヤーへのベクトルを正規化して、移動速度を5にする
+	//	VelSize.y = 0.0f;//y成分は移動に関係ないので、0にする
 
-		player->forward = VelSize.Normalize();
-		player->down = player->forward * -1.0f;
-		player->left = player->forward.Cross(Vector3(0, 1, 0)).Normalize();
-		player->right = player->left * -1.0f;
-		//攻撃中のコンボ後の方向入力を検知
-		//AttackAngleInput(input);
-	}
+	//	player->forward = VelSize.Normalize();
+	//	player->down = player->forward * -1.0f;
+	//	player->left = player->forward.Cross(Vector3(0, 1, 0)).Normalize();
+	//	player->right = player->left * -1.0f;
+	//	//攻撃中のコンボ後の方向入力を検知
+	//	//AttackAngleInput(input);
+	//}
+
+
+	HandlerInput();
 	//移動入力をとる
 	if (input.IsPressed("Up"))
 	{
@@ -117,6 +123,6 @@ void PlayerStateMove::Move(Input& input)
 	//移動している間は目標のベクトルを更新する
 	player->m_targetVec = player->m_vel.Normalize();
 	//初期化
-	player->m_vel = player->m_vel.Normalize() * kMoveSpeed;//移動速度を5にする
+	player->m_vel = player->m_vel.Normalize() * Game::kMoveSpeed;//移動速度を5にする
 
 }

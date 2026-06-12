@@ -5,6 +5,7 @@
 #include "PlayerStateMove.h"//以下同文
 #include "PlayerStateRun.h"//以下同文
 #include "PlayerStateJump.h"//以下同文
+#include "PlayerStateFall.h"//以下同文
 #include "PlayerStateAvoid.h"//以下同文
 #include "PlayerStateParry.h"//以下同文
 #include "PlayerStateAttack.h"//以下同文
@@ -65,11 +66,10 @@ namespace ComboIndex
 	constexpr int AirAttack2 = 9;
 	constexpr int AirAttack3 = 10;
 	constexpr int AirAttack4 = 11;
-	constexpr int AirAttack5 = 12;
 
-	constexpr int AirHeavyAttack1 = 13;
+	constexpr int AirHeavyAttack1 = 12;
 
-	constexpr int DashAttack = 14;
+	constexpr int DashAttack = 13;
 };
 
 struct AvoidInfo
@@ -81,8 +81,6 @@ struct AvoidInfo
 	float avoidCoolTimeCount = 0.0f;//回避のクールタイムのカウント//回避のクールタイムを管理するためのカウント
 	bool isAvoidBack = false;//後ろに回避するかどうかのフラグ	
 };
-
-
 
 class Player : public CharacterBase, public std::enable_shared_from_this<Player>//Playerクラスのインスタンスから、Playerクラスのshared_ptrを取得できるようになる
 {
@@ -107,7 +105,6 @@ private:
 	void UpdateAngle();//回転処理
 	bool IsAvoidable()const;//回避入力を受け付けるかどうか
 private:
-	
 	//コンボチェーン
 	std::vector<ComboNode> m_comboChain = {};//コンボのデータ
 	ComboInfo m_comboInfo = {};//コンボの情報//現在のコンボの段数などを管理するためのもの
@@ -120,6 +117,7 @@ private:
 	friend class PlayerStateMove;
 	friend class PlayerStateRun;
 	friend class PlayerStateJump;
+	friend class PlayerStateFall;
 	friend class PlayerStateAvoid;
 	friend class PlayerStateParry;
 	friend class PlayerStateAttack;

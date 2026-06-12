@@ -11,11 +11,10 @@
 #˜AŒg‹Z,,,,,,,,,
 Ø‚èã‚°UŒ‚,Player|upAttack,1,7,0.2,12,,,0.35,airSlash
 #‹ó’†ãUŒ‚,,,,,,,,,
-‹ó’†ãUŒ‚1,Player|AirAttack1,0,8,0.2,12,9,13,0.25,airSlash
-‹ó’†ãUŒ‚2,Player|AirAttack2,0,9,0.2,20,10,13,0.06,airSlash
-‹ó’†ãUŒ‚3,Player|AirAttack3,0,10,0.2,12,11,13,0.06,airSlash
-‹ó’†ãUŒ‚4,Player|AirAttack4,0,11,0.2,12,12,13,0.06,airSlash
-‹ó’†ãUŒ‚5,Player|AirAttack5,0,12,0.2,12,,,0.06,airSlash
+‹ó’†ãUŒ‚1,Player|AirAttack1,0,8,0.2,12,9,12,0.25,airSlash
+‹ó’†ãUŒ‚2,Player|AirAttack2,0,9,0.2,20,10,12,0.06,airSlash
+‹ó’†ãUŒ‚3,Player|AirAttack3,0,10,0.2,12,11,12,0.06,airSlash
+‹ó’†ãUŒ‚4,Player|AirAttack4,0,11,0.2,12,,,0.06,airSlash
 #‹ó’†‹­UŒ‚,,,,,,,,,
-‹ó’†‹­UŒ‚1,Player|HeavyAttack2,1,13,0.2,12,,,0.06,airSlash
-ƒ_ƒbƒVƒ…UŒ‚,,0,14,0.4,10,,,0.06,airSlash
+‹ó’†‹­UŒ‚1,Player|HeavyAttack2,1,12,0.2,12,,,0.06,airSlash
+ƒ_ƒbƒVƒ…UŒ‚,,0,13,0.4,10,,,0.06,airSlash

@@ -54,9 +54,15 @@ void PlayerStateRun::Update()
 	}
 
 	//回避状態に遷移する
-	if (input.IsTriggered("A") && player->IsAvoidable())
+	if (input.IsTriggered("B") && player->IsAvoidable())
 	{
 		player->ChangeState(std::make_shared<PlayerStateAvoid>(m_owner));
+		return;
+	}
+	//ジャンプ
+	if (input.IsTriggered("A"))
+	{
+		player->ChangeState(std::make_shared<PlayerStateJump>(m_owner));
 		return;
 	}
 
