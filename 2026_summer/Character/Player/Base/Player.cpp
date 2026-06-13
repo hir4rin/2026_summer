@@ -209,14 +209,13 @@ void Player::UpdateAngle()
 		while (difference < -DX_PI_F) difference += 2.0f * DX_PI_F;
 		//targetAngle + DX_PI_F
 		m_rotAngleY += difference * 0.1f;//回転角度を少しずつ目標の角度に近づける//ほぼlerp
-
+	}	
 		Matrix4x4 rotY = Matrix4x4::MakeRotationY(m_rotAngleY);
 		MATRIX transmat = MGetTranslate(m_pos.ToDxLibVector());
 		Matrix4x4 trans = Matrix4x4::FromDxLibMatrix(transmat);
 
 		Matrix4x4 mtx = trans * rotY;
 		MV1SetMatrix(m_modelHandle, Matrix4x4::ToDxLibMatrix(mtx));
-	}	
 }
 
 bool Player::IsAvoidable() const

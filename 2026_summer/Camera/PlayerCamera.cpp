@@ -53,7 +53,7 @@ void PlayerCamera::Update(Vector3 pos, Vector3 pos2)
 
 	//ターゲットの位置を更新
 	Vector3 playerPos = pos;
-	playerPos.y = 0.0f;//プレイヤーのy座標は0にする
+	//playerPos.y = 0.0f;//プレイヤーのy座標は0にする
 	m_target = playerPos + kCameraHeight;
 
 	//カメラの位置を調整する

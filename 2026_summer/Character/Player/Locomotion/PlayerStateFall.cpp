@@ -107,8 +107,9 @@ void PlayerStateFall::Move(Input& input)
 	player->m_vel = m_baseVel + dimention + velY;
 	//速度制限
 	ClampSpeed();
-	//移動している間は目標のベクトルを更新する
-	player->m_targetVec = player->m_vel.Normalize();
+	//移動している間は目標のベクトルを更新する//2次元方向のみ
+	Vector3 targetVec = Vector3(player->m_vel.x, 0.0f, player->m_vel.z);
+	if(targetVec.Magnitude() > 0.0f)player->m_targetVec = targetVec.Normalize();
 	////初期化
 	//Vector3 dimention = Vector3(player->m_vel.x, 0, player->m_vel.z);//x,z成分だけを取り出す
 	//dimention = dimention.Normalize() * Game::kMoveSpeed * 0.8f;//移動速度は通常の0.8倍

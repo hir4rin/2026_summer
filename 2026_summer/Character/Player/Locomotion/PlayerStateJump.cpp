@@ -106,6 +106,7 @@ void PlayerStateJump::Move(Input& input)
 	//速度制限
 	ClampSpeed();
 
-	//移動している間は目標のベクトルを更新する
-	player->m_targetVec = player->m_vel.Normalize();
+	//移動している間は目標のベクトルを更新する//2次元方向のみ
+	Vector3 targetVec = Vector3(player->m_vel.x, 0.0f, player->m_vel.z);
+	if (targetVec.Magnitude() > 0.0f)player->m_targetVec = targetVec.Normalize();
 }

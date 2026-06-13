@@ -1,5 +1,6 @@
 ﻿#include "PlayerStateAttack.h"
 #include "Player.h"
+#include "../../../Game.h"
 #include "../../../Input.h"
 
 
@@ -52,7 +53,18 @@ void PlayerStateAttack::Enter()
 	}
 
 	const ComboNode& node = player->m_comboChain[currentComboIndex];
-	player->m_anim.ChangeAnim(node.animName, false, player->GetTimeScale());
+	player->m_anim.ChangeAnim(node.animName, false,0.5f);
+
+
+	//上下差がある攻撃の時はここで初速を与える
+	if (node.moveSpeedY != 0)
+	{
+		player->m_vel = player->m_targetVec * node.moveSpeedX + Vector3(0, node.moveSpeedY, 0);
+		if (node.moveSpeedY > 0)
+		{
+			player->m_isGround = false;//ジャンプ状態にする
+		}
+	}
 }
 
 void PlayerStateAttack::Update()
@@ -126,7 +138,7 @@ void PlayerStateAttack::Update()
 		{
 			player->m_isGround = true;//地面にいる状態にする
 			player->m_pos.y = 0.0f;//地面に埋まらないようにする
-			player->m_vel.y = 0.0f;//y軸の速度を0にする
+			player->m_vel = Vector3(0, 0, 0);//突進が終わったら、速度を0にする
 			AttackFinishProcess();
 			player->ChangeState(std::make_shared<PlayerStateIdle>(m_owner));
 			return;
@@ -171,18 +183,20 @@ void PlayerStateAttack::AttackMoveMent()
 	}
 	else//上下差あり
 	{
+		//重力
+		player->m_vel += Vector3(0, -Game::kGravity, 0);
+
 		//下方向は時間なし//上方向は時間制限あり
 		if(node.moveSpeedY > 0)//上向き
 		{
-			if (rate < node.moveFrame)
+			if (player->m_vel.y <= 0)//速度が0になったら上昇終了
 			{
-				player->m_vel = player->m_targetVec * node.moveSpeedX + Vector3(0, node.moveSpeedY, 0);
+				//player->m_vel = player->m_targetVec * node.moveSpeedX + Vector3(0, 0, 0);
+				player->m_vel = Vector3(0, 0, 0);//終わったら、速度を0にする
 			}
-			player->m_isGround = false;//ジャンプ状態
 		}
 		else//下向き//常に下方向の速度を与える
 		{
-			player->m_vel = player->m_targetVec * node.moveSpeedX + Vector3(0, node.moveSpeedY, 0);
 		}
 		
 
@@ -199,7 +213,7 @@ void PlayerStateAttack::DetermineAttackDirection()
 	auto& camera = player->m_camera;
 	Vector3 attackDir = Vector3(0, 0, 0);
 
-	//回避の方向を決める//カメラの向きと入力から、回避の方向を決める
+	//攻撃の方向を決める//カメラの向きと入力から、回避の方向を決める
 	if (input.IsPressed("Up"))
 	{
 		attackDir += player->forward;
@@ -281,4 +295,6 @@ void PlayerStateAttack::AttackFinishProcess()
 	auto player = m_owner.lock();
 	if (!player) return;
 	player->m_comboInfo.currentComboIndex = ComboIndex::None;//攻撃していない状態に戻す
+	//y軸の速度を0に戻す
+	player->m_vel.y = 0.0f;
 }

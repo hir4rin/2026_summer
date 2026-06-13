@@ -14,4 +14,9 @@ namespace Game
 	//Playerの移動スピード
 	constexpr float kMoveSpeed = 6.0f;//移動速度
 	constexpr float kAirMaxSpeed = 5.5f;//空中での最大移動速度
+
+
+	//敵の移動スピード
+	constexpr float kEnemyMoveSpeed = 4.0f;//敵の移動速度
+	constexpr float kEnemyBackSpeed = 15.0f;//敵の距離を取るときの移動速度
 }

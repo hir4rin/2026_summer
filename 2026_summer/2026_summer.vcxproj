@@ -148,6 +148,8 @@
     <ClCompile Include="Character\CharacterBase.cpp" />
     <ClCompile Include="Character\Collider.cpp" />
     <ClCompile Include="DataLoader\DataManager.cpp" />
+    <ClCompile Include="Character\Enemy\EnemyBase.cpp" />
+    <ClCompile Include="Character\Enemy\Swordman\EnemySwordman.cpp" />
     <ClCompile Include="Managers\CollisionManager.cpp" />
     <ClCompile Include="Character\Player\Base\Player.cpp" />
     <ClCompile Include="Character\Player\Base\PlayerState.cpp" />
@@ -183,6 +185,8 @@
     <ClInclude Include="Character\Collider.h" />
     <ClInclude Include="DataLoader\DataManager.h" />
     <ClInclude Include="DataLoader\PlayerAnimData.h" />
+    <ClInclude Include="Character\Enemy\EnemyBase.h" />
+    <ClInclude Include="Character\Enemy\Swordman\EnemySwordman.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="Managers\CollisionManager.h" />
     <ClInclude Include="Character\Player\Locomotion\Player.h" />

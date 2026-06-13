@@ -2,6 +2,11 @@
 #include "../Camera/CameraManager.h"
 #include "Player.h"
 
+namespace
+{
+	constexpr int kGridRange = 2400;//グリッドのサイズ
+}
+
 GameScene::GameScene(SceneController& controller):Scene(controller)
 {
 	//基底クラスに継承先のポインタをキャストして代入する
@@ -67,16 +72,16 @@ void GameScene::DrawGrid()
 	VECTOR startPos;
 	VECTOR endPos;
 
-	for (int z = -300; z <= 300; z += 100)
+	for (int z = -kGridRange; z <= kGridRange; z += 100)
 	{
-		startPos = VGet(-300.0f, 0.0f, static_cast<float>(z));
-		endPos = VGet(300.0f, 0.0f, static_cast<float>(z));
+		startPos = VGet(-kGridRange, 0.0f, static_cast<float>(z));
+		endPos = VGet(kGridRange, 0.0f, static_cast<float>(z));
 		DrawLine3D(startPos, endPos, 0xff0000);
 	}
-	for (int x = -300; x <= 300; x += 100)
+	for (int x = -kGridRange; x <= kGridRange; x += 100)
 	{
-		startPos = VGet(static_cast<float>(x), 0.0f, -300.0f);
-		endPos = VGet(static_cast<float>(x), 0.0f, 300.0f);
+		startPos = VGet(static_cast<float>(x), 0.0f, -kGridRange);
+		endPos = VGet(static_cast<float>(x), 0.0f, kGridRange);
 		DrawLine3D(startPos, endPos, 0x0000ff);
 	}
 }
