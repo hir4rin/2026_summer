@@ -80,8 +80,10 @@ void Player::Update(Camera& camera)
 	m_pos += m_vel * timeScale;
 
 	//回転処理//座標も行列で更新
-	UpdateAngle();
+	//UpdateAngle();
+	UpdateAngleAndPos();
 	 
+	//-----------------------変わらなかった；；-----------------------------------------
 	////ルートモーションONの場合、
 	////アニメーションが適用された後のモデルの行列を取得
 	//MATRIX modelMat = MV1GetMatrix(m_modelHandle);
@@ -98,7 +100,7 @@ void Player::Update(Camera& camera)
 	//m_targetVec.z = cosf(m_rotAngleY + DX_PI_F);
 	//m_targetVec.y = 0.0f;
 	//m_targetVec = m_targetVec.Normalize();
-
+	//----------------------------------------------------------------------------------------
 }
 void Player::Draw()
 {
@@ -192,30 +194,28 @@ void Player::InitializeComboChain()
 
 void Player::UpdateAngle()
 {
-	float targetAngle = 0.0f;//目標の角度
-	if (m_targetVec.Magnitude() > 0.0f)//最初の入力されないとき以外、ここを通り、モデルの向きを変える
-	{
-		//プレイヤーの移動方向にモデルの方向を近づける
-		targetAngle = atan2f(m_targetVec.x, m_targetVec.z);//移動ベクトルのx成分とz成分から、プレイヤーの向きたい方向の角度を求める
+	//float targetAngle = 0.0f;//目標の角度
+	//if (m_targetVec.Magnitude() > 0.0f)//最初の入力されないとき以外、ここを通り、モデルの向きを変える
+	//{
+	//	//プレイヤーの移動方向にモデルの方向を近づける
+	//	targetAngle = atan2f(m_targetVec.x, m_targetVec.z);//移動ベクトルのx成分とz成分から、プレイヤーの向きたい方向の角度を求める
+	//	// Y軸回転行列を作成する//この工程は毎フレーム、原点からプレイヤーの位置に移動してから、回転する行列を作成している
+	//	//180度ずれてたので、回転角度を180度ずらす
+	//	/* m_rotAngle = targetAngle - DX_PI_F;*/
 
+	//	 //角度の差分を計算//回転角度を-90から90にするため(最短経路を選択)
+	//	float difference = targetAngle - m_rotAngleY - DX_PI_F;
+	//	while (difference > DX_PI_F) difference -= 2.0f * DX_PI_F;
+	//	while (difference < -DX_PI_F) difference += 2.0f * DX_PI_F;
+	//	//targetAngle + DX_PI_F
+	//	m_rotAngleY += difference * 0.1f;//回転角度を少しずつ目標の角度に近づける//ほぼlerp
+	//}	
+	//	Matrix4x4 rotY = Matrix4x4::MakeRotationY(m_rotAngleY);
+	//	MATRIX transmat = MGetTranslate(m_pos.ToDxLibVector());
+	//	Matrix4x4 trans = Matrix4x4::FromDxLibMatrix(transmat);
 
-		// Y軸回転行列を作成する//この工程は毎フレーム、原点からプレイヤーの位置に移動してから、回転する行列を作成している
-		//180土ずれてたので、回転角度を180度ずらす
-		/* m_rotAngle = targetAngle - DX_PI_F;*/
-
-		 //角度の差分を計算//回転角度を-90から90にするため(最短経路を選択)
-		float difference = targetAngle - m_rotAngleY - DX_PI_F;
-		while (difference > DX_PI_F) difference -= 2.0f * DX_PI_F;
-		while (difference < -DX_PI_F) difference += 2.0f * DX_PI_F;
-		//targetAngle + DX_PI_F
-		m_rotAngleY += difference * 0.1f;//回転角度を少しずつ目標の角度に近づける//ほぼlerp
-	}	
-		Matrix4x4 rotY = Matrix4x4::MakeRotationY(m_rotAngleY);
-		MATRIX transmat = MGetTranslate(m_pos.ToDxLibVector());
-		Matrix4x4 trans = Matrix4x4::FromDxLibMatrix(transmat);
-
-		Matrix4x4 mtx = trans * rotY;
-		MV1SetMatrix(m_modelHandle, Matrix4x4::ToDxLibMatrix(mtx));
+	//	Matrix4x4 mtx = trans * rotY;
+	//	MV1SetMatrix(m_modelHandle, Matrix4x4::ToDxLibMatrix(mtx));
 }
 
 bool Player::IsAvoidable() const

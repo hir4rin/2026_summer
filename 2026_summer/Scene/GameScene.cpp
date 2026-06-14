@@ -1,6 +1,7 @@
 ﻿#include "GameScene.h"
 #include "../Camera/CameraManager.h"
 #include "Player.h"
+#include "../Character/Enemy/Swordman/EnemySwordman.h"
 
 namespace
 {
@@ -16,6 +17,9 @@ GameScene::GameScene(SceneController& controller):Scene(controller)
 	//プレイヤーの初期化
 	m_player = std::make_shared<Player>();
 	m_player->Init();
+	//敵の初期化
+	m_enemySwordman = std::make_shared<EnemySwordman>(std::weak_ptr<Player>(m_player));
+	m_enemySwordman->Init();
 
 	m_cameraManager = std::make_unique<CameraManager>();
 	//カメラの初期化
@@ -39,6 +43,7 @@ void GameScene::NormalUpdate()
 {
 	m_cameraManager->Update(m_player->GetPos());
 	m_player->Update(*m_cameraManager->GetHighestPriorityCamera());
+	m_enemySwordman->Update();
 }
 
 void GameScene::FadeOutUpdate()
@@ -60,6 +65,7 @@ void GameScene::NormalDraw()
 	DrawGrid();
 
 	m_player->Draw();
+	m_enemySwordman->Draw();
 }
 
 void GameScene::FadeOutDraw()

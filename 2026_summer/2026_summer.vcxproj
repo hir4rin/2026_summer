@@ -189,7 +189,7 @@
     <ClInclude Include="Character\Enemy\Swordman\EnemySwordman.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="Managers\CollisionManager.h" />
-    <ClInclude Include="Character\Player\Locomotion\Player.h" />
+    <ClInclude Include="Character\Player\Base\Player.h" />
     <ClInclude Include="Character\Player\Base\PlayerState.h" />
     <ClInclude Include="Character\Player\Locomotion\PlayerStateIdle.h" />
     <ClInclude Include="Character\Player\Locomotion\PlayerStateMove.h" />

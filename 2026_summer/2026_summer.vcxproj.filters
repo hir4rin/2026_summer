@@ -173,7 +173,7 @@
     <ClInclude Include="System.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Character\Player\Locomotion\Player.h">
+    <ClInclude Include="Character\Player\Base\Player.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="DataLoader\DataManager.h">

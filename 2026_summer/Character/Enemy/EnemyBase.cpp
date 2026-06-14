@@ -11,6 +11,33 @@ EnemyBase::~EnemyBase()
 {
 }
 
+std::string EnemyBase::GetEnemyStateString(EnemyState state)
+{
+	std::string ans = "";
+	switch (state)
+	{
+		case EnemyState::Idle:
+		ans = "Idle";
+		break;
+		case EnemyState::Caution:
+			ans = "Caution";
+			break;
+		case EnemyState::Chase:
+			ans = "Chase";
+			break;
+		case EnemyState::Attack:
+			ans = "Attack";
+			break;
+		case EnemyState::Back:
+			ans = "Back";
+			break;
+		default : 
+			ans = "Unknown";
+			break;
+	}
+	return ans;
+}
+
 Vector3 EnemyBase::TargetPlayerPos()
 {
 	if (auto player = m_player.lock())
@@ -60,10 +87,45 @@ void EnemyBase::CautionMove(Vector3 target,float distance)
 	}
 }
 
-void EnemyBase::BackMove(Vector3 target, float distance)
+bool EnemyBase::BackMove(Vector3 target, float distance)
 {
 	//ToEnemyの方向に移動する
 	Vector3 toEnemy = m_pos - target;
 	toEnemy.y = 0.0f;
+	//到達したら移動を止める
+	if (toEnemy.Magnitude() >= distance)
+	{
+		m_vel = Vector3(0, 0, 0);
+		return true;
+	}
+	
 	m_vel = toEnemy.Normalize() * Game::kEnemyBackSpeed;
+	return false;
+}
+
+bool EnemyBase::CanMeleeAttack(float distance)
+{
+	//クールタイムの確認
+	if (m_attackCoolTime <= 0.0f)
+	{
+
+		//プレイヤーとの距離が遠かったら攻撃しない
+		Vector3 toPlayer = TargetPlayerPos() - m_pos;
+		toPlayer.y = 0.0f;
+		if (toPlayer.Magnitude() <= distance)
+		{
+			return true;
+		}
+	}
+	//攻撃しない
+	return false;
+}
+
+void EnemyBase::ToPlayerLook()
+{
+	auto player = m_player.lock();
+	if (!player)return;
+
+	Vector3 toPlayer = player->GetPos() - m_pos;
+	m_targetVec = toPlayer.Normalize();
 }

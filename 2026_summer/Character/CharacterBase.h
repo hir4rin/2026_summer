@@ -32,6 +32,9 @@ public:
 	Vector3 GetPos() const { return m_pos; }
 
 protected:
+	void UpdateAngleAndPos();//回転角度と座標の更新//
+
+
 	int m_modelHandle = -1;//モデルのハンドル
 	int m_hp = -1;//体力
 	float m_rotAngleY = 0.0f;//回転角度

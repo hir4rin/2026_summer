@@ -5,6 +5,7 @@
 
 class CameraManager;
 class Player;
+class EnemySwordman;
 
 class GameScene : public Scene
 {
@@ -25,5 +26,6 @@ private:
 private:
 	std::unique_ptr<CameraManager> m_cameraManager;
 	std::shared_ptr<Player> m_player;
+	std::shared_ptr<EnemySwordman> m_enemySwordman;
 };
 
