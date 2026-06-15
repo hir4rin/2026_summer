@@ -16,8 +16,10 @@ enum class Tags
 {
 	None = -1,
 	Player,
+	PlayerHit,
 	PlayerAttack,
 	Enemy,
+	EnemyHit,
 	EnemyAttack,
 };
 /// <summary>
