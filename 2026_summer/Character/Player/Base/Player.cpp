@@ -24,7 +24,10 @@ Player::Player()
 	Matrix4x4 mtx = trans * rotY;
 	MV1SetMatrix(m_modelHandle, Matrix4x4::ToDxLibMatrix(mtx));
 	//当たり判定の初期化
-	ColInit(m_pos, 50.0f, ColliderType::Sphere, Tags::Player, true);//中心点、半径、当たり判定のタイプ、タグ、当たり判定が有効かどうか
+	ColInit(m_pos, 30.0f, ColliderType::Sphere, Tags::Player, true);//中心点、半径、当たり判定のタイプ、タグ、当たり判定が有効かどうか
+	//やられ判定の初期化
+	m_hitcol.ColInit(m_pos, 50.0f, ColliderType::Sphere, Tags::PlayerHit, true);
+
 	//コンボチェーンの初期化
 	InitializeComboChain();
 	//アニメーションの名前のマップの初期化

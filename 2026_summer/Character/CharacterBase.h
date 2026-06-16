@@ -2,7 +2,9 @@
 #include "Collider.h"
 #include "Animation.h"
 #include <unordered_map>
+#include <HitCol.h>
 
+class Camera;
 enum class Armor
 {
 	None = -1,
@@ -17,7 +19,14 @@ enum class AttackPower
 	Middle,
 	High,
 };
-class Camera;
+
+struct AttackData
+{
+	float attackPower;//攻撃力
+	Vector3 knockBackPower;//攻撃が当たったときの吹き飛ばしの力
+	float hitStopTime;//攻撃が当たったときのヒットストップの時間
+	bool isKirimomi;//吹っ飛ぶかどうか
+};
 
 class CharacterBase abstract : public Collider
 {
@@ -52,6 +61,9 @@ protected:
 	Animation m_anim;//アニメーション(アニメーションブレンド、アニメーション再生など)
 	std::unordered_map<std::string, std::string> m_animNames;//アニメーションの名前を管理
 	const std::string& GetAnimName(const std::string& key)const;//アニメーションの名前を取得する
+
+	HitCol m_hitcol;//やられ判定
+
 
 	Armor m_armor = Armor::None;//アーマー
 	AttackPower m_attackPower = AttackPower::None;//攻撃力
