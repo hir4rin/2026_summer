@@ -24,13 +24,7 @@ Player::Player()
 	Matrix4x4 trans = Matrix4x4::FromDxLibMatrix(transmat);
 	Matrix4x4 mtx = trans * rotY;
 	MV1SetMatrix(m_modelHandle, Matrix4x4::ToDxLibMatrix(mtx));
-	//当たり判定の初期化
-	ColInit(m_pos, 30.0f, ColliderType::Sphere, Tags::Player, true);//中心点、半径、当たり判定のタイプ、タグ、当たり判定が有効かどうか
-	//やられ判定の初期化
-	m_hitCol->ColInit(m_pos, 50.0f, ColliderType::Sphere, Tags::PlayerHit, true);
-	//IDの取得
-	SetID();
-
+	
 	//コンボチェーンの初期化
 	InitializeComboChain();
 	//アニメーションの名前のマップの初期化
@@ -51,13 +45,20 @@ void Player::Init()
 {
 	//向いている方向
 	m_targetVec = Vector3(0, 0, 1);//最初は前を向いているようにする
-
 	//初期状態をIdleにする//アニメーションの初期化
 	m_anim.Init(m_modelHandle,GetAnimName("Idle"), true);
 	//weak_from_this()は、shared_ptrを作成,
 	//Playerクラスのインスタンスから、Playerクラスのshared_ptrを取得できるようになる
 	m_currentState = std::make_shared<PlayerStateIdle>(weak_from_this());
+
+	//IDの取得
+	SetID();
+	//当たり判定の初期化
+	//中心点、半径、当たり判定のタイプ、タグ、当たり判定が有効かどうか
+	ColInit(m_pos, 30.0f, ColliderType::Sphere, Tags::Player, true);
+	//やられ判定の初期化
 	InitHitCol(weak_from_this());
+	m_hitCol->ColInit(m_pos, 50.0f, ColliderType::Sphere, Tags::PlayerHit, true);
 	ChangeState(m_currentState);//初期化
 }
 

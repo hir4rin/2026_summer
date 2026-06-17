@@ -29,10 +29,6 @@ EnemySwordman::EnemySwordman(std::weak_ptr<Player> player) : EnemyBase(player)
 	Matrix4x4 trans = Matrix4x4::FromDxLibMatrix(transmat);
 	Matrix4x4 mtx = trans * rotY;
 	MV1SetMatrix(m_modelHandle, Matrix4x4::ToDxLibMatrix(mtx));
-	//当たり判定の初期化
-	ColInit(m_pos, 50.0f, ColliderType::Sphere, Tags::Enemy, true);//中心点、半径、当たり判定のタイプ、タグ、当たり判定が有効かどうか
-	m_hitCol->ColInit(m_pos, 50.0f, ColliderType::Sphere, Tags::EnemyHit, true);
-	//やられ判定の初期化
 	m_anim.Init(m_modelHandle, kAttackName, true);
 }
 
@@ -43,6 +39,13 @@ EnemySwordman::~EnemySwordman()
 
 void EnemySwordman::Init()
 {
+	//IDの取得
+	SetID();
+	//当たり判定の初期化
+	ColInit(m_pos, 50.0f, ColliderType::Sphere, Tags::Enemy, true);//中心点、半径、当たり判定のタイプ、タグ、当たり判定が有効かどうか
+	//やられ判定の初期化
+	InitHitCol(weak_from_this());
+	m_hitCol->ColInit(m_pos, 50.0f, ColliderType::Sphere, Tags::EnemyHit, true);
 }
 
 void EnemySwordman::Update()

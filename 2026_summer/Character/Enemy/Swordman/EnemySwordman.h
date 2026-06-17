@@ -1,6 +1,6 @@
 ﻿#pragma once
 #include "../EnemyBase.h"
-class EnemySwordman : public EnemyBase
+class EnemySwordman : public EnemyBase, public std::enable_shared_from_this<EnemySwordman>
 {
 public:
 	EnemySwordman(std::weak_ptr<Player> player);

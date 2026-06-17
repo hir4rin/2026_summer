@@ -33,9 +33,10 @@ class CharacterBase abstract : public Collider
 public:
 	CharacterBase();
 	virtual ~CharacterBase();
-
-
-
+	/// <summary>
+	/// やられ判定の生成を行う
+	/// </summary>
+	/// <param name="owner"></param>
 	void InitHitCol(std::weak_ptr<CharacterBase> owner);//やられ判定の初期化//継承先で呼ぶ
 
 	void SetTimeScale(float timeScale) { m_ownTimeScale = timeScale; }
