@@ -13,6 +13,7 @@
 #include <fstream>
 #include <sstream>
 
+
 Player::Player()
 {
 	//m_modelHandle = MV1LoadModel("data/Player/Player.mv1");
@@ -26,7 +27,9 @@ Player::Player()
 	//当たり判定の初期化
 	ColInit(m_pos, 30.0f, ColliderType::Sphere, Tags::Player, true);//中心点、半径、当たり判定のタイプ、タグ、当たり判定が有効かどうか
 	//やられ判定の初期化
-	m_hitcol.ColInit(m_pos, 50.0f, ColliderType::Sphere, Tags::PlayerHit, true);
+	m_hitCol->ColInit(m_pos, 50.0f, ColliderType::Sphere, Tags::PlayerHit, true);
+	//IDの取得
+	SetID();
 
 	//コンボチェーンの初期化
 	InitializeComboChain();
@@ -54,6 +57,7 @@ void Player::Init()
 	//weak_from_this()は、shared_ptrを作成,
 	//Playerクラスのインスタンスから、Playerクラスのshared_ptrを取得できるようになる
 	m_currentState = std::make_shared<PlayerStateIdle>(weak_from_this());
+	InitHitCol(weak_from_this());
 	ChangeState(m_currentState);//初期化
 }
 

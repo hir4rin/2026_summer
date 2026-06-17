@@ -1,7 +1,9 @@
 ﻿#pragma once
 #include "../Math/Vector3.h"
 #include "../Managers/CollisionManager.h"
+#include "../IDManager.h"
 #include <string>
+
 
 enum class ColliderType
 {
@@ -51,9 +53,14 @@ public:
 	//押し戻しの処理//この後、ColUpdateをして、更新すること
 	Vector3 PushBack(Collider& other);
 
+
+	//Actorが派生先ですること-------------------------------------------------------------
 	//当たり判定の初期化処理//登録
 	/// <summary>中心点、半径、当たり判定のタイプ、タグ、当たり判定が有効かどうか</summary>
 	void  ColInit(const Vector3& center, float radius, ColliderType type, Tags tag, bool isActive);
+	//IDのセット
+	void SetID();
+	//--------------------------------------------------------------------------
 
 	//セッター
 	void SetCenter(const Vector3& center) { m_center = center; }
@@ -68,7 +75,8 @@ public:
 	float GetRadius()const { return m_radius; }
 	ColliderType GetType()const { return m_type; }
 	Tags GetTag()const { return m_tag; }
-	bool isActive()const { return m_isActive;}
+	bool IsActive()const { return m_isActive;}
+	int GetId()const { return m_id; }
 
 	//デバッグ描画
 	void DebugDraw()const;
@@ -78,6 +86,6 @@ protected:
 	Vector3 m_center;
 	float m_radius;//Sphereの半径、Boxの幅、Capsuleの半径
 	bool m_isActive;//当たり判定が有効かどうか
-
+	int m_id;//当たり判定などに使うID
 };
 

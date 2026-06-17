@@ -53,7 +53,7 @@ void CollisionManager::Update()
 			Collider* colliderA = m_colliders[i];
 			Collider* colliderB = m_colliders[j];
 			//アクティブなコライダーだけをチェックする
-			if (colliderA == nullptr || colliderB == nullptr || !colliderA->isActive() || !colliderB->isActive())
+			if (colliderA == nullptr || colliderB == nullptr || !colliderA->IsActive() || !colliderB->IsActive())
 			{
 				continue;
 			}
@@ -76,7 +76,7 @@ void CollisionManager::DebugDraw() const
 	for (const auto& collider : m_colliders)
 	{
 		//アクティブなコライダーだけを描画する
-		if (collider != nullptr && collider->isActive())
+		if (collider != nullptr && collider->IsActive())
 		collider->DebugDraw();
 	}
 }

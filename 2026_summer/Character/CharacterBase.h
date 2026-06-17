@@ -34,6 +34,10 @@ public:
 	CharacterBase();
 	virtual ~CharacterBase();
 
+
+
+	void InitHitCol(std::weak_ptr<CharacterBase> owner);//やられ判定の初期化//継承先で呼ぶ
+
 	void SetTimeScale(float timeScale) { m_ownTimeScale = timeScale; }
 	float GetTimeScale() const { return m_ownTimeScale; }
 
@@ -62,7 +66,7 @@ protected:
 	std::unordered_map<std::string, std::string> m_animNames;//アニメーションの名前を管理
 	const std::string& GetAnimName(const std::string& key)const;//アニメーションの名前を取得する
 
-	HitCol m_hitcol;//やられ判定
+	std::unique_ptr<HitCol> m_hitCol;//やられ判定
 
 
 	Armor m_armor = Armor::None;//アーマー

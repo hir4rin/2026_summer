@@ -14,4 +14,10 @@ void AttackCol::OnCollision(Collider& other)
 {
 	//idで当たったかどうかを管理する//当たったidのリストにotherのidがないとき、攻撃を当てる
 	//当たっていたらotherの被ダメ処理をして、Ownerに当たったことを通知してもよい
+	int otherId = 0;
+
+	//if (m_hitIds.count(otherId))
+	//{
+
+	//}
 }

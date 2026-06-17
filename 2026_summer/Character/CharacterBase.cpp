@@ -10,6 +10,11 @@ CharacterBase::~CharacterBase()
 {
 }
 
+void CharacterBase::InitHitCol(std::weak_ptr<CharacterBase> owner)
+{
+	m_hitCol = std::make_unique<HitCol>(owner);
+}
+
 void CharacterBase::UpdateAngleAndPos()
 {
 	float targetAngle = 0.0f;//目標の角度

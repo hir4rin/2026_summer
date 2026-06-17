@@ -1,4 +1,5 @@
 ﻿#include "Collider.h"
+#include "../IDManager.h"
 
 Collider::Collider():
 	m_type(ColliderType::Sphere),
@@ -18,15 +19,12 @@ Collider::~Collider()
 void Collider::ColUpdate(Vector3 pos)
 {
 	//球の場合のみ//いったん
-
 	Vector3 offset = Vector3(0, 50.0f, 0);//プレイヤーのモデルの中心は足元にあるので、当たり判定の中心をプレイヤーのモデルの中心から少し上にするためのオフセット
 	if (m_type == ColliderType::Sphere)
 	{
 		SetCenter(pos + offset);
 	}
 }
-
-
 
 bool Collider::IsCollible(const Collider& other) const
 {
@@ -43,7 +41,6 @@ bool Collider::IsCollible(const Collider& other) const
 	{
 		return true;
 	}
-
 	return false;
 }
 
@@ -63,7 +60,6 @@ Vector3 Collider::PushBack(Collider& other)
 	}
 	//重なっていない場合は、押し戻さない
 	return Vector3(0, 0, 0);
-
 }
 
 void Collider::ColInit(const Vector3& center, float radius, ColliderType type, Tags tag, bool isActive)
@@ -75,6 +71,11 @@ void Collider::ColInit(const Vector3& center, float radius, ColliderType type, T
 	SetIsActive(isActive);
 	//コライダーをコリジョンマネージャーに登録する
 	CollisionManager::GetInstance().RegisterCollider(this);
+}
+
+void Collider::SetID()
+{
+	m_id = IDManager::GetNextID();
 }
 
 void Collider::DebugDraw() const
@@ -114,5 +115,4 @@ void Collider::DebugDraw() const
 		default:
 			break;
 	}
-
 }

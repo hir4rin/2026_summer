@@ -66,6 +66,10 @@ void GameScene::NormalDraw()
 
 	m_player->Draw();
 	m_enemySwordman->Draw();
+
+#ifdef _DEBUG
+	CollisionManager::GetInstance().DebugDraw();
+#endif
 }
 
 void GameScene::FadeOutDraw()
