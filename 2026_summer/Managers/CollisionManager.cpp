@@ -45,6 +45,12 @@ void CollisionManager::Clear()
 
 void CollisionManager::Update()
 {
+	//IsTriggerを作って、押し戻し判定を無視するという条件式を追加する//今は押し戻し判定を無視する条件式はない
+	//PushBackの中でその処理をするのでいい
+
+	//この中身は未熟なので、すべて書き直す
+
+
 	//すべてのコライダーの組み合わせをチェックする
 	for (size_t i = 0; i < m_colliders.size(); i++)
 	{
@@ -52,11 +58,12 @@ void CollisionManager::Update()
 		{
 			Collider* colliderA = m_colliders[i];
 			Collider* colliderB = m_colliders[j];
-			//アクティブなコライダーだけをチェックする
-			if (colliderA == nullptr || colliderB == nullptr || !colliderA->IsActive() || !colliderB->IsActive())
+			//アクティブなコライダーだけをチェックする//ここ関数化
+			if (!colliderA|| !colliderB|| !colliderA->IsActive() || !colliderB->IsActive())
 			{
 				continue;
 			}
+
 			//衝突判定
 			if (colliderA->IsCollible(*colliderB))
 			{
@@ -64,9 +71,13 @@ void CollisionManager::Update()
 				colliderA->OnCollision(*colliderB);
 				colliderB->OnCollision(*colliderA);
 			
+				//ここで押し戻し
 			}
 		}
 	}
+	//ここで位置確定用の関数を読んで位置をおいておく
+	//ここですべてのコライダーの位置を更新させる関数
+	//速度をSetVelだと、どこからでもいじれちゃうけど、CollsionManagerがColのfriendクラスになって速度をいじれるようにして、更新させる
 }
 
 
