@@ -17,6 +17,7 @@ enum class ColliderType
 enum class Tags
 {
 	None = -1,
+	StaticObject,//静的オブジェクト
 	Player,
 	PlayerHit,
 	PlayerAttack,
@@ -47,7 +48,7 @@ public:
 	void ColUpdate(Vector3 pos);//当たり判定の更新//継承先で使う
 
 	//当たり判定をチェック
-	bool IsCollible(const Collider& other)const;
+	bool IsCollidable(const Collider& other)const;
 	//当たったときに呼ばれる関数
 	virtual void OnCollision(Collider& other) = 0;
 	//押し戻しの処理//この後、ColUpdateをして、更新すること
@@ -56,14 +57,14 @@ public:
 
 	//Actorが派生先ですること-------------------------------------------------------------
 	//当たり判定の初期化処理//登録
-	/// <summary>中心点、半径、当たり判定のタイプ、タグ、当たり判定が有効かどうか</summary>
-	void  ColInit(const Vector3& center, float radius, ColliderType type, Tags tag, bool isActive);
+	/// <summary>座標、中心点、半径、当たり判定のタイプ、タグ、当たり判定が有効かどうか</summary>
+	void  ColInit(Vector3 pos,Vector3 offset, float radius, ColliderType type, Tags tag, bool isActive,bool isTrigger= false);
 	//IDのセット
 	void SetID();
 	//--------------------------------------------------------------------------
 
 	//セッター
-	void SetCenter(const Vector3& center) { m_center = center; }
+	void SetCenter(const float center) { m_center = center; }
 	void SetRadius(float radius) { m_radius = radius; }
 	void SetType(ColliderType type) { m_type = type; }
 	void SetTag(Tags tag) { m_tag = tag; }
@@ -71,21 +72,34 @@ public:
 
 	//ゲッター
 	Collider* GetCollider() { return this; }
-	Vector3 GetCenter()const { return m_center; }
+	float GetCenter()const { return m_center; }
 	float GetRadius()const { return m_radius; }
 	ColliderType GetType()const { return m_type; }
 	Tags GetTag()const { return m_tag; }
 	bool IsActive()const { return m_isActive;}
 	int GetId()const { return m_id; }
-
+	bool GetIsTrigger()const { return m_isTrigger; }
+	Vector3 GetPos() const { return m_pos; }
+	Vector3 GetVel() const { return m_vel; }
+	Vector3 GetWorldCenter() const { return m_pos + m_offset; }//ワールド座標での中心位置を返す
+	float GetTimeScale() const { return m_ownTimeScale; }
 	//デバッグ描画
 	void DebugDraw()const;
 protected:
+	virtual void ApplyPos()=0;
+protected:
 	ColliderType m_type;
 	Tags m_tag;
-	Vector3 m_center;
+	float m_center;
+	Vector3 m_pos = {};//座標
+	Vector3 m_offset = {};//基準位置からのオフセット
+	Vector3 m_vel = {};//速度
 	float m_radius;//Sphereの半径、Boxの幅、Capsuleの半径
 	bool m_isActive;//当たり判定が有効かどうか
+	bool m_isTrigger;//当たり判定のみをし、押し戻しなどはしない
 	int m_id;//当たり判定などに使うID
+	float m_ownTimeScale = 1.0f;//自分のtimeScale
+
+	friend class CollisionManager;
 };
 

@@ -46,5 +46,7 @@ private:
 
 	//後々、コライダーを停止、再開する機能を追加するかも
 
+	void ApplyAdjustments();
+
 };
 

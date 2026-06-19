@@ -40,21 +40,20 @@ public:
 	void InitHitCol(std::weak_ptr<CharacterBase> owner);//やられ判定の初期化//継承先で呼ぶ
 
 	void SetTimeScale(float timeScale) { m_ownTimeScale = timeScale; }
-	float GetTimeScale() const { return m_ownTimeScale; }
+
 
 	int GetModelHandle() const { return m_modelHandle; }
-	Vector3 GetPos() const { return m_pos; }
-
+	Vector3 GetForward() const { return forward; }//前方向のベクトルを返す
+	//const AttackData& GetAttackData() { return m_attackData; }//攻撃データの取得
 protected:
 	void UpdateAngleAndPos();//回転角度と座標の更新//
-
+	void ApplyPos()override;
 
 	int m_modelHandle = -1;//モデルのハンドル
 	int m_hp = -1;//体力
 	float m_rotAngleY = 0.0f;//回転角度
 	float m_targetAngleY = 0.0f;//目標の回転角度//回転を滑らかにするためのもの
-	Vector3 m_pos = {};//座標
-	Vector3 m_vel = {};//速度
+	
 
 	Vector3 m_targetVec = {};//移動したい方向のベクトル
 	//移動方向//カメラの向き
@@ -72,8 +71,8 @@ protected:
 
 	Armor m_armor = Armor::None;//アーマー
 	AttackPower m_attackPower = AttackPower::None;//攻撃力
-
-	float m_ownTimeScale =1.0f;//自分のtimeScale
+	AttackData m_attackData = {};
+	
 	bool m_isGround = true;//地面にいるかどうか
 	bool m_isHit = false;//攻撃を喰らったか
 	bool m_isDead = false;//死んでいるか

@@ -4,7 +4,7 @@
 Collider::Collider():
 	m_type(ColliderType::Sphere),
 	m_tag(Tags::None),
-	m_center(0.0f, 0.0f, 0.0f),
+	m_center(0.0f),
 	m_radius(1.0f),
 	m_isActive(true)
 {
@@ -18,19 +18,19 @@ Collider::~Collider()
 
 void Collider::ColUpdate(Vector3 pos)
 {
-	//球の場合のみ//いったん
-	Vector3 offset = Vector3(0, 50.0f, 0);//プレイヤーのモデルの中心は足元にあるので、当たり判定の中心をプレイヤーのモデルの中心から少し上にするためのオフセット
-	if (m_type == ColliderType::Sphere)
-	{
-		SetCenter(pos + offset);
-	}
+	////球の場合のみ//いったん
+	//Vector3 offset = Vector3(0, 50.0f, 0);//プレイヤーのモデルの中心は足元にあるので、当たり判定の中心をプレイヤーのモデルの中心から少し上にするためのオフセット
+	//if (m_type == ColliderType::Sphere)
+	//{
+	//	SetCenter(pos + offset);
+	//}
 }
 
-bool Collider::IsCollible(const Collider& other) const
+bool Collider::IsCollidable(const Collider& other) const
 {
 	//球と球の当たり判定を実装予定
-	Vector3 Apos = GetCenter();
-	Vector3 Bpos = other.GetCenter();
+	Vector3 Apos = GetWorldCenter();//自分の当たり判定の中心の座標
+	Vector3 Bpos = other.GetWorldCenter();//相手の当たり判定の中心の座標
 
 	//2点間の距離の2乗を求める
 	float sqDistance = (Apos - Bpos).sqMagnitude();
@@ -46,8 +46,11 @@ bool Collider::IsCollible(const Collider& other) const
 
 Vector3 Collider::PushBack(Collider& other)
 {
-	//otherから自分へのベクトル
-	auto oToMeVec = (GetCenter() - other.GetCenter());
+	//otherから自分へのベクトル//velを足した値
+	Vector3 centerA = GetWorldCenter() + m_vel;//自分の当たり判定の中心の座標
+	Vector3 centerB = other.GetWorldCenter() + other.m_vel;//相手の当たり判定の中心の座標
+
+	auto oToMeVec = (centerA - centerB);
 	oToMeVec.y = 0.0f;//Y軸の成分を0にする//水平面でのベクトルにする
 	float distance = oToMeVec.Magnitude();
 	//距離が0の時は当たり判定をしない
@@ -62,13 +65,15 @@ Vector3 Collider::PushBack(Collider& other)
 	return Vector3(0, 0, 0);
 }
 
-void Collider::ColInit(const Vector3& center, float radius, ColliderType type, Tags tag, bool isActive)
+void Collider::ColInit(Vector3 pos, Vector3 offset, float radius, ColliderType type, Tags tag, bool isActive,bool isTrigger)
 {
-	SetCenter(center);
+	m_pos = pos;
+	m_offset = offset;//m_posからのoffset
 	SetRadius(radius);
 	SetType(type);
 	SetTag(tag);
 	SetIsActive(isActive);
+	m_isTrigger = isTrigger;
 	//コライダーをコリジョンマネージャーに登録する
 	CollisionManager::GetInstance().RegisterCollider(this);
 }
@@ -92,7 +97,7 @@ void Collider::DebugDraw() const
 			color = GetColor(0, 255, 0);//プレイヤーは緑
 			break;
 		case Tags::Enemy:
-			color = GetColor(255, 0, 0);//敵は赤
+			color = GetColor(128, 128, 128);//敵は灰色
 			break;
 		case Tags::PlayerAttack:
 			color = GetColor(0, 0, 255);//プレイヤーの攻撃は青
@@ -104,7 +109,7 @@ void Collider::DebugDraw() const
 	switch (m_type)
 	{
 		case ColliderType::Sphere:
-			DrawSphere3D(m_center.ToDxLibVector(), m_radius, 16, color, color, false);
+			DrawSphere3D(GetWorldCenter().ToDxLibVector(), m_radius, 16, color, color, false);
 			break;
 		case ColliderType::Box:
 			//Boxの描画は、中心と幅から、8点の頂点を求めて、そこから線を引いて描画する

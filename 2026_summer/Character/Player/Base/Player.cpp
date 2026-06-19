@@ -13,6 +13,11 @@
 #include <fstream>
 #include <sstream>
 
+namespace
+{
+	constexpr float kPlayerCenter = 100.0f;//プレイヤーの当たり判定の中心点までのy軸の距離
+}
+
 
 Player::Player()
 {
@@ -55,10 +60,11 @@ void Player::Init()
 	SetID();
 	//当たり判定の初期化
 	//中心点、半径、当たり判定のタイプ、タグ、当たり判定が有効かどうか
-	ColInit(m_pos, 30.0f, ColliderType::Sphere, Tags::Player, true);
+	ColInit(m_pos, Vector3(0, kPlayerCenter, 0), 30.0f, ColliderType::Sphere, Tags::Player, true);
 	//やられ判定の初期化
 	InitHitCol(weak_from_this());
-	m_hitCol->ColInit(m_pos, 50.0f, ColliderType::Sphere, Tags::PlayerHit, true);
+	m_hitCol->ColInit(m_pos, Vector3(0, kPlayerCenter, 0), 50.0f, ColliderType::Sphere, Tags::PlayerHit, true,true);
+	ApplyPos();//座標の更新//モデルの座標を更新する
 	ChangeState(m_currentState);//初期化
 }
 
@@ -75,6 +81,8 @@ void Player::Update(Camera& camera)
 		m_avoidInfo.avoidCoolTimeCount -= 1.0f * System::GetInstance().GetTimeScale();//回避のクールタイムを減らす
 	}
 	
+	//押し戻しの処理が続かないように消す
+	m_vel = Vector3(0, m_vel.y, 0);
 
 	if (m_currentState)
 	{
@@ -84,12 +92,12 @@ void Player::Update(Camera& camera)
 	//座標の更新の前に、当たり判定の更新をする
 
 	//座標の更新
-	float timeScale = System::GetInstance().GetTimeScale();
-	m_pos += m_vel * timeScale;
+	//float timeScale = System::GetInstance().GetTimeScale();
+	//m_pos += m_vel * timeScale;
 
 	//回転処理//座標も行列で更新
 	//UpdateAngle();
-	UpdateAngleAndPos();
+	//UpdateAngleAndPos();
 	 
 	//-----------------------変わらなかった；；-----------------------------------------
 	////ルートモーションONの場合、

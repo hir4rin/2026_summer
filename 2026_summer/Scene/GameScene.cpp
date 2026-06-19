@@ -41,7 +41,7 @@ void GameScene::FadeInUpdate()
 
 void GameScene::NormalUpdate()
 {
-	m_cameraManager->Update(m_player->GetPos());
+	m_cameraManager->Update(m_player->GetPos() - Vector3(0,m_player->GetCenter(),0));
 	m_player->Update(*m_cameraManager->GetHighestPriorityCamera());
 	m_enemySwordman->Update();
 	CollisionManager::GetInstance().Update();

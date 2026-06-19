@@ -2,12 +2,15 @@
 #include "Player.h"
 #include "../../../Game.h"
 #include "../../../Input.h"
+#include "../../AttackCol.h"
 
 
 namespace
 {
 	constexpr float kComboInputStart = 0.2f;//コンボ入力受付開始のアニメーションの進行率
 	constexpr float kComboInputEnd = 0.8f;//コンボ入力受付終了のアニメーションの進行率
+
+	constexpr float kPlayerCenter = 100.0f;//プレイヤーの当たり判定の中心点までのy軸の距離
 }
 
 
@@ -65,6 +68,18 @@ void PlayerStateAttack::Enter()
 			player->m_isGround = false;//ジャンプ状態にする
 		}
 	}
+	//ここでColliderを生成する
+	player->m_attackData = {
+	.attackPower = 10,
+	.knockBackPower = Vector3(0, 0, 0),
+	.hitStopTime = 0.1f,
+	.isKirimomi = false
+	};
+	m_attackCol = std::make_shared<AttackCol>(m_owner, player->m_attackData);
+	Vector3 offset = player->m_targetVec * 50.0f + Vector3(0, kPlayerCenter, 0);//プレイヤーの前方に50.0f、y軸方向にkPlayerCenterだけオフセットする
+	m_attackCol->ColInit(player->m_pos, offset, 50.0f,
+							ColliderType::Sphere, Tags::PlayerAttack, true,true);//攻撃の当たり判定を初期化する//最初は無効にしておく
+	//m_attackCol->SetIsActive(false);//最初は当たり判定を無効にしておく
 }
 
 void PlayerStateAttack::Update()
@@ -151,6 +166,7 @@ void PlayerStateAttack::Update()
 
 void PlayerStateAttack::Exit()
 {
+	
 }
 
 void PlayerStateAttack::DebugDraw()
@@ -230,7 +246,7 @@ void PlayerStateAttack::DetermineAttackDirection()
 	{
 		attackDir += player->right;
 	}
-	//入力がないときは、playerの向いている方向に進む//あるときはその方向に進む
+	//入力がないときは、playerの向いている方向に進む//あるときはその方向に進む//この処理に問題があるらしい
 	if (attackDir.Magnitude() == 0.0f)
 	{
 		player->m_targetVec = player->m_targetVec.Normalize();
@@ -297,4 +313,6 @@ void PlayerStateAttack::AttackFinishProcess()
 	player->m_comboInfo.currentComboIndex = ComboIndex::None;//攻撃していない状態に戻す
 	//y軸の速度を0に戻す
 	player->m_vel.y = 0.0f;
+	//攻撃の当たり判定の開放
+	m_attackCol.reset();
 }

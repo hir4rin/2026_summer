@@ -8,6 +8,8 @@ namespace
 	const std::string kAttackName = "mixamo.com";
 	const std::string kIdleName = "Take 001";
 
+	constexpr float kEnemyCenter = 100.0f;//敵の当たり判定の中心点までのy軸の距離
+
 	constexpr float kEnemyMeleeAttackRange = 80.0f;//敵の近接攻撃の距離
 	constexpr float kEnemyBackDistance = 600.0f;//敵が距離を取るときの距離
 
@@ -42,10 +44,10 @@ void EnemySwordman::Init()
 	//IDの取得
 	SetID();
 	//当たり判定の初期化
-	ColInit(m_pos, 50.0f, ColliderType::Sphere, Tags::Enemy, true);//中心点、半径、当たり判定のタイプ、タグ、当たり判定が有効かどうか
+	ColInit(m_pos, Vector3(0, kEnemyCenter, 0), 50.0f, ColliderType::Sphere, Tags::Enemy, true);//中心点、半径、当たり判定のタイプ、タグ、当たり判定が有効かどうか
 	//やられ判定の初期化
 	InitHitCol(weak_from_this());
-	m_hitCol->ColInit(m_pos, 50.0f, ColliderType::Sphere, Tags::EnemyHit, true);
+	m_hitCol->ColInit(m_pos, Vector3(0, kEnemyCenter, 0),80.0f, ColliderType::Sphere, Tags::EnemyHit, true,true);
 }
 
 void EnemySwordman::Update()
@@ -59,6 +61,8 @@ void EnemySwordman::Update()
 	{
 		m_attackCoolTime -= 1.0f;
 	}
+	//押し戻しの処理が続かないように消す//応急処置
+	m_vel = Vector3(0, 0, 0);
 
 	//Idle->ランダム回す仕組みを作る
 	switch (m_state)
@@ -163,9 +167,9 @@ void EnemySwordman::Update()
 	}
 
 	m_anim.Update();
-	m_pos += m_vel;//速度を座標に加算する//移動する
+	//m_pos += m_vel;//速度を座標に加算する//移動する
 	//回転と座標の更新
-	UpdateAngleAndPos();
+	//UpdateAngleAndPos();
 
 
 	/*Matrix4x4 rotY = Matrix4x4::MakeRotationY(0);

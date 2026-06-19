@@ -32,12 +32,23 @@ void CharacterBase::UpdateAngleAndPos()
 		//targetAngle + DX_PI_F
 		m_rotAngleY += difference * 0.1f;//回転角度を少しずつ目標の角度に近づける//ほぼlerp
 	}
+	//モデルは、座標の位置のcenter分下で表示
+
 	Matrix4x4 rotY = Matrix4x4::MakeRotationY(m_rotAngleY);
 	MATRIX transmat = MGetTranslate(m_pos.ToDxLibVector());
 	Matrix4x4 trans = Matrix4x4::FromDxLibMatrix(transmat);
 
 	Matrix4x4 mtx = trans * rotY;
 	MV1SetMatrix(m_modelHandle, Matrix4x4::ToDxLibMatrix(mtx));
+}
+
+void CharacterBase::ApplyPos()
+{
+	//座標の更新
+	m_pos += m_vel;
+
+	//モデルの座標を更新する
+	UpdateAngleAndPos();
 }
 
 

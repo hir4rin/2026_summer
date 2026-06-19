@@ -1,7 +1,9 @@
 ﻿#pragma once
 #include "PlayerState.h"
 #include "PlayerEnums.h"
+#include <memory>
 class Input;
+class AttackCol;
 
 class PlayerStateAttack : public PlayerState
 {
@@ -22,5 +24,6 @@ private:
 	AttackType m_attackType;//攻撃のタイプ//弱攻撃か強攻撃か
 	int m_nextComboIndex = -1;//次のコンボの段数
 	bool m_isComboInputReserved = false;//コンボ入力を受け付けたかどうかのフラグ
+	std::shared_ptr<AttackCol> m_attackCol;//攻撃の当たり判定
 };
 

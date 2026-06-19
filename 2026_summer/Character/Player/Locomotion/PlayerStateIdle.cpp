@@ -32,6 +32,9 @@ void PlayerStateIdle::Update()
 	if (!player) return;
 	auto& input = Input::GetInstance();
 
+	//押し戻しの処理が続かないように消す
+	player->m_vel = Vector3(0, 0, 0);
+
 	//移動状態に遷移する
 	if (input.IsLeftStickInput())
 	{

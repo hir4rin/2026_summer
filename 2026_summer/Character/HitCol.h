@@ -11,7 +11,7 @@ public:
 	virtual ~HitCol();
 
 	void OnCollision(Collider& other) override;
-
+	void ApplyPos() override;
 protected:
 	std::weak_ptr<CharacterBase> m_owner;//当たり判定を持つキャラクターへの弱参照
 };
