@@ -22,11 +22,15 @@ struct ComboNode
 	std::string animName;//アニメーションの名
 	AttackType type;//攻撃するタイプ
 	int index = -1;//攻撃の種類を管理するための変数
+	float attackPower = 0;//攻撃力
 	float moveFrame = -1;//突進する時間
 	float moveSpeedX = 0;//前方向に突進する速度
 	float moveSpeedY = 0;//垂直方向の速度
 	std::vector<int> nextWeakAttack;//弱攻撃ボタンでつながる次のコンボ番号
 	std::vector<int> nextHeavyAttack;//強攻撃ボタンでつながる次のコンボ番号
+	float knockBackXZ = 0;//XZ方向のノックバックの距離//攻撃を受けたときに、どれくらいふっとぶか
+	float knockBackY = 0;//Y方向のノックバックの距離//攻撃を受けたときにY軸に飛ぶ量
+	bool isKirimomi = false;//吹っ飛ぶかどうか//吹っ飛ばない攻撃は、相手を引き寄せるような攻撃にする<-かなりあり！！！！！！！！
 	float seFrameRate = -1;//攻撃のSEを鳴らすフレームの割合//アニメーションの再生時間に対する割合で指定
 	std::string seName;//攻撃のSEの名前
 };
@@ -35,20 +39,26 @@ struct ComboInfo
 	int currentComboIndex = -1;//現在のコンボの段数//攻撃の段数を管理するための変数
 	//int nextComboIndex = -1;//次のコンボの段数
 };
+
+//いずれ行と列のなまえにしたさがある
 enum ComboNodeType : int
 {
 	None = 0,
 	AnimName = 1,
 	Type = 2,
 	Index = 3,
-	MoveTimeRate = 4,
-	MoveSpeedX = 5,
-	MoveSpeedY = 6,
-	NextLightAttack = 7,
-	NextHeavyAttack = 8,
-	SeFrameRate = 9,
-	SeName = 10,
-	Size = 11,
+	AttackPower = 4,
+	MoveTimeRate = 5,
+	MoveSpeedX = 6,
+	MoveSpeedY = 7,
+	NextLightAttack = 8,
+	NextHeavyAttack = 9,
+	knockBackXZ = 10,
+	knockBackY = 11,
+	IsKirimomi = 12,
+	SeFrameRate = 13,
+	SeName = 14,
+	Size = 15,
 };
 namespace ComboIndex
 {
@@ -96,7 +106,7 @@ public:
 	void Draw();
 
 	void OnCollision(Collider& other) override;
-
+	void OnDamage(Collider& other, AttackData& data) override;
 	/// <summary>
 	/// 状態を変更する関数
 	/// </summary>

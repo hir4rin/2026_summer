@@ -17,7 +17,7 @@ namespace
 PlayerStateAttack::PlayerStateAttack(std::weak_ptr<Player> player, AttackType type):
 	PlayerState(player),m_attackType(type)
 {
-	//playerが既に破棄されていたら早期リターンする
+	//playerが既に破棄されていたら早期リターンする//trueで破棄されている
 	if (m_owner.expired())return;
 }
 
@@ -73,10 +73,12 @@ void PlayerStateAttack::Enter()
 	.attackPower = 10,
 	.knockBackPower = Vector3(0, 0, 0),
 	.hitStopTime = 0.1f,
+	.kAttackColOffset = 30.0f,
 	.isKirimomi = false
 	};
 	m_attackCol = std::make_shared<AttackCol>(m_owner, player->m_attackData);
-	Vector3 offset = player->m_targetVec * 50.0f + Vector3(0, kPlayerCenter, 0);//プレイヤーの前方に50.0f、y軸方向にkPlayerCenterだけオフセットする
+	Vector3 offset = player->m_targetVec * player->m_attackData.kAttackColOffset
+					+ Vector3(0, kPlayerCenter, 0);//プレイヤーの前方に50.0f、y軸方向にkPlayerCenterだけオフセットする
 	m_attackCol->ColInit(player->m_pos, offset, 50.0f,
 							ColliderType::Sphere, Tags::PlayerAttack, true,true);//攻撃の当たり判定を初期化する//最初は無効にしておく
 	//m_attackCol->SetIsActive(false);//最初は当たり判定を無効にしておく
@@ -247,9 +249,11 @@ void PlayerStateAttack::DetermineAttackDirection()
 		attackDir += player->right;
 	}
 	//入力がないときは、playerの向いている方向に進む//あるときはその方向に進む//この処理に問題があるらしい
-	if (attackDir.Magnitude() == 0.0f)
+	if (attackDir.Magnitude() <= 0.0f)
 	{
 		player->m_targetVec = player->m_targetVec.Normalize();
+
+		//player->m_targetVec = player->forward.Normalize();
 	}
 	else
 	{

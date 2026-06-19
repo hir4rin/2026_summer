@@ -37,6 +37,12 @@ enum class ColPriority
 	High,
 	Static,
 };
+struct VelocityInfo
+{
+	Vector3 vel = {};//速度
+	float decayRate;//0.0f= 1frameで削除、0<x<1= 減衰、1.0f=減衰なし(持続)
+};
+
 /// <summary>
 /// MathVector3をincludeしないとつかえない
 /// </summary>
@@ -51,6 +57,7 @@ public:
 	bool IsCollidable(const Collider& other)const;
 	//当たったときに呼ばれる関数
 	virtual void OnCollision(Collider& other) = 0;
+
 	//押し戻しの処理//この後、ColUpdateをして、更新すること
 	Vector3 PushBack(Collider& other);
 
@@ -87,13 +94,16 @@ public:
 	void DebugDraw()const;
 protected:
 	virtual void ApplyPos()=0;
+	void AddVelocity(const std::string& name, Vector3 vel, float decayRatew);//速度の追加//名前、速度、減衰率
 protected:
 	ColliderType m_type;
 	Tags m_tag;
 	float m_center;
 	Vector3 m_pos = {};//座標
 	Vector3 m_offset = {};//基準位置からのオフセット
+	std::unordered_map<std::string, VelocityInfo> m_velocities;//速度のリスト//キーは名前、値は(速度,減衰率)
 	Vector3 m_vel = {};//速度
+	Vector3 m_knockBackVel = {};//吹き飛ばしのベクトル//ここに書きたくないが用途のため書く
 	float m_radius;//Sphereの半径、Boxの幅、Capsuleの半径
 	bool m_isActive;//当たり判定が有効かどうか
 	bool m_isTrigger;//当たり判定のみをし、押し戻しなどはしない

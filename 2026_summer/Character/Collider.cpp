@@ -29,8 +29,8 @@ void Collider::ColUpdate(Vector3 pos)
 bool Collider::IsCollidable(const Collider& other) const
 {
 	//球と球の当たり判定を実装予定
-	Vector3 Apos = GetWorldCenter();//自分の当たり判定の中心の座標
-	Vector3 Bpos = other.GetWorldCenter();//相手の当たり判定の中心の座標
+	Vector3 Apos = GetWorldCenter()+ m_vel;//自分の当たり判定の中心の座標
+	Vector3 Bpos = other.GetWorldCenter() + other.m_vel;//相手の当たり判定の中心の座標
 
 	//2点間の距離の2乗を求める
 	float sqDistance = (Apos - Bpos).sqMagnitude();
@@ -120,4 +120,10 @@ void Collider::DebugDraw() const
 		default:
 			break;
 	}
+}
+
+void Collider::AddVelocity(const std::string& name, Vector3 vel, float decayRatew)
+{
+	//上書きじゃなくて、加算もしたくなったら引数を足して、条件分岐
+	m_velocities[name] = { vel, decayRatew };
 }

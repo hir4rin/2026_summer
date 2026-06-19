@@ -23,6 +23,7 @@ namespace
 EnemySwordman::EnemySwordman(std::weak_ptr<Player> player) : EnemyBase(player)
 {
 	m_pos = Vector3(0, 0, 200);//初期位置
+	m_hp = 500;//体力
 	//一旦モデルはここ
 	m_modelHandle = MV1LoadModel("data/Enemy/swordman.mv1");
 	//モデルの初期位置を設定する
@@ -196,6 +197,16 @@ void EnemySwordman::Attack()
 void EnemySwordman::OnCollision(Collider& other)
 {
 	//当たっただけはなにもしない
+}
+
+void EnemySwordman::OnDamage(Collider& other, AttackData& data)
+{
+	//Playerの攻撃データをもとに被ダメ処理をする
+	m_hp -= data.attackPower;
+	//Enemy->Playerのベクトルに吹き飛ばす力を加える
+	Vector3 pushBackVec = (other.GetPos() - m_pos).Normalize() * data.knockBackPower.x;
+	m_vel = pushBackVec;
+	
 }
 
 void EnemySwordman::ChangeState(EnemyState newState)

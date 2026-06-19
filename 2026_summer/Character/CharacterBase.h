@@ -12,7 +12,7 @@ enum class Armor
 	Middle,
 	High,
 };
-enum class AttackPower
+enum class AttackDamagePower
 {
 	None = -1,
 	Low,
@@ -23,8 +23,9 @@ enum class AttackPower
 struct AttackData
 {
 	float attackPower;//攻撃力
-	Vector3 knockBackPower;//攻撃が当たったときの吹き飛ばしの力
+	Vector3 knockBackPower;//攻撃が当たったときの吹き飛ばしの力//YがY方向の吹き飛ばしの力、Xが水平面での吹き飛ばしの力
 	float hitStopTime;//攻撃が当たったときのヒットストップの時間
+	float kAttackColOffset;//攻撃判定を前に出す距離
 	bool isKirimomi;//吹っ飛ぶかどうか
 };
 
@@ -40,11 +41,12 @@ public:
 	void InitHitCol(std::weak_ptr<CharacterBase> owner);//やられ判定の初期化//継承先で呼ぶ
 
 	void SetTimeScale(float timeScale) { m_ownTimeScale = timeScale; }
-
+	Vector3 GetTargetVec() const { return m_targetVec; }
 
 	int GetModelHandle() const { return m_modelHandle; }
 	Vector3 GetForward() const { return forward; }//前方向のベクトルを返す
 	//const AttackData& GetAttackData() { return m_attackData; }//攻撃データの取得
+	virtual void OnDamage(Collider& other,AttackData& data)=0;//ダメージを受けた時の処理
 protected:
 	void UpdateAngleAndPos();//回転角度と座標の更新//
 	void ApplyPos()override;
@@ -70,7 +72,7 @@ protected:
 
 
 	Armor m_armor = Armor::None;//アーマー
-	AttackPower m_attackPower = AttackPower::None;//攻撃力
+	AttackDamagePower m_attackPower = AttackDamagePower::None;//攻撃力
 	AttackData m_attackData = {};
 	
 	bool m_isGround = true;//地面にいるかどうか

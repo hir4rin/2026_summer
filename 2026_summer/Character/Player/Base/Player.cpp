@@ -128,7 +128,6 @@ void Player::Draw()
 		SubWindow::AddText(text);
 	}
 	std::string posText = "Pos: " + std::to_string(m_pos.x) + ", " + std::to_string(m_pos.y) + ", " + std::to_string(m_pos.z);
-
 	SubWindow::AddText(posText);
 #ifdef _DEBUG
 	if (m_currentState)
@@ -140,6 +139,12 @@ void Player::Draw()
 
 void Player::OnCollision(Collider& other)
 {
+}
+
+void Player::OnDamage(Collider& other, AttackData& data)
+{
+	//ダメージを受けたときの処理
+	//敵の攻撃データをもらい、ダメージを減らし、体力を減らす、場合によってはプレイヤーを吹き飛ばす
 }
 
 void Player::ChangeState(std::shared_ptr<PlayerState> newState)
@@ -178,6 +183,7 @@ void Player::InitializeComboChain()
 		node.animName = tokens[ComboNodeType::AnimName];
 		node.type = static_cast<AttackType>(std::stoi(tokens[ComboNodeType::Type]));
 		node.index = std::stoi(tokens[ComboNodeType::Index]);
+		node.attackPower = std::stof(tokens[ComboNodeType::AttackPower]);
 		node.moveFrame = std::stof(tokens[ComboNodeType::MoveTimeRate]);
 		node.moveSpeedX = std::stof(tokens[ComboNodeType::MoveSpeedX]);
 		node.moveSpeedY = std::stof(tokens[ComboNodeType::MoveSpeedY]);
@@ -191,6 +197,7 @@ void Player::InitializeComboChain()
 				node.nextWeakAttack.push_back(std::stoi(idx));
 			}
 		}
+
 		//nextHeavyAttack(空なら空vector)
 		if (!tokens[ComboNodeType::NextHeavyAttack].empty())
 		{
@@ -201,6 +208,9 @@ void Player::InitializeComboChain()
 				node.nextHeavyAttack.push_back(std::stoi(idx));
 			}
 		}
+		node.knockBackXZ = std::stof(tokens[ComboNodeType::knockBackXZ]);
+		node.knockBackY = std::stof(tokens[ComboNodeType::knockBackY]);
+		node.isKirimomi = tokens[ComboNodeType::IsKirimomi] == "1" ? true : false;//CSVの値が1ならtrue、0ならfalse
 		node.seFrameRate = std::stof(tokens[ComboNodeType::SeFrameRate]);
 		node.seName = tokens[ComboNodeType::SeName];
 		m_comboChain.push_back(node);

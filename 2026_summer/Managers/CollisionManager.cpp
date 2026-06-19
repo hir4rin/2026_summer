@@ -67,6 +67,7 @@ void CollisionManager::Update()
 			if (!colliderB)continue;
 			//それぞれの速度の更新
 			float timescale = System::GetInstance().GetTimeScale();
+			//ここですべての速度にtimescaleをかける
 			colliderA->m_vel *= timescale * colliderA->GetTimeScale();
 			colliderB->m_vel *= timescale * colliderB->GetTimeScale();
 
@@ -85,6 +86,7 @@ void CollisionManager::Update()
 				if(colliderA->GetIsTrigger() || colliderB->GetIsTrigger()) continue;
 				//押し戻しの処理
 				//ここで速度を変更する//ここでタイムスケールを変更<-？？多分違う
+				//PushBackのvelを加える
 				colliderA->m_vel += colliderA->PushBack(*colliderB);
 				colliderB->m_vel += colliderB->PushBack(*colliderA);
 			}
@@ -93,6 +95,7 @@ void CollisionManager::Update()
 	//ここで位置確定用の関数を読んで位置をおいておく
 	//ここですべてのコライダーの位置を更新させる関数
 	//速度をSetVelだと、どこからでもいじれちゃうけど、CollisionManagerがColのfriendクラスになって速度をいじれるようにして、更新させる
+	//速度を足す
 	ApplyAdjustments();
 }
 
