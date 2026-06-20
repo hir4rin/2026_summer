@@ -44,37 +44,37 @@ void CharacterBase::UpdateAngleAndPos()
 
 void CharacterBase::ApplyPos()
 {
-	////座標の更新//m_knockBackVelを加算する
-	//m_pos += m_vel;
+	//座標の更新//m_knockBackVelを加算する
+	m_pos += m_vel;
 
-	////モデルの座標を更新する
-	//UpdateAngleAndPos();
+	//モデルの座標を更新する
+	UpdateAngleAndPos();
 
 	//お試し
-	Vector3 totalVel;
-	std::vector<std::string> RemoveList;
-	for (auto& [name, velInfo] : m_velocities)
-	{
-		totalVel += velInfo.vel;
-		if (velInfo.decayRate == 0.0f)//1フレームで削除する場合
-		{
-			RemoveList.push_back(name);
-		}
-		else
-		{
-			velInfo.vel *= velInfo.decayRate;//減衰
-			if(velInfo.vel.Magnitude() < 0.5f)//速度が小さくなったら削除する
-			{
-				RemoveList.push_back(name);
-			}
-		}
-	}
-	for (const auto& name : RemoveList)
-	{
-		m_velocities.erase(name);
-	}
-	m_pos += totalVel;
-	UpdateAngleAndPos();
+	//Vector3 totalVel;
+	//std::vector<std::string> RemoveList;
+	//for (auto& [name, velInfo] : m_velocities)
+	//{
+	//	totalVel += velInfo.vel;
+	//	if (velInfo.decayRate == 0.0f)//1フレームで削除する場合
+	//	{
+	//		RemoveList.push_back(name);
+	//	}
+	//	else
+	//	{
+	//		velInfo.vel *= velInfo.decayRate;//減衰
+	//		if(velInfo.vel.Magnitude() < 0.5f)//速度が小さくなったら削除する
+	//		{
+	//			RemoveList.push_back(name);
+	//		}
+	//	}
+	//}
+	//for (const auto& name : RemoveList)
+	//{
+	//	m_velocities.erase(name);
+	//}
+	//m_pos += totalVel;
+	//UpdateAngleAndPos();
 }
 
 

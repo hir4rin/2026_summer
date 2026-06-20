@@ -68,13 +68,13 @@ void PlayerStateAttack::Enter()
 			player->m_isGround = false;//ジャンプ状態にする
 		}
 	}
-	//ここでColliderを生成する
+	//ここでColliderを生成する//あとhitstopとkAttackColOffset
 	player->m_attackData = {
-	.attackPower = 10,
-	.knockBackPower = Vector3(0, 0, 0),
+	.attackPower = node.attackPower,
+	.knockBackPower = Vector3(node.knockBackXZ, node.knockBackY,0),
 	.hitStopTime = 0.1f,
 	.kAttackColOffset = 30.0f,
-	.isKirimomi = false
+	.isKirimomi = node.isKirimomi
 	};
 	m_attackCol = std::make_shared<AttackCol>(m_owner, player->m_attackData);
 	Vector3 offset = player->m_targetVec * player->m_attackData.kAttackColOffset

@@ -118,12 +118,14 @@ void Collider::DebugDraw() const
 			//Capsuleの描画は、球と円柱を組み合わせて描画する
 			break;
 		default:
+
+
 			break;
 	}
 }
 
-void Collider::AddVelocity(const std::string& name, Vector3 vel, float decayRatew)
-{
-	//上書きじゃなくて、加算もしたくなったら引数を足して、条件分岐
-	m_velocities[name] = { vel, decayRatew };
-}
+//void Collider::AddVelocity(const std::string& name, Vector3 vel, float decayRatew)
+//{
+//	//上書きじゃなくて、加算もしたくなったら引数を足して、条件分岐
+//	m_velocities[name] = { vel, decayRatew };
+//}

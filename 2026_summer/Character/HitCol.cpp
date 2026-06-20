@@ -17,6 +17,15 @@ void HitCol::OnCollision(Collider& other)
 	//何もしない
 }
 
+void HitCol::OnDamageInterFace(Collider& other, AttackData& data)
+{
+	//所有者にデータを渡す
+	auto owner = m_owner.lock();
+	if (!owner)return;
+
+	owner->OnDamage(other, data);
+}
+
 void HitCol::ApplyPos()
 {
 	auto owner = m_owner.lock();

@@ -205,8 +205,11 @@ void EnemySwordman::OnDamage(Collider& other, AttackData& data)
 	m_hp -= data.attackPower;
 	//Enemy->Playerのベクトルに吹き飛ばす力を加える
 	Vector3 pushBackVec = (other.GetPos() - m_pos).Normalize() * data.knockBackPower.x;
+
+	//ここをknockBackVelにして、knockBackVelをだんだん減衰させる処理をする
 	m_vel = pushBackVec;
-	
+	m_vel.y = data.knockBackPower.y;//Y軸の吹き飛ばしの力を加える
+	DrawFormatString(500, 0, GetColor(255, 0, 0), "EnemySwordman: OnDamage");
 }
 
 void EnemySwordman::ChangeState(EnemyState newState)
