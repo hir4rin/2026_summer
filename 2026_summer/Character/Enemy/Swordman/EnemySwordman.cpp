@@ -18,6 +18,8 @@ namespace
 	constexpr float kEnemyTargetUpdateTime = 30.0f;//敵がターゲットを更新する時間
 	constexpr float kEnemyCautionMaxTime = 600.0f;//敵が警戒する時間の最大値
 	constexpr float kEnemyAttackCoolTime = 60.0f;//敵の攻撃のクールタイム
+	constexpr float kEnemyHitBackTime = 30.0f;//敵が攻撃を受けたときの吹き飛ばしの時間
+	constexpr float kEnemyAirTime = 30.0f;//敵が空中にとどまるる時間
 }
 
 EnemySwordman::EnemySwordman(std::weak_ptr<Player> player) : EnemyBase(player)
@@ -63,7 +65,7 @@ void EnemySwordman::Update()
 		m_attackCoolTime -= 1.0f;
 	}
 	//押し戻しの処理が続かないように消す//応急処置
-	m_vel = Vector3(0, 0, 0);
+	m_vel = Vector3(0, m_vel.y, 0);
 
 	//Idle->ランダム回す仕組みを作る
 	switch (m_state)
@@ -162,6 +164,81 @@ void EnemySwordman::Update()
 			break;
 		}
 		break;
+	case EnemyState::Hit:
+		//m_knockBackVelで保存したベクトルをm_velに追加
+		//y軸があるときとないときで処理を変える
+		m_knockBackFrame++;
+		
+		switch (m_hitType)
+		{
+			case HitType::Air:
+				//速度を指定
+				m_vel = m_knockBackVel;
+				//空中にいるときは、y軸の吹き飛ばしの力を減衰させる
+				m_knockBackVel.y -= Game::kGravity;
+				if (m_knockBackVel.y <= 0.0f)
+				{
+					m_knockBackVel.y = 0.0f;
+					FinishHitProcess();
+					//吹き飛ばしのベクトルが0になったらAirStayに戻す
+					ChangeState(EnemyState::AirStay);
+				}
+				break;
+			case HitType::Ground://上下差がないとき
+				m_vel += m_knockBackVel;
+				if (m_knockBackFrame > kEnemyHitBackTime)
+				{
+					
+					FinishHitProcess();
+					//現在地上か空中かで分岐
+					if (m_pos.y <= 0.0f)
+					{
+						ChangeState(EnemyState::Idle);
+					}
+					else
+					{
+						ChangeState(EnemyState::Fall);
+					}
+				}
+				break;
+			case HitType::Drop:
+				//速度を指定
+				m_vel = m_knockBackVel;
+				m_knockBackVel.y -= Game::kGravity;
+				if (m_pos.y <= 0.0f)
+				{
+					m_pos.y = 0.0f;
+					m_vel.y = 0.0f;
+					m_knockBackVel.y = 0.0f;
+
+					FinishHitProcess();
+					//地面についたらChange
+					ChangeState(EnemyState::Idle);
+				}
+				break;
+			default : 
+				break;
+		}
+		break;
+	case EnemyState::AirStay:
+		m_airCount += 1.0f;
+		if (m_airCount > kEnemyAirTime)
+		{
+			m_airCount = 0.0f;
+			FinishHitProcess();
+			ChangeState(EnemyState::Fall);
+		}
+		break;
+	case EnemyState::Fall:
+		//落下処理
+		m_vel.y -= Game::kGravity;//重力の処理
+		if (m_pos.y <= 0.0f)
+		{
+			m_pos.y = 0.0f;
+			m_vel.y = 0.0f;
+			ChangeState(EnemyState::Idle);
+		}
+		break;
 	default:
 		break;
 
@@ -207,9 +284,11 @@ void EnemySwordman::OnDamage(Collider& other, AttackData& data)
 	Vector3 pushBackVec = (other.GetPos() - m_pos).Normalize() * data.knockBackPower.x;
 
 	//ここをknockBackVelにして、knockBackVelをだんだん減衰させる処理をする
-	m_vel = pushBackVec;
-	m_vel.y = data.knockBackPower.y;//Y軸の吹き飛ばしの力を加える
+	m_knockBackVel = pushBackVec;
+	m_knockBackVel.y = data.knockBackPower.y;//Y軸の吹き飛ばしの力を加える
 	DrawFormatString(500, 0, GetColor(255, 0, 0), "EnemySwordman: OnDamage");
+	//stateをHItにする
+	ChangeState(EnemyState::Hit);
 }
 
 void EnemySwordman::ChangeState(EnemyState newState)
@@ -223,15 +302,20 @@ void EnemySwordman::ChangeState(EnemyState newState)
 	case EnemyState::Idle:
 		break;
 	case EnemyState::Chase:
-		m_vel = Vector3(0, 0, 0);//攻撃中は移動しない
+		m_vel = Vector3(0, 0, 0);
 		break;
 	case EnemyState::Caution:
-		m_vel = Vector3(0, 0, 0);//攻撃中は移動しない
+		m_vel = Vector3(0, 0, 0);
 		break;
 	case EnemyState::Attack:
 		break;
 	case EnemyState::Back:
-		m_vel = Vector3(0, 0, 0);//攻撃中は移動しない
+		m_vel = Vector3(0, 0, 0);
+		break;
+	case EnemyState::Hit:
+		
+		break;
+	case EnemyState::Fall:
 		break;
 	default:
 		break;
@@ -265,6 +349,15 @@ void EnemySwordman::ChangeState(EnemyState newState)
 		m_targetPos = player->GetPos();
 		//Playerを見る
 		ToPlayerLook();
+		break;
+	case EnemyState::Hit:
+		if (m_knockBackVel.y > 0.0f)m_hitType = HitType::Air;
+		else if(m_knockBackVel.y < 0.0f)m_hitType = HitType::Drop;
+		else m_hitType = HitType::Ground;
+		break;
+	case EnemyState::AirStay:
+		break;
+	case EnemyState::Fall:
 		break;
 	default:
 		break;

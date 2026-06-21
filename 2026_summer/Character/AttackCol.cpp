@@ -92,6 +92,7 @@ void AttackCol::PlayerAttackOnCollision(Collider& other)
 			if (hitCol)
 			{
 				hitCol->OnDamageInterFace(*this, *m_attackData);
+				//ownerに当たったことを連絡->AttackMoveを止める
 			}
 		}
 	}

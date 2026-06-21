@@ -13,6 +13,16 @@ public:
 		Chase = 2,
 		Attack = 3,
 		Back = 4,
+		Hit = 5,
+		AirStay = 6,
+		Fall = 7,
+	};
+	enum class HitType : int
+	{
+		None = -1,
+		Air = 0,
+		Ground = 1,
+		Drop = 2,
 	};
 
 public:
@@ -54,6 +64,7 @@ protected:
 	bool CanMeleeAttack(float distance);//MeleeAttackができる距離かどうか
 
 	void ToPlayerLook();//Playerの方を向く
+	void FinishHitProcess();//Hitの終了処理
 
 	virtual void ChangeState(EnemyState newState) = 0;
 
@@ -64,5 +75,8 @@ protected:
 	float m_chasingTime = 0.0f;//追いかけている時間
 	float m_cautionTime = 0.0f;//警戒している時間
 	float m_idleTime = 0.0f;//待機時間
+	float m_knockBackFrame = 0;//吹き飛ばしのフレーム数
+	float m_airCount = 0.0f;//空中にいる時間//AirStayのときに使う
+	HitType m_hitType = HitType::None;//空中にいるかどうか
 };
 

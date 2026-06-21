@@ -78,6 +78,7 @@ protected:
 	bool m_isGround = true;//地面にいるかどうか
 	bool m_isHit = false;//攻撃を喰らったか
 	bool m_isDead = false;//死んでいるか
+	bool m_isAttackHit = false;//攻撃が当たったか
 	//参照用のカメラ
 	Camera* m_camera;
 };

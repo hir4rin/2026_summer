@@ -31,6 +31,15 @@ std::string EnemyBase::GetEnemyStateString(EnemyState state)
 		case EnemyState::Back:
 			ans = "Back";
 			break;
+		case EnemyState::Hit:
+			ans = "Hit";
+			break;
+		case EnemyState::AirStay:
+			ans = "AirStay";
+			break;
+		case EnemyState::Fall:
+			ans = "Fall";
+			break;
 		default : 
 			ans = "Unknown";
 			break;
@@ -128,4 +137,12 @@ void EnemyBase::ToPlayerLook()
 
 	Vector3 toPlayer = player->GetPos() - m_pos;
 	m_targetVec = toPlayer.Normalize();
+}
+
+void EnemyBase::FinishHitProcess()
+{
+	//初期化しておく
+	m_knockBackVel = Vector3(0, 0, 0);
+	m_knockBackFrame = 0;
+	m_hitType = HitType::None;
 }
