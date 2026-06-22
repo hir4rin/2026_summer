@@ -24,6 +24,9 @@ public:
 
 	bool GetAnimEndFlag() { return m_isEndAnim;}//アニメーションが終わったかどうかのフラグを返す
 	float GetAnimRate();//アニメーションの進行率を返す//0から1の値を返す
+	float GetAnimTotalFrame(const std::string& name);//指定したアニメーションの総フレーム数を返す
+	float GetNowAnimFrame();//現在のアニメーションのフレーム数を返す
+	float GetNowAnimFrame(const std::string& name);//指定したアニメーションの現在のフレーム数を返す
 
 	void SetRootMotionEnable(bool enable, int rootFrameIndex = 0);//ルートモーションの有効化を設定する//rootFrameIndexはルートモーションを適用するフレームのインデックス
 	Vector3 GetRootMotionDelta();//ルートモーションの移動量を返す//前フレームと現在のフレームのルート位置の差分を返す

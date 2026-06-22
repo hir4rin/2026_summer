@@ -1,5 +1,6 @@
 ﻿#include "AttackCol.h"
 #include "CharacterBase.h"
+#include "Player.h"
 
 namespace
 {
@@ -78,21 +79,32 @@ void AttackCol::ApplyPos()
 
 void AttackCol::PlayerAttackOnCollision(Collider& other)
 {
+	auto it = m_owner.lock();
+	if (!it)return;
+	auto player = std::dynamic_pointer_cast<Player>(it);
+	if (!player)return;
+
 	if (other.GetTag() == Tags::EnemyHit)
 	{
 		int otherId = other.GetId();
 		auto it = std::find(m_hitIds.begin(), m_hitIds.end(), otherId);
 		if (it == m_hitIds.end())
 		{
-			// 当たっていない場合の処理
+			// 初めて当たった場合の処理
 			//otherの被ダメ処理
 			m_hitIds.push_back(otherId);//当たったidのリストにotherのidを追加する
 			//hitColのOnDamageInterFaceを呼ぶ
 			auto hitCol = dynamic_cast<HitCol*>(&other);
 			if (hitCol)
 			{
+				//attackDataの変更//現在経過時間を引いて、敵の移動距離、時間を決める
+				float nowAnimFrame = player->GetAnimation().GetNowAnimFrame();
+				m_attackData->knockBackFrame -= nowAnimFrame;
+
 				hitCol->OnDamageInterFace(*this, *m_attackData);
 				//ownerに当たったことを連絡->AttackMoveを止める
+				auto& comboInfo = player->GetComboInfo();
+				comboInfo.isHit = true;//攻撃が当たったことを通知する//これで、攻撃の移動を止める
 			}
 		}
 	}

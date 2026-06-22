@@ -118,13 +118,13 @@ void PlayerStateAvoid::DetermineAvoidDirection()
 	if(player->m_avoidInfo.BaseVel.Magnitude() == 0.0f)
 	{
 		player->m_avoidInfo.BaseVel = player->m_targetVec * -1.0f;//カメラの向きの逆方向に回避する
-		player->m_anim.ChangeAnim(player->GetAnimName("DodgeBackward"), false,0.5f);
+		player->m_anim.ChangeAnim(player->GetAnimName("DodgeBackward"), false,1.0f);
 		player->m_avoidInfo.isAvoidBack = true;
 	}
 	else
 	{
 		player->m_avoidInfo.isAvoidBack = false;
-		player->m_anim.ChangeAnim(player->GetAnimName("DodgeForward"), false,0.5f);
+		player->m_anim.ChangeAnim(player->GetAnimName("DodgeForward"), false,1.0f);
 	}
 
 }

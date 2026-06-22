@@ -8,7 +8,7 @@ public:
 	void Init() override;
 	void Update() override;
 	void Draw() override;
-
+	std::string  GetHitString();
 	void Attack();
 
 	void OnCollision(Collider& other) override;

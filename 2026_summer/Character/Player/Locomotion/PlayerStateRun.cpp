@@ -26,7 +26,7 @@ void PlayerStateRun::Enter()
 	auto player = m_owner.lock();
 	if (!player) return;
 	//animationの初期化
-	player->m_anim.ChangeAnim(player->GetAnimName("Run"), true,0.5f);
+	player->m_anim.ChangeAnim(player->GetAnimName("Run"), true,1.0f);
 }
 
 void PlayerStateRun::Update()

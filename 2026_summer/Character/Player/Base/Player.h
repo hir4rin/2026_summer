@@ -37,6 +37,7 @@ struct ComboNode
 struct ComboInfo
 {
 	int currentComboIndex = -1;//現在のコンボの段数//攻撃の段数を管理するための変数
+	bool isHit = false;//攻撃が当たったかどうか//当たっていたら動きを止める
 	//int nextComboIndex = -1;//次のコンボの段数
 };
 
@@ -107,6 +108,7 @@ public:
 
 	void OnCollision(Collider& other) override;
 	void OnDamage(Collider& other, AttackData& data) override;
+	ComboInfo& GetComboInfo() { return m_comboInfo; }//攻撃コンボの情報を取得する
 	/// <summary>
 	/// 状態を変更する関数
 	/// </summary>

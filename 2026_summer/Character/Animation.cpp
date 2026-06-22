@@ -7,7 +7,7 @@ namespace
 	constexpr int kAnimChangeFrame = 20;//アニメーションを切り替えるフレーム数//ブレンドのフレームもアニメーションごとに変えたい
 }
 
-Animation::Animation():
+Animation::Animation() :
 	m_modelHandle(-1),
 	m_currentAnimHandle(-1),
 	m_prevAnimHandle(-1),
@@ -26,7 +26,7 @@ Animation::~Animation()
 	MV1DeleteModel(m_modelHandle);
 }
 
-void Animation::Init(int modelHandle, std::string name,bool isRoop,float timescale)
+void Animation::Init(int modelHandle, std::string name, bool isRoop, float timescale)
 {
 	SetAnim(isRoop);
 	//モデルのハンドルを保存する
@@ -50,34 +50,34 @@ void Animation::Update()
 	float timeScale = System::GetInstance().GetTimeScale();//時間のスケールを取得する//0から1の値を返す//0.5なら、時間が半分になる
 	//アニメーションの更新
 	m_currentAnimCount += 1.0f * timeScale * m_animtimeScale;//アニメーションのフレーム数を増やす
-	m_prevAnimCount	   += 1.0f * timeScale * m_prevAnimTimeScale;//前のアニメーションのフレーム数を増やす
+	m_prevAnimCount += 1.0f * timeScale * m_prevAnimTimeScale;//前のアニメーションのフレーム数を増やす
 
 	//アニメーションのブレンド
 	AnimBlend();
 	//アニメーションのループ再生
 	//アタッチしているアニメーションの総フレーム数を取得する
 	float totalAnimCount = MV1GetAttachAnimTotalTime(m_modelHandle, m_currentAnimHandle);
-	if(m_currentAnimCount >= totalAnimCount)
+	if (m_currentAnimCount >= totalAnimCount)
+	{
+		m_isEndAnim = true;//アニメーションが終わったフラグを立てる
+		if (m_isRoop)
 		{
-			m_isEndAnim = true;//アニメーションが終わったフラグを立てる
-			if (m_isRoop)
-			{
-				m_currentAnimCount -= totalAnimCount;//アニメーションのフレーム数がアニメーションの総フレーム数を超えたら、0にする
-			}
-			else
-			{
-				m_currentAnimCount = totalAnimCount;//止める
-			}
+			m_currentAnimCount -= totalAnimCount;//アニメーションのフレーム数がアニメーションの総フレーム数を超えたら、0にする
 		}
+		else
+		{
+			m_currentAnimCount = totalAnimCount;//止める
+		}
+	}
 	//アニメーションのカウントを更新する
 	MV1SetAttachAnimTime(m_modelHandle, m_currentAnimHandle, m_currentAnimCount);
 	//前のアニメーションのループ再生
 	if (m_prevAnimHandle != -1)
 	{
 		float totalPrevAnimCount = MV1GetAttachAnimTotalTime(m_modelHandle, m_prevAnimHandle);
-		if(m_prevAnimCount >= totalPrevAnimCount)
+		if (m_prevAnimCount >= totalPrevAnimCount)
 		{
-			if(m_prevRoop)
+			if (m_prevRoop)
 			{
 				m_prevAnimCount -= totalPrevAnimCount;//前のアニメーションのフレーム数が前のアニメーションの総フレーム数を超えたら、0にする
 			}
@@ -86,7 +86,7 @@ void Animation::Update()
 				m_prevAnimCount = totalPrevAnimCount;//止める
 			}
 		}
-		
+
 		MV1SetAttachAnimTime(m_modelHandle, m_prevAnimHandle, m_prevAnimCount);//前のアニメーションのフレーム数を更新する
 	}
 }
@@ -135,7 +135,7 @@ void Animation::SetAnim(bool isRoop)
 
 
 
-void Animation::ChangeAnim(std::string name,bool isRoop, float timescale)
+void Animation::ChangeAnim(std::string name, bool isRoop, float timescale)
 {
 	m_prevAnimTimeScale = m_animtimeScale;//前のアニメーションの再生速度を保存する
 	//m_animtimeScale = timescale;//アニメーションの再生速度を設定する
@@ -166,7 +166,7 @@ void Animation::ChangeAnim(std::string name,bool isRoop, float timescale)
 	m_currentAnimCount = 0.0f;//新しいアニメーションのフレーム数を0にする
 	m_animChangeFrame = 0.0f;//アニメーションを切り替えるフレーム数を0にする
 
-	
+
 }
 
 float Animation::GetAnimRate()
@@ -179,11 +179,31 @@ float Animation::GetAnimRate()
 	return rate;
 }
 
+float Animation::GetAnimTotalFrame(const std::string& name)
+{
+	float totalAnimCount = MV1GetAttachAnimTotalTime(m_modelHandle, MV1GetAnimIndex(m_modelHandle, name.c_str()));//アタッチしているアニメーションの総フレーム数を取得する
+	return totalAnimCount;
+}
+
+float Animation::GetNowAnimFrame()
+{
+	return m_currentAnimCount;
+}
+
+float Animation::GetNowAnimFrame(const std::string& name)
+{
+	int animIndex = MV1GetAnimIndex(m_modelHandle, name.c_str());
+	if (animIndex == -1) return 0.0f;//アニメーションが存在しない場合は0を返す
+	float animFrame = MV1GetAttachAnimTime(m_modelHandle, animIndex);//アタッチしているアニメーションの現在のフレーム数を取得する
+
+	return animFrame;
+}
+
 void Animation::SetRootMotionEnable(bool enable, int rootFrameIndex)
 {
-		m_enableRootMotion = enable;
-		m_rootFrameIndex = rootFrameIndex;
-		m_prevRootMatrix = MV1GetFrameLocalMatrix(m_modelHandle, m_rootFrameIndex);//ルートフレームの行列を保存する
+	m_enableRootMotion = enable;
+	m_rootFrameIndex = rootFrameIndex;
+	m_prevRootMatrix = MV1GetFrameLocalMatrix(m_modelHandle, m_rootFrameIndex);//ルートフレームの行列を保存する
 }
 
 Vector3 Animation::GetRootMotionDelta()

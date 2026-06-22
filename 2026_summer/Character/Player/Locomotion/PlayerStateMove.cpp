@@ -22,7 +22,7 @@ void PlayerStateMove::Enter()
 	auto player = m_owner.lock();
 	if (!player) return;
 	//animationの初期化
-	player->m_anim.ChangeAnim(player->GetAnimName("Walk"), true,0.5f);
+	player->m_anim.ChangeAnim(player->GetAnimName("Walk"), true,1.0f);
 }
 
 void PlayerStateMove::Update()

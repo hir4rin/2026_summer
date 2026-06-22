@@ -56,7 +56,7 @@ void PlayerStateAttack::Enter()
 	}
 
 	const ComboNode& node = player->m_comboChain[currentComboIndex];
-	player->m_anim.ChangeAnim(node.animName, false,0.5f);
+	player->m_anim.ChangeAnim(node.animName, false,1.0f);
 
 
 	//上下差がある攻撃の時はここで初速を与える
@@ -68,10 +68,13 @@ void PlayerStateAttack::Enter()
 			player->m_isGround = false;//ジャンプ状態にする
 		}
 	}
+	float totalAnimFrame = player->m_anim.GetAnimTotalFrame(node.animName);
 	//ここでColliderを生成する//あとhitstopとkAttackColOffset
 	player->m_attackData = {
 	.attackPower = node.attackPower,
-	.knockBackPower = Vector3(node.knockBackXZ, node.knockBackY,0),
+	//.knockBackPower = Vector3(node.knockBackXZ, node.knockBackY,0),
+	.knockBackPower = Vector3(0.0f,node.knockBackY,0.0f),//吹き飛ばない攻撃にする
+	.knockBackFrame = totalAnimFrame*node.moveFrame,
 	.hitStopTime = 0.1f,
 	.kAttackColOffset = 30.0f,
 	.isKirimomi = node.isKirimomi
@@ -187,8 +190,16 @@ void PlayerStateAttack::AttackMoveMent()
 	float rate = player->m_anim.GetAnimRate();//アニメーションの進行率を取得
 
 	//上下差がない攻撃とある攻撃で処理を分ける//moveSpeedYが0のときは、上下差がない攻撃とする
-	if (node.moveSpeedY == 0)
+	if (node.moveSpeedY == 0.0f)
 	{
+		//攻撃が当たったときは、動きを止める
+		if (player->m_comboInfo.isHit)
+		{
+			player->m_vel = Vector3(0, 0, 0);//攻撃が当たったときは、速度を0にする
+			return;
+		}
+
+
 		//コンボノードで設定された時間内だけ突進
 		if (rate < node.moveFrame)
 		{
@@ -315,6 +326,7 @@ void PlayerStateAttack::AttackFinishProcess()
 	auto player = m_owner.lock();
 	if (!player) return;
 	player->m_comboInfo.currentComboIndex = ComboIndex::None;//攻撃していない状態に戻す
+	player->m_comboInfo.isHit = false;//攻撃が当たったかどうか
 	//y軸の速度を0に戻す
 	player->m_vel.y = 0.0f;
 	//攻撃の当たり判定の開放
