@@ -159,6 +159,7 @@ void PlayerStateAttack::Update()
 			player->m_isGround = true;//地面にいる状態にする
 			player->m_pos.y = 0.0f;//地面に埋まらないようにする
 			player->m_vel = Vector3(0, 0, 0);//突進が終わったら、速度を0にする
+			//player->m_hitCol
 			AttackFinishProcess();
 			player->ChangeState(std::make_shared<PlayerStateIdle>(m_owner));
 			return;

@@ -30,9 +30,8 @@ void HitCol::ApplyPos()
 {
 	auto owner = m_owner.lock();
 	if (!owner)return;
-	//座標の更新//所有者のvelをもらって更新
-	Vector3 vel = owner->GetVel();
-	m_pos += vel;
+	//座標の更新
+	m_pos = owner->GetPos();
 
 	////m_pos = owner->GetPos();
 }
