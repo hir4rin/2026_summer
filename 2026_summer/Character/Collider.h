@@ -9,7 +9,8 @@ enum class ColliderType
 {
 	Sphere,
 	Box,
-	Capsule
+	Capsule,
+	Polygon,
 };
 /// <summary>
 /// タグ

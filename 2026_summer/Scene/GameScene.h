@@ -4,6 +4,7 @@
 
 
 class CameraManager;
+class Stage;
 class Player;
 class EnemySwordman;
 
@@ -27,5 +28,7 @@ private:
 	std::unique_ptr<CameraManager> m_cameraManager;
 	std::shared_ptr<Player> m_player;
 	std::shared_ptr<EnemySwordman> m_enemySwordman;
+
+	std::shared_ptr<Stage> m_stage;
 };
 

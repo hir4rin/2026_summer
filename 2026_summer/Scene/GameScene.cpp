@@ -2,6 +2,7 @@
 #include "../Camera/CameraManager.h"
 #include "Player.h"
 #include "../Character/Enemy/Swordman/EnemySwordman.h"
+#include "../Stage/Stage.h"
 
 namespace
 {
@@ -24,6 +25,8 @@ GameScene::GameScene(SceneController& controller):Scene(controller)
 	m_cameraManager = std::make_unique<CameraManager>();
 	//カメラの初期化
 	m_cameraManager->Update(m_player->GetPos());
+
+	m_stage = std::make_shared<Stage>();
 }
 GameScene::~GameScene()
 {
@@ -44,6 +47,7 @@ void GameScene::NormalUpdate()
 	m_cameraManager->Update(m_player->GetPos() - Vector3(0,m_player->GetCenter(),0));
 	m_player->Update(*m_cameraManager->GetHighestPriorityCamera());
 	m_enemySwordman->Update();
+	m_stage->Update();
 	CollisionManager::GetInstance().Update();
 }
 
@@ -67,6 +71,7 @@ void GameScene::NormalDraw()
 
 	m_player->Draw();
 	m_enemySwordman->Draw();
+	m_stage->Draw();
 
 #ifdef _DEBUG
 	CollisionManager::GetInstance().DebugDraw();
