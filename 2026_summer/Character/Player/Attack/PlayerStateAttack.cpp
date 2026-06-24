@@ -74,7 +74,7 @@ void PlayerStateAttack::Enter()
 	.attackPower = node.attackPower,
 	//.knockBackPower = Vector3(node.knockBackXZ, node.knockBackY,0),
 	.knockBackPower = Vector3(0.0f,node.knockBackY,0.0f),//吹き飛ばない攻撃にする
-	.knockBackFrame = totalAnimFrame*node.moveFrame,
+	.knockBackFrame = totalAnimFrame,
 	.hitStopTime = 0.1f,
 	.kAttackColOffset = 30.0f,
 	.isKirimomi = node.isKirimomi
