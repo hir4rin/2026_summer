@@ -20,6 +20,8 @@ namespace
 	constexpr float kEnemyAttackCoolTime = 60.0f;//敵の攻撃のクールタイム
 	constexpr float kEnemyHitBackTime = 30.0f;//敵が攻撃を受けたときの吹き飛ばしの時間
 	constexpr float kEnemyAirTime = 30.0f;//敵が空中にとどまるる時間
+	constexpr float kEnemyDistance = 50.0f;
+	constexpr float kToTargetPower = 3.0f;//プレイヤーの正面に行くようにknockBackする力
 }
 
 EnemySwordman::EnemySwordman(std::weak_ptr<Player> player) : EnemyBase(player)
@@ -193,9 +195,17 @@ void EnemySwordman::Update()
 				//敵を移動させる
 				if (m_knockBackFrame <= m_attackData.knockBackFrame)
 				{
+					//Enemy->Playerのベクトルに吹き飛ばす力を加える//プレイヤーの正面に行くようにknockBackする//いずれkirimomi吹っ飛びの時の処理と分ける
+					Vector3 front = player->GetTargetVec();
+					Vector3 pos = player->GetPos() + player->GetVel();
+					Vector3 TargetPos = pos + front * kEnemyDistance;
+					Vector3 toTarget = (TargetPos - m_pos).Normalize() * kToTargetPower;
+
 					Vector3 knockBackDir = (m_pos - player->GetPos()).Normalize();
 					knockBackDir.y = 0.0f;//y軸の吹き飛ばしはなし
+					knockBackDir += toTarget;
 					m_vel += knockBackDir * m_attackData.knockBackPower.x;
+					
 				}
 				
 				if (m_knockBackFrame > kEnemyHitBackTime)//本来はplayerの攻撃終了タイミングを読み取って、そこから変わる
@@ -256,6 +266,9 @@ void EnemySwordman::Update()
 		break;
 
 	}
+	//いったんここで、敵の吸着の仕様を作る
+
+
 
 	m_anim.Update();
 	//m_pos += m_vel;//速度を座標に加算する//移動する
@@ -317,13 +330,23 @@ void EnemySwordman::OnCollision(Collider& other)
 
 void EnemySwordman::OnDamage(Collider& other, AttackData& data)
 {
+	auto player = m_player.lock();
+	if (!player)return;
+
 	//データの保存
 	m_attackData = data;
 
 	//Playerの攻撃データをもとに被ダメ処理をする
 	m_hp -= data.attackPower;
-	//Enemy->Playerのベクトルに吹き飛ばす力を加える
+
+	//Enemy->Playerのベクトルに吹き飛ばす力を加える//プレイヤーの正面に行くようにknockBackする//いずれkirimomi吹っ飛びの時の処理と分ける
+	Vector3 front = player->GetTargetVec();
+	Vector3 pos = player->GetPos() + player->GetVel();
+	Vector3 TargetPos = pos + front * kEnemyDistance;
+	Vector3 toTarget = (TargetPos - m_pos).Normalize() * kToTargetPower;
+
 	Vector3 pushBackVec = (m_pos - other.GetPos()).Normalize() * data.knockBackPower.x;
+	pushBackVec += toTarget;
 
 	//ここをknockBackVelにして、knockBackVelをだんだん減衰させる処理をする
 	m_knockBackVel = pushBackVec;

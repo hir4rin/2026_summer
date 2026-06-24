@@ -74,7 +74,7 @@ void PlayerStateAttack::Enter()
 	.attackPower = node.attackPower,
 	//.knockBackPower = Vector3(node.knockBackXZ, node.knockBackY,0),
 	.knockBackPower = Vector3(0.0f,node.knockBackY,0.0f),//吹き飛ばない攻撃にする
-	.knockBackFrame = totalAnimFrame*node.moveFrame,
+	.knockBackFrame = totalAnimFrame,
 	.hitStopTime = 0.1f,
 	.kAttackColOffset = 30.0f,
 	.isKirimomi = node.isKirimomi
@@ -82,9 +82,9 @@ void PlayerStateAttack::Enter()
 	m_attackCol = std::make_shared<AttackCol>(m_owner, player->m_attackData);
 	Vector3 offset = player->m_targetVec * player->m_attackData.kAttackColOffset
 					+ Vector3(0, kPlayerCenter, 0);//プレイヤーの前方に50.0f、y軸方向にkPlayerCenterだけオフセットする
-	m_attackCol->ColInit(player->m_pos, offset, 50.0f,
+	m_attackCol->ColInit(player->m_pos, offset, 150.0f,
 							ColliderType::Sphere, Tags::PlayerAttack, true,true);//攻撃の当たり判定を初期化する//最初は無効にしておく
-	//m_attackCol->SetIsActive(false);//最初は当たり判定を無効にしておく
+	m_attackCol->SetIsActive(false);//最初は当たり判定を無効にしておく
 }
 
 void PlayerStateAttack::Update()
@@ -105,9 +105,12 @@ void PlayerStateAttack::Update()
 		player->ChangeState(std::make_shared<PlayerStateAvoid>(m_owner));
 		return;
 	}
+
+	//攻撃の進行率によってジャンプの入力を受け付けるかどうかを決める
 	//ジャンプ
 	if (input.IsTriggered("A"))
 	{
+		AttackFinishProcess();//攻撃の段数を初期化するなどの処理
 		player->ChangeState(std::make_shared<PlayerStateJump>(m_owner));
 		return;
 	}
@@ -179,6 +182,7 @@ void PlayerStateAttack::DebugDraw()
 {
 	DrawFormatString(10, 10, GetColor(255, 255, 255), "PlayerState:Attack");
 	DrawFormatString(10, 30, GetColor(255, 255, 255), "ComboIndex:%d", m_owner.lock()->m_comboInfo.currentComboIndex);
+	DrawFormatString(10, 50, GetColor(255, 255, 255), "m_attackCol Active:%d", m_attackCol->IsActive());
 }
 
 void PlayerStateAttack::AttackMoveMent()
@@ -193,6 +197,17 @@ void PlayerStateAttack::AttackMoveMent()
 	//上下差がない攻撃とある攻撃で処理を分ける//moveSpeedYが0のときは、上下差がない攻撃とする
 	if (node.moveSpeedY == 0.0f)
 	{
+		//攻撃判定//いったん
+		if (rate > 0.2f && rate < 0.6f)
+		{
+			m_attackCol->SetIsActive(true);//攻撃の当たり判定を有効にする
+		}
+		else 
+		{
+			m_attackCol->SetIsActive(false);//攻撃の当たり判定を無効にする
+		}
+
+
 		//攻撃が当たったときは、動きを止める
 		if (player->m_comboInfo.isHit)
 		{
@@ -213,6 +228,8 @@ void PlayerStateAttack::AttackMoveMent()
 	}
 	else//上下差あり
 	{
+		//上下差ある攻撃は常に判定を有効
+		m_attackCol->SetIsActive(true);//攻撃の当たり判定を無効にする
 		//重力
 		player->m_vel += Vector3(0, -Game::kGravity, 0);
 
@@ -313,6 +330,8 @@ void PlayerStateAttack::StartCombo(int comboIndex)
 {
 	auto player = m_owner.lock();
 	if (!player) return;
+	//isHitをfalseにする
+	player->m_comboInfo.isHit = false;
 	//範囲外だったら早期リターン
 	if (comboIndex < 0 || comboIndex >= player->m_comboChain.size())return;
 

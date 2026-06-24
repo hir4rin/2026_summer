@@ -65,13 +65,12 @@ void CollisionManager::Update()
 			Collider* colliderB = m_colliders[j];
 			//アクティブなコライダーだけをチェックする//ここ関数化
 			if (!colliderB)continue;
+			if (!colliderB->IsActive())continue;
 			//それぞれの速度の更新
 			float timescale = System::GetInstance().GetTimeScale();
 			//ここですべての速度にtimescaleをかける
 			colliderA->m_vel *= timescale * colliderA->GetTimeScale();
 			colliderB->m_vel *= timescale * colliderB->GetTimeScale();
-
-			if (!colliderB->IsActive())continue;
 			//衝突判定//球と球、BoxとBox、CapsuleとCapsuleとかで分ける
 			//球と球
 			if (colliderA->IsCollidable(*colliderB))
