@@ -44,6 +44,17 @@ struct VelocityInfo
 	float decayRate;//0.0f= 1frameで削除、0<x<1= 減衰、1.0f=減衰なし(持続)
 };
 
+struct CapsuleInfo
+{
+	//自身の座標とendPosの2点でカプセルを作る
+	Vector3 endPos;
+	//最近点
+	Vector3 hitNearestPos;
+	//最近点からの距離
+	float hitNearestDistance;
+
+};
+
 /// <summary>
 /// MathVector3をincludeしないとつかえない
 /// </summary>
@@ -77,6 +88,7 @@ public:
 	void SetType(ColliderType type) { m_type = type; }
 	void SetTag(Tags tag) { m_tag = tag; }
 	void SetIsActive(bool isActive) { m_isActive = isActive; }
+	void SetCapsuleEndPos(Vector3 endPos) { m_capsuleInfo.endPos = endPos; }//カプセルの終点の座標をセット//最初に使う
 
 	//ゲッター
 	Collider* GetCollider() { return this; }
@@ -88,9 +100,13 @@ public:
 	int GetId()const { return m_id; }
 	bool GetIsTrigger()const { return m_isTrigger; }
 	Vector3 GetPos() const { return m_pos; }
+	Vector3 GetNextPos() const { return m_pos + m_vel; }//次のフレームでの座標を返す
 	Vector3 GetVel() const { return m_vel; }
 	Vector3 GetWorldCenter() const { return m_pos + m_offset; }//ワールド座標での中心位置を返す
+	Vector3 GetCapsuleEndPos() const { return m_capsuleInfo.endPos; }//カプセルの終点の座標を返す
 	float GetTimeScale() const { return m_ownTimeScale; }
+
+
 	//デバッグ描画
 	void DebugDraw()const;
 protected:
@@ -100,17 +116,21 @@ protected:
 	ColliderType m_type;
 	Tags m_tag;
 	float m_center;
+
 	Vector3 m_pos = {};//座標
 	Vector3 m_offset = {};//基準位置からのオフセット
 	//std::unordered_map<std::string, VelocityInfo> m_velocities;//速度のリスト//キーは名前、値は(速度,減衰率)
 	Vector3 m_vel = {};//速度
 	Vector3 m_knockBackVel = {};//吹き飛ばしのベクトル//ここに書きたくないが用途のため書く
+
 	float m_radius;//Sphereの半径、Boxの幅、Capsuleの半径
 	bool m_isActive;//当たり判定が有効かどうか
 	bool m_isTrigger;//当たり判定のみをし、押し戻しなどはしない
 	int m_id;//当たり判定などに使うID
 	float m_ownTimeScale = 1.0f;//自分のtimeScale
+	CapsuleInfo m_capsuleInfo = {};//カプセルの情報//カプセルの時に使う
 
 	friend class CollisionManager;
+	friend class CollisionChecker;
 };
 

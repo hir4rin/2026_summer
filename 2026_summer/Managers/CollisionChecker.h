@@ -10,35 +10,61 @@ public:
 	/// <summary>
 	/// 当たり判定の結果を返す
 	/// </summary>
-	/// <param name="colliderA"></param>
-	/// <param name="colliderB"></param>
+	/// <param name="colA"></param>
+	/// <param name="colB"></param>
 	/// <returns></returns>
-	bool IsCollide(Collider& colliderA, Collider& colliderB);
+	bool IsCollide(Collider& colA, Collider& colB);
 private:
 
 	/// <summary>
 	/// 球と球の当たり判定
 	/// </summary>
-	/// <param name="colliderA"></param>
-	/// <param name="colliderB"></param>
+	/// <param name="colA"></param>
+	/// <param name="colB"></param>
 	/// <returns></returns>
-	bool ChecCollSS(Collider& colliderA, Collider& colliderB);
+	bool CheckCollSS(Collider& colA, Collider& colB);
 	/// <summary>
 	/// カプセルと球の当たり判定
 	/// </summary>
-	/// <param name="colliderA"></param>
-	/// <param name="colliderB"></param>
+	/// <param name="colA"></param>
+	/// <param name="colB"></param>
 	/// <returns></returns>
-	bool CheckCollCS(Collider& colliderA, Collider& colliderB);
+	bool CheckCollCS(Collider& colA, Collider& colB);
 
 	/// <summary>
 	/// カプセルとカプセルの当たり判定
 	/// </summary>
-	/// <param name="colliderA"></param>
-	/// <param name="colliderB"></param>
+	/// <param name="colA"></param>
+	/// <param name="colB"></param>
 	/// <returns></returns>
-	bool CheckCollCC(Collider& colliderA, Collider& colliderB);
-
-
+	bool CheckCollCC(Collider& colA, Collider& colB);
+	/// <summary>
+	/// カプセルとカプセルの当たり判定(DxLibVer)
+	/// </summary>
+	/// <param name="colA"></param>
+	/// <param name="colB"></param>
+	/// <returns></returns>
+	bool CheckCollCCVerDxLib(Collider& colA, Collider& colB);
+	/// <summary>
+	/// 球とポリゴンの当たり判定
+	/// </summary>
+	/// <param name="colA"></param>
+	/// <param name="colB"></param>
+	/// <returns></returns>
+	bool CheckCollSP(Collider& colA, Collider& colB);
+	/// <summary>
+	/// カプセルとポリゴンの当たり判定
+	/// </summary>
+	/// <param name="colA"></param>
+	/// <param name="colB"></param>
+	/// <returns></returns>
+	bool CheckCollCP(Collider& colA, Collider& colB);
+	/// <summary>
+	/// カプセル同士で平行な場合の当たり判定
+	/// </summary>
+	/// <param name="colA"></param>
+	/// <param name="colB"></param>
+	/// <returns></returns>
+	bool CheckParallelCC(Collider& colA, Collider& colB);
 };
 
