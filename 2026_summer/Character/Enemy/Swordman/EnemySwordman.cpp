@@ -256,6 +256,9 @@ void EnemySwordman::Update()
 		break;
 
 	}
+	//いったんここで、敵の吸着の仕様を作る
+
+
 
 	m_anim.Update();
 	//m_pos += m_vel;//速度を座標に加算する//移動する
@@ -322,7 +325,10 @@ void EnemySwordman::OnDamage(Collider& other, AttackData& data)
 
 	//Playerの攻撃データをもとに被ダメ処理をする
 	m_hp -= data.attackPower;
+
 	//Enemy->Playerのベクトルに吹き飛ばす力を加える
+	
+
 	Vector3 pushBackVec = (m_pos - other.GetPos()).Normalize() * data.knockBackPower.x;
 
 	//ここをknockBackVelにして、knockBackVelをだんだん減衰させる処理をする
