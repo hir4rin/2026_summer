@@ -2,6 +2,18 @@
 #include "FixNextPosition.h"
 #include "../Character/Collider.h"
 #include "../Stage/Stage.h"
+#include <algorithm>
+
+namespace
+{
+	//押し戻しの値に足して密着するのを防ぐ
+	constexpr float kOverlapGap = 1.0f;
+	constexpr float kCheckUnder = -800.0f;
+	constexpr float kCheckTop = 800.0f;
+	constexpr float kWallThreshold = 0.5f;//境界線
+}
+
+
 
 FixNextPosition::FixNextPosition()
 {
@@ -126,4 +138,49 @@ void FixNextPosition::FixNextPosSP(Collider& colA, Collider& colB)
 
 	}
 
+}
+
+Vector3 FixNextPosition::OverlapVec(const Vector3& nextPos, std::vector<MV1_COLL_RESULT_POLY>& dim, float shortDistance)
+{
+	//垂線を下ろして近い点を探して祭壇距離を求める
+	float hitShortDis = FLT_MAX;//最短距離//FLT_MAXはfloat型の最大値
+	//法線
+	Vector3 normal = {};
+	for (auto& poly : dim)
+	{
+		//内積と法線ベクトルからあたっている座標を求める//射影ベクトルの計算
+		Vector3 PolyToPos = nextPos - Vector3::FromDxLibVector(poly.Position[0]);
+		float dot = PolyToPos.Dot(Vector3::FromDxLibVector(poly.Normal));
+
+		//ポリゴンと当たったオブジェクトが法線方向にいるなら向きを反転//???
+		//dotではposからのベクトルなので、hitPosを求めるために反転させる必要がある
+		if ((PolyToPos.y > 0 && poly.Normal.y > 0) || (PolyToPos.y < 0 && poly.Normal.y < 0))
+		{
+			//ベクトルと法線が同じ向きなら反転が必要
+			dot *= -1;
+		}
+		//当たった座標
+		Vector3 hitPos = Vector3::FromDxLibVector(poly.Normal) * dot + nextPos;
+		//距離
+		float dis = (hitPos - nextPos).Magnitude();
+
+		//球の半径より遠い場合は無視
+		if(dis > shortDistance)
+		{
+			continue;
+		}
+		//初回または前回より距離が短いなら
+		if (hitShortDis > dis)
+		{
+			hitShortDis = dis;
+			normal = Vector3::FromDxLibVector(poly.Normal);
+		}
+	}
+	//押し戻し
+	//どれくらい押し戻すのか
+	float overlap = shortDistance - hitShortDis;
+	overlap = std::clamp(overlap, 0.0f, shortDistance);
+	overlap += kOverlapGap;
+
+	return normal * overlap;
 }
