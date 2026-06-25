@@ -52,8 +52,8 @@ struct CapsuleInfo
 	Vector3 hitNearestPos;
 	//最近点からの距離
 	float hitNearestDistance;
-
 };
+
 
 /// <summary>
 /// MathVector3をincludeしないとつかえない
@@ -89,7 +89,7 @@ public:
 	void SetTag(Tags tag) { m_tag = tag; }
 	void SetIsActive(bool isActive) { m_isActive = isActive; }
 	void SetCapsuleEndPos(Vector3 endPos) { m_capsuleInfo.endPos = endPos; }//カプセルの終点の座標をセット//最初に使う
-
+	
 	//ゲッター
 	Collider* GetCollider() { return this; }
 	float GetCenter()const { return m_center; }
@@ -105,7 +105,7 @@ public:
 	Vector3 GetWorldCenter() const { return m_pos + m_offset; }//ワールド座標での中心位置を返す
 	Vector3 GetCapsuleEndPos() const { return m_capsuleInfo.endPos; }//カプセルの終点の座標を返す
 	float GetTimeScale() const { return m_ownTimeScale; }
-
+	
 
 	//デバッグ描画
 	void DebugDraw()const;
@@ -130,7 +130,10 @@ protected:
 	float m_ownTimeScale = 1.0f;//自分のtimeScale
 	CapsuleInfo m_capsuleInfo = {};//カプセルの情報//カプセルの時に使う
 
+	
+
 	friend class CollisionManager;
 	friend class CollisionChecker;
+	friend class FixNextPosition;
 };
 

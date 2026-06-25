@@ -136,7 +136,7 @@ bool CollisionChecker::CheckCollSP(Collider& colA, Collider& colB)
 	else
 	{
 		//当たり判定の押し戻し処理に使うので、保存&& ポリゴン情報をまだ開放しない
-
+		polygonCol->SetHitDim(hitDim);
 	}
 
 	return true;

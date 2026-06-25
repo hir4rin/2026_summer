@@ -46,23 +46,23 @@ bool Collider::IsCollidable(const Collider& other) const
 
 Vector3 Collider::PushBack(Collider& other)
 {
-	//otherから自分へのベクトル//velを足した値
-	Vector3 centerA = GetWorldCenter() + m_vel;//自分の当たり判定の中心の座標
-	Vector3 centerB = other.GetWorldCenter() + other.m_vel;//相手の当たり判定の中心の座標
+	////otherから自分へのベクトル//velを足した値
+	//Vector3 centerA = GetWorldCenter() + m_vel;//自分の当たり判定の中心の座標
+	//Vector3 centerB = other.GetWorldCenter() + other.m_vel;//相手の当たり判定の中心の座標
 
-	auto oToMeVec = (centerA - centerB);
-	oToMeVec.y = 0.0f;//Y軸の成分を0にする//水平面でのベクトルにする
-	float distance = oToMeVec.Magnitude();
-	//距離が0の時は当たり判定をしない
-	if (distance == 0)return Vector3(0, 0, 0);
-	//重なりの深さ　＝　（自分の半径＋相手の半径）－距離
-	float overlap = GetRadius() + other.GetRadius() - distance;
-	if (overlap > 0)
-	{
-		return oToMeVec.Normalize() * (overlap*0.5f);// 重なった分だけ押し戻す（0.5倍にして両方が半分ずつ退く）
-	}
-	//重なっていない場合は、押し戻さない
-	return Vector3(0, 0, 0);
+	//auto oToMeVec = (centerA - centerB);
+	//oToMeVec.y = 0.0f;//Y軸の成分を0にする//水平面でのベクトルにする
+	//float distance = oToMeVec.Magnitude();
+	////距離が0の時は当たり判定をしない
+	//if (distance == 0)return Vector3(0, 0, 0);
+	////重なりの深さ　＝　（自分の半径＋相手の半径）－距離
+	//float overlap = GetRadius() + other.GetRadius() - distance;
+	//if (overlap > 0)
+	//{
+	//	return oToMeVec.Normalize() * (overlap*0.5f);// 重なった分だけ押し戻す（0.5倍にして両方が半分ずつ退く）
+	//}
+	////重なっていない場合は、押し戻さない
+	//return Vector3(0, 0, 0);
 }
 
 void Collider::ColInit(Vector3 pos, Vector3 offset, float radius, ColliderType type, Tags tag, bool isActive,bool isTrigger)
