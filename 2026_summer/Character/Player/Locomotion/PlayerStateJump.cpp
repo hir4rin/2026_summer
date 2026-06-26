@@ -31,6 +31,7 @@ void PlayerStateJump::Enter()
 	player->m_vel.y = kJumpInitVel;//ジャンプの初速//この数値を変えることで、ジャンプの高さを調整できる
 	//ジャンプ状態
 	player->m_isGround = false;//地面にいない状態にする
+	player->SetIsFloor(false);//地面にいない状態にする
 	//ジャンプ開始時の移動速度を保存する
 	m_baseVel = player->m_vel;
 	m_baseVel.y = 0.0f;//y成分は移動に関係ないので、0にする

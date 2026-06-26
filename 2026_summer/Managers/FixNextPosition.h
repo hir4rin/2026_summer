@@ -47,11 +47,11 @@ private:
 	/// <summary>
 	/// 壁ポリゴンと床ポリゴンに分ける
 	/// </summary>
-	void AnalyzeWallAndFloor(MV1_COLL_RESULT_POLY_DIM hitDim,const Vector3& oldPos);
+	void AnalyzeWallAndFloor(MV1_COLL_RESULT_POLY_DIM hitDim,const Vector3& nextPos);
 	/// <summary>
 	/// 球とポリゴンの押し戻しベクトルを返す
 	/// </summary>
-	Vector3 OverlapVec(const Vector3& nextPos, std::vector<MV1_COLL_RESULT_POLY>& dim, float shortDistance);
+	Vector3 OverlapVecSP(const Vector3& nextPos, std::vector<MV1_COLL_RESULT_POLY>& dim, float shortDistance);
 	/// <summary>
 	/// 壁と当たった時の処理 カプセル
 	/// </summary>

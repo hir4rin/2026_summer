@@ -62,7 +62,7 @@ Vector3 Collider::PushBack(Collider& other)
 	//	return oToMeVec.Normalize() * (overlap*0.5f);// 重なった分だけ押し戻す（0.5倍にして両方が半分ずつ退く）
 	//}
 	////重なっていない場合は、押し戻さない
-	//return Vector3(0, 0, 0);
+	return Vector3(0, 0, 0);
 }
 
 void Collider::ColInit(Vector3 pos, Vector3 offset, float radius, ColliderType type, Tags tag, bool isActive,bool isTrigger)

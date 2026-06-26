@@ -59,8 +59,8 @@ void Player::Init()
 	//IDの取得
 	SetID();
 	//当たり判定の初期化
-	//中心点、半径、当たり判定のタイプ、タグ、当たり判定が有効かどうか
-	ColInit(m_pos, Vector3(0, kPlayerCenter, 0), 30.0f, ColliderType::Sphere, Tags::Player, true);
+	//中心点、オフセット、半径、当たり判定のタイプ、タグ、当たり判定が有効かどうか
+	ColInit(m_pos, Vector3(0, kPlayerCenter, 0), 80.0f, ColliderType::Sphere, Tags::Player, true);
 	//やられ判定の初期化
 	InitHitCol(weak_from_this());
 	m_hitCol->ColInit(m_pos, Vector3(0, kPlayerCenter, 0), 50.0f, ColliderType::Sphere, Tags::PlayerHit, true,true);

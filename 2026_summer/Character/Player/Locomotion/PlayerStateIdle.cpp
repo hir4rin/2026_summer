@@ -67,7 +67,7 @@ void PlayerStateIdle::Update()
 		return;
 	}
 	//ジャンプ
-	if (input.IsTriggered("A"))
+	if (input.IsTriggered("A") )
 	{
 		player->ChangeState(std::make_shared<PlayerStateJump>(m_owner));
 		return;

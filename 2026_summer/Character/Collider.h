@@ -82,6 +82,14 @@ public:
 	void SetID();
 	//--------------------------------------------------------------------------
 
+
+
+	//地面に当たったかどうか
+	void SetIsFloor(bool isFloor) { m_isFloor = isFloor; }
+	bool IsFloor()const { return m_isFloor; }
+	void SetIsWall(bool isWall) { m_isWall = isWall; }
+	bool IsWall()const { return m_isWall; }
+
 	//セッター
 	void SetCenter(const float center) { m_center = center; }
 	void SetRadius(float radius) { m_radius = radius; }
@@ -89,6 +97,7 @@ public:
 	void SetTag(Tags tag) { m_tag = tag; }
 	void SetIsActive(bool isActive) { m_isActive = isActive; }
 	void SetCapsuleEndPos(Vector3 endPos) { m_capsuleInfo.endPos = endPos; }//カプセルの終点の座標をセット//最初に使う
+	
 	
 	//ゲッター
 	Collider* GetCollider() { return this; }
@@ -100,7 +109,7 @@ public:
 	int GetId()const { return m_id; }
 	bool GetIsTrigger()const { return m_isTrigger; }
 	Vector3 GetPos() const { return m_pos; }
-	Vector3 GetNextPos() const { return m_pos + m_vel; }//次のフレームでの座標を返す
+	Vector3 GetNextPos() const { return GetWorldCenter() + m_vel; }//次のフレームでの座標を返す
 	Vector3 GetVel() const { return m_vel; }
 	Vector3 GetWorldCenter() const { return m_pos + m_offset; }//ワールド座標での中心位置を返す
 	Vector3 GetCapsuleEndPos() const { return m_capsuleInfo.endPos; }//カプセルの終点の座標を返す
@@ -126,6 +135,8 @@ protected:
 	float m_radius;//Sphereの半径、Boxの幅、Capsuleの半径
 	bool m_isActive;//当たり判定が有効かどうか
 	bool m_isTrigger;//当たり判定のみをし、押し戻しなどはしない
+	bool m_isFloor;//床に当たったかどうか
+	bool m_isWall;//壁に当たったかどうか
 	int m_id;//当たり判定などに使うID
 	float m_ownTimeScale = 1.0f;//自分のtimeScale
 	CapsuleInfo m_capsuleInfo = {};//カプセルの情報//カプセルの時に使う

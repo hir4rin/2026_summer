@@ -1,12 +1,18 @@
 ﻿#include "Stage.h"
+#include "../Math/Matrix4x4.h"
 
 Stage::Stage()
 {
-	m_stageModelHandle = MV1LoadModel("data/Stage/Stage.mv1");
-	m_pos = Vector3(0, 0, 0);
+	m_stageModelHandle = MV1LoadModel("data/PreStage/Stage.mv1");
+	m_pos = Vector3(0, -700, 0);
 	ColInit(m_pos, Vector3(0, 0, 0), 0.0f, ColliderType::Polygon, Tags::StaticObject, true);
 	// モデルのポリゴンの当たり判定を構築する(第二引数を-1にすると全てのポリゴンを対象にする)
 	MV1SetupCollInfo(m_stageModelHandle, -1);
+
+	MATRIX transmat = MGetTranslate(m_pos.ToDxLibVector());
+	Matrix4x4 trans = Matrix4x4::FromDxLibMatrix(transmat);
+
+	MV1SetMatrix(m_stageModelHandle, Matrix4x4::ToDxLibMatrix(trans));
 }
 
 Stage::~Stage()

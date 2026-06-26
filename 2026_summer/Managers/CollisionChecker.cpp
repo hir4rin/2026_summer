@@ -108,6 +108,16 @@ bool CollisionChecker::CheckCollCS(Collider& colA, Collider& colB)
 	return false;
 }
 
+bool CollisionChecker::CheckCollCC(Collider& colA, Collider& colB)
+{
+	return false;
+}
+
+bool CollisionChecker::CheckCollCCVerDxLib(Collider& colA, Collider& colB)
+{
+	return false;
+}
+
 bool CollisionChecker::CheckCollSP(Collider& colA, Collider& colB)
 {
 	auto polygonCol = dynamic_cast<Stage*>(&colB);
@@ -140,4 +150,14 @@ bool CollisionChecker::CheckCollSP(Collider& colA, Collider& colB)
 	}
 
 	return true;
+}
+
+bool CollisionChecker::CheckCollCP(Collider& colA, Collider& colB)
+{
+	return false;
+}
+
+bool CollisionChecker::CheckParallelCC(Collider& colA, Collider& colB)
+{
+	return false;
 }

@@ -103,8 +103,8 @@ void FixNextPosition::FixNextPosSS(Collider& colA, Collider& colB)
 	float overlap = colA.GetRadius() + colB.GetRadius() - distance;
 	if (overlap > 0)
 	{
-		colA.m_vel += AToBVec.Normalize() * overlap * 0.5f;// 重なった分だけ押し戻す（0.5倍にして両方が半分ずつ退く） 
-		colB.m_vel +=  AToBVec.Normalize() * overlap * 0.5f * -1;// 重なった分だけ押し戻す（0.5倍にして両方が半分ずつ退く）
+		colA.m_vel += AToBVec.Normalize() * overlap * 0.5f * -1;// 重なった分だけ押し戻す（0.5倍にして両方が半分ずつ退く） 
+		colB.m_vel +=  AToBVec.Normalize() * overlap * 0.5f;// 重なった分だけ押し戻す（0.5倍にして両方が半分ずつ退く）
 		return;
 	}
 	//重なっていない場合は、押し戻さない
@@ -116,13 +116,13 @@ void FixNextPosition::FixNextPosSP(Collider& colA, Collider& colB)
 	auto polygonCol = dynamic_cast<Stage*>(&colB);
 
 	//当たったポリゴンの情報
-	auto& hidDim = polygonCol->GetHitDim();
+	auto& hitDim = polygonCol->GetHitDim();
 
 	//球の座標
 	Vector3 posA = colA.GetNextPos();
 
 	//床ポリゴンと壁ポリゴンに分ける
-	AnalyzeWallAndFloor(hidDim, posA);
+	AnalyzeWallAndFloor(hitDim, posA);
 	
 	//床か天井に当たったか
 	bool isFloorAndRoofHit = !m_floorAndRoof.empty();
@@ -133,14 +133,80 @@ void FixNextPosition::FixNextPosSP(Collider& colA, Collider& colB)
 	if (isFloorAndRoofHit)
 	{
 		//補正するベクトルを返す
-		Vector3 overlapVec = 
+		Vector3 overlapVec = OverlapVecSP(posA, m_floorAndRoof, colA.GetRadius());
+		//押し戻し
+		colA.m_vel += overlapVec;
+		//修正方向が上向きなら床
+		if (overlapVec.y > 0)
+		{
+			//床に当たっているというセット処理
+			colA.SetIsFloor(true);
+		}
+	}
+	//壁と当たったなら
+	if (isWall)
+	{
+		//壁に当たっている
 
+		//補正するベクトルを返す
+		Vector3 overlapVec = OverlapVecSP(posA, m_wall, colA.GetRadius());
 
+		colA.m_vel += overlapVec;
 	}
 
+	//検出したプレイヤーの周囲のポリゴン情報を解放
+	MV1CollResultPolyDimTerminate(hitDim);
 }
 
-Vector3 FixNextPosition::OverlapVec(const Vector3& nextPos, std::vector<MV1_COLL_RESULT_POLY>& dim, float shortDistance)
+void FixNextPosition::FixNextPosCS(Collider& colA, Collider& colB)
+{
+}
+
+void FixNextPosition::FixNextPosCC(Collider& colA, Collider& colB)
+{
+}
+
+void FixNextPosition::FixNextPosCP(Collider& colA, Collider& colB)
+{
+}
+
+void FixNextPosition::AnalyzeWallAndFloor(MV1_COLL_RESULT_POLY_DIM hitDim, const Vector3& nextPos)
+{
+	//検出されたポリゴンの数だけ繰り返す
+	for (int i = 0; i < hitDim.HitNum; ++i)
+	{
+		//法線のY成分が大きければ床、小さければ壁
+		if (abs(hitDim.Dim[i].Normal.y) < kWallThreshold)
+		{
+			//壁ポリゴンと判断された場合でも、プレイヤーのY座標+1.0fより高いポリゴンのみ当たり判定を行う
+			//段差で突っかかるのを防ぐため//?あまりわからない
+			if(hitDim.Dim[i].Position[0].y > nextPos.y + 1.0f || 
+			   hitDim.Dim[i].Position[1].y > nextPos.y + 1.0f ||
+			   hitDim.Dim[i].Position[2].y > nextPos.y + 1.0f)
+			{
+				//ポリゴンの数が列挙できる限界数に達していなかったらポリゴンを配列に保存する
+				if (m_wall.size() < kMaxHitPolygon)
+				{
+					//ポリゴンの構造体のアドレスを壁ポリゴン配列に保存する
+					m_wall.emplace_back(hitDim.Dim[i]);
+				}
+			}
+			
+		}
+		//床ポリゴンの場合
+		else
+		{
+			//ポリゴンの数が列挙できる限界数に達していなかったらポリゴン配列に保存
+			if (m_floorAndRoof.size() < kMaxHitPolygon)
+			{
+				m_floorAndRoof.emplace_back(hitDim.Dim[i]);
+			}
+		}
+	}
+	
+}
+
+Vector3 FixNextPosition::OverlapVecSP(const Vector3& nextPos, std::vector<MV1_COLL_RESULT_POLY>& dim, float shortDistance)
 {
 	//垂線を下ろして近い点を探して祭壇距離を求める
 	float hitShortDis = FLT_MAX;//最短距離//FLT_MAXはfloat型の最大値
@@ -183,4 +249,18 @@ Vector3 FixNextPosition::OverlapVec(const Vector3& nextPos, std::vector<MV1_COLL
 	overlap += kOverlapGap;
 
 	return normal * overlap;
+}
+
+Vector3 FixNextPosition::HitWallCP(const Vector3& headPos, const Vector3& legPos, float shortDistance)
+{
+	return Vector3();
+}
+
+Vector3 FixNextPosition::HitFloorCP(Collider& other, const Vector3& legPos, const Vector3& headPos, float shortDistance)
+{
+	return Vector3();
+}
+
+void FixNextPosition::HitRoofCP(Collider& other, const Vector3& headPos, float shortDistance)
+{
 }

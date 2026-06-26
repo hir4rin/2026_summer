@@ -27,6 +27,7 @@ GameScene::GameScene(SceneController& controller):Scene(controller)
 	m_cameraManager->Update(m_player->GetPos());
 
 	m_stage = std::make_shared<Stage>();
+	CollisionManager::GetInstance().Init();
 }
 GameScene::~GameScene()
 {

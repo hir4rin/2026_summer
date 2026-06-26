@@ -37,12 +37,12 @@ void PlayerStateAttack::Enter()
 	{
 		if(m_attackType == AttackType::lightAttack)
 		{
-			if (player->m_isGround)currentComboIndex = ComboIndex::LightAttack1;//弱攻撃の最初の段数を0に設定する
+			if (player->IsFloor())currentComboIndex = ComboIndex::LightAttack1;//弱攻撃の最初の段数を0に設定する
 			else currentComboIndex = ComboIndex::AirAttack1;//空中攻撃1
 		}
 		else if(m_attackType == AttackType::heavyAttack)
 		{
-			if (player->m_isGround)currentComboIndex = ComboIndex::HeavyAttack1;//強攻撃の最初の段数を1に設定する//今回は、弱攻撃が0番目、強攻撃が1番目の段数から始まるようにする
+			if (player->IsFloor())currentComboIndex = ComboIndex::HeavyAttack1;//強攻撃の最初の段数を1に設定する//今回は、弱攻撃が0番目、強攻撃が1番目の段数から始まるようにする
 			else currentComboIndex = ComboIndex::AirHeavyAttack1;//空中強攻撃1
 		}
 		//現在のコンボの段数を更新する
@@ -135,7 +135,7 @@ void PlayerStateAttack::Update()
 	{
 		//攻撃が終了したら、Idle状態に遷移する//コンボインデックスを初期化
 		AttackFinishProcess();
-		if (player->m_isGround)
+		if (player->IsFloor())
 		{
 			if (input.IsLeftStickInput())
 			{
@@ -157,10 +157,10 @@ void PlayerStateAttack::Update()
 	}
 	else if(node.moveSpeedY < 0)//落下攻撃の時は、地面と当たるまで//一旦地面に当たるまで
 	{
-		if (player->m_pos.y <= 0.0f)//地面と当たったとき
+		if (player->IsFloor())//地面と当たったとき
 		{
 			player->m_isGround = true;//地面にいる状態にする
-			player->m_pos.y = 0.0f;//地面に埋まらないようにする
+			//player->m_pos.y = 0.0f;//地面に埋まらないようにする
 			player->m_vel = Vector3(0, 0, 0);//突進が終わったら、速度を0にする
 			//player->m_hitCol
 			AttackFinishProcess();
@@ -236,6 +236,8 @@ void PlayerStateAttack::AttackMoveMent()
 		//下方向は時間なし//上方向は時間制限あり
 		if(node.moveSpeedY > 0)//上向き
 		{
+			//床から離れる
+			player->SetIsFloor(false);
 			if (player->m_vel.y <= 0)//速度が0になったら上昇終了
 			{
 				//player->m_vel = player->m_targetVec * node.moveSpeedX + Vector3(0, 0, 0);

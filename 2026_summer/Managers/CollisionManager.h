@@ -2,6 +2,8 @@
 #include <vector>
 #include <functional>
 #include <memory>
+#include "FixNextPosition.h"//unique_ptrはデストラクタでdeleteするためヘッダに書く必要あり
+#include "CollisionChecker.h"
 
 class Collider;
 
@@ -26,6 +28,9 @@ public:
 	//コライダーの登録・解除
 	void RegisterCollider(Collider* collider);
 	void ReleaseCollider(Collider* collider);
+	//初期化
+	void Init();
+
 	//すべてのコライダーをクリア
 	void Clear();
 	//当たり判定の一括チェック
@@ -47,6 +52,9 @@ private:
 	//後々、コライダーを停止、再開する機能を追加するかも
 
 	void ApplyAdjustments();
-
+private:
+	//当たり判定のチェックを行うクラス
+	std::unique_ptr<CollisionChecker> m_collisionChecker;
+	std::unique_ptr<FixNextPosition> m_fixNextPositioner;
 };
 

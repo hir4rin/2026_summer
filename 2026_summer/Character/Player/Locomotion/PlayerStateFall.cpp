@@ -33,14 +33,13 @@ void PlayerStateFall::Update()
 
 	player->m_vel += Vector3(0, -Game::kGravity, 0);//重力の処理//だんだん落ちていくようにする
 	//地面に着いたら
-	if (player->m_pos.y <= 0.0f)
+	if (player->IsFloor())
 	{
-		player->m_pos.y = 0.0f;//地面に埋まらないようにする
+		//player->m_pos.y = 0.0f;//地面に埋まらないようにする
 		player->m_vel.y = 0.0f;//y軸の速度を0にする
 		//ジャンプ状態を解除
 		player->m_isGround = true;//地面にいる状態にする
 		if (input.IsLeftStickInput())
-
 		{
 			//入力があればWalk状態に遷移する
 			player->ChangeState(std::make_shared<PlayerStateMove>(m_owner));
@@ -52,6 +51,26 @@ void PlayerStateFall::Update()
 			return;
 		}
 	}
+	//地面に着いたら
+	//if (player->m_pos.y <= 0.0f)
+	//{
+	//	player->m_pos.y = 0.0f;//地面に埋まらないようにする
+	//	player->m_vel.y = 0.0f;//y軸の速度を0にする
+	//	//ジャンプ状態を解除
+	//	player->m_isGround = true;//地面にいる状態にする
+	//	if (input.IsLeftStickInput())
+
+	//	{
+	//		//入力があればWalk状態に遷移する
+	//		player->ChangeState(std::make_shared<PlayerStateMove>(m_owner));
+	//		return;
+	//	}
+	//	else
+	//	{
+	//		player->ChangeState(std::make_shared<PlayerStateIdle>(m_owner));//Idle状態に遷移する
+	//		return;
+	//	}
+	//}
 
 
 	//攻撃状態に遷移する

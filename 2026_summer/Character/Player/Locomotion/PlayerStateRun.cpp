@@ -35,6 +35,10 @@ void PlayerStateRun::Update()
 	auto player = m_owner.lock();
 	if (!player) return;
 	auto& input = Input::GetInstance();
+
+	//run中は上下差がないので、毎フレームすべて初期化
+	player->m_vel = Vector3(0, 0, 0);
+
 	if (!input.IsLeftStickInput())
 	{
 		//移動状態に遷移する

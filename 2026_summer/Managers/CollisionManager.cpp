@@ -35,6 +35,12 @@ void CollisionManager::ReleaseCollider(Collider* collider)
 	}
 }
 
+void CollisionManager::Init()
+{
+	m_collisionChecker = std::make_unique<CollisionChecker>();
+	m_fixNextPositioner = std::make_unique<FixNextPosition>();
+}
+
 void CollisionManager::Clear()
 {
 	//???
@@ -73,22 +79,38 @@ void CollisionManager::Update()
 			colliderB->m_vel *= timescale * colliderB->GetTimeScale();
 			//衝突判定//球と球、BoxとBox、CapsuleとCapsuleとかで分ける
 			//球と球
-			if (colliderA->IsCollidable(*colliderB))
+			if (m_collisionChecker->IsCollide(*colliderA, *colliderB))
 			{
 
 				//衝突したときの処理を呼び出す
 				colliderA->OnCollision(*colliderB);
 				colliderB->OnCollision(*colliderA);
-			
+
 				//ここで押し戻し
 				//isTriggerは押し戻しを無視
-				if(colliderA->GetIsTrigger() || colliderB->GetIsTrigger()) continue;
+				if (colliderA->GetIsTrigger() || colliderB->GetIsTrigger()) continue;
 				//押し戻しの処理
 				//ここで速度を変更する//ここでタイムスケールを変更<-？？多分違う
 				//PushBackのvelを加える
-				colliderA->m_vel += colliderA->PushBack(*colliderB);
-				colliderB->m_vel += colliderB->PushBack(*colliderA);
+				m_fixNextPositioner->FixNextPos(*colliderA, *colliderB);
 			}
+			////球と球
+			//if (colliderA->IsCollidable(*colliderB))
+			//{
+
+			//	//衝突したときの処理を呼び出す
+			//	colliderA->OnCollision(*colliderB);
+			//	colliderB->OnCollision(*colliderA);
+			//
+			//	//ここで押し戻し
+			//	//isTriggerは押し戻しを無視
+			//	if(colliderA->GetIsTrigger() || colliderB->GetIsTrigger()) continue;
+			//	//押し戻しの処理
+			//	//ここで速度を変更する//ここでタイムスケールを変更<-？？多分違う
+			//	//PushBackのvelを加える
+			//	colliderA->m_vel += colliderA->PushBack(*colliderB);
+			//	colliderB->m_vel += colliderB->PushBack(*colliderA);
+			//}
 		}
 	}
 	//ここで位置確定用の関数を読んで位置をおいておく
