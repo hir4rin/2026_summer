@@ -19,7 +19,7 @@ namespace
 	constexpr float kEnemyCautionMaxTime = 600.0f;//敵が警戒する時間の最大値
 	constexpr float kEnemyAttackCoolTime = 60.0f;//敵の攻撃のクールタイム
 	constexpr float kEnemyHitBackTime = 30.0f;//敵が攻撃を受けたときの吹き飛ばしの時間
-	constexpr float kEnemyAirTime = 30.0f;//敵が空中にとどまるる時間
+	constexpr float kEnemyAirTime = 90.0f;//敵が空中にとどまるる時間
 	constexpr float kEnemyDistance = 50.0f;
 	constexpr float kToTargetPower = 3.0f;//プレイヤーの正面に行くようにknockBackする力
 }
@@ -49,10 +49,10 @@ void EnemySwordman::Init()
 	//IDの取得
 	SetID();
 	//当たり判定の初期化
-	ColInit(m_pos, Vector3(0, kEnemyCenter, 0), 50.0f, ColliderType::Sphere, Tags::Enemy, true);//中心点、半径、当たり判定のタイプ、タグ、当たり判定が有効かどうか
+	ColInit(m_pos, Vector3(0, kEnemyCenter, 0), 80.0f, ColliderType::Sphere, Tags::Enemy, true);//中心点、半径、当たり判定のタイプ、タグ、当たり判定が有効かどうか
 	//やられ判定の初期化
 	InitHitCol(weak_from_this());
-	m_hitCol->ColInit(m_pos, Vector3(0, kEnemyCenter, 0),80.0f, ColliderType::Sphere, Tags::EnemyHit, true,true);
+	m_hitCol->ColInit(m_pos, Vector3(0, kEnemyCenter, 0),120.0f, ColliderType::Sphere, Tags::EnemyHit, true,true);
 }
 
 void EnemySwordman::Update()
@@ -212,8 +212,8 @@ void EnemySwordman::Update()
 				{
 
 					FinishHitProcess();
-					//現在地上か空中かで分岐
-					if (m_pos.y <= 0.0f)
+					//現在地上か空中かで分岐//床についているかどうかで分岐
+					if (IsFloor())
 					{
 						ChangeState(EnemyState::Idle);
 					}
@@ -228,9 +228,9 @@ void EnemySwordman::Update()
 				//速度を指定
 				m_knockBackVel.y += -Game::kGravity;
 				m_vel = m_knockBackVel;
-				if (m_pos.y <= 0.0f)
+				if (IsFloor())
 				{
-					m_pos.y = 0.0f;
+					//m_pos.y = 0.0f;
 					m_vel.y = 0.0f;
 					m_knockBackVel.y = 0.0f;
 
@@ -255,9 +255,9 @@ void EnemySwordman::Update()
 	case EnemyState::Fall:
 		//落下処理
 		m_vel.y -= Game::kGravity;//重力の処理
-		if (m_pos.y <= 0.0f)
+		if (IsFloor())
 		{
-			m_pos.y = 0.0f;
+			//m_pos.y = 0.0f;
 			m_vel.y = 0.0f;
 			ChangeState(EnemyState::Idle);
 		}
@@ -423,7 +423,11 @@ void EnemySwordman::ChangeState(EnemyState newState)
 		break;
 	case EnemyState::Hit:
 		m_anim.ChangeAnim(kIdleName, false);
-		if (m_knockBackVel.y > 0.0f)m_hitType = HitType::Air;
+		if (m_knockBackVel.y > 0.0f)
+		{
+			m_hitType = HitType::Air;
+			SetIsFloor(false);//空中にいるので、床にいないことにする
+		}
 		else if(m_knockBackVel.y < 0.0f)m_hitType = HitType::Drop;
 		else m_hitType = HitType::Ground;
 		break;

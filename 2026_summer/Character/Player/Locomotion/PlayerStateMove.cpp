@@ -33,6 +33,15 @@ void PlayerStateMove::Update()
 	auto& input = Input::GetInstance();
 	//Move中は上下差がないので、毎フレームすべて初期化
 	player->m_vel = Vector3(0, 0, 0);
+	//鴉状態の更新
+	if (input.IsPressed("LB"))
+	{
+		player->m_isRaven = true;
+	}
+	else
+	{
+		player->m_isRaven = false;
+	}
 
 	if (!input.IsLeftStickInput())
 	{
@@ -40,6 +49,13 @@ void PlayerStateMove::Update()
 		player->ChangeState(std::make_shared<PlayerStateIdle>(m_owner));
 		return;
 	}
+	//スキル攻撃
+	if (input.IsPressed("LB") && input.IsTriggered("X"))
+	{
+		player->ChangeState(std::make_shared<PlayerStateAttack>(m_owner, AttackType::SkillAttack));
+		return;
+	}
+
 	//攻撃状態に遷移する
 	if (input.IsTriggered("X"))//弱攻撃
 	{

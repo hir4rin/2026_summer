@@ -7,6 +7,7 @@
 #include "../../../Math/Matrix4x4.h"
 #include "../../../Camera/Camera.h"
 #include "../../../SubWindow/SubWindow.h"
+#include "../../../Input.h"
 #include <cmath>
 #include <cassert>
 #include <string>
@@ -74,6 +75,7 @@ void Player::Update(Camera& camera)
 	m_camera = &camera;
 	//ライト(雑実装)
 	m_camera->UpdateLight();
+	auto& input = Input::GetInstance();
 
 	//回避のクールタイムの更新
 	if (m_avoidInfo.avoidCoolTimeCount > 0.0f)
@@ -81,6 +83,7 @@ void Player::Update(Camera& camera)
 		m_avoidInfo.avoidCoolTimeCount -= 1.0f * System::GetInstance().GetTimeScale();//回避のクールタイムを減らす
 	}
 	
+
 	//押し戻しの処理が続かないように消す
 	m_vel = Vector3(0, m_vel.y, 0);
 
@@ -129,6 +132,10 @@ void Player::Draw()
 	}
 	std::string posText = "Pos: " + std::to_string(m_pos.x) + ", " + std::to_string(m_pos.y) + ", " + std::to_string(m_pos.z);
 	SubWindow::AddText(posText);
+	std::string velText = "Vel: " + std::to_string(m_vel.x) + ", " + std::to_string(m_vel.y) + ", " + std::to_string(m_vel.z);
+	SubWindow::AddText(velText);
+	std::string ravenText = "Raven: " + std::string(m_isRaven ? "true" : "false");
+	SubWindow::AddText(ravenText);
 #ifdef _DEBUG
 	if (m_currentState)
 	{

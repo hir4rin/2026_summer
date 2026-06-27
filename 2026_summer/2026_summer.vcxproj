@@ -162,12 +162,11 @@
     <ClCompile Include="Character\Player\Locomotion\PlayerStateMove.cpp" />
     <ClCompile Include="Character\Player\Defence\PlayerStateAvoid.cpp" />
     <ClCompile Include="Character\Player\Attack\PlayerStateAttack.cpp" />
-    <ClCompile Include="Character\Player\Defence\PlayerStateParry.cpp" />
     <ClCompile Include="Character\Player\Locomotion\PlayerStateRun.cpp" />
     <ClCompile Include="Character\Player\Attack\PlayerStateDashAttack.cpp" />
-    <ClCompile Include="Character\Player\Attack\PlayerStateSkill.cpp" />
     <ClCompile Include="Character\Player\Locomotion\PlayerStateJump.cpp" />
     <ClCompile Include="Character\Player\Locomotion\PlayerStateFall.cpp" />
+    <ClCompile Include="Character\Player\Attack\PlayerStateSkillAttack.cpp" />
     <ClCompile Include="Scene\GameScene.cpp" />
     <ClCompile Include="Input.cpp" />
     <ClCompile Include="main.cpp" />
@@ -207,12 +206,11 @@
     <ClInclude Include="Character\Player\Defence\PlayerStateAvoid.h" />
     <ClInclude Include="Character\Player\Attack\PlayerStateAttack.h" />
     <ClInclude Include="Character\Player\Base\PlayerEnums.h" />
-    <ClInclude Include="Character\Player\Defence\PlayerStateParry.h" />
     <ClInclude Include="Character\Player\Locomotion\PlayerStateRun.h" />
     <ClInclude Include="Character\Player\Attack\PlayerStateDashAttack.h" />
-    <ClInclude Include="Character\Player\Attack\PlayerStateSkill.h" />
     <ClInclude Include="Character\Player\Locomotion\PlayerStateJump.h" />
     <ClInclude Include="Character\Player\Locomotion\PlayerStateFall.h" />
+    <ClInclude Include="Character\Player\Attack\PlayerStateSkillAttack.h" />
     <ClInclude Include="Scene\GameScene.h" />
     <ClInclude Include="Input.h" />
     <ClInclude Include="Math\Matrix4x4.h" />

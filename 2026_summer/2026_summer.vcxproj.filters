@@ -90,9 +90,6 @@
     <ClCompile Include="Character\Player\Attack\PlayerStateAttack.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Character\Player\Defence\PlayerStateParry.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
     <ClCompile Include="SubWindow\SubWindow.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
@@ -100,9 +97,6 @@
       <Filter>ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="Character\Player\Attack\PlayerStateDashAttack.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="Character\Player\Attack\PlayerStateSkill.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="Character\Player\Locomotion\PlayerStateJump.cpp">
@@ -133,6 +127,9 @@
       <Filter>ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="Managers\FixNextPosition.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="Character\Player\Attack\PlayerStateSkillAttack.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
   </ItemGroup>
@@ -218,9 +215,6 @@
     <ClInclude Include="Character\Player\Base\PlayerEnums.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Character\Player\Defence\PlayerStateParry.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
     <ClInclude Include="SubWindow\SubWindow.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
@@ -228,9 +222,6 @@
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="Character\Player\Attack\PlayerStateDashAttack.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="Character\Player\Attack\PlayerStateSkill.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="Character\Player\Locomotion\PlayerStateJump.h">
@@ -261,6 +252,9 @@
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="Managers\FixNextPosition.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Character\Player\Attack\PlayerStateSkillAttack.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
   </ItemGroup>

@@ -7,10 +7,9 @@
 #include "PlayerStateJump.h"//以下同文
 #include "PlayerStateFall.h"//以下同文
 #include "PlayerStateAvoid.h"//以下同文
-#include "PlayerStateParry.h"//以下同文
 #include "PlayerStateAttack.h"//以下同文
+#include "PlayerStateSkillAttack.h"//以下同文
 #include "PlayerStateDashAttack.h"//以下同文
-#include "PlayerStateSkill.h"//以下同文
 #include "../../../DataLoader/PlayerAnimData.h"
 #include <memory>
 
@@ -83,6 +82,10 @@ namespace ComboIndex
 	constexpr int AirHeavyAttack1 = 12;
 
 	constexpr int DashAttack = 13;
+	constexpr int SkillAttack1 = 14;
+	constexpr int SkillAttack2 = 15;
+	constexpr int SkillAttack3 = 16;
+
 };
 
 struct AvoidInfo
@@ -125,6 +128,7 @@ private:
 	AvoidInfo m_avoidInfo = {};//回避の情報
 
 	std::shared_ptr<PlayerState> m_currentState;//プレイヤーの状態//攻撃中、移動中など//状態遷移の管理をするためのもの
+	bool m_isRaven = false;//鴉状態かどうか//攻撃が変化する
 
 	friend class PlayerState;//PlayerStateクラスから、Playerクラスのprivateメンバにアクセスできるようにする
 	friend class PlayerStateIdle;
@@ -133,10 +137,9 @@ private:
 	friend class PlayerStateJump;
 	friend class PlayerStateFall;
 	friend class PlayerStateAvoid;
-	friend class PlayerStateParry;
 	friend class PlayerStateAttack;
+	friend class PlayerStateSkillAttack;
 	friend class PlayerStateDashAttack;
-	friend class PlayerStateSkill;
 
 };
 

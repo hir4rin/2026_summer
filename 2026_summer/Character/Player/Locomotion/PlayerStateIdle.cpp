@@ -35,10 +35,26 @@ void PlayerStateIdle::Update()
 	//押し戻しの処理が続かないように消す
 	player->m_vel = Vector3(0, 0, 0);
 
+	//鴉状態の更新
+	if (input.IsPressed("LB"))
+	{
+		player->m_isRaven = true;
+	}
+	else
+	{
+		player->m_isRaven = false;
+	}
+
 	//移動状態に遷移する
 	if (input.IsLeftStickInput())
 	{
 		player->ChangeState(std::make_shared<PlayerStateMove>(m_owner));
+		return;
+	}
+	//スキル攻撃
+	if (input.IsPressed("LB") && input.IsTriggered("X"))
+	{
+		player->ChangeState(std::make_shared<PlayerStateAttack>(m_owner, AttackType::SkillAttack));
 		return;
 	}
 
@@ -53,12 +69,8 @@ void PlayerStateIdle::Update()
 		player->ChangeState(std::make_shared<PlayerStateAttack>(m_owner,AttackType::heavyAttack));
 		return;
 	}
-
-	if (input.IsTriggered("LB"))
-	{
-		player->ChangeState(std::make_shared<PlayerStateParry>(m_owner));
-		return;
-	}
+	
+	
 
 	//回避状態に遷移する
 	if (input.IsTriggered("B") && player->IsAvoidable())

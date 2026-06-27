@@ -67,12 +67,12 @@ void GameScene::FadeInDraw()
 
 void GameScene::NormalDraw()
 {
+	m_stage->Draw();
 	DrawFormatString(300, 0, GetColor(255, 255, 255), "GameScene");
 	DrawGrid();
 
 	m_player->Draw();
 	m_enemySwordman->Draw();
-	m_stage->Draw();
 
 #ifdef _DEBUG
 	CollisionManager::GetInstance().DebugDraw();

@@ -1,18 +1,22 @@
 ﻿#pragma once
 #include "PlayerState.h"
 #include "PlayerEnums.h"
-#include <memory>
+
 class Input;
 class AttackCol;
+//PlaeyrStateAttackとほぼ同じだが、スキルと通常の判別が面倒だったので分けた
 
-class PlayerStateAttack : public PlayerState
+
+
+class PlayerStateSkillAttack :
+    public PlayerState
 {
 public:
-	PlayerStateAttack(std::weak_ptr<Player> player,AttackType type);
-	virtual ~PlayerStateAttack();
-	void Enter() override;
-	void Update() override;
-	void Exit() override;
+    PlayerStateSkillAttack(std::weak_ptr<Player> player);
+    virtual ~PlayerStateSkillAttack();
+    void Enter() override;
+    void Update() override;
+    void Exit() override;
 	void DebugDraw()override;
 private:
 	void AttackMoveMent();//攻撃中の移動処理
@@ -22,10 +26,10 @@ private:
 	void AttackFinishProcess();//攻撃が終了したときの処理//コンボの段数を初期化するなど
 	int  SelectAnimInit();//アニメーションの初期化//コンボの段数によってアニメーションを変える
 private:
-	AttackType m_attackType;//攻撃のタイプ//弱攻撃か強攻撃か
-	int m_nextComboIndex = -1;//次のコンボの段数
+    AttackType m_attackType;//攻撃のタイプ//増えるかは怪しい
+	int m_nextComboindex = -1;//次のコンボの段数
 	bool m_isComboInputReserved = false;//コンボ入力を受け付けたかどうかのフラグ
-	bool m_isSkillAttackReserved = false;//スキル攻撃の予約がされているかどうかのフラグ
 	std::shared_ptr<AttackCol> m_attackCol;//攻撃の当たり判定
+    
 };
 

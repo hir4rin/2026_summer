@@ -31,34 +31,10 @@ void PlayerStateAttack::Enter()
 	if (!player) return;
 	//攻撃の方向を決める
 	DetermineAttackDirection();
-	//アニメーションの初期化
-	int currentComboIndex = player->m_comboInfo.currentComboIndex;//現在のコンボインデックスを取得する
-	if(currentComboIndex == ComboIndex::None)//コンボの段数が-1のときは、最初のコンボを再生する
-	{
-		if(m_attackType == AttackType::lightAttack)
-		{
-			if (player->IsFloor())currentComboIndex = ComboIndex::LightAttack1;//弱攻撃の最初の段数を0に設定する
-			else currentComboIndex = ComboIndex::AirAttack1;//空中攻撃1
-		}
-		else if(m_attackType == AttackType::heavyAttack)
-		{
-			if (player->IsFloor())currentComboIndex = ComboIndex::HeavyAttack1;//強攻撃の最初の段数を1に設定する//今回は、弱攻撃が0番目、強攻撃が1番目の段数から始まるようにする
-			else currentComboIndex = ComboIndex::AirHeavyAttack1;//空中強攻撃1
-		}
-		//現在のコンボの段数を更新する
-		player->m_comboInfo.currentComboIndex = currentComboIndex;
-	}
-	else
-	{
-		//コンボの段数が-1でないときは、次のコンボを再生する
-		//currentComboIndex = m_nextComboIndex;//次のコンボの段数を取得する
-		//player->m_comboInfo.currentComboIndex = currentComboIndex;//現在のコンボの段数を更新する
-	}
-
+	//アニメーションの初期化//コンボの段数によってアニメーションを変える//-1はplayerがいないとき
+	int currentComboIndex = SelectAnimInit();
 	const ComboNode& node = player->m_comboChain[currentComboIndex];
 	player->m_anim.ChangeAnim(node.animName, false,1.0f);
-
-
 	//上下差がある攻撃の時はここで初速を与える
 	if (node.moveSpeedY != 0)
 	{
@@ -96,7 +72,7 @@ void PlayerStateAttack::Update()
 	//攻撃中の移動処理
 	AttackMoveMent();
 
-	//コンボ予約の入力を取る
+	//コンボ予約の入力を取る//予約を取ったらもうここは通らないようにする
 	AttackInputCheck();
 	//回避
 	if(input.IsTriggered("B") && player->IsAvoidable())
@@ -118,11 +94,21 @@ void PlayerStateAttack::Update()
 	//コンボに移行
 	if (animRate >= 0.5f)
 	{
+		//通常攻撃からスキル攻撃に移行するとき
+		if(m_isSkillAttackReserved)
+		{
+			m_isSkillAttackReserved = false;//スキル攻撃の予約を解除する
+			AttackFinishProcess();//攻撃の段数を初期化するなどの処理
+			//スキル攻撃に移行する
+			player->ChangeState(std::make_shared<PlayerStateAttack>(m_owner, AttackType::SkillAttack));
+			return;
+		}
+
 		//コンボ入力が予約されているとき
 		if (m_isComboInputReserved)
 		{
 			//次のコンボに移行する
-			StartCombo(m_nextComboIndex);//m_nextComboIndexも更新されている
+			StartCombo(m_nextComboIndex);//m_nextComboIndexもm_currentComboIndexも更新されている
 			player->ChangeState(std::make_shared<PlayerStateAttack>(m_owner,AttackType::None));
 			return;
 		}
@@ -183,12 +169,15 @@ void PlayerStateAttack::DebugDraw()
 	DrawFormatString(10, 10, GetColor(255, 255, 255), "PlayerState:Attack");
 	DrawFormatString(10, 30, GetColor(255, 255, 255), "ComboIndex:%d", m_owner.lock()->m_comboInfo.currentComboIndex);
 	DrawFormatString(10, 50, GetColor(255, 255, 255), "m_attackCol Active:%d", m_attackCol->IsActive());
+	//isHitの表示
+	DrawFormatString(10, 70, GetColor(255, 255, 255), "isHit:%d", m_owner.lock()->m_comboInfo.isHit);
 }
 
 void PlayerStateAttack::AttackMoveMent()
 {
 	 auto player = m_owner.lock();
 	if (!player) return;
+	
 
 	int currentComboIndex = player->m_comboInfo.currentComboIndex;
 	const ComboNode& node = player->m_comboChain[currentComboIndex];
@@ -298,6 +287,8 @@ void PlayerStateAttack::AttackInputCheck()
 	auto player = m_owner.lock();
 	if (!player) return;
 	auto& input = Input::GetInstance();
+	//既に予約があるならリターン
+	if (m_isComboInputReserved) return;
 
 	//攻撃の入力を受け付けるか
 	float animRate = player->m_anim.GetAnimRate();
@@ -307,25 +298,61 @@ void PlayerStateAttack::AttackInputCheck()
 	//現在のコンボノードを取得
 	int currentComboIndex = player->m_comboInfo.currentComboIndex;
 	const ComboNode& currentNode = player->m_comboChain[currentComboIndex];
-
-	if (input.IsTriggered("X"))
+	//スキル攻撃かどうか
+	bool isSkillAttack = currentNode.index == ComboIndex::SkillAttack1 ||
+						 currentNode.index == ComboIndex::SkillAttack2 ||
+				   	     currentNode.index == ComboIndex::SkillAttack3;
+	//スキル攻撃
+	if (input.IsPressed("LB") && input.IsTriggered("X"))
 	{
-		//弱攻撃ボタンでつながる次のコンボがあるか
-		if (!currentNode.nextWeakAttack.empty())//空じゃなかったら
+		//通常攻撃ならば、攻撃を終了して、スキル攻撃に移行
+			//スキル攻撃ならばコンボ攻撃に移行
+		if (isSkillAttack)
 		{
-			m_nextComboIndex = currentNode.nextWeakAttack[0];//次のコンボ番号をセットする//今回は1つしかないので、0番目をセットする
-			m_isComboInputReserved = true;//コンボ入力が予約されているフラグを立てる
+			//コンボ攻撃に移行する
+			//弱攻撃ボタンでつながる次のコンボがあるか
+			if (!currentNode.nextWeakAttack.empty())//空じゃなかったら
+			{
+				m_nextComboIndex = currentNode.nextWeakAttack[0];//次のコンボ番号をセットする//今回は1つしかないので、0番目をセットする
+				m_isComboInputReserved = true;//コンボ入力が予約されているフラグを立てる
+			}
 		}
+		//コンボ処理を終了して、スキル攻撃に移行する
+		else
+		{
+			m_isComboInputReserved = true;//コンボ入力が予約されているフラグを立てる
+			m_isSkillAttackReserved = true;//スキル攻撃の予約がされているフラグを立てる
+		}
+
 	}
-	else if (input.IsTriggered("Y"))
+	//強攻撃
+	else if (!input.IsPressed("LB") && input.IsTriggered("Y") && !isSkillAttack)
 	{
-		//強攻撃ボタンでつながる次のコンボがあるか
 		if (!currentNode.nextHeavyAttack.empty())//空じゃなかったら
 		{
 			m_nextComboIndex = currentNode.nextHeavyAttack[0];//次のコンボ番号をセットする//今回は1つしかないので、0番目をセットする
 			m_isComboInputReserved = true;//コンボ入力が予約されているフラグを立てる
 		}
 	}
+	//弱攻撃
+	else if (!input.IsPressed("LB") &&input.IsTriggered("X") && !isSkillAttack)
+	{
+		if (!currentNode.nextWeakAttack.empty())//空じゃなかったら
+		{
+			m_nextComboIndex = currentNode.nextWeakAttack[0];//次のコンボ番号をセットする//今回は1つしかないので、0番目をセットする
+			m_isComboInputReserved = true;//コンボ入力が予約されているフラグを立てる
+		}
+		
+	}
+	//else if (!input.IsPressed("LB") && input.IsTriggered("Y"))
+	//{
+	//	//強攻撃ボタンでつながる次のコンボがあるか
+	//	if (!currentNode.nextHeavyAttack.empty())//空じゃなかったら
+	//	{
+	//		m_nextComboIndex = currentNode.nextHeavyAttack[0];//次のコンボ番号をセットする//今回は1つしかないので、0番目をセットする
+	//		m_isComboInputReserved = true;//コンボ入力が予約されているフラグを立てる
+	//	}
+	//}
 }
 
 void PlayerStateAttack::StartCombo(int comboIndex)
@@ -351,6 +378,58 @@ void PlayerStateAttack::AttackFinishProcess()
 	player->m_comboInfo.isHit = false;//攻撃が当たったかどうか
 	//y軸の速度を0に戻す
 	player->m_vel.y = 0.0f;
+	//鴉状態を解除する
+	player->m_isRaven = false;
 	//攻撃の当たり判定の開放
 	m_attackCol.reset();
+}
+
+int PlayerStateAttack::SelectAnimInit()
+{
+	auto player = m_owner.lock();
+	if (!player)return -1;
+
+	//アニメーションの初期化
+	int currentComboIndex = player->m_comboInfo.currentComboIndex;//現在のコンボインデックスを取得する
+	if (currentComboIndex == ComboIndex::None)//コンボの段数が-1のときは、最初のコンボを再生する
+	{
+
+			if (m_attackType == AttackType::lightAttack)
+			{
+				if (player->IsFloor())currentComboIndex = ComboIndex::LightAttack1;//弱攻撃の最初の段数を0に設定する
+			}
+			else if (m_attackType == AttackType::heavyAttack)
+			{
+				if (player->IsFloor())currentComboIndex = ComboIndex::HeavyAttack1;//強攻撃の最初の段数を1に設定する//今回は、弱攻撃が0番目、強攻撃が1番目の段数から始まるようにする
+			}
+			if (m_attackType == AttackType::lightAttack)
+			{
+				if (player->IsFloor())currentComboIndex = ComboIndex::LightAttack1;//弱攻撃の最初の段数を0に設定する
+				else currentComboIndex = ComboIndex::AirAttack1;//空中攻撃1
+			}
+			else if (m_attackType == AttackType::heavyAttack)
+			{
+				if (player->IsFloor())currentComboIndex = ComboIndex::HeavyAttack1;//強攻撃の最初の段数を1に設定する//今回は、弱攻撃が0番目、強攻撃が1番目の段数から始まるようにする
+				else currentComboIndex = ComboIndex::AirHeavyAttack1;//空中強攻撃1
+			}
+			else if (m_attackType == AttackType::SkillAttack)
+			{
+				currentComboIndex = ComboIndex::SkillAttack1;
+				
+			}
+			bool isSkillAttack = currentComboIndex == ComboIndex::SkillAttack1 ||
+								 currentComboIndex == ComboIndex::SkillAttack2 ||
+								 currentComboIndex == ComboIndex::SkillAttack3;
+			if (isSkillAttack)player->m_isRaven = true;//鴉状態にする
+			else player->m_isRaven = false;//鴉状態を解除する
+		//現在のコンボの段数を更新する
+		player->m_comboInfo.currentComboIndex = currentComboIndex;
+	}
+	else
+	{
+		//コンボの段数が-1でないときは、次のコンボを再生する
+		//currentComboIndex = m_nextComboIndex;//次のコンボの段数を取得する
+		//player->m_comboInfo.currentComboIndex = currentComboIndex;//現在のコンボの段数を更新する
+	}
+	return currentComboIndex;
 }
