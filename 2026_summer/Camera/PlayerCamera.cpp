@@ -88,6 +88,13 @@ void PlayerCamera::FixCameraPos()
 	m_pos = Vector3::FromDxLibVector(pos);
 }
 
+void PlayerCamera::CameraSetting()
+{
+	//FixCameraPos();
+	//カメラの位置と注視点を反映する
+	SetCameraPositionAndTarget_UpVecY(m_pos.ToDxLibVector(), m_target.ToDxLibVector());
+}
+
 void PlayerCamera::InputRightStick()
 {
 	if (GetJoypadXInputState(DX_INPUT_PAD1, &xi) == 0)//右スティックの入力を取得できたら

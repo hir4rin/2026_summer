@@ -2,7 +2,7 @@
 #include "Camera.h"
 #include "PlayerCamera.h"
 #include "Movie1Camera.h"
-//#include "EffekseerForDXLib.h"
+#include "EffekseerForDXLib.h"
 
 CameraManager::CameraManager()
 {
@@ -37,7 +37,7 @@ void CameraManager::Update(Vector3 pos, Vector3 pos2)
 {
 	if (m_cameras.empty())return;
 	// DXライブラリのカメラとEffekseerのカメラを同期する。
-	//Effekseer_Sync3DSetting();
+	Effekseer_Sync3DSetting();
 
 
 	//emplace_backで、リストの最後をUpdateするようにする//ChangeCamera関数を作ってpriorityが高いものをemplace_backするようにする
@@ -53,6 +53,14 @@ void CameraManager::Update(Vector3 pos, Vector3 pos2)
 	}
 	//priorityが高いカメラのUpdateを呼ぶ
 	highestPriorityCamera->Update(pos, pos2);
+}
+
+void CameraManager::ApplyCameraSettings()
+{
+	for (auto& camera : m_cameras)
+	{
+		camera->CameraSetting();
+	}
 }
 
 void CameraManager::SetAllCameraPriority(Camera::Type type)

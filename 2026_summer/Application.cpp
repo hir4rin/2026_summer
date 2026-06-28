@@ -1,5 +1,6 @@
 ﻿#include "Application.h"
 #include "DxLib.h"
+#include "EffekseerForDXLib.h"
 #include <cassert>
 #include "Game.h"
 #include "Scene/SceneController.h"
@@ -34,23 +35,45 @@ bool Application::Init()
 	//ウィンドウモード設定
 	ChangeWindowMode(true);
 	//タイトル変更
-	SetMainWindowText("SSS");
+	SetMainWindowText("NINJA SCARLET");
 	//画面のサイズ変更
 	SetGraphMode(Game::kScreenWidth, Game::kScreenHeight, Game::kColorBitNum);
+	
+
+	// DirectX11を使用するようにする。(DirectX9も可、一部機能不可)
+	// Effekseerを使用するには必ず設定する。
+	//SetUseDirect3DVersion(DX_DIRECT3D_11);
 	if (DxLib_Init() == -1)		// ＤＸライブラリ初期化処理
 	{
 		return -1;			// エラーが起きたら直ちに終了
 	}
+	// Effekseerを初期化する。
+	// 引数には画面に表示する最大パーティクル数を設定する。
+	if (Effekseer_Init(8000) == -1)
+	{
+		DxLib_End();
+		return -1;
+	}
+	// フルスクリーンウインドウの切り替えでリソースが消えるのを防ぐ。
+	// Effekseerを使用する場合は必ず設定する。
+	SetChangeScreenModeGraphicsSystemResetFlag(FALSE);
+
 	//データの読み込み
 	DataManager::GetInstance().LoadAll();
 	//入力の初期化
 	Input::GetInstance().Init();
-
-	//描画対象をバックバッファに変更
+	//描画先を裏画面に変更する。
 	SetDrawScreen(DX_SCREEN_BACK);
 	// カリングの設定
 	SetUseBackCulling(true);
 
+	// Zバッファを有効にする。
+	// Effekseerを使用する場合、2DゲームでもZバッファを使用する。
+	SetUseZBuffer3D(TRUE);
+
+	// Zバッファへの書き込みを有効にする。
+	// Effekseerを使用する場合、2DゲームでもZバッファを使用する。
+	SetWriteZBuffer3D(TRUE);
 	return true;
 }
 
@@ -83,6 +106,9 @@ void Application::Run()
 				pSceneMain->Init();
 			}*/
 		}
+		// Effekseerにより再生中のエフェクトを更新する。
+		UpdateEffekseer3D();
+
 		Input::GetInstance().Update();
 		controller.Update();
 		controller.Draw();
@@ -105,6 +131,9 @@ void Application::Run()
 
 void Application::Terminate()
 {
+	// Effekseerを終了する。
+	Effkseer_End();
+
 	DxLib_End();
 }
 

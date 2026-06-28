@@ -23,6 +23,10 @@ public:
 	/// <param name="pos">targetの座標</param>
 	/// <param name="pos2">補助的な座標</param>
 	void Update(Vector3 pos, Vector3 pos2 = Vector3());
+	/// <summary>
+	/// レンダーターゲットごとに変わってしまうので、カメラの設定を反映させる
+	/// </summary>
+	void ApplyCameraSettings();
 
 	std::shared_ptr<Camera> GetHighestPriorityCamera()const { return highestPriorityCamera; }
 	//ここですること

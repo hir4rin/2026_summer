@@ -30,5 +30,10 @@ private:
 	std::shared_ptr<EnemySwordman> m_enemySwordman;
 
 	std::shared_ptr<Stage> m_stage;
+	//シェーダー用
+	int m_RT1 = -1;
+	int m_RT2 = -1;
+	int m_RT3 = -1;
+
 };
 

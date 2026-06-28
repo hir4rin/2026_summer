@@ -50,6 +50,7 @@ public:
 	void StartCameraShake(Camera& camera, float power, float time);
 	Vector3 CameraShakeUpdate();
 	void UpdateLight();//ライトの位置を更新
+	virtual void CameraSetting();
 protected:
 	void InputRightStick();//右スティックの入力を処理する
 protected:

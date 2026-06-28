@@ -3,6 +3,8 @@
 #include "Player.h"
 #include "../Character/Enemy/Swordman/EnemySwordman.h"
 #include "../Stage/Stage.h"
+#include "../Game.h"
+#include "EffekseerForDXLib.h"
 
 namespace
 {
@@ -28,6 +30,11 @@ GameScene::GameScene(SceneController& controller):Scene(controller)
 
 	m_stage = std::make_shared<Stage>();
 	CollisionManager::GetInstance().Init();
+	//レンダーターゲットの作成
+	m_RT1 = MakeScreen(Game::kScreenWidth, Game::kScreenHeight, true);
+	m_RT2 = MakeScreen(Game::kScreenWidth, Game::kScreenHeight, true);
+	m_RT3 = MakeScreen(Game::kScreenWidth, Game::kScreenHeight, true);
+
 }
 GameScene::~GameScene()
 {
@@ -67,16 +74,42 @@ void GameScene::FadeInDraw()
 
 void GameScene::NormalDraw()
 {
-	m_stage->Draw();
-	DrawFormatString(300, 0, GetColor(255, 255, 255), "GameScene");
-	DrawGrid();
+	//UltDrawを作ったほうがいいかも
+	//レンダリングを4つに分ける(map,Effect,UI,Character)
+	//map,effectにシェーダーをかける
 
+	//RT1
+	SetDrawScreen(m_RT1); ClearDrawScreen(); 
+	m_cameraManager->ApplyCameraSettings();
+	//赤くする
+	m_stage->Draw();
+	SetDrawBlendMode(DX_BLENDMODE_ALPHA, 128);
+	DrawBox(0, 0,Game::kScreenWidth, Game::kScreenHeight, GetColor(255, 0, 0), TRUE);
+	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0); // ← 必ずリセット！
+	//SetDrawBright(255, 255, 255);
+	// Effekseerにより再生中のエフェクトを描画する。
+
+	//RT2
+	SetDrawScreen(m_RT2); ClearDrawScreen();
+	m_cameraManager->ApplyCameraSettings();
+	DrawEffekseer3D();
+	DrawFormatString(300, 0, GetColor(255, 255, 255), "GameScene");
+	//DrawGrid();
+
+	//RT3
+	SetDrawScreen(m_RT3); ClearDrawScreen();
+	m_cameraManager->ApplyCameraSettings();
 	m_player->Draw();
 	m_enemySwordman->Draw();
-
 #ifdef _DEBUG
 	CollisionManager::GetInstance().DebugDraw();
 #endif
+
+	//最終的に画面に描画する
+	SetDrawScreen(DX_SCREEN_BACK); ClearDrawScreen();
+	DrawGraph(0, 0, m_RT1, TRUE); // 背景
+	DrawGraph(0, 0, m_RT2, TRUE); // エフェクト・文字
+	DrawGraph(0, 0, m_RT3, TRUE); // キャラクター
 }
 
 void GameScene::FadeOutDraw()

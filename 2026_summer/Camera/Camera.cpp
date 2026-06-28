@@ -100,6 +100,11 @@ void Camera::UpdateLight()
 	SetLightDirectionHandle(m_lightHandle, lightDir.ToDxLibVector());
 }
 
+void Camera::CameraSetting()
+{
+	//そのフレームのカメラをセット
+}
+
 void Camera::InputRightStick()
 {
 	

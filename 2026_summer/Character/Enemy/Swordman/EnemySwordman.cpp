@@ -219,7 +219,7 @@ void EnemySwordman::Update()
 					}
 					else
 					{
-						ChangeState(EnemyState::Fall);
+						ChangeState(EnemyState::AirStay);
 					}
 				}
 			}
@@ -343,10 +343,15 @@ void EnemySwordman::OnDamage(Collider& other, AttackData& data)
 	Vector3 front = player->GetTargetVec();
 	Vector3 pos = player->GetPos() + player->GetVel();
 	Vector3 TargetPos = pos + front * kEnemyDistance;
-	Vector3 toTarget = (TargetPos - m_pos).Normalize() * kToTargetPower;
+	Vector3 toTarget = (TargetPos - m_pos).Normalize() * kToTargetPower;//プレイヤーの正面に行くようにknockBackする力//吸着
 
 	Vector3 pushBackVec = (m_pos - other.GetPos()).Normalize() * data.knockBackPower.x;
 	pushBackVec += toTarget;
+	//nockbackテスト用
+	if (m_attackData.isKirimomi)
+	{
+		// pushBackVec += (m_pos - other.GetPos()).Normalize() * 15.0f;
+	}
 
 	//ここをknockBackVelにして、knockBackVelをだんだん減衰させる処理をする
 	m_knockBackVel = pushBackVec;
@@ -430,6 +435,7 @@ void EnemySwordman::ChangeState(EnemyState newState)
 		}
 		else if(m_knockBackVel.y < 0.0f)m_hitType = HitType::Drop;
 		else m_hitType = HitType::Ground;
+		if (m_attackData.isKirimomi)m_hitType = HitType::Drop;//吹き飛ぶときはDropにする
 		break;
 	case EnemyState::AirStay:
 		break;

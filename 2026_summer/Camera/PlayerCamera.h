@@ -16,6 +16,7 @@ public:
 	 /// <param name="pos2"></param>
 	 void Update(Vector3 pos, Vector3 pos2 = Vector3()) override;
 	 void FixCameraPos() override;
+	 void CameraSetting() override;
 private:
 	void InputRightStick();//右スティックの入力を処理する
 private:
