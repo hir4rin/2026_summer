@@ -36,6 +36,10 @@ Player::Player()
 	//アニメーションの名前のマップの初期化
 	const auto& animData = DataManager::GetInstance().GetPlayerAnimData();
 	m_animNames = animData.animNames;
+
+	//鴉の羽のモデルの読み込み
+	m_wingModelHandle = MV1LoadModel("data/Player/Weapon/Wing/wing.mv1");
+	WingUpdate();//鴉状態の羽の更新
 }
 
 Player::~Player()
@@ -45,6 +49,7 @@ Player::~Player()
 		m_currentState->Exit();//状態を抜ける
 	}
 	MV1DeleteModel(m_modelHandle);
+	MV1DeleteModel(m_wingModelHandle);
 }
 
 void Player::Init()
@@ -92,6 +97,8 @@ void Player::Update(Camera& camera)
 		m_currentState->Update();//状態の更新
 	}
 
+	WingUpdate();
+
 	//座標の更新の前に、当たり判定の更新をする
 
 	//座標の更新
@@ -124,6 +131,9 @@ void Player::Update(Camera& camera)
 void Player::Draw()
 {
 	MV1DrawModel(m_modelHandle);
+	//鴉状態のときのみ描画
+	if(m_isRaven)MV1DrawModel(m_wingModelHandle);
+
 	//コンボチェーンの描画
 	for(int i = 0; i < m_comboChain.size(); ++i)
 	{
@@ -260,4 +270,35 @@ bool Player::IsAvoidable() const
 	}
 
 	return true;
+}
+
+void Player::WingUpdate()
+{
+	//モデルフレームのローカルワールド行列を取得
+	MATRIX mat = MV1GetFrameLocalWorldMatrix(m_modelHandle, kPlayerNeckBoneIndex);//モデルフレームのローカルワールド行列を取得
+
+	////武器の位置を取得
+	//Vector3 weaponPos = MV1GetFramePosition(m_ownerHandle, slotIndex);
+
+	//MATRIX transmat = MGetTranslate(weaponPos.ToDxLibVector());
+	//90度回転させる
+	MATRIX rotmat = MGetRotY(DX_PI_F / 2.0f);//回転行列を作成する//90度回転させる
+	MATRIX rotXmat = MGetRotX(DX_PI_F / 2.0f);//回転行列を作成する//90度回転させる
+	MATRIX rotZmat = MGetRotZ(DX_PI_F / 2.0f);//回転行列を作成する//90度回転させる
+
+	rotmat = MMult(rotXmat, rotmat);//回転行列を掛ける//90度回転させる
+	rotmat = MMult(rotZmat, rotmat);//回転行列を掛ける//90度回転させる
+	mat = MMult(rotmat, mat);//回転行列を掛ける//90度回転させる
+
+	MATRIX scale = MGetScale(VGet(0.35f, 0.35f, 0.35f));//スケーリング行列を作成する//モデルの大きさを半分にする
+
+	mat = MMult(scale, mat);//スケーリング行列を掛ける//モデルの大きさを半分にする
+
+	//オフセット
+	MATRIX transmat = MGetTranslate(VGet(0.0f, -10.0f, -40.0f)); // -Z が後ろ
+	//これを先に掛けることで、ローカル空間でのオフセットを適用する
+	mat = MMult(transmat, mat);
+
+	//モデルにマトリクスをセット
+	MV1SetMatrix(m_wingModelHandle, mat);
 }
