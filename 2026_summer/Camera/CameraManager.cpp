@@ -60,6 +60,9 @@ void CameraManager::ApplyCameraSettings()
 	for (auto& camera : m_cameras)
 	{
 		camera->CameraSetting();
+		// DXライブラリのカメラとEffekseerのカメラを同期する。
+		Effekseer_Sync3DSetting();
+
 	}
 }
 

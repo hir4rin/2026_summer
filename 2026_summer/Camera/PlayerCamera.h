@@ -21,5 +21,6 @@ private:
 	void InputRightStick();//右スティックの入力を処理する
 private:
 	XINPUT_STATE  xi;
+	Vector3 m_rayVec = Vector3(0, 0, 0);//カメラの前方向のベクトル//カメラの注視点を決めるために使う
 };
 

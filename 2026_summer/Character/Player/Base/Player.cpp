@@ -9,6 +9,7 @@
 #include "../../../Camera/Camera.h"
 #include "../../../SubWindow/SubWindow.h"
 #include "../../../Input.h"
+#include "EffekseerForDXLib.h"
 #include <cmath>
 #include <cassert>
 #include <string>
@@ -51,6 +52,7 @@ Player::~Player()
 	}
 	MV1DeleteModel(m_modelHandle);
 	MV1DeleteModel(m_wingModelHandle);
+	DeleteEffekseerEffect(m_efHandle);
 }
 
 void Player::Init()
@@ -75,6 +77,8 @@ void Player::Init()
 	ChangeState(m_currentState);//初期化
 	//武器の生成
 	m_weapon = std::make_shared<Weapon>(weak_from_this());//武器の生成//Playerクラスのインスタンスから、Playerクラスのshared_ptrを取得できるようになる
+	//effectの生成
+	m_efHandle = LoadEffekseerEffect("data/Effect/fire.efk",1.0f);
 }
 
 void Player::Update(Camera& camera)
@@ -104,6 +108,16 @@ void Player::Update(Camera& camera)
 	//これらは押し戻しの時に呼ばれないのでずれる→そこでも呼ぶ必要あり
 	WingUpdate();
 	m_weapon->Update();//武器の更新
+	// 定期的にエフェクトを再生する
+	static int time = 0;
+	if (time++ % 60 == 0)
+	{
+		// エフェクトを再生する。
+		m_efPlayingHandle = PlayEffekseer3DEffect(m_efHandle);
+
+		// エフェクトの位置をリセットする。
+	}
+	
 
 	//座標の更新の前に、当たり判定の更新をする
 
@@ -158,6 +172,12 @@ void Player::Draw()
 		m_currentState->DebugDraw();//デバッグ描画
 	}
 #endif
+}
+void Player::EffectDraw()
+{
+	// 再生中のエフェクトを移動する。
+	SetPosPlayingEffekseer3DEffect(m_efPlayingHandle, m_pos.x, m_pos.y, m_pos.z);
+	//SetColorPlayingEffekseer3DEffect(m_efPlayingHandle, 255, 255, 255, 255);
 }
 
 void Player::OnCollision(Collider& other)

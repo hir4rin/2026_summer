@@ -53,6 +53,13 @@ void PlayerCamera::Update(Vector3 pos, Vector3 pos2)
 
 	//ターゲットの位置を更新
 	Vector3 playerPos = pos;
+	//rayVecを更新
+	m_rayVec = playerPos - m_pos;
+	//rayVecを正規化
+	m_rayVec = m_rayVec.Normalize();
+	//敵の座標との射影ベクトルを求める
+
+
 	//playerPos.y = 0.0f;//プレイヤーのy座標は0にする
 	m_target = playerPos + kCameraHeight;
 

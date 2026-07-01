@@ -109,6 +109,7 @@ public:
 
 	void Update(Camera& camera);
 	void Draw();
+	void EffectDraw();
 
 	void OnCollision(Collider& other) override;
 	void OnDamage(Collider& other, AttackData& data) override;
@@ -136,6 +137,9 @@ private:
 	const int kPlayerNeckBoneIndex = 25;//首のボーンのインデックス
 	int m_wingModelHandle = -1;//鴉の羽のモデルのハンドル//鴉状態の時に表示する
 	std::shared_ptr<Weapon> m_weapon;//武器
+
+	int m_efHandle = -1;//エフェクトのハンドル
+	int m_efPlayingHandle = -1;//再生中のエフェクトのハンドル
 
 	friend class PlayerState;//PlayerStateクラスから、Playerクラスのprivateメンバにアクセスできるようにする
 	friend class PlayerStateIdle;

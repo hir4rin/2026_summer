@@ -95,8 +95,17 @@ void GameScene::NormalDraw()
 	//RT2
 	SetDrawScreen(m_RT2); ClearDrawScreen();
 	m_cameraManager->ApplyCameraSettings();
+	//シェーダーで色をとって白くする
+	//SetDrawBright(0, 0, 0);  // R=255, G=255, B=255	
+	m_player->EffectDraw();
+	//描画前に色を設定
 	DrawEffekseer3D();
 	DrawFormatString(300, 0, GetColor(255, 255, 255), "GameScene");
+	// 必ずリセット！
+	//SetDrawBright(255, 255, 255);
+	SetDrawBlendMode(DX_BLENDMODE_MULA, 128);
+	DrawBox(0, 0, Game::kScreenWidth, Game::kScreenHeight, GetColor(255, 255, 255), TRUE);
+	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0); // ← 必ずリセット！
 	//DrawGrid();
 
 	//RT3
