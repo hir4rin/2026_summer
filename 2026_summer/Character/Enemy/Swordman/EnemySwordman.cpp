@@ -10,9 +10,8 @@ namespace
 
 	constexpr float kEnemyCenter = 100.0f;//敵の当たり判定の中心点までのy軸の距離
 
-	constexpr float kEnemyMeleeAttackRange = 80.0f;//敵の近接攻撃の距離
+	constexpr float kEnemyMeleeAttackRange = 120.0f;//敵の近接攻撃の距離
 	constexpr float kEnemyBackDistance = 600.0f;//敵が距離を取るときの距離
-
 
 	constexpr float kEnemyIdleMaxTime = 60.0f;//敵がIdle状態でいる時間の最大値
 	constexpr float kEnemyTargetUpdateTime = 30.0f;//敵がターゲットを更新する時間
@@ -24,12 +23,12 @@ namespace
 	constexpr float kToTargetPower = 3.0f;//プレイヤーの正面に行くようにknockBackする力
 }
 
-EnemySwordman::EnemySwordman(std::weak_ptr<Player> player) : EnemyBase(player)
+EnemySwordman::EnemySwordman(std::weak_ptr<Player> player, Vector3 pos, int modelHandle) : EnemyBase(player)
 {
-	m_pos = Vector3(0, 0, 200);//初期位置
+	m_pos = pos;//初期位置
 	m_hp = 500;//体力
-	//一旦モデルはここ
-	m_modelHandle = MV1LoadModel("data/Enemy/swordman.mv1");
+	//モデルのハンドルをセット
+	m_modelHandle = modelHandle;
 	//モデルの初期位置を設定する
 	Matrix4x4 rotY = Matrix4x4::MakeRotationY(0);
 	MATRIX transmat = MGetTranslate(m_pos.ToDxLibVector());
@@ -235,7 +234,7 @@ void EnemySwordman::Update()
 					m_knockBackVel.y = 0.0f;
 
 					FinishHitProcess();
-					//地面についたらChange
+					//地面についたらChange//knockDown状態とか作ったっていい
 					ChangeState(EnemyState::Idle);
 				}
 				break;
@@ -260,6 +259,12 @@ void EnemySwordman::Update()
 			//m_pos.y = 0.0f;
 			m_vel.y = 0.0f;
 			ChangeState(EnemyState::Idle);
+		}
+		break;
+	case EnemyState::Dead:
+		if (m_anim.GetAnimEndFlag())
+		{
+			m_isDead = true;
 		}
 		break;
 	default:
@@ -293,7 +298,11 @@ void EnemySwordman::Draw()
 	DrawFormatString(Game::kScreenWidth - 600, 10, GetColor(255, 255, 255), "Enemy State: %s", stateString.c_str());
 	DrawFormatString(Game::kScreenWidth - 600, 30, GetColor(255, 255, 255), "Enemy HitType: %s",hitTypeString.c_str() );
 #endif
-	MV1DrawModel(m_modelHandle);
+	if (!m_isDead)
+	{
+		//まだエネミーマネージャーが管理していないので、ここで描画だけ消す//見た目用
+		MV1DrawModel(m_modelHandle);
+	}
 }
 
 std::string EnemySwordman::GetHitString()
@@ -330,14 +339,24 @@ void EnemySwordman::OnCollision(Collider& other)
 
 void EnemySwordman::OnDamage(Collider& other, AttackData& data)
 {
+
 	auto player = m_player.lock();
 	if (!player)return;
 
 	//データの保存
 	m_attackData = data;
 
+	//死亡していたら処理しない
+	if (m_isDead)return;
 	//Playerの攻撃データをもとに被ダメ処理をする
 	m_hp -= data.attackPower;
+	if (m_hp <= 0)
+	{
+		m_hp = 0;
+		m_isDead = true;
+		ChangeState(EnemyState::Dead);
+		return;
+	}
 
 	//Enemy->Playerのベクトルに吹き飛ばす力を加える//プレイヤーの正面に行くようにknockBackする//いずれkirimomi吹っ飛びの時の処理と分ける
 	Vector3 front = player->GetTargetVec();
@@ -393,6 +412,8 @@ void EnemySwordman::ChangeState(EnemyState newState)
 		break;
 	case EnemyState::Fall:
 		break;
+	case EnemyState::Dead:
+		break;
 	default:
 		break;
 	}
@@ -440,6 +461,10 @@ void EnemySwordman::ChangeState(EnemyState newState)
 	case EnemyState::AirStay:
 		break;
 	case EnemyState::Fall:
+		break;
+	case EnemyState::Dead:
+		//死亡アニメーションを流す
+		//m_anim.ChangeAnim
 		break;
 	default:
 		break;

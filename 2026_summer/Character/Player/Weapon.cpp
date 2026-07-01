@@ -1,11 +1,15 @@
 ﻿#include "Weapon.h"
 #include "DxLib.h"
+#include "Base/Player.h"
 #include "../Math/Vector3.h"
 #include "../Math/Matrix4x4.h"
 
 Weapon::Weapon(std::weak_ptr<Player> owner)
 	: m_owner(owner)
 {
+	auto player = m_owner.lock();
+	if (!player)return;
+
 	m_modelHandle = MV1LoadModel("data/Player/Weapon/katana_blend.mv1");
 }
 
@@ -15,8 +19,10 @@ Weapon::~Weapon()
 
 void Weapon::Update()
 {
+	auto player = m_owner.lock();
+	if (!player)return;
 	//モデルフレームのローカルワールド行列を取得
-	MATRIX mat = MV1GetFrameLocalWorldMatrix(m_ownerHandle, slotIndex);//モデルフレームのローカルワールド行列を取得
+	MATRIX mat = MV1GetFrameLocalWorldMatrix(player->GetModelHandle(), slotIndex);//モデルフレームのローカルワールド行列を取得
 
 	////武器の位置を取得
 	//Vector3 weaponPos = MV1GetFramePosition(m_ownerHandle, slotIndex);
@@ -28,7 +34,7 @@ void Weapon::Update()
 	MATRIX rotmat = MGetRotY(DX_PI_F / 2.0f);//回転行列を作成する//90度回転させる
 	mat = MMult(rotmat, mat);//回転行列を掛ける//90度回転させる
 
-	MATRIX scale = MGetScale(VGet(0.2f,0.2f,0.2f));//スケーリング行列を作成する//モデルの大きさを半分にする
+	MATRIX scale = MGetScale(VGet(0.6f, 0.6f, 0.6f));//スケーリング行列を作成する//モデルの大きさを半分にする
 
 	mat = MMult(scale, mat);//スケーリング行列を掛ける//モデルの大きさを半分にする
 
@@ -50,7 +56,7 @@ void Weapon::TitleUpdate()
 	//MATRIX rotmat = MGetRotY(DX_PI_F / 2.0f);//回転行列を作成する//90度回転させる
 	//mat = MMult(rotmat, mat);//回転行列を掛ける//90度回転させる
 
-	MATRIX scale = MGetScale(VGet(0.2f, 0.2f, 0.2f));//スケーリング行列を作成する//モデルの大きさを半分にする
+	MATRIX scale = MGetScale(VGet(0.6f, 0.6f, 0.6f));//スケーリング行列を作成する//モデルの大きさを半分にする
 
 	mat = MMult(scale, mat);//スケーリング行列を掛ける//モデルの大きさを半分にする
 

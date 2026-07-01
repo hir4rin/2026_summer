@@ -7,6 +7,7 @@ class CameraManager;
 class Stage;
 class Player;
 class EnemySwordman;
+class EnemyManager;
 
 class GameScene : public Scene
 {
@@ -28,7 +29,7 @@ private:
 	std::unique_ptr<CameraManager> m_cameraManager;
 	std::shared_ptr<Player> m_player;
 	std::shared_ptr<EnemySwordman> m_enemySwordman;
-
+	std::shared_ptr<EnemyManager> m_enemyManager;
 	std::shared_ptr<Stage> m_stage;
 	//シェーダー用
 	int m_RT1 = -1;

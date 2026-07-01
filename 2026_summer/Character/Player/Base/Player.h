@@ -15,6 +15,7 @@
 
 class PlayerState;
 class Camera;
+class Weapon;
 
 struct ComboNode
 {
@@ -122,6 +123,7 @@ private:
 	void UpdateAngle();//回転処理
 	bool IsAvoidable()const;//回避入力を受け付けるかどうか
 	void WingUpdate();//鴉状態の羽の更新
+	void ApplyPos()override;//座標の適用//Playerクラスでは、座標に加えて、首のボーンの回転も適用する
 private:
 	//コンボチェーン
 	std::vector<ComboNode> m_comboChain = {};//コンボのデータ
@@ -129,9 +131,11 @@ private:
 	AvoidInfo m_avoidInfo = {};//回避の情報
 
 	std::shared_ptr<PlayerState> m_currentState;//プレイヤーの状態//攻撃中、移動中など//状態遷移の管理をするためのもの
+
 	bool m_isRaven = false;//鴉状態かどうか//攻撃が変化する
 	const int kPlayerNeckBoneIndex = 25;//首のボーンのインデックス
 	int m_wingModelHandle = -1;//鴉の羽のモデルのハンドル//鴉状態の時に表示する
+	std::shared_ptr<Weapon> m_weapon;//武器
 
 	friend class PlayerState;//PlayerStateクラスから、Playerクラスのprivateメンバにアクセスできるようにする
 	friend class PlayerStateIdle;

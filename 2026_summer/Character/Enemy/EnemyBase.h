@@ -16,6 +16,7 @@ public:
 		Hit = 5,
 		AirStay = 6,
 		Fall = 7,
+		Dead = 8,
 	};
 	enum class HitType : int
 	{

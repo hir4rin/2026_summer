@@ -2,6 +2,7 @@
 #include "PlayerState.h"
 #include "PlayerStateIdle.h"
 #include "PlayerStateMove.h"
+#include "../Weapon.h"
 #include "../../../DataLoader/DataManager.h"
 #include "../../../System.h"
 #include "../../../Math/Matrix4x4.h"
@@ -70,8 +71,10 @@ void Player::Init()
 	//やられ判定の初期化
 	InitHitCol(weak_from_this());
 	m_hitCol->ColInit(m_pos, Vector3(0, kPlayerCenter, 0), 50.0f, ColliderType::Sphere, Tags::PlayerHit, true,true);
-	ApplyPos();//座標の更新//モデルの座標を更新する
+	CharacterBase::ApplyPos();//座標の更新//モデルの座標を更新する
 	ChangeState(m_currentState);//初期化
+	//武器の生成
+	m_weapon = std::make_shared<Weapon>(weak_from_this());//武器の生成//Playerクラスのインスタンスから、Playerクラスのshared_ptrを取得できるようになる
 }
 
 void Player::Update(Camera& camera)
@@ -97,7 +100,10 @@ void Player::Update(Camera& camera)
 		m_currentState->Update();//状態の更新
 	}
 
+
+	//これらは押し戻しの時に呼ばれないのでずれる→そこでも呼ぶ必要あり
 	WingUpdate();
+	m_weapon->Update();//武器の更新
 
 	//座標の更新の前に、当たり判定の更新をする
 
@@ -133,7 +139,7 @@ void Player::Draw()
 	MV1DrawModel(m_modelHandle);
 	//鴉状態のときのみ描画
 	if(m_isRaven)MV1DrawModel(m_wingModelHandle);
-
+	m_weapon->Draw();//武器
 	//コンボチェーンの描画
 	for(int i = 0; i < m_comboChain.size(); ++i)
 	{
@@ -301,4 +307,11 @@ void Player::WingUpdate()
 
 	//モデルにマトリクスをセット
 	MV1SetMatrix(m_wingModelHandle, mat);
+}
+void Player::ApplyPos()
+{
+	//モデルの座標を更新する
+	CharacterBase::ApplyPos();
+	WingUpdate();
+	m_weapon->Update();//武器の更新
 }

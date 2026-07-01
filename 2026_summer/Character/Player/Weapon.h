@@ -18,7 +18,7 @@ private:
 	std::weak_ptr<Player> m_owner;//持ち主のプレイヤー
 	int m_ownerHandle = -1;//持ち主のハンドル
 	int m_modelHandle = -1;//剣のモデルのハンドル
-	int slotIndex = 295;//装備しているスロットのインデックス
+	int slotIndex = 58;//装備しているスロットのインデックス
 
 };
 

@@ -1,9 +1,10 @@
 ﻿#pragma once
 #include "../EnemyBase.h"
+#include "../../../Math/Vector3.h"
 class EnemySwordman : public EnemyBase, public std::enable_shared_from_this<EnemySwordman>
 {
 public:
-	EnemySwordman(std::weak_ptr<Player> player);
+	EnemySwordman(std::weak_ptr<Player> player,Vector3 pos,int modelHandle);
 	virtual ~EnemySwordman();
 	void Init() override;
 	void Update() override;
