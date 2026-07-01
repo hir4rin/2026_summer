@@ -1,5 +1,9 @@
 ﻿#include "PlayerCamera.h"
 #include "../Math/Matrix4x4.h"
+#include "../Input.h"
+#include "Player.h"
+#include "../Character/Enemy/EnemyBase.h"
+#include "../SubWindow/SubWindow.h"
 
 namespace
 {
@@ -9,10 +13,12 @@ namespace
 	constexpr float kCameraHeightFloat = 300.0f;//カメラの高さ
 	constexpr float kCameraAngleSpeed = 0.03f;//カメラの回転速度
 	const Vector3 kCameraHeight = Vector3(0.0f, 150.0f, 0.0f);//カメラの高さ(Vector3)
+
+	constexpr float kRockOnMaxDistance = 1000.0f;//ロックオンの最大距離
 }
 
 
-PlayerCamera::PlayerCamera():
+PlayerCamera::PlayerCamera() :
 	xi{}
 {
 	m_type = Type::PlayerCamera;
@@ -49,6 +55,46 @@ void PlayerCamera::GameSceneInit()
 
 void PlayerCamera::Update(Vector3 pos, Vector3 pos2)
 {
+	//ロックオン問題点
+	//・ロックオン時の角度が変
+	//→プレイヤーの後ろ側にカメラがあるように設定する(?)
+	//→調べる
+	//後、ロックオンに遷移時Lerpにする
+
+
+	if (m_isLockOn)
+	{
+		//
+		auto enemy = m_lockOnEnemy.lock();
+		if (enemy)
+		{
+			Vector3 enemyPos = enemy->GetPos();
+			float distance = (enemyPos - pos).Magnitude();
+			//ロックオンの最大距離を超えたらロックオンを解除する
+			if (distance > kRockOnMaxDistance)
+			{
+				m_isLockOn = false;
+				//解放
+				m_lockOnEnemy.reset();
+			}
+			//ターゲットの位置を更新
+			Vector3 playerPos = pos;
+			m_target = playerPos + (enemyPos - playerPos) / 2 + kCameraHeight;
+			//カメラの位置を調整する
+			FixCameraPos();
+			//カメラの位置と注視点を反映する
+			SetCameraPositionAndTarget_UpVecY(m_pos.ToDxLibVector(), m_target.ToDxLibVector());
+			return;
+		}
+		else
+		{
+			m_isLockOn = false;
+			//解放
+			m_lockOnEnemy.reset();
+		}
+	}
+
+
 	InputRightStick();
 
 	//ターゲットの位置を更新
@@ -102,6 +148,7 @@ void PlayerCamera::CameraSetting()
 	SetCameraPositionAndTarget_UpVecY(m_pos.ToDxLibVector(), m_target.ToDxLibVector());
 }
 
+
 void PlayerCamera::InputRightStick()
 {
 	if (GetJoypadXInputState(DX_INPUT_PAD1, &xi) == 0)//右スティックの入力を取得できたら
@@ -141,7 +188,7 @@ void PlayerCamera::InputRightStick()
 		}
 		if (ry < 0)//下に傾いている
 		{
-			m_angleV += kCameraAngleSpeed*1/3;
+			m_angleV += kCameraAngleSpeed * 1 / 3;
 			// ある一定角度以上にはならないようにする
 			if (m_angleV > DX_PI_F * 0.5f - 0.6f)
 			{

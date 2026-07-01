@@ -25,6 +25,7 @@ public :
 		void FadeOutDraw() override;
 private:
 	void DrawGrid();
+	void RockOnCamera();
 private:
 	std::unique_ptr<CameraManager> m_cameraManager;
 	std::shared_ptr<Player> m_player;

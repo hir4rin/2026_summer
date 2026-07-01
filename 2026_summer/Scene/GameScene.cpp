@@ -1,18 +1,21 @@
 ﻿#include "GameScene.h"
 #include "../Camera/CameraManager.h"
+#include "../Camera/PlayerCamera.h"
 #include "Player.h"
 #include "../Character/Enemy/Swordman/EnemySwordman.h"
 #include "../Stage/Stage.h"
 #include "../Game.h"
+#include "../Input.h"
 #include "EffekseerForDXLib.h"
 #include "../Managers/EnemyManager.h"
+#include "../SubWindow/SubWindow.h"
 
 namespace
 {
 	constexpr int kGridRange = 2400;//グリッドのサイズ
 }
 
-GameScene::GameScene(SceneController& controller):Scene(controller)
+GameScene::GameScene(SceneController& controller) :Scene(controller)
 {
 	//基底クラスに継承先のポインタをキャストして代入する
 	m_updateFunc = static_cast<UpdateFunc_t>(&GameScene::NormalUpdate);
@@ -55,7 +58,10 @@ void GameScene::FadeInUpdate()
 
 void GameScene::NormalUpdate()
 {
-	m_cameraManager->Update(m_player->GetPos() - Vector3(0,m_player->GetCenter(),0));
+	//ロックオンするか
+	RockOnCamera();
+
+	m_cameraManager->Update(m_player->GetPos() - Vector3(0, m_player->GetCenter(), 0));
 	m_player->Update(*m_cameraManager->GetHighestPriorityCamera());
 	m_enemyManager->Update();
 	m_stage->Update();
@@ -82,12 +88,12 @@ void GameScene::NormalDraw()
 	//map,effectにシェーダーをかける
 
 	//RT1
-	SetDrawScreen(m_RT1); ClearDrawScreen(); 
+	SetDrawScreen(m_RT1); ClearDrawScreen();
 	m_cameraManager->ApplyCameraSettings();
 	//赤くする
 	m_stage->Draw();
 	SetDrawBlendMode(DX_BLENDMODE_ALPHA, 128);
-	DrawBox(0, 0,Game::kScreenWidth, Game::kScreenHeight, GetColor(255, 0, 0), TRUE);
+	DrawBox(0, 0, Game::kScreenWidth, Game::kScreenHeight, GetColor(255, 0, 0), TRUE);
 	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0); // ← 必ずリセット！
 	//SetDrawBright(255, 255, 255);
 	// Effekseerにより再生中のエフェクトを描画する。
@@ -115,6 +121,7 @@ void GameScene::NormalDraw()
 	m_enemyManager->Draw();
 #ifdef _DEBUG
 	CollisionManager::GetInstance().DebugDraw();
+	
 #endif
 
 	//最終的に画面に描画する
@@ -145,5 +152,70 @@ void GameScene::DrawGrid()
 		startPos = VGet(static_cast<float>(x), 0.0f, -kGridRange);
 		endPos = VGet(static_cast<float>(x), 0.0f, kGridRange);
 		DrawLine3D(startPos, endPos, 0x0000ff);
+	}
+}
+
+void GameScene::RockOnCamera()
+{
+	//問題点
+	//・敵がいないときのことを考えていない
+	// →敵がいないときはキャラクターの正面を向くようにする
+	//・敵が死んでいるときのことを考えていない
+
+
+
+	const auto& camera = m_cameraManager->GetHighestPriorityCamera();
+	//dynamic_pointer_castでキャストする
+	auto playerCamera = std::dynamic_pointer_cast<PlayerCamera>(camera);
+	//キャストできなかったらreturn
+	if (!playerCamera)return;
+
+	auto& input = Input::GetInstance();
+
+	bool isLockOn = playerCamera->GetIsLockOn();
+
+	//いったんボタン押したらロックオンする
+	if (input.IsTriggered("RB"))
+	{
+		//ロックオンしていないとき
+		if (!isLockOn)
+		{
+			//ロックオンする
+		//敵を持ってきて、プレイヤーの範囲内にいるやつを取得//一旦飛ばす
+			const auto& enemies = m_enemyManager->GetEnemies();
+			//ロックオンする敵を決める
+			Vector3 rayVec = m_player->GetPos() - m_cameraManager->GetHighestPriorityCamera()->GetCameraPos();
+			rayVec.Normalize();
+			//最小角度//Cos//最大Cosを求める
+			float maxCos = -1.0f;
+			for (auto& enemy : enemies)
+			{
+				//敵が死んでいたらスキップ//一旦飛ばし
+				
+				//敵の座標
+				Vector3 enemyPos = enemy->GetPos();
+				//カメラから敵までのベクトル
+				Vector3 toEnemyVec = enemyPos - m_cameraManager->GetHighestPriorityCamera()->GetCameraPos();
+				//vecの初期化
+				toEnemyVec.Normalize();
+
+				//rayVecとtoEnemyVecの角度を求める//acosfじゃなくてcosで十分
+				float cos = rayVec.Dot(toEnemyVec);
+				//cosが最大のやつをロックオンする
+				if (cos > maxCos)
+				{
+					maxCos = cos;
+					//ロックオンする//敵をカメラに渡す
+					playerCamera->SetLockOnEnemy(std::weak_ptr<EnemyBase>(enemy));
+				}
+			}
+		}
+		//ロックオンしているとき
+		else
+		{
+			//ロックオンを解除する
+			playerCamera->ReleaseLockOnEnemy();
+		}
+
 	}
 }
