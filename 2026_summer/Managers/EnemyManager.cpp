@@ -63,5 +63,5 @@ bool EnemyManager::IsAllEnemyLastHit() const
 	//		return false;
 	//	}
 	//}
-	//return true;
+	return true;
 }
