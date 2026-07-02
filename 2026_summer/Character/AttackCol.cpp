@@ -1,6 +1,7 @@
 ﻿#include "AttackCol.h"
 #include "CharacterBase.h"
 #include "Player.h"
+#include "../System.h"
 
 namespace
 {
@@ -106,6 +107,19 @@ void AttackCol::PlayerAttackOnCollision(Collider& other)
 				auto& comboInfo = player->GetComboInfo();
 				comboInfo.isHit = true;//攻撃が当たったことを通知する//これで、攻撃の移動を止める
 			}
+			//もしプレイヤーの攻撃だったら
+			auto player = std::dynamic_pointer_cast<Player>(m_owner.lock());
+			if (player)
+			{
+				//演出が始まっていなかったら
+				bool isUltStart = System::GetInstance().GetIsUltStart();
+				if (!isUltStart)
+				{
+					System::GetInstance().SetUltStart();//必殺技の演出をスタートする
+					System::GetInstance().SetTimeScaleForFrames(0.1f, 60);//時間を遅くする//60フレームで元に戻す
+				}
+			}
+
 		}
 	}
 	else

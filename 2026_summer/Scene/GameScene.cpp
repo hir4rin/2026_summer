@@ -5,6 +5,7 @@
 #include "../Character/Enemy/Swordman/EnemySwordman.h"
 #include "../Stage/Stage.h"
 #include "../Game.h"
+#include "../System.h"
 #include "../Input.h"
 #include "EffekseerForDXLib.h"
 #include "../Managers/EnemyManager.h"
@@ -13,6 +14,17 @@
 namespace
 {
 	constexpr int kGridRange = 2400;//グリッドのサイズ
+	
+
+
+	constexpr int kGHX = 782;
+	constexpr int kGHY = 639;
+	constexpr int kGH2X = 1156;
+	constexpr int kGH2Y = 758;
+	/*constexpr int kGH2X = 1262;
+	constexpr int kGH2Y = 910;*/
+	constexpr int kGH3X = 687;
+	constexpr int kGH3Y = 598;
 }
 
 GameScene::GameScene(SceneController& controller) :Scene(controller)
@@ -42,10 +54,18 @@ GameScene::GameScene(SceneController& controller) :Scene(controller)
 	m_RT2 = MakeScreen(Game::kScreenWidth, Game::kScreenHeight, true);
 	m_RT3 = MakeScreen(Game::kScreenWidth, Game::kScreenHeight, true);
 
+
+	 m_gHandle1 = LoadGraph("data/UI/blood_UI.png");
+	 m_gHandle2 = LoadGraph("data/UI/splash2_UI.png");
+	 m_gHandle3 = LoadGraph("data/UI/satu_UI.png");
+
+
 }
 GameScene::~GameScene()
 {
-
+	DeleteGraph(m_gHandle1);
+	DeleteGraph(m_gHandle2);
+	DeleteGraph(m_gHandle3);
 }
 
 void GameScene::Update()
@@ -67,6 +87,7 @@ void GameScene::NormalUpdate()
 	m_enemyManager->Update();
 	m_stage->Update();
 	CollisionManager::GetInstance().Update();
+	System::GetInstance().Update();
 }
 
 void GameScene::FadeOutUpdate()
@@ -88,14 +109,20 @@ void GameScene::NormalDraw()
 	//レンダリングを4つに分ける(map,Effect,UI,Character)
 	//map,effectにシェーダーをかける
 
+	bool isUlt = System::GetInstance().GetIsUltStart();
+
+
 	//RT1
 	SetDrawScreen(m_RT1); ClearDrawScreen();
 	m_cameraManager->ApplyCameraSettings();
 	//赤くする
 	m_stage->Draw();
-	SetDrawBlendMode(DX_BLENDMODE_ALPHA, 128);
-	DrawBox(0, 0, Game::kScreenWidth, Game::kScreenHeight, GetColor(255, 0, 0), TRUE);
-	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0); // ← 必ずリセット！
+	if (isUlt)
+	{
+		SetDrawBlendMode(DX_BLENDMODE_ALPHA, 128);
+		DrawBox(0, 0, Game::kScreenWidth, Game::kScreenHeight, GetColor(255, 0, 0), TRUE);
+		SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0); // ← 必ずリセット！
+	}
 	//SetDrawBright(255, 255, 255);
 	// Effekseerにより再生中のエフェクトを描画する。
 
@@ -108,22 +135,27 @@ void GameScene::NormalDraw()
 	//描画前に色を設定
 	DrawEffekseer3D();
 	DrawFormatString(300, 0, GetColor(255, 255, 255), "GameScene");
-	// 必ずリセット！
-	//SetDrawBright(255, 255, 255);
-	SetDrawBlendMode(DX_BLENDMODE_MULA, 128);
-	DrawBox(0, 0, Game::kScreenWidth, Game::kScreenHeight, GetColor(255, 255, 255), TRUE);
-	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0); // ← 必ずリセット！
+
+	
 	//DrawGrid();
 
 	//RT3
 	SetDrawScreen(m_RT3); ClearDrawScreen();
 	m_cameraManager->ApplyCameraSettings();
-	m_player->Draw();
 	m_enemyManager->Draw();
+
+	//UIの表示
+	if (isUlt)
+	{
+		DrawRectRotaGraph(Game::kScreenWidth - 200, Game::kScreenHeight / 4, 0, 0, kGHX, kGHY, 0.8f, -DX_PI_F / 12, m_gHandle1, TRUE);
+		DrawRectRotaGraph(Game::kScreenWidth / 15, Game::kScreenHeight - 150, 0, 0, kGH2X, kGH2Y, 1.0f, DX_PI_F / 4, m_gHandle2, TRUE);
+		DrawRectRotaGraph(Game::kScreenWidth * 3 / 5, Game::kScreenHeight - 200, 0, 0, kGH3X, kGH3Y, 0.5f, 0.0f, m_gHandle3, TRUE);
+	}
+	m_player->Draw();
 #ifdef _DEBUG
 	CollisionManager::GetInstance().DebugDraw();
-	m_cameraManager->Draw();
 #endif
+	m_cameraManager->Draw();
 
 	//最終的に画面に描画する
 	SetDrawScreen(DX_SCREEN_BACK); ClearDrawScreen();
@@ -175,6 +207,8 @@ void GameScene::RockOnCamera()
 	auto& input = Input::GetInstance();
 
 	bool isLockOn = playerCamera->GetIsLockOn();
+	//playerがいなかったらreturnする
+	if (!m_player)return;
 
 	//いったんボタン押したらロックオンする
 	if (input.IsTriggered("RB"))
@@ -185,12 +219,32 @@ void GameScene::RockOnCamera()
 			//ロックオンする
 		//敵を持ってきて、プレイヤーの範囲内にいるやつを取得//一旦飛ばす
 			const auto& enemies = m_enemyManager->GetEnemies();
+			//範囲指定をする
+			std::vector<std::shared_ptr<EnemyBase>> enemiesInRange;
+			for (auto& enemy : enemies)
+			{
+				Vector3 enemyPos = enemy->GetPos();
+				Vector3 playerPos = m_player->GetPos();
+				float toEnemyVec = (enemyPos - playerPos).Magnitude();
+				//範囲内にいる敵を取得
+				if (toEnemyVec < m_player->GetCameraRockOnRange())
+				{
+					enemiesInRange.push_back(enemy);
+				}
+
+			}
+			if(enemiesInRange.empty())
+			{
+				//範囲内に敵がいなかったらreturn
+				return;
+			}
+
 			//ロックオンする敵を決める
 			Vector3 rayVec = m_player->GetPos() - m_cameraManager->GetHighestPriorityCamera()->GetCameraPos();
 			rayVec.Normalize();
 			//最小角度//Cos//最大Cosを求める
 			float maxCos = -1.0f;
-			for (auto& enemy : enemies)
+			for (auto& enemy : enemiesInRange)
 			{
 				//敵が死んでいたらスキップ//一旦飛ばし
 				

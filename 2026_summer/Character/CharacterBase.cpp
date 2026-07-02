@@ -1,6 +1,7 @@
 ﻿#include "CharacterBase.h"
 #include <assert.h>
 #include "../Math/Matrix4x4.h"
+#include "../System.h"
 
 CharacterBase::CharacterBase()
 {
@@ -45,6 +46,8 @@ void CharacterBase::UpdateAngleAndPos()
 void CharacterBase::ApplyPos()
 {
 	//座標の更新//m_knockBackVelを加算する
+	float timeScale = m_ownTimeScale * System::GetInstance().GetTimeScale();
+
 	m_pos += m_vel;
 
 	//モデルの座標を更新する

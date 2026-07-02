@@ -36,6 +36,8 @@ private:
 	bool m_isLockOn = false;//ロックオンしているかどうか
 	std::weak_ptr<Player> m_player;//プレイヤーの弱参照//ロックオン用
 	std::weak_ptr<EnemyBase> m_lockOnEnemy;//ロックオンしている敵の弱参照
+	//lerp用
+	Vector3 m_targetPos;//カメラの目標座標
 
 	Vector3 m_testPos = Vector3(0, 0, 0);
 	Vector3 m_testPos2 = Vector3(0, 0, 0);

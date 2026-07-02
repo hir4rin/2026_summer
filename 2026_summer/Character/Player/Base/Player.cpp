@@ -172,7 +172,9 @@ void Player::Draw()
 		m_currentState->DebugDraw();//デバッグ描画
 	}
 #endif
+	DrawSphere3D(m_pos.ToDxLibVector(), kPlayerRockOnRange, 16, GetColor(255, 0, 0), GetColor(255, 0, 0), false);
 }
+
 void Player::EffectDraw()
 {
 	// 再生中のエフェクトを移動する。

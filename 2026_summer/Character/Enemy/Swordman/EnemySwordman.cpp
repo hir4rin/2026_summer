@@ -2,6 +2,7 @@
 #include "../../../Math/Matrix4x4.h"
 #include "../../Player/Base/Player.h"
 #include "../../../Game.h"
+#include "../System.h"
 
 namespace
 {
@@ -52,6 +53,8 @@ void EnemySwordman::Init()
 	//やられ判定の初期化
 	InitHitCol(weak_from_this());
 	m_hitCol->ColInit(m_pos, Vector3(0, kEnemyCenter, 0),120.0f, ColliderType::Sphere, Tags::EnemyHit, true,true);
+	
+
 }
 
 void EnemySwordman::Update()
@@ -63,10 +66,13 @@ void EnemySwordman::Update()
 	//攻撃のクールタイムを減らす
 	if (m_attackCoolTime > 0.0f)
 	{
-		m_attackCoolTime -= 1.0f;
+		float timeScale = System::GetInstance().GetTimeScale();
+
+		m_attackCoolTime -= 1.0f * timeScale;
 	}
 	//押し戻しの処理が続かないように消す//応急処置
 	m_vel = Vector3(0, m_vel.y, 0);
+	float timeScale = System::GetInstance().GetTimeScale();
 
 	//Idle->ランダム回す仕組みを作る
 	switch (m_state)
@@ -75,7 +81,8 @@ void EnemySwordman::Update()
 		//Playerを見る
 		ToPlayerLook();
 
-		m_idleTime += 1.0f;
+		float timeScale = System::GetInstance().GetTimeScale();
+		m_idleTime += 1.0f * timeScale;
 		//一定時間Idle状態でいる
 		if (m_idleTime < kEnemyIdleMaxTime)break;
 
@@ -103,7 +110,9 @@ void EnemySwordman::Update()
 
 		//一定時間様子を見る
 		//その後、Chaseに移行
-		if (m_cautionTime++ > kEnemyCautionMaxTime)
+	
+		m_cautionTime += 1.0f * timeScale;
+		if (m_cautionTime > kEnemyCautionMaxTime)
 		{
 			m_cautionTime = 0.0f;
 			ChangeState(EnemyState::Chase);
@@ -126,7 +135,7 @@ void EnemySwordman::Update()
 		//定期的にプレイヤーの位置を更新する
 		if (!ChasePlayer(m_targetPos, kEnemyMeleeAttackRange))
 		{
-			m_chasingTime += 1.0f;
+			m_chasingTime += 1.0f * timeScale;
 			//更新
 			if (m_chasingTime > kEnemyTargetUpdateTime)
 			{
@@ -168,7 +177,7 @@ void EnemySwordman::Update()
 	case EnemyState::Hit:
 		//m_knockBackVelで保存したベクトルをm_velに追加
 		//y軸があるときとないときで処理を変える
-		m_knockBackFrame++;
+		m_knockBackFrame += 1.0f * timeScale;
 		
 		switch (m_hitType)
 		{

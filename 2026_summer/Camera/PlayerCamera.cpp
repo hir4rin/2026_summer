@@ -4,6 +4,7 @@
 #include "Player.h"
 #include "../Character/Enemy/EnemyBase.h"
 #include "../SubWindow/SubWindow.h"
+#include <algorithm>
 
 namespace
 {
@@ -102,6 +103,9 @@ void PlayerCamera::Update(Vector3 pos, Vector3 pos2)
 			
 			//カメラの位置を調整する
 			FixCameraPosLockOn();
+			//Lerpでカメラの位置を更新する
+			m_pos = Vector3::Lerp(m_pos, m_targetPos, 0.1f);
+
 			//カメラの位置と注視点を反映する
 			SetCameraPositionAndTarget_UpVecY(m_pos.ToDxLibVector(), m_target.ToDxLibVector());
 			return;
@@ -131,6 +135,10 @@ void PlayerCamera::Update(Vector3 pos, Vector3 pos2)
 
 	//カメラの位置を調整する
 	FixCameraPos();
+
+	m_pos = Vector3::Lerp(m_pos, m_targetPos, 0.12f);
+	
+
 	//カメラの位置と注視点を反映する
 	SetCameraPositionAndTarget_UpVecY(m_pos.ToDxLibVector(), m_target.ToDxLibVector());
 
@@ -142,6 +150,7 @@ void PlayerCamera::FixCameraPos()
 	auto rotY = Matrix4x4::MakeRotationY(m_angleH);
 	auto rotX = Matrix4x4::MakeRotationX(m_angleV);
 
+	//本当はこの回転行列はベクトルの量、角度が固定なのでOKだが、変わると回転量が変わるので危ないあぶない
 	float cameraToPlayerLength = kToPlayerLength * 0.5f;
 
 	//カメラの座標を算出
@@ -158,7 +167,7 @@ void PlayerCamera::FixCameraPos()
 
 	auto pos = VAdd(RotCtoP, m_target.ToDxLibVector());//プレイヤーの座標に足す
 
-	m_pos = Vector3::FromDxLibVector(pos);
+	m_targetPos = Vector3::FromDxLibVector(pos);
 }
 
 void PlayerCamera::CameraSetting()
@@ -236,10 +245,11 @@ void PlayerCamera::FixCameraPosLockOn()
 	if (!enemy)return;
 	if (!player)return;
 
-	//水平方向の回転
-	auto rotY = Matrix4x4::MakeRotationY(30.0f);
-	auto rotX = Matrix4x4::MakeRotationX(0.16f);//固定
-
+	//水平方向の回転//敵との距離によってこの角度を帰る
+	auto rotY = Matrix4x4::MakeRotationY(0.2f);
+	//auto rotX = Matrix4x4::MakeRotationX(0.16f);//固定
+	
+	//ここも敵との距離に寄って変える
 	float cameraToPlayerLength = kToPlayerLength * 0.5f;
 
 	//カメラの座標を算出
@@ -256,19 +266,25 @@ void PlayerCamera::FixCameraPosLockOn()
 	//auto CtoP = Vector3(0.0f, 0.0f, -cameraToPlayerLength);//プレイヤーからカメラへのベクトル
 
 	//カメラの揺れを加える
-//	EtoPVec = EtoPVec + CameraShakeUpdate();
+	//EtoPVec = EtoPVec + CameraShakeUpdate();
 	//DxLibに変換
 	auto EtoPVecDx = EtoPVec.ToDxLibVector();
 	auto rotYMat = Matrix4x4::ToDxLibMatrix(rotY);//回転行列を転置する
-	auto rotXMat = Matrix4x4::ToDxLibMatrix(rotX);//回転行列を転置する
+	//auto rotXMat = Matrix4x4::ToDxLibMatrix(rotX);//回転行列を転置する
 
 	//カメラからプレイヤーVec
-	auto RotPtoC = VTransform(EtoPVecDx, rotXMat);//回転させる
-	RotPtoC = VTransform(RotPtoC, rotYMat);//回転させる
+	auto RotPtoC = VTransform(EtoPVecDx, rotYMat);//回転させる
+	//RotPtoC = VTransform(RotPtoC, rotXMat);//回転させる
+	RotPtoC = VAdd(RotPtoC, VGet(0.0f, 160.0f, 0.0f));
 	Vector3 pospl = player->GetPos();
 	pospl.y = 0.0f;
 
+	//水平方向はその向き、垂直は初期化
+	m_angleH = atan2f(RotPtoC.x, RotPtoC.z) + DX_PI_F;
+	m_angleV = 0;
+
+
 	auto pos = VAdd(RotPtoC, player->GetPos().ToDxLibVector());//プレイヤーの座標に足す
 
-	m_pos = Vector3::FromDxLibVector(pos);
+	m_targetPos = Vector3::FromDxLibVector(pos);
 }

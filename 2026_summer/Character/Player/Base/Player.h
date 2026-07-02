@@ -119,6 +119,7 @@ public:
 	/// </summary>
 	/// <param name="newState"></param>
 	void ChangeState(std::shared_ptr<PlayerState> newState);//状態遷移の関数//
+	float GetCameraRockOnRange()const { return kPlayerRockOnRange; }//ロックオンする範囲を返す
 private:
 	void InitializeComboChain();//CSVからコンボデータの読み込みをする
 	void UpdateAngle();//回転処理
@@ -140,6 +141,8 @@ private:
 
 	int m_efHandle = -1;//エフェクトのハンドル
 	int m_efPlayingHandle = -1;//再生中のエフェクトのハンドル
+
+	const float kPlayerRockOnRange = 500.0f;//ロックオンする範囲//この範囲内に敵がいたらロックオンする
 
 	friend class PlayerState;//PlayerStateクラスから、Playerクラスのprivateメンバにアクセスできるようにする
 	friend class PlayerStateIdle;

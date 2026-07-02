@@ -1,4 +1,4 @@
-#include "Vector3.h"
+﻿#include "Vector3.h"
 #include <cmath>
 
 Vector3::Vector3() :
@@ -75,6 +75,11 @@ VECTOR Vector3::ToDxLibVector()const
 Vector3 Vector3::FromDxLibVector(const VECTOR& vec)
 {
 	return Vector3(vec.x,vec.y,vec.z);
+}
+
+Vector3 Vector3::Lerp(const Vector3& start, const Vector3& end, float t)
+{
+	return Vector3(start + (end - start) * t);
 }
 
 Vector3 Vector3::operator+(const Vector3& right) const

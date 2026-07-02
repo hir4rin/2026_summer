@@ -27,13 +27,20 @@ public:
 		timeScale = timescale;//時間のスケールを設定する
 		m_frameCount = frames;//フレームカウントを設定する
 	}
+
 	void Update();
+
+	void SetUltStart() { m_ultCount = 60; m_isUltStart = true; };
+	bool GetIsUltStart() { return m_isUltStart; };
 private:
 	//時間の管理
 	float timeScale = 1.0f;//時間のスケール//1.0fなら通常の時間の流れ//0.5fなら半分の速さ//2.0fなら2倍の速さ
 
 	//いじった時間をもとに戻すためのフレーム
 	int m_frameCount = -1;//フレームカウント//ゲームが開始してからのフレーム数//0から始まる
+
+	bool m_isUltStart = false;//必殺技の演出が始まったかどうか
+	int m_ultCount = -1;//必殺技の演出時間カウント
 
 };
 

@@ -107,7 +107,7 @@ bool EnemyBase::BackMove(Vector3 target, float distance)
 		m_vel = Vector3(0, 0, 0);
 		return true;
 	}
-	
+
 	m_vel = toEnemy.Normalize() * Game::kEnemyBackSpeed;
 	return false;
 }
