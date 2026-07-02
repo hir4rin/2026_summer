@@ -16,6 +16,7 @@ namespace
 
 UltCamera::UltCamera()
 {
+	//変数をすべて初期化//一旦
 	m_type = Type::UltCamera;
 	m_priority = 0;
 	m_pos = Vector3(0.0f, 0.0f, 0.0f);//いらないと思うけどなぜか正規化
@@ -36,7 +37,7 @@ void UltCamera::Init()
 	float angleH = m_cameraData.angleH;
 	//初期化
 	m_VecLength = 0.0f;
-	
+	m_targetPos;
 
 	//ここでカメラアングルの場合によって演出の向きを変えるようにしたい
 }
@@ -49,12 +50,19 @@ void UltCamera::Update(Vector3 pos, Vector3 pos2)
 	//
 	//Playerの後ろへカメラが行くベクトルがいい→春休みの作品を参考に
 	//あと、カメラハンドラーのほうでカメラを作り直す
+	//そもそもEnemyとPlayerのポインタを受け取っていなかった
 	
+
+	auto enemy = m_lockOnEnemy.lock();
+	auto player = m_player.lock();
+	if (!enemy)return;
+	if (!player)return;
+
 	//目標ターゲットを計算
 	FixCameraPos();
 	//まず回転角度をlerpする
-	Vector3 playerPos = pos;
-	Vector3 enemyPos = pos2;
+	Vector3 playerPos = player->GetPos();
+	Vector3 enemyPos = enemy->GetPos();
 	Vector3 cameraPos = m_pos;
 	playerPos.y = enemyPos.y = cameraPos.y =  0.0f;
 	Vector3 PtoCVec = (cameraPos - playerPos).Normalize();
@@ -63,9 +71,11 @@ void UltCamera::Update(Vector3 pos, Vector3 pos2)
 	TargetVecNorm.y = 0.0f;
 	TargetVecNorm = TargetVecNorm.Normalize();
 	//ここをSlerpする//2次元上での回転のみ
-	PtoCVec = Vector3::Slerp(PtoCVec, TargetVecNorm, 0.1f);
+	//PtoCVec = Vector3::Slerp(PtoCVec, TargetVecNorm, 0.1f);
+	PtoCVec = TargetVecNorm;
 	//ベクトルの大きさをlerpする
-	m_VecLength = std::lerp(m_VecLength, kUltDistance, 0.1f);
+	//m_VecLength = std::lerp(m_VecLength, kUltDistance, 0.1f);
+	m_VecLength = kUltDistance;
 	//大きさをたす
 	PtoCVec *= m_VecLength;
 	//高さを足す
@@ -104,7 +114,7 @@ void UltCamera::FixCameraPos()
 	if (!player)return;
 
 	//水平方向の回転//敵との距離によってこの角度を帰る
-	auto rotY = Matrix4x4::MakeRotationY(0.6f);
+	auto rotY = Matrix4x4::MakeRotationY(DX_PI_F / 6.0f);
 	//auto rotX = Matrix4x4::MakeRotationX(0.16f);//固定
 
 	//固定//そのまま

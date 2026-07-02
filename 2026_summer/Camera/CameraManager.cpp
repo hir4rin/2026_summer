@@ -43,7 +43,11 @@ void CameraManager::Init(std::weak_ptr<Player> player)
 	//プレイヤーカメラの初期化
 	auto playerCamera = std::dynamic_pointer_cast<PlayerCamera>(m_playerCamera);
 	if (!playerCamera)return;
+	auto ultCamera = std::dynamic_pointer_cast<UltCamera>(m_ultCamera);
+	if (!ultCamera)return;
 	playerCamera->PlayerSet(player);
+	ultCamera->
+	
 	for(auto& camera : m_cameras)
 	{
 		camera->SetCameraManager(shared_from_this());
