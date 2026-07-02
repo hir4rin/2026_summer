@@ -70,10 +70,6 @@ void PlayerCamera::Update(Vector3 pos, Vector3 pos2)
 {
 	//ロックオン問題点
 	//・ロックオン時の角度が変
-	//→プレイヤーの後ろ側にカメラがあるように設定する(?)
-	//→調べる
-	//後、ロックオンに遷移時Lerpにする
-
 
 	if (m_isLockOn)
 	{

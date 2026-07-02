@@ -2,7 +2,10 @@
 #include "Camera.h"
 #include "PlayerCamera.h"
 #include "Movie1Camera.h"
+#include "UltCamera.h"
+#include "../System.h"
 #include "EffekseerForDXLib.h"
+#include "../SubWindow/SubWindow.h"
 
 CameraManager::CameraManager()
 {
@@ -12,8 +15,11 @@ CameraManager::CameraManager()
 	m_playerCamera = std::make_shared<PlayerCamera>();
 	m_playerCamera->Init();
 
+	m_ultCamera = std::make_shared<UltCamera>();
+
 	EntryCamera(m_playerCamera);
 	EntryCamera(m_movieCamera);
+	EntryCamera(m_ultCamera);
 	
 	//初期化
 	highestPriorityCamera = m_playerCamera;
@@ -38,6 +44,10 @@ void CameraManager::Init(std::weak_ptr<Player> player)
 	auto playerCamera = std::dynamic_pointer_cast<PlayerCamera>(m_playerCamera);
 	if (!playerCamera)return;
 	playerCamera->PlayerSet(player);
+	for(auto& camera : m_cameras)
+	{
+		camera->SetCameraManager(shared_from_this());
+	}
 }
 
 void CameraManager::Update(Vector3 pos, Vector3 pos2)
@@ -45,6 +55,13 @@ void CameraManager::Update(Vector3 pos, Vector3 pos2)
 	if (m_cameras.empty())return;
 	// DXライブラリのカメラとEffekseerのカメラを同期する。
 	Effekseer_Sync3DSetting();
+
+	//ウルト演出かどうか
+	bool isUlt = System::GetInstance().GetIsUltimating();
+	if (isUlt)
+	{
+		SetAllCameraPriority(Camera::Type::UltCamera);
+	}
 
 
 	//emplace_backで、リストの最後をUpdateするようにする//ChangeCamera関数を作ってpriorityが高いものをemplace_backするようにする
@@ -64,13 +81,13 @@ void CameraManager::Update(Vector3 pos, Vector3 pos2)
 void CameraManager::Draw()
 {
 	highestPriorityCamera->Draw();
+	int num = static_cast<int>(highestPriorityCamera->GetCameraType());
+	std::string text = std::to_string(num);
+	SubWindow::AddText("CameraType:" + text);
 }
 void CameraManager::ApplyCameraSettings()
 {
-	for (auto& camera : m_cameras)
-	{
-		camera->CameraSetting();
-	}
+	highestPriorityCamera->CameraSetting();
 }
 
 void CameraManager::SetAllCameraPriority(Camera::Type type)
@@ -90,7 +107,7 @@ void CameraManager::SetAllCameraPriority(Camera::Type type)
 		}
 	}
 	// デバッグ表示（確認後に削除）
-	DrawFormatString(0, 150, GetColor(255, 0, 0), "PlayerFound:true angleH:%.3f angleV:%.3f", angleH, angleV);
+	//DrawFormatString(0, 150, GetColor(255, 0, 0), "PlayerFound:true angleH:%.3f angleV:%.3f", angleH, angleV);
 	
 	//numの番号のもの以外は0にする//numの番号のものはnumにする
 	for (auto& Camera : m_cameras)
@@ -99,6 +116,12 @@ void CameraManager::SetAllCameraPriority(Camera::Type type)
 		{
 			Camera->SetPriority(10);
 			Camera->SetCameraAngle(angleH, angleV);//角度を渡す
+			CameraData data = Camera->GetCameraData();
+			data.angleH = angleH;
+			data.angleV = angleV;
+			data.pos = Camera->GetCameraPos();
+			data.target = Camera->GetCameraTarget();
+			Camera->SetCameraData(data);
 		}
 		else
 		{

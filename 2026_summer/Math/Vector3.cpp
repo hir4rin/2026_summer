@@ -82,6 +82,21 @@ Vector3 Vector3::Lerp(const Vector3& start, const Vector3& end, float t)
 	return Vector3(start + (end - start) * t);
 }
 
+Vector3 Vector3::Slerp(const Vector3& start, const Vector3& end, float t)
+{
+	Vector3 ans;
+	//Θをacos(内積)で求める
+	Vector3 startNorm = start.Normalize();
+	Vector3 endNorm = end.Normalize();
+	float rad = acos(startNorm.Dot(endNorm));
+	//ゼロ除算を除く
+	if (rad <= 0.0001f)return start;
+
+	ans = start * (sin((1 - t) * rad) / sin(rad)) + end * (sin(t * rad) / sin(rad));
+
+	return ans;
+}
+
 Vector3 Vector3::operator+(const Vector3& right) const
 {
 	Vector3 ans;

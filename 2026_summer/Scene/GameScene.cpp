@@ -42,7 +42,7 @@ GameScene::GameScene(SceneController& controller) :Scene(controller)
 	m_enemyManager = std::make_shared<EnemyManager>(std::weak_ptr<Player>(m_player));
 
 
-	m_cameraManager = std::make_unique<CameraManager>();
+	m_cameraManager = std::make_shared<CameraManager>();
 	//カメラの初期化
 	m_cameraManager->Init(std::weak_ptr<Player>(m_player));
 	m_cameraManager->Update(m_player->GetPos());
@@ -109,7 +109,7 @@ void GameScene::NormalDraw()
 	//レンダリングを4つに分ける(map,Effect,UI,Character)
 	//map,effectにシェーダーをかける
 
-	bool isUlt = System::GetInstance().GetIsUltStart();
+	bool isUlt = System::GetInstance().GetIsUltimating();
 
 
 	//RT1

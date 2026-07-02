@@ -80,8 +80,6 @@ void EnemySwordman::Update()
 	case EnemyState::Idle:
 		//Playerを見る
 		ToPlayerLook();
-
-		float timeScale = System::GetInstance().GetTimeScale();
 		m_idleTime += 1.0f * timeScale;
 		//一定時間Idle状態でいる
 		if (m_idleTime < kEnemyIdleMaxTime)break;

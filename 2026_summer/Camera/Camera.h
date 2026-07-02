@@ -3,6 +3,16 @@
 #include "DxLib.h"
 #include <memory>
 class Input;
+class CameraManager;
+
+struct CameraData
+{
+	Vector3 pos;
+	Vector3 target;
+	float angleH;
+	float angleV;
+};
+
 class Camera
 {
 public:
@@ -11,6 +21,7 @@ public:
 		None = -1,
 		PlayerCamera = 0,
 		Movie1Camera = 1,
+		UltCamera = 2,
 		
 		//他のカメラもここに追加していく
 	};
@@ -33,6 +44,7 @@ public:
 
 	int GetPriority()const { return m_priority; }
 	void SetPriority(int priority) { m_priority = priority; }
+
 	Type GetCameraType()const { return m_type; }
 	bool GetIsChangeCamera()const { return m_isChangeCamera; }
 	void SetIsChangeCamera(bool isChange) { m_isChangeCamera = isChange; }
@@ -40,6 +52,10 @@ public:
 	void SetCameraAngle(float angleH, float angleV) { m_angleH = angleH; m_angleV = angleV; }//引き渡しのときにカメラの角度を設定
 	float GetCameraAngleH()const { return m_angleH; }
 	float GetCameraAngleV()const { return m_angleV; }
+
+	//カメラデータを渡す//この時、場合によっては初期化
+	virtual void SetCameraData(const CameraData& data) { m_cameraData = data; }
+	const CameraData& GetCameraData()const { return m_cameraData; }
 
 		/// <summary>
 	/// カメラを揺らす
@@ -50,6 +66,9 @@ public:
 	void StartCameraShake(Camera& camera, float power, float time);
 	Vector3 CameraShakeUpdate();
 	void UpdateLight();//ライトの位置を更新
+	void SetCameraManager(std::weak_ptr<CameraManager> cameraManager) { m_cameraManager = cameraManager; }
+
+
 	virtual void CameraSetting();
 protected:
 	void InputRightStick();//右スティックの入力を処理する
@@ -62,6 +81,7 @@ protected:
 	
 	float m_angleH = 0.0f;// 水平方向の回転角度
 	float m_angleV = 0.0f;// 垂直方向の回転角度
+	CameraData m_cameraData;
 
 	//カメラ揺れ用
 	float m_shakePower = 0.0f;
@@ -70,5 +90,8 @@ protected:
 	bool m_isShaking = false;//今カメラが揺れているかどうか
 	//ライト
 	int m_lightHandle = -1;//ライトのハンドル
+
+	//カメラマネージャーの弱参照
+	std::weak_ptr<CameraManager> m_cameraManager;
 };
 

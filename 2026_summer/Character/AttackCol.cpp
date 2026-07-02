@@ -112,11 +112,11 @@ void AttackCol::PlayerAttackOnCollision(Collider& other)
 			if (player)
 			{
 				//演出が始まっていなかったら
-				bool isUltStart = System::GetInstance().GetIsUltStart();
+				bool isUltStart = System::GetInstance().GetIsUltimating();
 				if (!isUltStart)
 				{
 					System::GetInstance().SetUltStart();//必殺技の演出をスタートする
-					System::GetInstance().SetTimeScaleForFrames(0.1f, 60);//時間を遅くする//60フレームで元に戻す
+					//System::GetInstance().SetTimeScaleForFrames(0.1f, 60);//時間を遅くする//60フレームで元に戻す
 				}
 			}
 

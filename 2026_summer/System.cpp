@@ -16,7 +16,7 @@ void System::Update()
 	if(m_ultCount <= 0)
 	{
 		m_ultCount = -1;
-		m_isUltStart = false;
+		m_isUltimating = false;
 	}
 
 }

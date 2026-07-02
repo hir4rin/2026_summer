@@ -8,7 +8,7 @@
 class Input;
 class Player;
 
-class CameraManager
+class CameraManager : public std::enable_shared_from_this<CameraManager>
 {
 public:
 	CameraManager();
@@ -46,6 +46,7 @@ private:
 	//カメラ
 	std::shared_ptr<Camera> m_playerCamera;
 	std::shared_ptr<Camera> m_movieCamera;
+	std::shared_ptr<Camera> m_ultCamera;
 
 };
 

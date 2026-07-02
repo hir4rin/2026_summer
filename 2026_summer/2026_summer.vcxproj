@@ -140,6 +140,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Application.cpp" />
+    <ClCompile Include="Camera\CameraHandler.cpp" />
     <ClCompile Include="Character\AttackCol.cpp" />
     <ClCompile Include="Camera\Camera.cpp" />
     <ClCompile Include="Camera\CameraManager.cpp" />
@@ -180,9 +181,11 @@
     <ClCompile Include="Stage\Stage.cpp" />
     <ClCompile Include="SubWindow\SubWindow.cpp" />
     <ClCompile Include="System.cpp" />
+    <ClCompile Include="Camera\UltCamera.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application.h" />
+    <ClInclude Include="Camera\CameraHandler.h" />
     <ClInclude Include="Character\AttackCol.h" />
     <ClInclude Include="Camera\Camera.h" />
     <ClInclude Include="Camera\CameraManager.h" />
@@ -225,6 +228,7 @@
     <ClInclude Include="Stage\Stage.h" />
     <ClInclude Include="SubWindow\SubWindow.h" />
     <ClInclude Include="System.h" />
+    <ClInclude Include="Camera\UltCamera.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

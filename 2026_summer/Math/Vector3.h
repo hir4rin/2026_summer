@@ -52,8 +52,10 @@ public:
 	/// <returns></returns>
 	static Vector3 FromDxLibVector(const VECTOR& vec);
 
+	//lerp
 	static Vector3 Lerp(const Vector3& start, const Vector3& end, float t);
-
+	//Slerp
+	static Vector3 Slerp(const Vector3& start, const Vector3& end, float t);
 
 	//演算子オーバーロード
 	Vector3 operator+(const Vector3& right)const;
