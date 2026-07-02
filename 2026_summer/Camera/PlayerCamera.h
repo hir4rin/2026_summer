@@ -13,6 +13,7 @@ public:
 	void Init()override;
 	void PlayerSet(std::weak_ptr<Player> player) { m_player = player; }//プレイヤーの弱参照を設定する
 	void GameSceneInit();//ゲームシーンでの初期化
+	void Draw()override;
 	 /// <summary>
 	 /// pos:プレイヤーの座標
 	 /// pos2:補助的な座標（必要に応じて使用）
@@ -27,6 +28,7 @@ public:
 	 bool GetIsLockOn()const { return m_isLockOn; }//ロックオンしているかどうかを返す
 private:
 	void InputRightStick();//右スティックの入力を処理する
+	void FixCameraPosLockOn();//ロックオン時のカメラの位置を調整する
 private:
 	XINPUT_STATE  xi;
 	Vector3 m_rayVec = Vector3(0, 0, 0);//カメラの前方向のベクトル//カメラの注視点を決めるために使う　
@@ -34,5 +36,9 @@ private:
 	bool m_isLockOn = false;//ロックオンしているかどうか
 	std::weak_ptr<Player> m_player;//プレイヤーの弱参照//ロックオン用
 	std::weak_ptr<EnemyBase> m_lockOnEnemy;//ロックオンしている敵の弱参照
+
+	Vector3 m_testPos = Vector3(0, 0, 0);
+	Vector3 m_testPos2 = Vector3(0, 0, 0);
+
 };
 

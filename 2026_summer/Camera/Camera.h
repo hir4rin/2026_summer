@@ -26,7 +26,7 @@ public:
 	/// <param name="input"></param>
 	/// <param name="pos">プレイヤーの座標</param>
 	virtual void Update(Vector3 pos,Vector3 pos2 = Vector3());
-	void Draw();
+	virtual void Draw();
 	virtual void FixCameraPos();//カメラの位置を調整する
 	Vector3 GetCameraPos()const { return m_pos; }
 	Vector3 GetCameraTarget()const { return m_target; }

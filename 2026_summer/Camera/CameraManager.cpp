@@ -32,6 +32,13 @@ void CameraManager::RemoveCamera(std::shared_ptr<Camera> camera)
 {
 	m_cameras.remove(camera);
 }
+void CameraManager::Init(std::weak_ptr<Player> player)
+{
+	//プレイヤーカメラの初期化
+	auto playerCamera = std::dynamic_pointer_cast<PlayerCamera>(m_playerCamera);
+	if (!playerCamera)return;
+	playerCamera->PlayerSet(player);
+}
 
 void CameraManager::Update(Vector3 pos, Vector3 pos2)
 {
@@ -54,15 +61,15 @@ void CameraManager::Update(Vector3 pos, Vector3 pos2)
 	//priorityが高いカメラのUpdateを呼ぶ
 	highestPriorityCamera->Update(pos, pos2);
 }
-
+void CameraManager::Draw()
+{
+	highestPriorityCamera->Draw();
+}
 void CameraManager::ApplyCameraSettings()
 {
 	for (auto& camera : m_cameras)
 	{
 		camera->CameraSetting();
-		// DXライブラリのカメラとEffekseerのカメラを同期する。
-		Effekseer_Sync3DSetting();
-
 	}
 }
 

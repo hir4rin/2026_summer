@@ -158,7 +158,7 @@ void Player::Draw()
 	for(int i = 0; i < m_comboChain.size(); ++i)
 	{
 		std::string text = std::to_string(i) + ": " + m_comboChain[i].animName;
-		SubWindow::AddText(text);
+		//SubWindow::AddText(text);
 	}
 	std::string posText = "Pos: " + std::to_string(m_pos.x) + ", " + std::to_string(m_pos.y) + ", " + std::to_string(m_pos.z);
 	SubWindow::AddText(posText);

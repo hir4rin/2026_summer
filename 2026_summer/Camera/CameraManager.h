@@ -6,7 +6,7 @@
 #include "Camera.h"
 
 class Input;
-
+class Player;
 
 class CameraManager
 {
@@ -17,12 +17,16 @@ public:
 	void EntryCamera(std::shared_ptr<Camera> camera);
 	//カメラを削除
 	void RemoveCamera(std::shared_ptr<Camera> camera);
+
+	//Playerのweak_ptrを渡す
+	void Init(std::weak_ptr<Player> player);
 	/// <summary>
 	/// 
 	/// </summary>
 	/// <param name="pos">targetの座標</param>
 	/// <param name="pos2">補助的な座標</param>
 	void Update(Vector3 pos, Vector3 pos2 = Vector3());
+	void Draw();
 	/// <summary>
 	/// レンダーターゲットごとに変わってしまうので、カメラの設定を反映させる
 	/// </summary>

@@ -14,7 +14,7 @@ namespace
 	constexpr float kCameraAngleSpeed = 0.03f;//カメラの回転速度
 	const Vector3 kCameraHeight = Vector3(0.0f, 150.0f, 0.0f);//カメラの高さ(Vector3)
 
-	constexpr float kRockOnMaxDistance = 1000.0f;//ロックオンの最大距離
+	constexpr float kRockOnMaxDistance = 10000.0f;//ロックオンの最大距離
 }
 
 
@@ -52,6 +52,18 @@ void PlayerCamera::GameSceneInit()
 	//カメラの位置と注視点を反映する
 	SetCameraPositionAndTarget_UpVecY(m_pos.ToDxLibVector(), m_target.ToDxLibVector());
 }
+void PlayerCamera::Draw()
+{
+	if (m_isLockOn)
+	{
+		DrawLine3D(m_testPos.ToDxLibVector(), m_testPos2.ToDxLibVector(), GetColor(255, 255, 255));
+	}
+	std::string angleHStr = std::to_string(m_angleH);
+	std::string angleVStr = std::to_string(m_angleV);
+
+	SubWindow::AddText("CameraAngleH:" + angleHStr);
+	SubWindow::AddText("CameraAngleV:" + angleVStr);
+}
 
 void PlayerCamera::Update(Vector3 pos, Vector3 pos2)
 {
@@ -80,8 +92,16 @@ void PlayerCamera::Update(Vector3 pos, Vector3 pos2)
 			//ターゲットの位置を更新
 			Vector3 playerPos = pos;
 			m_target = playerPos + (enemyPos - playerPos) / 2 + kCameraHeight;
+			//デバッグ用のポスを更新
+			m_testPos = playerPos;
+			m_testPos2 = enemyPos;
+			//カメラの角度を更新
+			//PlayerToEnemyVecから30度ずらす
+			Vector3 PtoEVec = (enemyPos - playerPos).Normalize();
+			//m_angleH =  
+			
 			//カメラの位置を調整する
-			FixCameraPos();
+			FixCameraPosLockOn();
 			//カメラの位置と注視点を反映する
 			SetCameraPositionAndTarget_UpVecY(m_pos.ToDxLibVector(), m_target.ToDxLibVector());
 			return;
@@ -132,7 +152,7 @@ void PlayerCamera::FixCameraPos()
 	auto CtoPVec = CtoP.ToDxLibVector();
 	auto rotYMat = rotY.ToDxLibMatrix(rotY);//回転行列を転置する
 	auto rotXMat = rotX.ToDxLibMatrix(rotX);//回転行列を転置する
-
+	//カメラからプレイヤーVec
 	auto RotCtoP = VTransform(CtoPVec, rotXMat);//回転させる
 	RotCtoP = VTransform(RotCtoP, rotYMat);//回転させる
 
@@ -208,4 +228,47 @@ void PlayerCamera::InputRightStick()
 		}
 
 	}
+}
+void PlayerCamera::FixCameraPosLockOn()
+{
+	auto enemy = m_lockOnEnemy.lock();
+	auto player = m_player.lock();
+	if (!enemy)return;
+	if (!player)return;
+
+	//水平方向の回転
+	auto rotY = Matrix4x4::MakeRotationY(30.0f);
+	auto rotX = Matrix4x4::MakeRotationX(0.16f);//固定
+
+	float cameraToPlayerLength = kToPlayerLength * 0.5f;
+
+	//カメラの座標を算出
+	//PtoEVecの逆ベクトルを15度程度ずらす、playerの座標から足す
+	Vector3 playerPos = player->GetPos();
+	Vector3 enemyPos = enemy->GetPos();
+	//y座標を0にする
+	playerPos.y = enemyPos.y = 0.0f;
+
+	Vector3 EtoPVec = (playerPos - enemyPos).Normalize();
+	EtoPVec *= cameraToPlayerLength * 2;
+
+
+	//auto CtoP = Vector3(0.0f, 0.0f, -cameraToPlayerLength);//プレイヤーからカメラへのベクトル
+
+	//カメラの揺れを加える
+//	EtoPVec = EtoPVec + CameraShakeUpdate();
+	//DxLibに変換
+	auto EtoPVecDx = EtoPVec.ToDxLibVector();
+	auto rotYMat = Matrix4x4::ToDxLibMatrix(rotY);//回転行列を転置する
+	auto rotXMat = Matrix4x4::ToDxLibMatrix(rotX);//回転行列を転置する
+
+	//カメラからプレイヤーVec
+	auto RotPtoC = VTransform(EtoPVecDx, rotXMat);//回転させる
+	RotPtoC = VTransform(RotPtoC, rotYMat);//回転させる
+	Vector3 pospl = player->GetPos();
+	pospl.y = 0.0f;
+
+	auto pos = VAdd(RotPtoC, player->GetPos().ToDxLibVector());//プレイヤーの座標に足す
+
+	m_pos = Vector3::FromDxLibVector(pos);
 }

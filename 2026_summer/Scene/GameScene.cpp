@@ -32,6 +32,7 @@ GameScene::GameScene(SceneController& controller) :Scene(controller)
 
 	m_cameraManager = std::make_unique<CameraManager>();
 	//カメラの初期化
+	m_cameraManager->Init(std::weak_ptr<Player>(m_player));
 	m_cameraManager->Update(m_player->GetPos());
 
 	m_stage = std::make_shared<Stage>();
@@ -121,7 +122,7 @@ void GameScene::NormalDraw()
 	m_enemyManager->Draw();
 #ifdef _DEBUG
 	CollisionManager::GetInstance().DebugDraw();
-	
+	m_cameraManager->Draw();
 #endif
 
 	//最終的に画面に描画する
@@ -133,26 +134,27 @@ void GameScene::NormalDraw()
 
 void GameScene::FadeOutDraw()
 {
+
 }
 
 void GameScene::DrawGrid()
 {
-	// 直線の始点と終点
-	VECTOR startPos;
-	VECTOR endPos;
+	//// 直線の始点と終点
+	//VECTOR startPos;
+	//VECTOR endPos;
 
-	for (int z = -kGridRange; z <= kGridRange; z += 100)
-	{
-		startPos = VGet(-kGridRange, 0.0f, static_cast<float>(z));
-		endPos = VGet(kGridRange, 0.0f, static_cast<float>(z));
-		DrawLine3D(startPos, endPos, 0xff0000);
-	}
-	for (int x = -kGridRange; x <= kGridRange; x += 100)
-	{
-		startPos = VGet(static_cast<float>(x), 0.0f, -kGridRange);
-		endPos = VGet(static_cast<float>(x), 0.0f, kGridRange);
-		DrawLine3D(startPos, endPos, 0x0000ff);
-	}
+	//for (int z = -kGridRange; z <= kGridRange; z += 100)
+	//{
+	//	startPos = VGet(-kGridRange, 0.0f, static_cast<float>(z));
+	//	endPos = VGet(kGridRange, 0.0f, static_cast<float>(z));
+	//	DrawLine3D(startPos, endPos, 0xff0000);
+	//}
+	//for (int x = -kGridRange; x <= kGridRange; x += 100)
+	//{
+	//	startPos = VGet(static_cast<float>(x), 0.0f, -kGridRange);
+	//	endPos = VGet(static_cast<float>(x), 0.0f, kGridRange);
+	//	DrawLine3D(startPos, endPos, 0x0000ff);
+	//}
 }
 
 void GameScene::RockOnCamera()

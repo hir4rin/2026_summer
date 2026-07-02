@@ -79,5 +79,8 @@ protected:
 	float m_knockBackFrame = 0;//吹き飛ばしのフレーム数
 	float m_airCount = 0.0f;//空中にいる時間//AirStayのときに使う
 	HitType m_hitType = HitType::None;//空中にいるかどうか
+
+
+
 };
 

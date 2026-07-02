@@ -1,6 +1,6 @@
 ﻿#include "Camera.h"
 #include "../Math/Matrix4x4.h"
-//#include "EffekseerForDXLib.h"
+#include "EffekseerForDXLib.h"
 namespace
 {
 	//constexpr int kNormalRx = 128;//右スティックの通常の値
