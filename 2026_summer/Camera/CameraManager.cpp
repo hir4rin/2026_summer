@@ -46,7 +46,7 @@ void CameraManager::Init(std::weak_ptr<Player> player)
 	auto ultCamera = std::dynamic_pointer_cast<UltCamera>(m_ultCamera);
 	if (!ultCamera)return;
 	playerCamera->PlayerSet(player);
-	ultCamera->
+	//ultCamera->
 	
 	for(auto& camera : m_cameras)
 	{
@@ -59,6 +59,7 @@ void CameraManager::Update(Vector3 pos, Vector3 pos2)
 	if (m_cameras.empty())return;
 	// DXライブラリのカメラとEffekseerのカメラを同期する。
 	Effekseer_Sync3DSetting();
+
 
 	//ウルト演出かどうか
 	bool isUlt = System::GetInstance().GetIsUltimating();

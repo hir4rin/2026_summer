@@ -3,6 +3,18 @@
 #include <list>
 
 class Camera;
+class Player;
+class EnemyBase;
+
+
+struct CameraContext
+{
+	std::weak_ptr<Player> m_player;
+	std::weak_ptr<EnemyBase> m_targetEnemy;
+	bool m_isLockOn = false;
+	bool m_isUltimate = false;
+};
+
 
 class CameraHandler
 {
@@ -33,5 +45,6 @@ public:
 	void Draw();
 private:
 	std::list<std::shared_ptr<Camera>> m_cameras;
+	//座標はそれぞれが持つ
 };
 

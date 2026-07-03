@@ -4,6 +4,7 @@
 #include <memory>
 class Input;
 class CameraManager;
+class CameraHandler;
 
 struct CameraData
 {
@@ -15,6 +16,8 @@ struct CameraData
 
 class Camera
 {
+protected:
+	CameraHandler& m_cameraHanler;
 public:
 	enum class Type
 	{
@@ -25,6 +28,7 @@ public:
 		
 		//他のカメラもここに追加していく
 	};
+public:
 	Camera();
 	virtual ~Camera();
 
@@ -34,11 +38,11 @@ public:
 	/// <summary>
 	/// 
 	/// </summary>
-	/// <param name="input"></param>
 	/// <param name="pos">プレイヤーの座標</param>
 	virtual void Update(Vector3 pos,Vector3 pos2 = Vector3());
 	virtual void Draw();
 	virtual void FixCameraPos();//カメラの位置を調整する
+
 	Vector3 GetCameraPos()const { return m_pos; }
 	Vector3 GetCameraTarget()const { return m_target; }
 
@@ -46,6 +50,7 @@ public:
 	void SetPriority(int priority) { m_priority = priority; }
 
 	Type GetCameraType()const { return m_type; }
+
 	bool GetIsChangeCamera()const { return m_isChangeCamera; }
 	void SetIsChangeCamera(bool isChange) { m_isChangeCamera = isChange; }
 
@@ -68,13 +73,13 @@ public:
 	void UpdateLight();//ライトの位置を更新
 	void SetCameraManager(std::weak_ptr<CameraManager> cameraManager) { m_cameraManager = cameraManager; }
 
-
 	virtual void CameraSetting();
 protected:
 	void InputRightStick();//右スティックの入力を処理する
 protected:
 	int m_priority = 0;//カメラの優先度//複数のカメラがあるときに、どのカメラを優先するかを決めるためのもの//数値が大きいほど優先される
 	bool m_isChangeCamera = false;//カメラを切り変えるかどうかのフラグ
+
 	Vector3 m_target;//注視点
 	Vector3 m_pos;//カメラの位置
 	Type m_type = Type::None;//カメラの種類
