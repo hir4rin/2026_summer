@@ -4,7 +4,7 @@
 #include <memory>
 class Input;
 class CameraManager;
-class CameraHandler;
+struct CameraContext;
 
 struct CameraData
 {
@@ -17,7 +17,6 @@ struct CameraData
 class Camera
 {
 protected:
-	CameraHandler& m_cameraHanler;
 public:
 	enum class Type
 	{
@@ -25,6 +24,7 @@ public:
 		PlayerCamera = 0,
 		Movie1Camera = 1,
 		UltCamera = 2,
+		LockOnCamera = 3,
 		
 		//他のカメラもここに追加していく
 	};
@@ -62,7 +62,7 @@ public:
 	virtual void SetCameraData(const CameraData& data) { m_cameraData = data; }
 	const CameraData& GetCameraData()const { return m_cameraData; }
 
-		/// <summary>
+	/// <summary>
 	/// カメラを揺らす
 	/// </summary>
 	/// <param name="camera">カメラのポインタ</param>
@@ -74,6 +74,8 @@ public:
 	void SetCameraManager(std::weak_ptr<CameraManager> cameraManager) { m_cameraManager = cameraManager; }
 
 	virtual void CameraSetting();
+
+	void SetCameraContext(std::shared_ptr<CameraContext> cameraContext) { m_cameraContext = cameraContext; }
 protected:
 	void InputRightStick();//右スティックの入力を処理する
 protected:
@@ -98,5 +100,6 @@ protected:
 
 	//カメラマネージャーの弱参照
 	std::weak_ptr<CameraManager> m_cameraManager;
+	std::shared_ptr<CameraContext> m_cameraContext;
 };
 

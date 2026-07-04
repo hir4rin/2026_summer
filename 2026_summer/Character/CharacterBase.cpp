@@ -5,10 +5,12 @@
 
 CharacterBase::CharacterBase()
 {
+
 }
 
 CharacterBase::~CharacterBase()
 {
+
 }
 
 void CharacterBase::InitHitCol(std::weak_ptr<CharacterBase> owner)

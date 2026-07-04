@@ -4,14 +4,16 @@
 #include "../System.h"
 #include "../Character/Enemy/EnemyBase.h"
 #include "../Camera/CameraManager.h"
-
+#include "../SubWindow/SubWindow.h"
+#include "MainCamera.h"
 namespace
 {
 	constexpr float kToPlayerLength = 700.0f;//プレイヤーからカメラまでの距離
 	constexpr float kCameraHeightFloat = 300.0f;//カメラの高さ
 	const Vector3 kCameraHeight = Vector3(0.0f, 150.0f, 0.0f);//カメラの高さ(Vector3)
 
-	const float kUltDistance = kToPlayerLength * 4.0f;
+	const float kUltDistance = kToPlayerLength   / 2.0f;
+	//const float kUltDistance = kToPlayerLength   * 2.0f;
 }
 
 UltCamera::UltCamera()
@@ -53,9 +55,16 @@ void UltCamera::Update(Vector3 pos, Vector3 pos2)
 	//そもそもEnemyとPlayerのポインタを受け取っていなかった
 	
 
-	auto enemy = m_lockOnEnemy.lock();
-	auto player = m_player.lock();
-	if (!enemy)return;
+	auto enemy = m_cameraContext->m_targetEnemy.lock();
+	auto player = m_cameraContext->m_player.lock();
+	if (!enemy)
+	{
+		//敵がいない場合は、PlayerCameraに切り替える
+		auto cameraManager = m_cameraManager.lock();
+		if (!cameraManager)return;
+		cameraManager->SetNextCameraPriority(Camera::Type::PlayerCamera, true, false);
+		return;
+	}
 	if (!player)return;
 
 	//目標ターゲットを計算
@@ -63,64 +72,63 @@ void UltCamera::Update(Vector3 pos, Vector3 pos2)
 	//まず回転角度をlerpする
 	Vector3 playerPos = player->GetPos();
 	Vector3 enemyPos = enemy->GetPos();
-	Vector3 cameraPos = m_pos;
-	playerPos.y = enemyPos.y = cameraPos.y =  0.0f;
-	Vector3 PtoCVec = (cameraPos - playerPos).Normalize();
-	//playerからtargetPosへのベクトルを正規化
-	Vector3 TargetVecNorm = m_targetPos - playerPos;
-	TargetVecNorm.y = 0.0f;
-	TargetVecNorm = TargetVecNorm.Normalize();
-	//ここをSlerpする//2次元上での回転のみ
-	//PtoCVec = Vector3::Slerp(PtoCVec, TargetVecNorm, 0.1f);
-	PtoCVec = TargetVecNorm;
-	//ベクトルの大きさをlerpする
-	//m_VecLength = std::lerp(m_VecLength, kUltDistance, 0.1f);
-	m_VecLength = kUltDistance;
-	//大きさをたす
-	PtoCVec *= m_VecLength;
-	//高さを足す
-	PtoCVec += kCameraHeight;
-	//カメラの座標を更新
-	m_pos = playerPos + PtoCVec;
+	//Vector3 cameraPos = m_pos;
+	//playerPos.y = enemyPos.y = cameraPos.y =  0.0f;
+	//Vector3 PtoCVec = (cameraPos - playerPos).Normalize();
+	////playerからtargetPosへのベクトルを正規化
+	//Vector3 TargetVecNorm = m_targetPos - playerPos;
+	//TargetVecNorm.y = 0.0f;
+	//TargetVecNorm = TargetVecNorm.Normalize();
+	////ここをSlerpする//2次元上での回転のみ
+	////PtoCVec = Vector3::Slerp(PtoCVec, TargetVecNorm, 0.1f);
+	//PtoCVec = TargetVecNorm;
+	////ベクトルの大きさをlerpする
+	////m_VecLength = std::lerp(m_VecLength, kUltDistance, 0.1f);
+	//m_VecLength = kUltDistance;
+	////大きさをたす
+	//PtoCVec *= m_VecLength;
+	////高さを足す
+	//PtoCVec += kCameraHeight;
+	////カメラの座標を更新
+	//m_pos = playerPos + PtoCVec;
 
 	//注視点
-	m_target = (playerPos + enemyPos) / 2;
+	m_target = (playerPos + enemyPos) / 2 + kCameraHeight;
 	//カメラの位置と注視点を反映する
-	SetCameraPositionAndTarget_UpVecY(m_pos.ToDxLibVector(), m_target.ToDxLibVector());
+	//SetCameraPositionAndTarget_UpVecY(m_pos.ToDxLibVector(), m_target.ToDxLibVector());
 
 	//pos1からpos2のほうに向かって、中心点(m_target)から円状にカメラを回転させる
 	//距離も近くする
 	//m_pos = Vector3::Lerp(m_pos, m_targetPos, 0.01f);
 
+	//このカメラが一番優先度が高いときにウルトがfalseになったら、PlayerCameraに切り替える
+	auto cameraManager = m_cameraManager.lock();
+	if (!cameraManager)return;
+	auto isHighest = cameraManager->GetHighestPriorityCamera();
+	bool isMainCamera = isHighest->GetCameraType() == Camera::Type::UltCamera;
 	bool isUlt = System::GetInstance().GetIsUltimating();
-	if (!isUlt)
+	if (!isUlt && isMainCamera)
 	{
 		//priorityを下げる
-		auto cameraManager = m_cameraManager.lock();
-		if (!cameraManager)return;
-		cameraManager->SetAllCameraPriority(Camera::Type::PlayerCamera);
+		
+		cameraManager->SetNextCameraPriority(Camera::Type::PlayerCamera,false,true);
 	}
-	
-
 }
 
 void UltCamera::FixCameraPos()
 {
-
-
-	auto enemy = m_lockOnEnemy.lock();
-	auto player = m_player.lock();
+	auto enemy = m_cameraContext->m_targetEnemy.lock();
+	auto player = m_cameraContext->m_player.lock();
+	auto mainCamera = m_cameraManager.lock()->GetMainCamera();
 	if (!enemy)return;
 	if (!player)return;
 
-	//水平方向の回転//敵との距離によってこの角度を帰る
-	auto rotY = Matrix4x4::MakeRotationY(DX_PI_F / 6.0f);
 	//auto rotX = Matrix4x4::MakeRotationX(0.16f);//固定
 
 	//固定//そのまま
-	Vector3 PtoCVec = (m_pos - player->GetPos());
-	float cameraToPlayerLength = PtoCVec.Magnitude();
-	m_VecLength = cameraToPlayerLength;
+	//Vector3 PtoCVec = (m_pos - player->GetPos());
+	//float cameraToPlayerLength = PtoCVec.Magnitude();
+	//m_VecLength = cameraToPlayerLength;
 
 	//カメラの座標を算出
 	//PtoEVecの逆ベクトルを15度程度ずらす、playerの座標から足す
@@ -130,11 +138,25 @@ void UltCamera::FixCameraPos()
 	playerPos.y = enemyPos.y = 0.0f;
 
 	Vector3 EtoPVec = (playerPos - enemyPos).Normalize();
-	EtoPVec *= cameraToPlayerLength;
+	EtoPVec *= 300.0f;
+	//EtoPVecを90度回転させたベクトルとMainCtoPVecの内積が正か負かでどちらに回転させるかを決める
+	Vector3 upVec = Vector3(0.0f, 1.0f, 0.0f );
+	Vector3 rotateBase = EtoPVec.Cross(upVec).Normalize();
+	Vector3 PtoMainCVec = (mainCamera->GetCameraPos() - playerPos).Normalize();
+	float dot = rotateBase.Dot(PtoMainCVec);
+	float angle = 0.0f;
+	if (dot >= 0.0f)
+	{
+		angle = -DX_PI_F / 2.0f;
+	}
+	else
+	{
+		angle = DX_PI_F / 2.0f;
+	}
 
-
-	//auto CtoP = Vector3(0.0f, 0.0f, -cameraToPlayerLength);//プレイヤーからカメラへのベクトル
-
+	//水平方向の回転//敵との距離によってこの角度を帰る
+	auto rotY = Matrix4x4::MakeRotationY(angle);
+	
 	//カメラの揺れを加える
 	//EtoPVec = EtoPVec + CameraShakeUpdate();
 	//DxLibに変換
@@ -145,23 +167,29 @@ void UltCamera::FixCameraPos()
 	//カメラからプレイヤーVec
 	auto RotPtoC = VTransform(EtoPVecDx, rotYMat);//回転させる
 	//RotPtoC = VTransform(RotPtoC, rotXMat);//回転させる
-	RotPtoC = VAdd(RotPtoC, VGet(0.0f, 160.0f, 0.0f));
+	RotPtoC = VAdd(RotPtoC, kCameraHeight.ToDxLibVector());
 	//水平方向はその向き、垂直は初期化
-	m_angleH = atan2f(RotPtoC.x, RotPtoC.z) + DX_PI_F;
-	m_angleV;
+	//m_angleH = atan2f(RotPtoC.x, RotPtoC.z) + DX_PI_F;
+	//m_angleV;
 
 	auto pos = VAdd(RotPtoC, player->GetPos().ToDxLibVector());//プレイヤーの座標に足す
 
-	m_targetPos = Vector3::FromDxLibVector(pos);
+	m_pos = Vector3::FromDxLibVector(pos);
 }
 
 void UltCamera::CameraSetting()
 {
 	//FixCameraPos();
 	//カメラの位置と注視点を反映する
-	SetCameraPositionAndTarget_UpVecY(m_pos.ToDxLibVector(), m_target.ToDxLibVector());
+	//SetCameraPositionAndTarget_UpVecY(m_pos.ToDxLibVector(), m_target.ToDxLibVector());
 }
 
 void UltCamera::Draw()
 {
+	DrawSphere3D(m_pos.ToDxLibVector(), 10.0f,16, GetColor(255, 255, 255),GetColor(0, 0, 0), 1.0f);
+
+	std::string posText = "UltCameraPos:(" + std::to_string(m_pos.x) + "," + std::to_string(m_pos.y) + "," + std::to_string(m_pos.z) + ")";
+	std::string targetText = "UltCameraTarget:(" + std::to_string(m_target.x) + "," + std::to_string(m_target.y) + "," + std::to_string(m_target.z) + ")";
+	SubWindow::AddText(posText);
+	SubWindow::AddText(targetText);
 }

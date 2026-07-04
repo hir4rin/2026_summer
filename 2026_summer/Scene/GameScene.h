@@ -11,7 +11,7 @@ class EnemyManager;
 
 class GameScene : public Scene
 {
-public :
+public:
 		GameScene(SceneController& controller);
 		~GameScene();
 		void Update() override;

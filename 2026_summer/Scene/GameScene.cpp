@@ -1,6 +1,7 @@
 ﻿#include "GameScene.h"
 #include "../Camera/CameraManager.h"
 #include "../Camera/PlayerCamera.h"
+#include "../Camera/MainCamera.h"
 #include "Player.h"
 #include "../Character/Enemy/Swordman/EnemySwordman.h"
 #include "../Stage/Stage.h"
@@ -199,14 +200,15 @@ void GameScene::RockOnCamera()
 
 
 	const auto& camera = m_cameraManager->GetHighestPriorityCamera();
-	//dynamic_pointer_castでキャストする
-	auto playerCamera = std::dynamic_pointer_cast<PlayerCamera>(camera);
-	//キャストできなかったらreturn
-	if (!playerCamera)return;
 
 	auto& input = Input::GetInstance();
 
-	bool isLockOn = playerCamera->GetIsLockOn();
+	//ウルトカメラ中だったらreturn;
+	if (camera->GetCameraType() == Camera::Type::UltCamera)return;
+
+	auto mainCamera = m_cameraManager->GetMainCamera();
+
+	bool isLockOn = mainCamera->GetIsLockOn();
 	//playerがいなかったらreturnする
 	if (!m_player)return;
 
@@ -262,7 +264,11 @@ void GameScene::RockOnCamera()
 				{
 					maxCos = cos;
 					//ロックオンする//敵をカメラに渡す
-					playerCamera->SetLockOnEnemy(std::weak_ptr<EnemyBase>(enemy));
+					//ここでCameraManagerに渡して、いろいろに渡す
+					m_cameraManager->SetWeakRef(std::weak_ptr<Player>(m_player), std::weak_ptr<EnemyBase>(enemy));
+					mainCamera->SetLockOn(true);
+
+					
 				}
 			}
 		}
@@ -270,7 +276,9 @@ void GameScene::RockOnCamera()
 		else
 		{
 			//ロックオンを解除する
-			playerCamera->ReleaseLockOnEnemy();
+			m_cameraManager->SetWeakRef(std::weak_ptr<Player>(m_player));
+			
+			mainCamera->SetLockOn(false);
 		}
 
 	}

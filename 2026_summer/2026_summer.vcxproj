@@ -140,7 +140,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Application.cpp" />
-    <ClCompile Include="Camera\CameraHandler.cpp" />
     <ClCompile Include="Character\AttackCol.cpp" />
     <ClCompile Include="Camera\Camera.cpp" />
     <ClCompile Include="Camera\CameraManager.cpp" />
@@ -150,6 +149,8 @@
     <ClCompile Include="Character\CharacterBase.cpp" />
     <ClCompile Include="Character\Collider.cpp" />
     <ClCompile Include="Character\Player\Weapon.cpp" />
+    <ClCompile Include="Camera\MainCamera.cpp" />
+    <ClCompile Include="Camera\LockOnCamera.cpp" />
     <ClCompile Include="Managers\EnemyManager.cpp" />
     <ClCompile Include="Managers\FixNextPosition.cpp" />
     <ClCompile Include="Managers\CollisionChecker.cpp" />
@@ -185,7 +186,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application.h" />
-    <ClInclude Include="Camera\CameraHandler.h" />
     <ClInclude Include="Character\AttackCol.h" />
     <ClInclude Include="Camera\Camera.h" />
     <ClInclude Include="Camera\CameraManager.h" />
@@ -195,6 +195,8 @@
     <ClInclude Include="Character\CharacterBase.h" />
     <ClInclude Include="Character\Collider.h" />
     <ClInclude Include="Character\Player\Weapon.h" />
+    <ClInclude Include="Camera\MainCamera.h" />
+    <ClInclude Include="Camera\LockOnCamera.h" />
     <ClInclude Include="Managers\EnemyManager.h" />
     <ClInclude Include="Managers\FixNextPosition.h" />
     <ClInclude Include="Managers\CollisionChecker.h" />

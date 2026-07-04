@@ -2,6 +2,7 @@
 #include "../Math/Matrix4x4.h"
 #include "../Input.h"
 #include "Player.h"
+#include "CameraManager.h"
 #include "../Character/Enemy/EnemyBase.h"
 #include "../SubWindow/SubWindow.h"
 #include <algorithm>
@@ -54,16 +55,15 @@ void PlayerCamera::GameSceneInit()
 	SetCameraPositionAndTarget_UpVecY(m_pos.ToDxLibVector(), m_target.ToDxLibVector());
 }
 void PlayerCamera::Draw()
-{
+{/*
 	if (m_isLockOn)
 	{
 		DrawLine3D(m_testPos.ToDxLibVector(), m_testPos2.ToDxLibVector(), GetColor(255, 255, 255));
-	}
-	std::string angleHStr = std::to_string(m_angleH);
-	std::string angleVStr = std::to_string(m_angleV);
-
-	SubWindow::AddText("CameraAngleH:" + angleHStr);
-	SubWindow::AddText("CameraAngleV:" + angleVStr);
+	}*/
+	std::string posText = "PlayerCameraPos:(" + std::to_string(m_pos.x) + "," + std::to_string(m_pos.y) + "," + std::to_string(m_pos.z) + ")";
+	std::string targetText = "PlayerCameraTarget:(" + std::to_string(m_target.x) + "," + std::to_string(m_target.y) + "," + std::to_string(m_target.z) + ")";
+	SubWindow::AddText(posText);
+	SubWindow::AddText(targetText);
 }
 
 void PlayerCamera::Update(Vector3 pos, Vector3 pos2)
@@ -71,48 +71,48 @@ void PlayerCamera::Update(Vector3 pos, Vector3 pos2)
 	//ロックオン問題点
 	//・ロックオン時の角度が変
 
-	if (m_isLockOn)
-	{
-		//
-		auto enemy = m_lockOnEnemy.lock();
-		if (enemy)
-		{
-			Vector3 enemyPos = enemy->GetPos();
-			float distance = (enemyPos - pos).Magnitude();
-			//ロックオンの最大距離を超えたらロックオンを解除する
-			if (distance > kRockOnMaxDistance)
-			{
-				m_isLockOn = false;
-				//解放
-				m_lockOnEnemy.reset();
-			}
-			//ターゲットの位置を更新
-			Vector3 playerPos = pos;
-			m_target = playerPos + (enemyPos - playerPos) / 2 + kCameraHeight;
-			//デバッグ用のポスを更新
-			m_testPos = playerPos;
-			m_testPos2 = enemyPos;
-			//カメラの角度を更新
-			//PlayerToEnemyVecから30度ずらす
-			Vector3 PtoEVec = (enemyPos - playerPos).Normalize();
-			//m_angleH =  
-			
-			//カメラの位置を調整する
-			FixCameraPosLockOn();
-			//Lerpでカメラの位置を更新する
-			m_pos = Vector3::Lerp(m_pos, m_targetPos, 0.1f);
+	//if (m_isLockOn)
+	//{
+	//	//
+	//	auto enemy = m_lockOnEnemy.lock();
+	//	if (enemy)
+	//	{
+	//		Vector3 enemyPos = enemy->GetPos();
+	//		float distance = (enemyPos - pos).Magnitude();
+	//		//ロックオンの最大距離を超えたらロックオンを解除する
+	//		if (distance > kRockOnMaxDistance)
+	//		{
+	//			m_isLockOn = false;
+	//			//解放
+	//			m_lockOnEnemy.reset();
+	//		}
+	//		//ターゲットの位置を更新
+	//		Vector3 playerPos = pos;
+	//		m_target = playerPos + (enemyPos - playerPos) / 2 + kCameraHeight;
+	//		//デバッグ用のポスを更新
+	//		m_testPos = playerPos;
+	//		m_testPos2 = enemyPos;
+	//		//カメラの角度を更新
+	//		//PlayerToEnemyVecから30度ずらす
+	//		Vector3 PtoEVec = (enemyPos - playerPos).Normalize();
+	//		//m_angleH =  
+	//		
+	//		//カメラの位置を調整する
+	//		FixCameraPosLockOn();
+	//		//Lerpでカメラの位置を更新する
+	//		m_pos = Vector3::Lerp(m_pos, m_targetPos, 0.1f);
 
-			//カメラの位置と注視点を反映する
-			SetCameraPositionAndTarget_UpVecY(m_pos.ToDxLibVector(), m_target.ToDxLibVector());
-			return;
-		}
-		else
-		{
-			m_isLockOn = false;
-			//解放
-			m_lockOnEnemy.reset();
-		}
-	}
+	//		//カメラの位置と注視点を反映する
+	//		//SetCameraPositionAndTarget_UpVecY(m_pos.ToDxLibVector(), m_target.ToDxLibVector());
+	//		return;
+	//	}
+	//	else
+	//	{
+	//		m_isLockOn = false;
+	//		//解放
+	//		m_lockOnEnemy.reset();
+	//	}
+	//}
 
 
 	InputRightStick();
@@ -131,12 +131,13 @@ void PlayerCamera::Update(Vector3 pos, Vector3 pos2)
 
 	//カメラの位置を調整する
 	FixCameraPos();
-
-	m_pos = Vector3::Lerp(m_pos, m_targetPos, 0.12f);
+	
+	//Lerpの割合を上下差がある攻撃で変えたりするとよい
+	m_pos = Vector3::Lerp(m_pos, m_targetPos, 0.5f);
 	
 
 	//カメラの位置と注視点を反映する
-	SetCameraPositionAndTarget_UpVecY(m_pos.ToDxLibVector(), m_target.ToDxLibVector());
+	//SetCameraPositionAndTarget_UpVecY(m_pos.ToDxLibVector(), m_target.ToDxLibVector());
 
 }
 
@@ -236,8 +237,8 @@ void PlayerCamera::InputRightStick()
 }
 void PlayerCamera::FixCameraPosLockOn()
 {
-	auto enemy = m_lockOnEnemy.lock();
-	auto player = m_player.lock();
+	auto enemy = m_cameraContext->m_targetEnemy.lock();
+	auto player = m_cameraContext->m_player.lock();
 	if (!enemy)return;
 	if (!player)return;
 

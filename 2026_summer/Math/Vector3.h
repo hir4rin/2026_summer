@@ -39,6 +39,12 @@ public:
 	/// <param name="right"></param>
 	/// <returns></returns>
 	Vector3 Cross(const Vector3& right)const;
+	/// <summary>
+	/// 2次元空間のベクトルは|a||b|sinθを返す
+	/// XとZを使う
+	/// </summary>
+	/// <returns></returns>
+	float Cross2DXZ(const Vector3& right)const;
 
 	/// <summary>
 	/// DxLibのベクトルに変換します
@@ -54,7 +60,7 @@ public:
 
 	//lerp
 	static Vector3 Lerp(const Vector3& start, const Vector3& end, float t);
-	//Slerp
+	//Slerp//球面線形補間//ベクトルの補完
 	static Vector3 Slerp(const Vector3& start, const Vector3& end, float t);
 
 	//演算子オーバーロード

@@ -1,5 +1,6 @@
 ﻿#include "Vector3.h"
 #include <cmath>
+#include <algorithm>
 
 Vector3::Vector3() :
 	x(0.0f),
@@ -67,6 +68,13 @@ Vector3 Vector3::Cross(const Vector3& right) const
 	return ans;
 }
 
+float Vector3::Cross2DXZ(const Vector3& right) const
+{
+	float ans;
+	ans = x * right.z - z * right.x;
+	return ans;
+}
+
 VECTOR Vector3::ToDxLibVector()const
 {
 	return VGet(x, y, z);
@@ -88,9 +96,19 @@ Vector3 Vector3::Slerp(const Vector3& start, const Vector3& end, float t)
 	//Θをacos(内積)で求める
 	Vector3 startNorm = start.Normalize();
 	Vector3 endNorm = end.Normalize();
-	float rad = acos(startNorm.Dot(endNorm));
+	float dot = startNorm.Dot(endNorm);
+	//clampする
+	dot = std::clamp(dot, -1.0f, 1.0f);
+	float rad = acos(dot);
+	
 	//ゼロ除算を除く
 	if (rad <= 0.0001f)return start;
+	float sinRad = sinf(rad);
+
+	if (fabsf(sinRad) < 0.0001f)
+	{
+		return start;
+	}
 
 	ans = start * (sin((1 - t) * rad) / sin(rad)) + end * (sin(t * rad) / sin(rad));
 

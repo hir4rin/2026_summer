@@ -12,7 +12,7 @@ EnemyManager::EnemyManager(std::weak_ptr<Player> player)
 	enemyModelHandle = MV1LoadModel("data/Enemy/swordman.mv1");
 	srand(static_cast<unsigned int>(time(nullptr)));//乱数の初期化//これを入れないと、毎回同じ位置に敵が出る
 	//5体の敵を出す
-	for (int i = 0; i < 5; i++)
+	for (int i = 0; i < 1; i++)
 	{
 		int handle = MV1DuplicateModel(enemyModelHandle);
 		//ランダムな位置に敵を出す

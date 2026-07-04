@@ -20,6 +20,8 @@ private:
 	Vector3 m_targetPos;//カメラの目標座標
 	float m_VecLength = 0.0f;//カメラの目標座標までの大きさ
 
+	float m_targetAngle = 0.0f;//カメラの回転角度
+
 	//なんかもっといい設計ありそうだけどいったんこれで
 	std::weak_ptr<Player> m_player;//プレイヤーの弱参照//ロックオン用
 	std::weak_ptr<EnemyBase> m_lockOnEnemy;//ロックオンしている敵の弱参照//していなかったら攻撃時の内部ターゲットのやつにする
