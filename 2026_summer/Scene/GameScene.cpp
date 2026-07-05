@@ -41,7 +41,7 @@ GameScene::GameScene(SceneController& controller) :Scene(controller)
 	/*m_enemySwordman = std::make_shared<EnemySwordman>(std::weak_ptr<Player>(m_player));
 	m_enemySwordman->Init();*/
 	m_enemyManager = std::make_shared<EnemyManager>(std::weak_ptr<Player>(m_player));
-
+	m_enemyManager->Init();
 
 	m_cameraManager = std::make_shared<CameraManager>();
 	//カメラの初期化

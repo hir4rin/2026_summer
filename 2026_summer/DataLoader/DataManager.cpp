@@ -6,6 +6,7 @@ void DataManager::LoadAll()
 {
 	LoadPlayerAnimData();
     LoadComboRawData();
+    LoadSpawnData();
 	//今後追加する場合はここにLoad関数を呼び出すコード
 }
 
@@ -47,5 +48,25 @@ void DataManager::LoadComboRawData()
         }
 		m_comboRawData.push_back(tokens);//分割したトークンのベクターを生データとして保存する
     }
-    int i = 0;
+}
+
+void DataManager::LoadSpawnData()
+{
+    std::ifstream file("data/SpawnData/SpawnData.csv");
+    assert(file.is_open() && "SpawnData.csvが開けませんでした");
+
+    std::string line;
+    while (std::getline(file, line))
+    {
+        if (line.empty() || line[0] == '#') continue;
+
+        std::istringstream ss(line);
+        std::string token;
+        std::vector<std::string> tokens;
+        while (std::getline(ss, token, ','))//カンマ区切りでトークンを取得//分割
+        {
+            tokens.push_back(token);
+        }
+        m_spawnData.push_back(tokens);//分割したトークンのベクターを生データとして保存する
+    }
 }

@@ -2,11 +2,19 @@
 #include "../Math/Vector3.h"
 #include <vector>
 #include <memory>
+#include <string>
 class EnemySwordman;
 class EnemyBase;
 class Camera;
 class Collider;
 class Player;
+
+struct SpawnData
+{
+	std::string name;//名前
+	Vector3 pos;//座標
+	int waveNum;//ウェーブの番号
+};
 
 class EnemyManager
 {
@@ -27,6 +35,7 @@ private:
 	std::weak_ptr<Player> m_player;//プレイヤーの弱参照
 	std::vector<std::shared_ptr<EnemyBase>> m_enemies;//敵の配列
 	int enemyModelHandle = -1;//敵のモデルのハンドル//EnemySwordManのモデル
+	std::vector<SpawnData> m_spawnData;//敵のスポーンデータ
 
 };
 

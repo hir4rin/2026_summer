@@ -1,0 +1,6 @@
+#name,spawnX,spawnY,spawnZ,waveNum
+swordman,0,0,500,1
+swordman,-300,0,800,1
+swordman,-600,0,-500,1
+swordman,-600,0,-1000,1
+swordman,-500,0,-100,1

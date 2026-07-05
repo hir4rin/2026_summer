@@ -59,7 +59,7 @@ void EnemySwordman::Init()
 {
 	//IDの取得
 	SetID();
-	//当たり判定の初期化
+	//当たり判定の初期化j
 	ColInit(m_pos, Vector3(0, kEnemyCenter, 0), 80.0f, ColliderType::Sphere, Tags::Enemy, true);//中心点、半径、当たり判定のタイプ、タグ、当たり判定が有効かどうか
 	//やられ判定の初期化
 	InitHitCol(weak_from_this());
