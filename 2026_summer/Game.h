@@ -12,11 +12,11 @@ namespace Game
 	constexpr float kGravity = 1.0f;//重力の加速度//この数値を変えることで、ジャンプの高さや落ちる速さを調整できる
 
 	//Playerの移動スピード
-	constexpr float kMoveSpeed = 6.0f;//移動速度
+	constexpr float kMoveSpeed = 8.0f;//移動速度
 	constexpr float kAirMaxSpeed = 5.5f;//空中での最大移動速度
 
 
 	//敵の移動スピード
-	constexpr float kEnemyMoveSpeed = 2.0f;//敵の移動速度
-	constexpr float kEnemyBackSpeed = 6.0f;//敵の距離を取るときの移動速度
+	constexpr float kEnemyMoveSpeed = 4.0f;//敵の移動速度
+	constexpr float kEnemyBackSpeed = 5.0f;//敵の距離を取るときの移動速度
 }

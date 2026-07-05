@@ -6,12 +6,20 @@
 
 namespace
 {
-	const std::string kAttackName = "mixamo.com";
-	const std::string kIdleName = "Take 001";
+	const std::string kAttack = "Player|Attack";
+	const std::string kIdle = "Player|Player|Idle";
+	const std::string kHitName = "Player|hit";
+	const std::string kRunName = "Player|Run";
+	const std::string kStrafeRight = "Player|strafe_right";
+	const std::string kStrafeLeft = "Player|strafe_left";
+	const std::string kKirimomi = "Player|kirimomi";
+	const std::string kKirimomi2 = "Player|kirimomi2";
+	const std::string kBack = "Player|dodge_bac";
+
 
 	constexpr float kEnemyCenter = 100.0f;//敵の当たり判定の中心点までのy軸の距離
 
-	constexpr float kEnemyMeleeAttackRange = 120.0f;//敵の近接攻撃の距離
+	constexpr float kEnemyMeleeAttackRange = 180.0f;//敵の近接攻撃の距離
 	constexpr float kEnemyBackDistance = 600.0f;//敵が距離を取るときの距離
 
 	constexpr float kEnemyIdleMaxTime = 60.0f;//敵がIdle状態でいる時間の最大値
@@ -27,7 +35,7 @@ namespace
 EnemySwordman::EnemySwordman(std::weak_ptr<Player> player, Vector3 pos, int modelHandle) : EnemyBase(player)
 {
 	m_pos = pos;//初期位置
-	m_hp = 500;//体力
+	m_hp = 1500;//体力
 	//モデルのハンドルをセット
 	m_modelHandle = modelHandle;
 	//モデルの初期位置を設定する
@@ -36,7 +44,7 @@ EnemySwordman::EnemySwordman(std::weak_ptr<Player> player, Vector3 pos, int mode
 	Matrix4x4 trans = Matrix4x4::FromDxLibMatrix(transmat);
 	Matrix4x4 mtx = trans * rotY;
 	MV1SetMatrix(m_modelHandle, Matrix4x4::ToDxLibMatrix(mtx));
-	m_anim.Init(m_modelHandle, kAttackName, true);
+	m_anim.Init(m_modelHandle, kIdle, true);
 }
 
 EnemySwordman::~EnemySwordman()
@@ -429,33 +437,34 @@ void EnemySwordman::ChangeState(EnemyState newState)
 	switch (newState)
 	{
 	case EnemyState::Idle:
-		m_anim.ChangeAnim(kIdleName, true);
+		m_anim.ChangeAnim(kIdle, true);
 		break;
 	case EnemyState::Chase:
-		m_anim.ChangeAnim(kIdleName, true);
+		m_anim.ChangeAnim(kRunName, true,0.5f);
 		m_targetPos = player->GetPos();
 		//Playerを見る
 		ToPlayerLook();
 		break;
 	case EnemyState::Caution:
-		m_anim.ChangeAnim(kIdleName, true);
+		//右と左でアニメーションを変える
+		m_anim.ChangeAnim(kStrafeRight, true, 0.25f);
 		m_targetPos = player->GetPos();
 		//Playerを見る
 		ToPlayerLook();
 		break;
 	case EnemyState::Attack:
-		m_anim.ChangeAnim(kAttackName, false);
+		m_anim.ChangeAnim(kAttack, false, 0.1f);
 		//Playerを見る
 		ToPlayerLook();
 		break;
 	case EnemyState::Back:
-		m_anim.ChangeAnim(kIdleName, true);
+		m_anim.ChangeAnim(kBack, false,0.3f);
 		m_targetPos = player->GetPos();
 		//Playerを見る
 		ToPlayerLook();
 		break;
 	case EnemyState::Hit:
-		m_anim.ChangeAnim(kIdleName, false);
+		m_anim.ChangeAnim(kHitName, false);
 		if (m_knockBackVel.y > 0.0f)
 		{
 			m_hitType = HitType::Air;
@@ -463,7 +472,11 @@ void EnemySwordman::ChangeState(EnemyState newState)
 		}
 		else if(m_knockBackVel.y < 0.0f)m_hitType = HitType::Drop;
 		else m_hitType = HitType::Ground;
-		if (m_attackData.isKirimomi)m_hitType = HitType::Drop;//吹き飛ぶときはDropにする
+		if (m_attackData.isKirimomi)
+		{
+			m_anim.ChangeAnim(kKirimomi, false,0.5f);
+			m_hitType = HitType::Drop;//吹き飛ぶときはDropにする
+		}
 		break;
 	case EnemyState::AirStay:
 		break;
