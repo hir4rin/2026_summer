@@ -138,8 +138,8 @@ void Animation::SetAnim(bool isRoop)
 void Animation::ChangeAnim(std::string name, bool isRoop, float timescale)
 {
 	m_prevAnimTimeScale = m_animtimeScale;//前のアニメーションの再生速度を保存する
-	//m_animtimeScale = timescale;//アニメーションの再生速度を設定する
-	m_animtimeScale = 1.0f;
+	m_animtimeScale = timescale;//アニメーションの再生速度を設定する
+	//m_animtimeScale = 1.0f;
 
 	//アニメーションの切り替え
 	//攻撃終了の旗、ループするかどうかの旗を初期化

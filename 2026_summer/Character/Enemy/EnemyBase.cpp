@@ -86,7 +86,7 @@ void EnemyBase::CautionMove(Vector3 target,float distance)
 	toEnemy.y = 0.0f;
 	//接線の求め方はベクトルを90度回転させるので成分を入れ替えて、xを符号反転　
 	Vector3 tangentLine = Vector3(-toEnemy.z, 0.0f, toEnemy.x).Normalize();
-	m_vel = tangentLine * Game::kEnemyMoveSpeed;
+	m_vel = tangentLine * Game::kEnemyMoveSpeed * 0.5f;
 	//半径を維持するために後ろ側にもベクトルを加える
 	float dist = toEnemy.Magnitude();
 	if (dist < distance)

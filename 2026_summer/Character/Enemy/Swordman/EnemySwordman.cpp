@@ -1,6 +1,7 @@
 ﻿#include "EnemySwordman.h"
 #include "../../../Math/Matrix4x4.h"
 #include "../../Player/Base/Player.h"
+#include "../../AttackCol.h"
 #include "../../../Game.h"
 #include "../System.h"
 
@@ -19,7 +20,7 @@ namespace
 
 	constexpr float kEnemyCenter = 100.0f;//敵の当たり判定の中心点までのy軸の距離
 
-	constexpr float kEnemyMeleeAttackRange = 180.0f;//敵の近接攻撃の距離
+	constexpr float kEnemyMeleeAttackRange = 400.0f;//敵の近接攻撃の距離
 	constexpr float kEnemyBackDistance = 600.0f;//敵が距離を取るときの距離
 
 	constexpr float kEnemyIdleMaxTime = 60.0f;//敵がIdle状態でいる時間の最大値
@@ -45,6 +46,8 @@ EnemySwordman::EnemySwordman(std::weak_ptr<Player> player, Vector3 pos, int mode
 	Matrix4x4 mtx = trans * rotY;
 	MV1SetMatrix(m_modelHandle, Matrix4x4::ToDxLibMatrix(mtx));
 	m_anim.Init(m_modelHandle, kIdle, true);
+	
+
 }
 
 EnemySwordman::~EnemySwordman()
@@ -61,7 +64,19 @@ void EnemySwordman::Init()
 	//やられ判定の初期化
 	InitHitCol(weak_from_this());
 	m_hitCol->ColInit(m_pos, Vector3(0, kEnemyCenter, 0),120.0f, ColliderType::Sphere, Tags::EnemyHit, true,true);
-	
+	//AttackColの生成
+	m_attackData = {
+		.attackPower = 10.0f,
+		.knockBackPower = Vector3(0.0f, 0.0f, 0.0f),
+		.knockBackFrame = 30.0f,
+		.hitStopTime = 0.0f,
+		.kAttackColOffset = 30.0f,
+		.isKirimomi = false
+	};
+	m_attackCol = std::make_shared<AttackCol>(weak_from_this(), m_attackData);
+
+	Vector3 offset = m_targetVec.Normalize() * m_attackData.kAttackColOffset + Vector3(0,kEnemyCenter,0);
+	m_attackCol->ColInit(m_pos, offset, 100.0f, ColliderType::Sphere, Tags::EnemyAttack, false, true);
 
 }
 
@@ -125,7 +140,7 @@ void EnemySwordman::Update()
 			break;
 		}
 		//定期的にプレイヤーの位置を更新する
-		if (m_cautionTime > kEnemyCautionMaxTime)
+		if (m_cautionTime > kEnemyCautionMaxTime * 2/3)
 		{
 			m_targetPos = TargetPlayerPos();
 		}
@@ -345,6 +360,25 @@ std::string EnemySwordman::GetHitString()
 
 void EnemySwordman::Attack()
 {
+	float rate = m_anim.GetAnimRate();
+	Vector3 forward = m_targetPos - m_pos;
+	forward.y = 0.0f;
+	forward = forward.Normalize();
+	//移動距離
+	if (rate <= 0.3)
+	{
+		m_vel = forward * 10.0f;
+	}
+	else if(rate > 0.3 && rate <= 0.5)
+	{
+		m_vel = forward * 16.0f;
+		m_attackCol->SetIsActive(true);
+	}
+
+	else
+	{
+		m_vel = Vector3(0, 0, 0);
+	}
 }
 
 void EnemySwordman::OnCollision(Collider& other)
@@ -412,6 +446,8 @@ void EnemySwordman::ChangeState(EnemyState newState)
 		m_vel = Vector3(0, 0, 0);
 		break;
 	case EnemyState::Attack:
+		m_vel = Vector3(0, 0, 0);
+		m_attackCol->SetIsActive(false);
 		break;
 	case EnemyState::Back:
 		m_vel = Vector3(0, 0, 0);
@@ -440,25 +476,25 @@ void EnemySwordman::ChangeState(EnemyState newState)
 		m_anim.ChangeAnim(kIdle, true);
 		break;
 	case EnemyState::Chase:
-		m_anim.ChangeAnim(kRunName, true,0.5f);
+		m_anim.ChangeAnim(kRunName, true,0.8f);
 		m_targetPos = player->GetPos();
 		//Playerを見る
 		ToPlayerLook();
 		break;
 	case EnemyState::Caution:
 		//右と左でアニメーションを変える
-		m_anim.ChangeAnim(kStrafeRight, true, 0.25f);
+		m_anim.ChangeAnim(kStrafeRight, true, 0.4f);
 		m_targetPos = player->GetPos();
 		//Playerを見る
 		ToPlayerLook();
 		break;
 	case EnemyState::Attack:
-		m_anim.ChangeAnim(kAttack, false, 0.1f);
+		m_anim.ChangeAnim(kAttack, false, 0.9f);
 		//Playerを見る
 		ToPlayerLook();
 		break;
 	case EnemyState::Back:
-		m_anim.ChangeAnim(kBack, false,0.3f);
+		m_anim.ChangeAnim(kBack, false,0.5f);
 		m_targetPos = player->GetPos();
 		//Playerを見る
 		ToPlayerLook();
@@ -474,7 +510,7 @@ void EnemySwordman::ChangeState(EnemyState newState)
 		else m_hitType = HitType::Ground;
 		if (m_attackData.isKirimomi)
 		{
-			m_anim.ChangeAnim(kKirimomi, false,0.5f);
+			m_anim.ChangeAnim(kKirimomi, false,0.8f);
 			m_hitType = HitType::Drop;//吹き飛ぶときはDropにする
 		}
 		break;

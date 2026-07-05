@@ -102,6 +102,9 @@ void Collider::DebugDraw() const
 		case Tags::PlayerAttack:
 			color = GetColor(0, 0, 255);//プレイヤーの攻撃は青
 			break;
+		case Tags::EnemyAttack:
+			color = GetColor(0, 0, 255);//敵の攻撃は青
+			break;
 		default:
 			break;
 	}

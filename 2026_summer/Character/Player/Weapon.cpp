@@ -31,7 +31,7 @@ void Weapon::Update()
 
 	//MATRIX transmat = MGetTranslate(weaponPos.ToDxLibVector());
 	//90度回転させる
-	MATRIX rotmat = MGetRotY(DX_PI_F / 2.0f);//回転行列を作成する//90度回転させる
+	MATRIX rotmat = MGetRotY(DX_PI_F);//回転行列を作成する//90度回転させる
 	mat = MMult(rotmat, mat);//回転行列を掛ける//90度回転させる
 
 	MATRIX scale = MGetScale(VGet(0.6f, 0.6f, 0.6f));//スケーリング行列を作成する//モデルの大きさを半分にする
