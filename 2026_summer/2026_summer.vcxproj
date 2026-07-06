@@ -151,6 +151,7 @@
     <ClCompile Include="Character\Player\Weapon.cpp" />
     <ClCompile Include="Camera\MainCamera.cpp" />
     <ClCompile Include="Camera\LockOnCamera.cpp" />
+    <ClCompile Include="JustAvoidCol.cpp" />
     <ClCompile Include="Managers\EnemyManager.cpp" />
     <ClCompile Include="Managers\FixNextPosition.cpp" />
     <ClCompile Include="Managers\CollisionChecker.cpp" />
@@ -197,6 +198,7 @@
     <ClInclude Include="Character\Player\Weapon.h" />
     <ClInclude Include="Camera\MainCamera.h" />
     <ClInclude Include="Camera\LockOnCamera.h" />
+    <ClInclude Include="JustAvoidCol.h" />
     <ClInclude Include="Managers\EnemyManager.h" />
     <ClInclude Include="Managers\FixNextPosition.h" />
     <ClInclude Include="Managers\CollisionChecker.h" />
