@@ -66,6 +66,16 @@ void UltCamera::Update(Vector3 pos, Vector3 pos2)
 		return;
 	}
 	if (!player)return;
+	auto cameraManager = m_cameraManager.lock();
+	if (!cameraManager)return;
+	//ウルトカメラ時、常にPlayerCameraにアングルを渡し続ける
+	if (cameraManager->GetHighestPriorityCamera()->GetCameraType() == Camera::Type::UltCamera)
+	{
+		//このカメラがメインの時、PlayerCameraにangleをずっと渡す
+		cameraManager->SetPlayerCameraAngle(m_angleH, m_angleV);
+	}
+
+
 
 	//目標ターゲットを計算
 	FixCameraPos();
@@ -102,16 +112,21 @@ void UltCamera::Update(Vector3 pos, Vector3 pos2)
 	//m_pos = Vector3::Lerp(m_pos, m_targetPos, 0.01f);
 
 	//このカメラが一番優先度が高いときにウルトがfalseになったら、PlayerCameraに切り替える
-	auto cameraManager = m_cameraManager.lock();
-	if (!cameraManager)return;
 	auto isHighest = cameraManager->GetHighestPriorityCamera();
 	bool isMainCamera = isHighest->GetCameraType() == Camera::Type::UltCamera;
 	bool isUlt = System::GetInstance().GetIsUltimating();
 	if (!isUlt && isMainCamera)
 	{
+		bool isLockOn = cameraManager->GetMainCamera()->GetIsLockOn();
 		//priorityを下げる
-		
-		cameraManager->SetNextCameraPriority(Camera::Type::PlayerCamera,false,true);
+		if (isLockOn)
+		{
+			cameraManager->SetNextCameraPriority(Camera::Type::LockOnCamera, false, true);
+		}
+		else
+		{
+			cameraManager->SetNextCameraPriority(Camera::Type::PlayerCamera, false, true);
+		}
 	}
 }
 
@@ -169,8 +184,9 @@ void UltCamera::FixCameraPos()
 	//RotPtoC = VTransform(RotPtoC, rotXMat);//回転させる
 	RotPtoC = VAdd(RotPtoC, kCameraHeight.ToDxLibVector());
 	//水平方向はその向き、垂直は初期化
-	//m_angleH = atan2f(RotPtoC.x, RotPtoC.z) + DX_PI_F;
+	m_angleH = atan2f(RotPtoC.x, RotPtoC.z) + DX_PI_F;
 	//m_angleV;
+
 
 	auto pos = VAdd(RotPtoC, player->GetPos().ToDxLibVector());//プレイヤーの座標に足す
 

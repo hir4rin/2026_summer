@@ -40,7 +40,7 @@ void LockOnCamera::Update(Vector3 pos, Vector3 pos2)
 	if (!player)return;
 	if (!mainCamera)return;
 
-	//mainCameraがこれでロックオンしていなかったら、PlayerCameraに切り替える//たぶんいらないとおもった
+	//ロックオンカメラの時、常にPlayerCameraにアングルを渡し続ける
 	if (cameraManager->GetHighestPriorityCamera()->GetCameraType() == Camera::Type::LockOnCamera)
 	{
 		//このカメラがメインの時、PlayerCameraにangleをずっと渡す

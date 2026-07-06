@@ -36,8 +36,7 @@ CameraManager::CameraManager()
 	
 
 	m_context = std::make_shared<CameraContext>();
-	//MainCameraに情報を渡す
-	SetUpMainCamera();
+
 }
 
 CameraManager::~CameraManager()
@@ -59,6 +58,8 @@ void CameraManager::Init(std::weak_ptr<Player> player)
 	SetWeakRef(player);
 	//playerCamera->PlayerSet(player);
 	//ultCamera->
+	//MainCameraに情報を渡す
+	SetUpMainCamera();
 	
 	for(auto& camera : m_cameras)
 	{
@@ -104,7 +105,17 @@ void CameraManager::Update(Vector3 pos, Vector3 pos2)
 			{
 				if (camera->GetCameraType() == Camera::Type::LockOnCamera)
 				{
+					//Priorityを1上にする
+					int nextpriority = highestPriorityCamera->GetPriority() + 1;
+					camera->SetPriority(nextpriority);
+
 					highestPriorityCamera = camera;
+					//データを渡す
+					CameraData data = camera->GetCameraData();
+					data.pos = camera->GetCameraPos();
+					data.target = camera->GetCameraTarget();
+					m_mainCamera->SetCameraData(data);
+					//SetNextCameraPriority(Camera::Type::LockOnCamera, false, true);
 					break;
 				}
 			}
@@ -147,6 +158,11 @@ void CameraManager::ApplyCameraSettings()
 
 void CameraManager::SetNextCameraPriority(Camera::Type type,bool isLerp,bool isSlerp)
 {
+	//同じだったらreturn
+	if (highestPriorityCamera->GetCameraType() == type)return;
+
+
+
 	//角度を抽出して、再び渡す
 	float angleH = 0.0f;
 	float angleV = 0.0f;
@@ -164,7 +180,7 @@ void CameraManager::SetNextCameraPriority(Camera::Type type,bool isLerp,bool isS
 	//最もpriorityの高いカメラの値をゲットして+1して指定したものに渡す
 	int nextPriority = highestPriorityCamera->GetPriority() + 1;
 
-	//numの番号のもの以外は0にする//numの番号のものはnumにする
+	//typeが一致したものを一番高いものにする
 	for (auto& Camera : m_cameras)
 	{
 		if (Camera->GetCameraType() == type)//numの番号のものはnumにする
@@ -209,6 +225,9 @@ void CameraManager::SetWeakRef(std::weak_ptr<Player> m_player, std::weak_ptr<Ene
 	{
 		camera->SetCameraContext(m_context);
 	}
+	//mainCameraにもセット
+	m_mainCamera->SetCameraContext(m_context);
+
 
 }
 void CameraManager::SetPlayerCameraAngle(float angleH, float angleV)

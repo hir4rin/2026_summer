@@ -65,7 +65,7 @@ void PlayerStateAvoid::Update()
 	//アニメーションの更新
 	player->m_anim.Update();
 	//速度の指定
-	player->m_vel = player->m_avoidInfo.BaseVel.Normalize() * kAvoidSpeed;//回避の速度を0.3fに設定//回避の方向を正規化して、速度を指定する
+	//player->m_vel = player->m_avoidInfo.BaseVel.Normalize() * kAvoidSpeed;//回避の速度を0.3fに設定//回避の方向を正規化して、速度を指定する
 	//Vector3 rootDelta = player->m_anim.GetRootMotionDelta();//ルートモーションの移動量を取得する
 	//player->m_vel = rootDelta * 1.0f;//ルートモーションの移動量に回避の速度を掛けることで、回避の移動量を指定する
 

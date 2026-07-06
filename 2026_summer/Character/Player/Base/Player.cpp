@@ -191,6 +191,23 @@ void Player::OnDamage(Collider& other, AttackData& data)
 	//ダメージを受けたときの処理
 	//敵の攻撃データをもらい、ダメージを減らし、体力を減らす、場合によってはプレイヤーを吹き飛ばす
 	DrawFormatString(0, 0, GetColor(255, 0, 0), "Player: OnDamage");
+	//ダメージを受けたときの処理
+	
+	//StateがAvoidで回避中かつ、時間内だったらジャスト回避
+	if(m_currentState == std::dynamic_pointer_cast<PlayerStateAvoid>(m_currentState))
+	{
+
+		//ジャスト回避の範囲内にいたら
+
+		//ジャスト回避の処理
+		m_avoidInfo.isJustAvoid = true;
+	}
+
+
+	//IsHitStateに変える//後でする
+
+
+
 }
 
 void Player::ChangeState(std::shared_ptr<PlayerState> newState)

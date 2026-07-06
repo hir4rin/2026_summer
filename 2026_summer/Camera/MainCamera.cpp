@@ -35,6 +35,9 @@ void MainCamera::Update(const CameraData& data)
 {
 	//データを保存
 	//m_cameraData = data;
+	auto player = m_cameraContext->m_player.lock();
+	if (!player)return;
+	auto enemy = m_cameraContext->m_targetEnemy.lock();
 
 	//ラープだったらラープ、SlerpだったらSlerpする
 	//まずはラープなしで動かす
@@ -47,13 +50,16 @@ void MainCamera::Update(const CameraData& data)
 	}
 	else if (m_isSlerp)
 	{
+		//敵がいるなら、m_rotateAxisを更新
+		//m_targetPosも更新
+		if (enemy)m_rotateAxis = enemy->GetPos();
 
 		//方向はSlerpで、距離はLerpでやる
 		//m_distance;
-		float distanceTarget = (m_targetPos - m_rotateAxis).Magnitude();
+		float distanceTarget = (data.pos - m_rotateAxis).Magnitude();
 
 		Vector3 dirPrev = (m_pos - m_rotateAxis).Normalize();
-		Vector3 dirTarget = (m_targetPos - m_rotateAxis).Normalize();
+		Vector3 dirTarget = (data.pos - m_rotateAxis).Normalize();
 
 		m_distance = std::lerp(m_distance, distanceTarget, 0.1f);
 		//現在座標から目標までの保管をしながらm_posを計算する
@@ -108,7 +114,7 @@ void MainCamera::SetSlerp(bool isSlerp)
 	if (!m_isSlerp)return;
 	//目標地点をセット
 	m_targetPos = m_cameraData.pos;
-	m_rotateAxis = enemy->GetPos(); //プレイヤーの座標を回転軸にする
+	m_rotateAxis = enemy->GetPos(); //enemyの座標を回転軸にする
 
 	//変化するベクトルの大きさを最初にセットする
 	m_distance = (m_pos - m_rotateAxis).Magnitude();

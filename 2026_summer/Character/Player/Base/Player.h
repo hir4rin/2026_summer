@@ -97,6 +97,7 @@ struct AvoidInfo
 	float avoidCount = 0.0f;//回避のカウント//回避の時間を管理するためのカウント
 	float avoidCoolTimeCount = 0.0f;//回避のクールタイムのカウント//回避のクールタイムを管理するためのカウント
 	bool isAvoidBack = false;//後ろに回避するかどうかのフラグ	
+	bool isJustAvoid = false;//ジャスト回避かどうかのフラグ
 };
 
 class Player : public CharacterBase, public std::enable_shared_from_this<Player>//Playerクラスのインスタンスから、Playerクラスのshared_ptrを取得できるようになる
