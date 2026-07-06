@@ -25,7 +25,8 @@ namespace
 Player::Player()
 {
 	//m_modelHandle = MV1LoadModel("data/Player/Player.mv1");
-	m_modelHandle = MV1LoadModel("data/Player/Player_Init.mv1");
+	//m_modelHandle = MV1LoadModel("data/Player/Player_Init.mv1");
+	m_modelHandle = MV1LoadModel("data/Player/Player_true.mv1");
 	//モデルの初期位置を設定する//前を向いているようにする
 	Matrix4x4 rotY = Matrix4x4::MakeRotationY(DX_PI_F);
 	MATRIX transmat = MGetTranslate(m_pos.ToDxLibVector());
@@ -194,10 +195,12 @@ void Player::OnDamage(Collider& other, AttackData& data)
 	//ダメージを受けたときの処理
 	
 	//StateがAvoidで回避中かつ、時間内だったらジャスト回避
-	if(m_currentState == std::dynamic_pointer_cast<PlayerStateAvoid>(m_currentState))
+	auto nowState = std::dynamic_pointer_cast<PlayerStateAvoid>(m_currentState);
+	if(m_currentState == nowState)
 	{
 
-		//ジャスト回避の範囲内にいたら
+		//ジャスト回避の範囲内にいたら、
+		if(nowState)
 
 		//ジャスト回避の処理
 		m_avoidInfo.isJustAvoid = true;
@@ -351,6 +354,7 @@ void Player::ApplyPos()
 {
 	//モデルの座標を更新する
 	CharacterBase::ApplyPos();
+	
 	WingUpdate();
 	m_weapon->Update();//武器の更新
 }

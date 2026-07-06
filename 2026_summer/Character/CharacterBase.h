@@ -56,6 +56,7 @@ protected:
 	int m_modelHandle = -1;//モデルのハンドル
 	int m_hp = -1;//体力
 	float m_rotAngleY = 0.0f;//回転角度
+	float m_rotAngleX = 0.0f;//回転角度
 	float m_targetAngleY = 0.0f;//目標の回転角度//回転を滑らかにするためのもの
 	
 

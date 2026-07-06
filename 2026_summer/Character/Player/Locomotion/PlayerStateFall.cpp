@@ -18,7 +18,7 @@ void PlayerStateFall::Enter()
 	auto player = m_owner.lock();
 	if (!player) return;
 	//animationの初期化
-
+	//player->m_anim.ChangeAnim(player->GetAnimName("JumpDown"), false, 1.0f);
 	//下降時の初速を保存
 	m_baseVel = player->m_vel;
 	m_baseVel.y = 0.0f;//y成分は移動に関係ないので、0にする
