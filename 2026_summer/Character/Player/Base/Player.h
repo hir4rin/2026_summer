@@ -38,6 +38,8 @@ struct ComboInfo
 {
 	int currentComboIndex = -1;//現在のコンボの段数//攻撃の段数を管理するための変数
 	bool isHit = false;//攻撃が当たったかどうか//当たっていたら動きを止める
+	bool isAirAttack = false;//空中で攻撃をしたかどうか
+	bool isAirSkillAttack = false;//空中でスキル攻撃をしたかどうか
 	//int nextComboIndex = -1;//次のコンボの段数
 };
 

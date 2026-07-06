@@ -17,6 +17,7 @@ PlayerStateSkillAttack::PlayerStateSkillAttack(std::weak_ptr<Player> player):
 {
 	//playerが既に破棄されていたら早期リターンする//trueで破棄されている
 	if (m_owner.expired())return;
+	m_attackType = AttackType::SkillAttack;//スキル攻撃に設定
 }
 
 PlayerStateSkillAttack::~PlayerStateSkillAttack()

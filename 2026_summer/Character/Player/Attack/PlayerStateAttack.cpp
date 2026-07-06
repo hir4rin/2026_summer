@@ -302,9 +302,15 @@ void PlayerStateAttack::AttackInputCheck()
 	bool isSkillAttack = currentNode.index == ComboIndex::SkillAttack1 ||
 						 currentNode.index == ComboIndex::SkillAttack2 ||
 				   	     currentNode.index == ComboIndex::SkillAttack3;
+	bool isPlayerAir = !player->IsFloor();//空中にいるかどうか//空中にいるときは、空中攻撃に移行する
+	bool WasSkillAirAttack = player->m_comboInfo.isAirSkillAttack;//空中でスキル攻撃をしたかどうか
+	bool WasAirAttack = player->m_comboInfo.isAirAttack;//空中で攻撃をしたかどうか
+
 	//スキル攻撃
 	if (input.IsPressed("LB") && input.IsTriggered("X"))
 	{
+
+
 		//通常攻撃ならば、攻撃を終了して、スキル攻撃に移行
 			//スキル攻撃ならばコンボ攻撃に移行
 		if (isSkillAttack)
@@ -320,14 +326,35 @@ void PlayerStateAttack::AttackInputCheck()
 		//コンボ処理を終了して、スキル攻撃に移行する
 		else
 		{
+			//空中でスキル攻撃を行っていたらスキル攻撃に移行しない
+			if (isPlayerAir && WasSkillAirAttack)return;
+
 			m_isComboInputReserved = true;//コンボ入力が予約されているフラグを立てる
 			m_isSkillAttackReserved = true;//スキル攻撃の予約がされているフラグを立てる
 		}
 
 	}
 	//強攻撃
-	else if (!input.IsPressed("LB") && input.IsTriggered("Y") && !isSkillAttack)
+	else if (!input.IsPressed("LB") && input.IsTriggered("Y"))
 	{
+		//スキルアタックだったら弱攻撃につなぐ
+		if (isSkillAttack)
+		{
+			//地上だったら弱攻撃1に移行する//空中だったら空中弱攻撃に移行する
+			if (player->IsFloor())
+			{
+				m_nextComboIndex = ComboIndex::HeavyAttack1;//強攻撃1に移行する
+				m_isComboInputReserved = true;//コンボ入力が予約されているフラグを立てる
+			}
+			else
+			{
+				m_nextComboIndex = ComboIndex::AirHeavyAttack1;//空中強攻撃に移行する
+				m_isComboInputReserved = true;//コンボ入力が予約されているフラグを立てる
+			}
+
+		}
+
+		if (isSkillAttack)return;
 		if (!currentNode.nextHeavyAttack.empty())//空じゃなかったら
 		{
 			m_nextComboIndex = currentNode.nextHeavyAttack[0];//次のコンボ番号をセットする//今回は1つしかないので、0番目をセットする
@@ -335,8 +362,26 @@ void PlayerStateAttack::AttackInputCheck()
 		}
 	}
 	//弱攻撃
-	else if (!input.IsPressed("LB") &&input.IsTriggered("X") && !isSkillAttack)
+	else if (!input.IsPressed("LB") &&input.IsTriggered("X"))
 	{
+		//スキルアタックだったら弱攻撃につなぐ
+		if (isSkillAttack)
+		{
+			//地上だったら弱攻撃1に移行する//空中だったら空中弱攻撃に移行する
+			if (player->IsFloor())
+			{
+				m_nextComboIndex = ComboIndex::LightAttack1;//弱攻撃1に移行する
+				m_isComboInputReserved = true;//コンボ入力が予約されているフラグを立てる
+			}
+			else
+			{
+				m_nextComboIndex = ComboIndex::AirAttack1;//空中弱攻撃に移行する
+				m_isComboInputReserved = true;//コンボ入力が予約されているフラグを立てる
+			}
+
+		}
+
+		if (isSkillAttack)return;
 		if (!currentNode.nextWeakAttack.empty())//空じゃなかったら
 		{
 			m_nextComboIndex = currentNode.nextWeakAttack[0];//次のコンボ番号をセットする//今回は1つしかないので、0番目をセットする
@@ -359,11 +404,12 @@ void PlayerStateAttack::StartCombo(int comboIndex)
 {
 	auto player = m_owner.lock();
 	if (!player) return;
-	//isHitをfalseにする
-	player->m_comboInfo.isHit = false;
 	//範囲外だったら早期リターン
 	if (comboIndex < 0 || comboIndex >= player->m_comboChain.size())return;
-
+	//isHitをfalseにする
+	player->m_comboInfo.isHit = false;
+	//鴉状態を解除する
+	player->m_isRaven = false;
 	//現在のコンボの段数を更新
 	player->m_comboInfo.currentComboIndex = comboIndex;
 	m_isComboInputReserved = false;//コンボ入力の予約を解除する
@@ -394,27 +440,34 @@ int PlayerStateAttack::SelectAnimInit()
 	if (currentComboIndex == ComboIndex::None)//コンボの段数が-1のときは、最初のコンボを再生する
 	{
 
+			
 			if (m_attackType == AttackType::lightAttack)
 			{
-				if (player->IsFloor())currentComboIndex = ComboIndex::LightAttack1;//弱攻撃の最初の段数を0に設定する
+				if (player->IsFloor())
+				{
+					currentComboIndex = ComboIndex::LightAttack1;//弱攻撃の最初の段数を0に設定する
+				}
+				else
+				{
+					player->m_comboInfo.isAirAttack = true;//空中攻撃のフラグを立てる
+					currentComboIndex = ComboIndex::AirAttack1;//空中攻撃1
+				}
 			}
 			else if (m_attackType == AttackType::heavyAttack)
 			{
-				if (player->IsFloor())currentComboIndex = ComboIndex::HeavyAttack1;//強攻撃の最初の段数を1に設定する//今回は、弱攻撃が0番目、強攻撃が1番目の段数から始まるようにする
-			}
-			if (m_attackType == AttackType::lightAttack)
-			{
-				if (player->IsFloor())currentComboIndex = ComboIndex::LightAttack1;//弱攻撃の最初の段数を0に設定する
-				else currentComboIndex = ComboIndex::AirAttack1;//空中攻撃1
-			}
-			else if (m_attackType == AttackType::heavyAttack)
-			{
-				if (player->IsFloor())currentComboIndex = ComboIndex::HeavyAttack1;//強攻撃の最初の段数を1に設定する//今回は、弱攻撃が0番目、強攻撃が1番目の段数から始まるようにする
-				else currentComboIndex = ComboIndex::AirHeavyAttack1;//空中強攻撃1
+				if (player->IsFloor())
+				{
+					currentComboIndex = ComboIndex::HeavyAttack1;//強攻撃の最初の段数を1に設定する//今回は、弱攻撃が0番目、強攻撃が1番目の段数から始まるようにする
+				}
+				else
+				{
+					currentComboIndex = ComboIndex::AirHeavyAttack1;//空中強攻撃1
+				}
 			}
 			else if (m_attackType == AttackType::SkillAttack)
 			{
 				currentComboIndex = ComboIndex::SkillAttack1;
+				if(!player->IsFloor())player->m_comboInfo.isAirAttack = true;//空中攻撃のフラグを立てる
 				
 			}
 			bool isSkillAttack = currentComboIndex == ComboIndex::SkillAttack1 ||

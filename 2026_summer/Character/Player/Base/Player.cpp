@@ -172,8 +172,8 @@ void Player::Draw()
 	{
 		m_currentState->DebugDraw();//デバッグ描画
 	}
-#endif
 	DrawSphere3D(m_pos.ToDxLibVector(), kPlayerRockOnRange, 16, GetColor(255, 0, 0), GetColor(255, 0, 0), false);
+#endif
 }
 
 void Player::EffectDraw()
@@ -350,6 +350,12 @@ void Player::ApplyPos()
 {
 	//モデルの座標を更新する
 	CharacterBase::ApplyPos();
+	//プレイヤーが地上にいたら空中攻撃をリセット
+	if (IsFloor())
+	{
+		m_comboInfo.isAirAttack = false;
+		m_comboInfo.isAirSkillAttack = false;
+	}
 	
 	WingUpdate();
 	m_weapon->Update();//武器の更新

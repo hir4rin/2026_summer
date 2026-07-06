@@ -73,16 +73,36 @@ void PlayerStateFall::Update()
 	//}
 
 
+	//スキル攻撃
+	if (input.IsPressed("LB") && input.IsTriggered("X"))
+	{
+		//初めての攻撃だったら
+		if (!player->m_comboInfo.isAirSkillAttack)
+		{
+			player->ChangeState(std::make_shared<PlayerStateAttack>(m_owner, AttackType::SkillAttack));
+			return;
+		}
+	}
+
 	//攻撃状態に遷移する
 	if (input.IsTriggered("X"))//弱攻撃
 	{
-		player->ChangeState(std::make_shared<PlayerStateAttack>(m_owner, AttackType::lightAttack));
-		return;
+		//初めての攻撃だったら
+		if (!player->m_comboInfo.isAirAttack)
+		{
+			player->ChangeState(std::make_shared<PlayerStateAttack>(m_owner, AttackType::lightAttack));
+			return;
+		}
 	}
 	if (input.IsTriggered("Y"))//強攻撃
 	{
-		player->ChangeState(std::make_shared<PlayerStateAttack>(m_owner, AttackType::heavyAttack));
-		return;
+		//初めての攻撃だったら
+		if (!player->m_comboInfo.isAirAttack)
+		{
+			player->ChangeState(std::make_shared<PlayerStateAttack>(m_owner, AttackType::heavyAttack));
+			return;
+		}
+		
 	}
 	Move(input);
 }
