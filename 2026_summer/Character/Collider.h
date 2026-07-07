@@ -114,6 +114,10 @@ public:
 	Vector3 GetWorldCenter() const { return m_pos + m_offset; }//ワールド座標での中心位置を返す
 	Vector3 GetCapsuleEndPos() const { return m_capsuleInfo.endPos; }//カプセルの終点の座標を返す
 	float GetTimeScale() const { return m_ownTimeScale; }
+
+
+	//寿命の設定
+	void SetLifeTimeLimited() { m_isLifeTimeLimited = true; }
 	bool GetIsLifeTimeLimited() const { return m_isLifeTimeLimited; }
 
 	//デバッグ描画

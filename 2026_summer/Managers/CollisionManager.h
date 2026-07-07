@@ -32,7 +32,7 @@ public:
 	void Init();
 
 	//すべてのコライダーをクリア
-	void Clear();
+	void Terminate();
 	//当たり判定の一括チェック
 	void Update();
 	//デバッグ描画

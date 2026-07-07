@@ -72,7 +72,7 @@ void PlayerStateFall::Update()
 	//	}
 	//}
 
-
+	
 	//スキル攻撃
 	if (input.IsPressed("LB") && input.IsTriggered("X"))
 	{

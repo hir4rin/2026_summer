@@ -41,13 +41,9 @@ void CollisionManager::Init()
 	m_fixNextPositioner = std::make_unique<FixNextPosition>();
 }
 
-void CollisionManager::Clear()
+void CollisionManager::Terminate()
 {
-	//???
-	//生ポインタを使っているが、この方法で大丈夫か
-
 	m_colliders.clear();
-	//m_callbacks.clear();//????
 }
 
 void CollisionManager::Update()
@@ -139,7 +135,7 @@ void CollisionManager::DebugDraw() const
 	for (const auto& collider : m_colliders)
 	{
 		//アクティブなコライダーだけを描画する
-		if (!collider && collider->IsActive())
+		if (collider && collider->IsActive())
 		collider->DebugDraw();
 	}
 }

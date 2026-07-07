@@ -65,6 +65,10 @@ GameScene::GameScene(SceneController& controller) :Scene(controller)
 }
 GameScene::~GameScene()
 {
+	//Collisionをすべてクリア
+	CollisionManager::GetInstance().Terminate();
+
+
 	DeleteGraph(m_gHandle1);
 	DeleteGraph(m_gHandle2);
 	DeleteGraph(m_gHandle3);

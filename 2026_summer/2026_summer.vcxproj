@@ -74,7 +74,7 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions);_DEBUG</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>../EffekseerForDXLib;$(ProjectDir)Character/Player/Attack;$(ProjectDir)Character/Player/Base;$(ProjectDir)Character/Player/Defence;$(ProjectDir)Character/Player/Locomotion;$(ProjectDir)Character</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
@@ -108,7 +108,7 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;_WINDOWS;%(PreprocessorDefinitions);_DEBUG</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>../EffekseerForDXLib;$(ProjectDir)Character/Player/Attack;$(ProjectDir)Character/Player/Base;$(ProjectDir)Character/Player/Defence;$(ProjectDir)Character/Player/Locomotion;$(ProjectDir)Character</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>

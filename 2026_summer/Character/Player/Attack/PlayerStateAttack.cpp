@@ -3,6 +3,7 @@
 #include "../../../Game.h"
 #include "../../../Input.h"
 #include "../../AttackCol.h"
+#include "../../../Managers/CollisionManager.h"
 
 
 namespace
@@ -149,7 +150,7 @@ void PlayerStateAttack::Update()
 		if (player->IsFloor())//地面と当たったとき
 		{
 			player->m_isGround = true;//地面にいる状態にする
-			//player->m_pos.y = 0.0f;//地面に埋まらないようにする
+			m_attackCol->SetIsActive(false);//攻撃の当たり判定を無効にする
 			player->m_vel = Vector3(0, 0, 0);//突進が終わったら、速度を0にする
 			//player->m_hitCol
 			//攻撃判定を生成
@@ -166,7 +167,14 @@ void PlayerStateAttack::Update()
 
 void PlayerStateAttack::Exit()
 {
-	
+	//攻撃の当たり判定を削除する//
+	if (m_attackCol)
+	{
+		CollisionManager::GetInstance().ReleaseCollider(m_attackCol);//当たり判定を削除する
+		m_attackCol->SetIsActive(false);
+		m_attackCol->SetLifeTimeLimited();
+		m_attackCol.reset();
+	}
 }
 
 void PlayerStateAttack::DebugDraw()
@@ -222,8 +230,7 @@ void PlayerStateAttack::AttackMoveMent()
 	}
 	else//上下差あり
 	{
-		//上下差ある攻撃は常に判定を有効
-		m_attackCol->SetIsActive(true);//攻撃の当たり判定を無効にする
+		
 		//重力
 		player->m_vel += Vector3(0, -Game::kGravity, 0);
 
@@ -236,10 +243,19 @@ void PlayerStateAttack::AttackMoveMent()
 			{
 				//player->m_vel = player->m_targetVec * node.moveSpeedX + Vector3(0, 0, 0);
 				player->m_vel = Vector3(0, 0, 0);//終わったら、速度を0にする
+				m_attackCol->SetIsActive(false);//攻撃の当たり判定を無効にする
+			}
+			//まだ上昇中
+			else
+			{
+				//判定を有効
+				m_attackCol->SetIsActive(true);//攻撃の当たり判定
 			}
 		}
 		else//下向き//常に下方向の速度を与える
 		{
+			//判定を有効
+			m_attackCol->SetIsActive(true);//攻撃の当たり判定
 		}
 		
 
@@ -435,8 +451,11 @@ void PlayerStateAttack::AttackFinishProcess()
 	player->m_vel.y = 0.0f;
 	//鴉状態を解除する
 	player->m_isRaven = false;
+	
 	//攻撃の当たり判定の開放
-	m_attackCol.reset();
+	//m_attackCol->SetIsActive(false);
+	//m_attackCol->SetLifeTimeLimited();
+	//m_attackCol.reset();
 }
 
 int PlayerStateAttack::SelectAnimInit()
@@ -520,7 +539,7 @@ void PlayerStateAttack::InpuctAttackSetUp()
 	{
 		AttackData dropAttackData = {
 			.attackPower = 0.0f,
-			.knockBackPower = Vector3(10, 15, 0),
+			.knockBackPower = Vector3(20, 20, 0),
 			.knockBackFrame = totalAnimFrame,
 			.hitStopTime = 0.1f,
 			.kAttackColOffset = 30.0f,
@@ -529,7 +548,7 @@ void PlayerStateAttack::InpuctAttackSetUp()
 		//AttackColを生成
 		auto m_attackColForDrop = std::make_shared<AttackCol>(m_owner, dropAttackData);
 		m_attackColForDrop->ColInit(player->m_pos, Vector3(0, kPlayerCenter, 0), 150.0f,
-			ColliderType::Sphere, Tags::PlayerAttack, true, true,100.0f);//攻撃の当たり判定を初期化する//最初は無効にしておく
+			ColliderType::Sphere, Tags::PlayerAttack, true, true,10.0f);//攻撃の当たり判定を初期化する//最初は無効にしておく
 		m_attackColForDrop->SetIsActive(true);//攻撃の当たり判定を有効にする
 	}
 }
