@@ -63,7 +63,7 @@ class Collider abstract
 public:
 	Collider();
 	virtual ~Collider();
-	void ColUpdate(Vector3 pos);//当たり判定の更新//継承先で使う
+	void ColUpdate(Vector3 pos = Vector3());//当たり判定の更新//継承先で使う
 
 	//当たり判定をチェック
 	bool IsCollidable(const Collider& other)const;
@@ -77,8 +77,8 @@ public:
 	//Actorが派生先ですること-------------------------------------------------------------
 	//当たり判定の初期化処理//登録
 	/// <summary>座標、中心点、半径、当たり判定のタイプ、タグ、当たり判定が有効かどうか</summary>
-	void  ColInit(Vector3 pos,Vector3 offset, float radius, ColliderType type, Tags tag, bool isActive,bool isTrigger= false);
-	//IDのセット
+	void  ColInit(Vector3 pos,Vector3 offset, float radius, ColliderType type, Tags tag, bool isActive,bool isTrigger= false, float lifeTime = 0.0f);
+	//IDのセット//
 	void SetID();
 	//--------------------------------------------------------------------------
 
@@ -114,7 +114,7 @@ public:
 	Vector3 GetWorldCenter() const { return m_pos + m_offset; }//ワールド座標での中心位置を返す
 	Vector3 GetCapsuleEndPos() const { return m_capsuleInfo.endPos; }//カプセルの終点の座標を返す
 	float GetTimeScale() const { return m_ownTimeScale; }
-	
+	bool GetIsLifeTimeLimited() const { return m_isLifeTimeLimited; }
 
 	//デバッグ描画
 	void DebugDraw()const;
@@ -134,10 +134,13 @@ protected:
 
 	float m_radius;//Sphereの半径、Boxの幅、Capsuleの半径
 	bool m_isActive;//当たり判定が有効かどうか
+
 	bool m_isTrigger;//当たり判定のみをし、押し戻しなどはしない
 	bool m_isFloor;//床に当たったかどうか
 	bool m_isWall;//壁に当たったかどうか
 	int m_id;//当たり判定などに使うID
+	float m_lifeTime = 0.0f;//寿命//0.0fで無限//1.0fで1秒
+	bool m_isLifeTimeLimited = false;//trueになったらCollisionManagerから削除される
 	float m_ownTimeScale = 1.0f;//自分のtimeScale
 	CapsuleInfo m_capsuleInfo = {};//カプセルの情報//カプセルの時に使う
 

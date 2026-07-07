@@ -55,7 +55,19 @@ void CollisionManager::Update()
 	//IsTriggerを作って、押し戻し判定を無視するという条件式を追加する//今は押し戻し判定を無視する条件式はない
 	//PushBackの中でその処理をするのでいい
 
-	//この中身は未熟なので、すべて書き直す
+	//CollisionのUpdate(今は寿命カウント用)
+	for(auto& collider  : m_colliders)
+	{
+		if (!collider)continue;
+		collider->ColUpdate();
+	}
+
+
+	//寿命が尽きたコライダーを削除する
+	std::erase_if(m_colliders, [](Collider* collider) 
+		{
+			return collider->GetIsLifeTimeLimited();
+		});
 
 
 	//すべてのコライダーの組み合わせをチェックする//当たっているかの確認かつ、速度をいじる

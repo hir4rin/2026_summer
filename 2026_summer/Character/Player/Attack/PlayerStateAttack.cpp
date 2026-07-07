@@ -39,9 +39,11 @@ void PlayerStateAttack::Enter()
 	if (node.moveSpeedY != 0)
 	{
 		player->m_vel = player->m_targetVec * node.moveSpeedX + Vector3(0, node.moveSpeedY, 0);
+		//上昇攻撃
 		if (node.moveSpeedY > 0)
 		{
 			player->m_isGround = false;//ジャンプ状態にする
+			player->SetIsFloor(false);
 		}
 	}
 	float totalAnimFrame = player->m_anim.GetAnimTotalFrame(node.animName);
@@ -61,6 +63,7 @@ void PlayerStateAttack::Enter()
 	m_attackCol->ColInit(player->m_pos, offset, 150.0f,
 							ColliderType::Sphere, Tags::PlayerAttack, true,true);//攻撃の当たり判定を初期化する//最初は無効にしておく
 	m_attackCol->SetIsActive(false);//最初は当たり判定を無効にしておく
+
 }
 
 void PlayerStateAttack::Update()
@@ -94,7 +97,7 @@ void PlayerStateAttack::Update()
 	//コンボに移行
 	if (animRate >= 0.5f)
 	{
-		//通常攻撃からスキル攻撃に移行するとき
+		//通常攻撃からスキル攻撃に移行するとき//コンボではなく、スキル攻撃を初めて降ったというシステム
 		if(m_isSkillAttackReserved)
 		{
 			m_isSkillAttackReserved = false;//スキル攻撃の予約を解除する
@@ -149,6 +152,8 @@ void PlayerStateAttack::Update()
 			//player->m_pos.y = 0.0f;//地面に埋まらないようにする
 			player->m_vel = Vector3(0, 0, 0);//突進が終わったら、速度を0にする
 			//player->m_hitCol
+			//攻撃判定を生成
+			InpuctAttackSetUp();
 			AttackFinishProcess();
 			player->ChangeState(std::make_shared<PlayerStateIdle>(m_owner));
 			return;
@@ -375,8 +380,12 @@ void PlayerStateAttack::AttackInputCheck()
 			}
 			else
 			{
-				m_nextComboIndex = ComboIndex::AirAttack1;//空中弱攻撃に移行する
-				m_isComboInputReserved = true;//コンボ入力が予約されているフラグを立てる
+				//初めての弱攻撃ならする
+				if (!player->m_comboInfo.isAirAttack)
+				{
+					m_nextComboIndex = ComboIndex::AirAttack1;//空中弱攻撃に移行する
+					m_isComboInputReserved = true;//コンボ入力が予約されているフラグを立てる
+				}
 			}
 
 		}
@@ -467,9 +476,10 @@ int PlayerStateAttack::SelectAnimInit()
 			else if (m_attackType == AttackType::SkillAttack)
 			{
 				currentComboIndex = ComboIndex::SkillAttack1;
-				if(!player->IsFloor())player->m_comboInfo.isAirAttack = true;//空中攻撃のフラグを立てる
+				if(!player->IsFloor())player->m_comboInfo.isAirSkillAttack = true;//空中攻撃のフラグを立てる
 				
 			}
+			//スキルアタックだったら鴉状態にする
 			bool isSkillAttack = currentComboIndex == ComboIndex::SkillAttack1 ||
 								 currentComboIndex == ComboIndex::SkillAttack2 ||
 								 currentComboIndex == ComboIndex::SkillAttack3;
@@ -480,9 +490,46 @@ int PlayerStateAttack::SelectAnimInit()
 	}
 	else
 	{
+		//コンボ攻撃で空中攻撃だった時、AirAttackをtrueにする
+		if (currentComboIndex == ComboIndex::AirAttack1)
+		{
+						player->m_comboInfo.isAirAttack = true;
+		}
+		//スキルアタックだったら鴉状態にする
+		bool isSkillAttack = currentComboIndex == ComboIndex::SkillAttack1 ||
+			currentComboIndex == ComboIndex::SkillAttack2 ||
+			currentComboIndex == ComboIndex::SkillAttack3;
+		if (isSkillAttack)player->m_isRaven = true;//鴉状態にする
+		else player->m_isRaven = false;//鴉状態を解除する
+
 		//コンボの段数が-1でないときは、次のコンボを再生する
 		//currentComboIndex = m_nextComboIndex;//次のコンボの段数を取得する
 		//player->m_comboInfo.currentComboIndex = currentComboIndex;//現在のコンボの段数を更新する
 	}
 	return currentComboIndex;
+}
+
+void PlayerStateAttack::InpuctAttackSetUp()
+{
+	auto player = m_owner.lock();
+	if (!player) return;
+	const ComboNode& node = player->m_comboChain[player->m_comboInfo.currentComboIndex];
+	float totalAnimFrame = player->m_anim.GetAnimTotalFrame(node.animName);
+	//ドロップ攻撃の時は当たり判定を生成
+	if (node.moveSpeedY < 0)
+	{
+		AttackData dropAttackData = {
+			.attackPower = 0.0f,
+			.knockBackPower = Vector3(10, 15, 0),
+			.knockBackFrame = totalAnimFrame,
+			.hitStopTime = 0.1f,
+			.kAttackColOffset = 30.0f,
+			.isKirimomi = true
+		};
+		//AttackColを生成
+		auto m_attackColForDrop = std::make_shared<AttackCol>(m_owner, dropAttackData);
+		m_attackColForDrop->ColInit(player->m_pos, Vector3(0, kPlayerCenter, 0), 150.0f,
+			ColliderType::Sphere, Tags::PlayerAttack, true, true,100.0f);//攻撃の当たり判定を初期化する//最初は無効にしておく
+		m_attackColForDrop->SetIsActive(true);//攻撃の当たり判定を有効にする
+	}
 }

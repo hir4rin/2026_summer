@@ -1,5 +1,6 @@
 ﻿#include "Collider.h"
 #include "../IDManager.h"
+#include "../System.h"
 
 Collider::Collider():
 	m_type(ColliderType::Sphere),
@@ -18,6 +19,20 @@ Collider::~Collider()
 
 void Collider::ColUpdate(Vector3 pos)
 {
+	//寿命計算
+	float timeScale = System::GetInstance().GetTimeScale();
+	if (m_lifeTime > 0.0f)
+	{
+		m_lifeTime -= 1.0f * timeScale;
+
+		if (m_lifeTime <= 0.0f)
+		{
+			m_isActive = false;
+			m_isLifeTimeLimited = true;
+		}
+	}
+
+
 	////球の場合のみ//いったん
 	//Vector3 offset = Vector3(0, 50.0f, 0);//プレイヤーのモデルの中心は足元にあるので、当たり判定の中心をプレイヤーのモデルの中心から少し上にするためのオフセット
 	//if (m_type == ColliderType::Sphere)
@@ -65,7 +80,7 @@ Vector3 Collider::PushBack(Collider& other)
 	return Vector3(0, 0, 0);
 }
 
-void Collider::ColInit(Vector3 pos, Vector3 offset, float radius, ColliderType type, Tags tag, bool isActive,bool isTrigger)
+void Collider::ColInit(Vector3 pos, Vector3 offset, float radius, ColliderType type, Tags tag, bool isActive,bool isTrigger, float lifeTime)
 {
 	m_pos = pos;
 	m_offset = offset;//m_posからのoffset
@@ -74,6 +89,7 @@ void Collider::ColInit(Vector3 pos, Vector3 offset, float radius, ColliderType t
 	SetTag(tag);
 	SetIsActive(isActive);
 	m_isTrigger = isTrigger;
+	m_lifeTime = lifeTime;
 	//コライダーをコリジョンマネージャーに登録する
 	CollisionManager::GetInstance().RegisterCollider(this);
 }

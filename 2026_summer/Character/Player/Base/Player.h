@@ -148,6 +148,8 @@ private:
 	const float kPlayerRockOnRange = 1500.0f;//ロックオンする範囲//この範囲内に敵がいたらロックオンする
 	const float kJustAvoidRadius = 500.0f;//ジャスト回避の範囲
 
+
+
 	friend class PlayerState;//PlayerStateクラスから、Playerクラスのprivateメンバにアクセスできるようにする
 	friend class PlayerStateIdle;
 	friend class PlayerStateMove;

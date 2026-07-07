@@ -21,11 +21,14 @@ private:
 	void StartCombo(int comboIndex);//コンボを開始する関数//comboIndexは、次のコンボの段数
 	void AttackFinishProcess();//攻撃が終了したときの処理//コンボの段数を初期化するなど
 	int  SelectAnimInit();//アニメーションの初期化//コンボの段数によってアニメーションを変える
+	void InpuctAttackSetUp();//ドロップ攻撃後の吹き飛ばし用
 private:
 	AttackType m_attackType;//攻撃のタイプ//弱攻撃か強攻撃か
 	int m_nextComboIndex = -1;//次のコンボの段数
 	bool m_isComboInputReserved = false;//コンボ入力を受け付けたかどうかのフラグ
 	bool m_isSkillAttackReserved = false;//スキル攻撃の予約がされているかどうかのフラグ
 	std::shared_ptr<AttackCol> m_attackCol;//攻撃の当たり判定
+	
+
 };
 
