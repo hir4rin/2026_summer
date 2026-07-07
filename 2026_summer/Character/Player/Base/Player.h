@@ -102,7 +102,7 @@ struct AvoidInfo
 	bool isJustAvoid = false;//ジャスト回避かどうかのフラグ
 };
 
-class Player : public CharacterBase, public std::enable_shared_from_this<Player>//Playerクラスのインスタンスから、Playerクラスのshared_ptrを取得できるようになる
+class Player : public CharacterBase//Playerクラスのインスタンスから、Playerクラスのshared_ptrを取得できるようになる
 {
 public:
 	Player();
@@ -129,6 +129,11 @@ private:
 	bool IsAvoidable()const;//回避入力を受け付けるかどうか
 	void WingUpdate();//鴉状態の羽の更新
 	void ApplyPos()override;//座標の適用//Playerクラスでは、座標に加えて、首のボーンの回転も適用する
+
+	std::shared_ptr<Player> GetSharedPtr() {return std::dynamic_pointer_cast<Player>(shared_from_this());}
+
+	std::weak_ptr<Player> GetWeakPtr() {return GetSharedPtr();}
+
 private:
 	//コンボチェーン
 	std::vector<ComboNode> m_comboChain = {};//コンボのデータ

@@ -62,7 +62,7 @@ void EnemySwordman::Init()
 	//当たり判定の初期化j
 	ColInit(m_pos, Vector3(0, kEnemyCenter, 0), 80.0f, ColliderType::Sphere, Tags::Enemy, true);//中心点、半径、当たり判定のタイプ、タグ、当たり判定が有効かどうか
 	//やられ判定の初期化
-	InitHitCol(weak_from_this());
+	InitHitCol(GetWeakPtr());
 	m_hitCol->ColInit(m_pos, Vector3(0, kEnemyCenter, 0),120.0f, ColliderType::Sphere, Tags::EnemyHit, true,true);
 	//AttackColの生成
 	m_attackData = {
@@ -73,7 +73,7 @@ void EnemySwordman::Init()
 		.kAttackColOffset = 30.0f,
 		.isKirimomi = false
 	};
-	m_attackCol = std::make_shared<AttackCol>(weak_from_this(), m_attackData);
+	m_attackCol = std::make_shared<AttackCol>(GetWeakPtr(), m_attackData);
 
 	Vector3 offset = m_targetVec.Normalize() * m_attackData.kAttackColOffset + Vector3(0,kEnemyCenter,0);
 	m_attackCol->ColInit(m_pos, offset, 100.0f, ColliderType::Sphere, Tags::EnemyAttack, false, true);

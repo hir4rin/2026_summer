@@ -5,6 +5,7 @@ class Stage : public Collider
 public:
 	Stage();
 	~Stage();
+	void Init();
 	void Update();
 	void Draw()const;
 	void OnCollision(Collider& other)override;

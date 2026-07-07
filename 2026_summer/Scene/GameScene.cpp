@@ -49,6 +49,7 @@ GameScene::GameScene(SceneController& controller) :Scene(controller)
 	m_cameraManager->Update(m_player->GetPos());
 
 	m_stage = std::make_shared<Stage>();
+	m_stage->Init();
 	CollisionManager::GetInstance().Init();
 	//レンダーターゲットの作成
 	m_RT1 = MakeScreen(Game::kScreenWidth, Game::kScreenHeight, true);

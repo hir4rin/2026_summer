@@ -64,7 +64,7 @@ void Player::Init()
 	m_anim.Init(m_modelHandle,GetAnimName("Idle"), true);
 	//weak_from_this()は、shared_ptrを作成,
 	//Playerクラスのインスタンスから、Playerクラスのshared_ptrを取得できるようになる
-	m_currentState = std::make_shared<PlayerStateIdle>(weak_from_this());
+	m_currentState = std::make_shared<PlayerStateIdle>(GetWeakPtr());
 
 	//IDの取得
 	SetID();
@@ -72,12 +72,12 @@ void Player::Init()
 	//中心点、オフセット、半径、当たり判定のタイプ、タグ、当たり判定が有効かどうか
 	ColInit(m_pos, Vector3(0, kPlayerCenter, 0), 80.0f, ColliderType::Sphere, Tags::Player, true);
 	//やられ判定の初期化
-	InitHitCol(weak_from_this());
+	InitHitCol(GetWeakPtr());
 	m_hitCol->ColInit(m_pos, Vector3(0, kPlayerCenter, 0), 50.0f, ColliderType::Sphere, Tags::PlayerHit, true,true);
 	CharacterBase::ApplyPos();//座標の更新//モデルの座標を更新する
 	ChangeState(m_currentState);//初期化
 	//武器の生成
-	m_weapon = std::make_shared<Weapon>(weak_from_this());//武器の生成//Playerクラスのインスタンスから、Playerクラスのshared_ptrを取得できるようになる
+	m_weapon = std::make_shared<Weapon>(GetWeakPtr());//武器の生成//Playerクラスのインスタンスから、Playerクラスのshared_ptrを取得できるようになる
 	//effectの生成
 	m_efHandle = LoadEffekseerEffect("data/Effect/fire.efk",1.0f);
 }

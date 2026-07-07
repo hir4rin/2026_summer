@@ -10,8 +10,8 @@ class Collider;
 //衝突情報
 struct CollisionInfo
 {
-	Collider* colliderA;//衝突したコライダーA
-	Collider* colliderB;//衝突したコライダーB
+	std::shared_ptr<Collider> colliderA;//衝突したコライダーA
+	std::shared_ptr<Collider> colliderB;//衝突したコライダーB
 };
 //衝突時のコールバック関数の型//????//わからないから使わない
 using CollisionCallback = std::function<void(const CollisionInfo&)>;
@@ -26,8 +26,8 @@ public:
 		return instance;
 	}
 	//コライダーの登録・解除
-	void RegisterCollider(Collider* collider);
-	void ReleaseCollider(Collider* collider);
+	void RegisterCollider(std::shared_ptr<Collider> collider);//shared_ptrを参照で渡すと、参照カウントが増えない
+	void ReleaseCollider(std::shared_ptr<Collider> collider);
 	//初期化
 	void Init();
 
@@ -46,7 +46,7 @@ private:
 	CollisionManager& operator=(const CollisionManager&) = delete;
 
 	//すべてのコライダー
-	std::vector<Collider*> m_colliders;
+	std::vector<std::shared_ptr<Collider>> m_colliders;
 	//std::vector<std::pair<Collider::Tags, CollisionCallback>> m_callbacks;//衝突時のコールバック関数のリスト//????//わからないから使わない
 
 	//後々、コライダーを停止、再開する機能を追加するかも

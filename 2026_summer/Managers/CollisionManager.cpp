@@ -4,7 +4,7 @@
 #include <algorithm>
 #include <cassert>
 
-void CollisionManager::RegisterCollider(Collider* collider)
+void CollisionManager::RegisterCollider(std::shared_ptr<Collider> collider)
 {
 	//すでに登録されているかどうかを確認する
 	auto it = std::find(m_colliders.begin(), m_colliders.end(), collider);
@@ -20,7 +20,7 @@ void CollisionManager::RegisterCollider(Collider* collider)
 
 }
 
-void CollisionManager::ReleaseCollider(Collider* collider)
+void CollisionManager::ReleaseCollider(std::shared_ptr<Collider> collider)
 {
 	//登録されているものを探して、削除する
 	auto it = std::find(m_colliders.begin(), m_colliders.end(), collider);
@@ -64,7 +64,7 @@ void CollisionManager::Update()
 
 
 	//寿命が尽きたコライダーを削除する
-	std::erase_if(m_colliders, [](Collider* collider) 
+	std::erase_if(m_colliders, [](const std::shared_ptr<Collider>& collider) 
 		{
 			return collider->GetIsLifeTimeLimited();
 		});
@@ -73,14 +73,14 @@ void CollisionManager::Update()
 	//すべてのコライダーの組み合わせをチェックする//当たっているかの確認かつ、速度をいじる
 	for (size_t i = 0; i < m_colliders.size(); i++)
 	{
-		Collider* colliderA = m_colliders[i];
+		std::shared_ptr<Collider> colliderA = m_colliders[i];
 		if (!colliderA->IsActive())continue;
 		if (colliderA->GetTag() == Tags::StaticObject)continue;//静的オブジェクトがAの時無視
 
 		for (size_t j = i + 1; j < m_colliders.size(); j++)
 		{
 			
-			Collider* colliderB = m_colliders[j];
+			std::shared_ptr<Collider> colliderB = m_colliders[j];
 			//アクティブなコライダーだけをチェックする//ここ関数化
 			if (!colliderB)continue;
 			if (!colliderB->IsActive())continue;
@@ -139,7 +139,7 @@ void CollisionManager::DebugDraw() const
 	for (const auto& collider : m_colliders)
 	{
 		//アクティブなコライダーだけを描画する
-		if (collider != nullptr && collider->IsActive())
+		if (!collider && collider->IsActive())
 		collider->DebugDraw();
 	}
 }

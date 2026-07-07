@@ -58,7 +58,7 @@ struct CapsuleInfo
 /// <summary>
 /// MathVector3をincludeしないとつかえない
 /// </summary>
-class Collider abstract
+class Collider abstract : public std::enable_shared_from_this<Collider>
 {
 public:
 	Collider();

@@ -14,7 +14,7 @@ Collider::Collider():
 Collider::~Collider()
 {
 	//コライダーをコリジョンマネージャーから解除する
-	CollisionManager::GetInstance().ReleaseCollider(this);
+	CollisionManager::GetInstance().ReleaseCollider(shared_from_this());
 }
 
 void Collider::ColUpdate(Vector3 pos)
@@ -91,7 +91,7 @@ void Collider::ColInit(Vector3 pos, Vector3 offset, float radius, ColliderType t
 	m_isTrigger = isTrigger;
 	m_lifeTime = lifeTime;
 	//コライダーをコリジョンマネージャーに登録する
-	CollisionManager::GetInstance().RegisterCollider(this);
+	CollisionManager::GetInstance().RegisterCollider(shared_from_this());
 }
 
 void Collider::SetID()

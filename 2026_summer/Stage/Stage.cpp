@@ -5,7 +5,7 @@ Stage::Stage()
 {
 	m_stageModelHandle = MV1LoadModel("data/PreStage2/Stage2.mv1");
 	m_pos = Vector3(1200, -50, 2500);
-	ColInit(m_pos, Vector3(0, 0, 0), 0.0f, ColliderType::Polygon, Tags::StaticObject, true);
+	
 	// モデルのポリゴンの当たり判定を構築する(第二引数を-1にすると全てのポリゴンを対象にする)
 	MV1SetupCollInfo(m_stageModelHandle, -1);
 
@@ -13,6 +13,11 @@ Stage::Stage()
 	Matrix4x4 trans = Matrix4x4::FromDxLibMatrix(transmat);
 
 	MV1SetMatrix(m_stageModelHandle, Matrix4x4::ToDxLibMatrix(trans));
+}
+void Stage::Init()
+{
+	// 当たり判定の初期化
+	ColInit(m_pos, Vector3(0, 0, 0), 0.0f, ColliderType::Polygon, Tags::StaticObject, true);
 }
 
 Stage::~Stage()
