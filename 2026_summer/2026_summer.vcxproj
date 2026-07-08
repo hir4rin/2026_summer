@@ -152,7 +152,7 @@
     <ClCompile Include="Camera\MainCamera.cpp" />
     <ClCompile Include="Camera\LockOnCamera.cpp" />
     <ClCompile Include="JustAvoidCol.cpp" />
-    <ClCompile Include="Managers\EnemyManager.cpp" />
+    <ClCompile Include="Character\Enemy\EnemyManager.cpp" />
     <ClCompile Include="Managers\FixNextPosition.cpp" />
     <ClCompile Include="Managers\CollisionChecker.cpp" />
     <ClCompile Include="DataLoader\DataManager.cpp" />
@@ -200,7 +200,7 @@
     <ClInclude Include="Camera\MainCamera.h" />
     <ClInclude Include="Camera\LockOnCamera.h" />
     <ClInclude Include="JustAvoidCol.h" />
-    <ClInclude Include="Managers\EnemyManager.h" />
+    <ClInclude Include="Character\Enemy\EnemyManager.h" />
     <ClInclude Include="Managers\FixNextPosition.h" />
     <ClInclude Include="Managers\CollisionChecker.h" />
     <ClInclude Include="DataLoader\DataManager.h" />

@@ -5,6 +5,7 @@
 
 class CameraManager;
 class Stage;
+class SkyBox;
 class Player;
 class EnemySwordman;
 class EnemyManager;
@@ -32,6 +33,7 @@ private:
 	std::shared_ptr<EnemySwordman> m_enemySwordman;
 	std::shared_ptr<EnemyManager> m_enemyManager;
 	std::shared_ptr<Stage> m_stage;
+	std::shared_ptr<SkyBox> m_skyBox;
 
 	int m_gHandle1 = -1;
 	int m_gHandle2 = -1;

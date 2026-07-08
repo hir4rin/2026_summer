@@ -29,7 +29,7 @@ bool CollisionChecker::IsCollide(Collider& colA, Collider& colB)
 		//カプセル
 		else if (typeB == ColliderType::Capsule)
 		{
-			isHit = CheckCollCS(colA, colB);
+			isHit = CheckCollCS(colB, colA);
 		}
 		//ポリゴン
 		else if (typeB == ColliderType::Polygon)
@@ -62,12 +62,12 @@ bool CollisionChecker::IsCollide(Collider& colA, Collider& colB)
 		//球
 		if (typeB == ColliderType::Sphere)
 		{
-			isHit = CheckCollSP(colA, colB);
+			isHit = CheckCollSP(colB, colA);
 		}
 		//カプセル
 		else if (typeB == ColliderType::Capsule)
 		{
-			isHit = CheckCollCP(colA, colB);
+			isHit = CheckCollCP(colB, colA);
 		}
 		//ポリゴン
 		else if (typeB == ColliderType::Polygon)

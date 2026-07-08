@@ -43,7 +43,7 @@ void FixNextPosition::FixNextPos(Collider& colA, Collider& colB)
 		//カプセル
 		else if(typeB == ColliderType::Capsule)
 		{
-			FixNextPosCS(colA, colB);
+			FixNextPosCS(colB, colA);
 		}
 		//ポリゴン
 		else if(typeB == ColliderType::Polygon)
@@ -76,12 +76,12 @@ void FixNextPosition::FixNextPos(Collider& colA, Collider& colB)
 		//球
 		if (typeB == ColliderType::Sphere)
 		{
-			FixNextPosSP(colA, colB);
+			FixNextPosSP(colB, colA);
 		}
 		//カプセル
 		else if (typeB == ColliderType::Capsule)
 		{
-			FixNextPosCP(colA, colB);
+			FixNextPosCP(colB, colA);
 		}
 	}
 }

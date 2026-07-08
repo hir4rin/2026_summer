@@ -15,6 +15,11 @@ struct SpawnData
 	Vector3 pos;//座標
 	int waveNum;//ウェーブの番号
 };
+struct WaveData
+{
+	int waveNum;//ウェーブの番号
+	std::vector<std::shared_ptr<EnemyBase>> enemies;//敵の配列
+};
 
 class EnemyManager
 {
@@ -27,8 +32,9 @@ public:
 	std::shared_ptr<EnemyBase>& GetEnemy(int index) { return m_enemies[index];}
 	std::vector<std::shared_ptr<EnemyBase>>& GetEnemies(){ return m_enemies;}
 
-	bool IsAllEnemyLastHit()const;//全ての敵が最後の攻撃で倒されたかどうかを返す//カメラ演出の切り替えに使う予定
-
+	//敵をスポーンさせるかチェックし、スポーンさせる
+	void CheckSpawnWave();
+	void SpawnEnemies(int waveNum);
 private:
 	Vector3 m_startPos;//敵の座標
 
@@ -36,6 +42,7 @@ private:
 	std::vector<std::shared_ptr<EnemyBase>> m_enemies;//敵の配列
 	int enemyModelHandle = -1;//敵のモデルのハンドル//EnemySwordManのモデル
 	std::vector<SpawnData> m_spawnData;//敵のスポーンデータ
+	bool m_isSpawnedWave[3] = {};//ウェーブごとに敵がスポーンしたかどうかのフラグ
 
 };
 

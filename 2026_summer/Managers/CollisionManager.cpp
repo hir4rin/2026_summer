@@ -71,7 +71,7 @@ void CollisionManager::Update()
 	{
 		std::shared_ptr<Collider> colliderA = m_colliders[i];
 		if (!colliderA->IsActive())continue;
-		if (colliderA->GetTag() == Tags::StaticObject)continue;//静的オブジェクトがAの時無視
+		//if (colliderA->GetTag() == Tags::StaticObject)continue;//静的オブジェクトがAの時無視
 
 		for (size_t j = i + 1; j < m_colliders.size(); j++)
 		{
@@ -80,6 +80,9 @@ void CollisionManager::Update()
 			//アクティブなコライダーだけをチェックする//ここ関数化
 			if (!colliderB)continue;
 			if (!colliderB->IsActive())continue;
+			//静的オブジェクト同士の時無視
+			if (colliderA->GetTag() == Tags::StaticObject &&
+				colliderB->GetTag() == Tags::StaticObject)continue;
 			//それぞれの速度の更新
 			float timescale = System::GetInstance().GetTimeScale();
 			//ここですべての速度にtimescaleをかける

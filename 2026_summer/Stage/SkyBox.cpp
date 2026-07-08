@@ -17,13 +17,12 @@ namespace
 
 
 
-SkyBox::SkyBox(Camera& camera)
+SkyBox::SkyBox()
 {
 	for (int i = 0; i < kFaceNum; i++)
    {
 	   m_textureHandle[i] = -1;//テクスチャハンドルを-1で初期化
    }
-	Init(camera);
 }
 
 SkyBox::~SkyBox()
@@ -35,7 +34,7 @@ SkyBox::~SkyBox()
 	}
 }
 
-void SkyBox::Init(Camera& camera)
+void SkyBox::Init(std::weak_ptr<Camera> camera)
 {
 	m_textureHandle[kFront] = LoadGraph("data/SkyBox/front.png");
 	m_textureHandle[kBack] = LoadGraph("data/SkyBox/back.png");
@@ -51,12 +50,16 @@ void SkyBox::Init(Camera& camera)
 			printfDx("SkyBox texture %d の読み込みに失敗しました\n", i);
 		}
 	}
-	Update(camera);
+	m_camera = camera;
+	Update();
 }
 
-void SkyBox::Update(Camera& camera)
+void SkyBox::Update()
 {
-	Vector3 cameraPos = camera.GetCameraPos();
+	auto camera = m_camera.lock();
+	if (!camera)return;
+
+	Vector3 cameraPos = camera->GetCameraPos();
 	const float size = kSize;
 	const float x = cameraPos.x;
 	const float y = cameraPos.y;

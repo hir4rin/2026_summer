@@ -5,11 +5,12 @@
 #include "Player.h"
 #include "../Character/Enemy/Swordman/EnemySwordman.h"
 #include "../Stage/Stage.h"
+#include "../Stage/SkyBox.h"
 #include "../Game.h"
 #include "../System.h"
 #include "../Input.h"
 #include "EffekseerForDXLib.h"
-#include "../Managers/EnemyManager.h"
+#include "../Character/Enemy/EnemyManager.h"
 #include "../SubWindow/SubWindow.h"
 
 namespace
@@ -48,8 +49,13 @@ GameScene::GameScene(SceneController& controller) :Scene(controller)
 	m_cameraManager->Init(std::weak_ptr<Player>(m_player));
 	m_cameraManager->Update(m_player->GetPos());
 
+	//ステージの初期化
 	m_stage = std::make_shared<Stage>();
 	m_stage->Init();
+	//スカイボックスの初期化
+	m_skyBox = std::make_shared<SkyBox>();
+	m_skyBox->Init(std::weak_ptr<Camera>(m_cameraManager->GetMainCamera()));
+
 	CollisionManager::GetInstance().Init();
 	//レンダーターゲットの作成
 	m_RT1 = MakeScreen(Game::kScreenWidth, Game::kScreenHeight, true);
@@ -92,6 +98,7 @@ void GameScene::NormalUpdate()
 	m_player->Update(*m_cameraManager->GetHighestPriorityCamera());
 	m_enemyManager->Update();
 	m_stage->Update();
+	m_skyBox->Update();
 	CollisionManager::GetInstance().Update();
 	System::GetInstance().Update();
 }
@@ -122,6 +129,7 @@ void GameScene::NormalDraw()
 	SetDrawScreen(m_RT1); ClearDrawScreen();
 	m_cameraManager->ApplyCameraSettings();
 	//赤くする
+	m_skyBox->Draw();
 	m_stage->Draw();
 	if (isUlt)
 	{

@@ -136,5 +136,18 @@ void LockOnCamera::CameraSetting()
 
 void LockOnCamera::Draw()
 {
+	auto cameraManager = m_cameraManager.lock();
+	auto enemy = m_cameraContext->m_targetEnemy.lock();
+	auto player = m_cameraContext->m_player.lock();
+	if (!enemy)return;
+	if (!player)return;
+
 	DrawSphere3D(m_pos.ToDxLibVector(), 10.0f, 16, GetColor(255, 0, 0), GetColor(255, 0, 0), true);
+	//このカメラがメインカメラの時、デバッグ
+	if (cameraManager->GetHighestPriorityCamera()->GetCameraType() == Camera::Type::LockOnCamera)
+	{
+		Vector3 startPos = player->GetPos() + Vector3(0,100,0);
+		Vector3 endPos = enemy->GetPos() + Vector3(0,100,0);
+		DrawLine3D(startPos.ToDxLibVector(), endPos.ToDxLibVector(), GetColor(0, 0, 255));
+	}
 }
