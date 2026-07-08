@@ -180,6 +180,7 @@
     <ClCompile Include="Math\Vector3.cpp" />
     <ClCompile Include="Scene\Scene.cpp" />
     <ClCompile Include="Scene\SceneController.cpp" />
+    <ClCompile Include="Stage\SkyBox.cpp" />
     <ClCompile Include="Stage\Stage.cpp" />
     <ClCompile Include="SubWindow\SubWindow.cpp" />
     <ClCompile Include="System.cpp" />
@@ -229,6 +230,7 @@
     <ClInclude Include="Math\Vector3.h" />
     <ClInclude Include="Scene\Scene.h" />
     <ClInclude Include="Scene\SceneController.h" />
+    <ClInclude Include="Stage\SkyBox.h" />
     <ClInclude Include="Stage\Stage.h" />
     <ClInclude Include="SubWindow\SubWindow.h" />
     <ClInclude Include="System.h" />
