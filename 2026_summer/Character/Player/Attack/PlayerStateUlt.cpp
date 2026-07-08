@@ -1,0 +1,112 @@
+﻿#include "PlayerStateUlt.h"
+#include "../../../Input.h"
+#include "../../AttackCol.h"
+#include "Player.h"
+
+namespace
+{
+	constexpr float kPlayerCenter = 100.0f;//プレイヤーの当たり判定の中心点までのy軸の距離
+}
+	
+
+PlayerStateUlt::PlayerStateUlt(std::weak_ptr<Player> player):
+	PlayerState(player)
+{
+	//playerが既に破棄されていたら早期リターンする//trueで破棄されている
+	if (m_owner.expired())return;
+}
+
+PlayerStateUlt::~PlayerStateUlt()
+{
+}
+
+void PlayerStateUlt::Enter()
+{
+	auto player = m_owner.lock();
+	if (!player) return;
+	//攻撃の方向を決める
+	DetermineAttackDirection();	
+	//アニメーションを流す
+
+	//攻撃の当たり判定を生成する
+	player->m_attackData = {
+	.attackPower = 500,
+	.knockBackPower = Vector3(0, 0,0),
+	//.knockBackPower = Vector3(0.0f,node.knockBackY,0.0f),//吹き飛ばない攻撃にする
+	.knockBackFrame = 0,
+	.hitStopTime = 0.1f,
+	.kAttackColOffset = 30.0f,
+	.isKirimomi = false
+	};
+	m_attackCol = std::make_shared<AttackCol>(m_owner, player->m_attackData);
+	Vector3 offset = player->m_targetVec * player->m_attackData.kAttackColOffset
+		+ Vector3(0, kPlayerCenter, 0);//プレイヤーの前方に50.0f、y軸方向にkPlayerCenterだけオフセットする
+	m_attackCol->ColInit(player->m_pos, offset, 150.0f,
+							ColliderType::Sphere, Tags::PlayerAttack, true, true);//攻撃の当たり判定を初期化する//最初は無効にしておく
+	m_attackCol->SetIsActive(false);//最初は当たり判定を無効にしておく
+}
+
+void PlayerStateUlt::Update()
+{
+	//攻撃の当たり判定を有効にする
+
+
+	//アニメーションが終わったらアイドルに戻す
+	//ウルトはおそらくすぐに他の物からキャンセルして出せるようにする（RB&X）のボタン押し
+
+}
+
+void PlayerStateUlt::Exit()
+{
+	//攻撃の当たり判定を削除する//
+	if (m_attackCol)
+	{
+		CollisionManager::GetInstance().ReleaseCollider(m_attackCol);//当たり判定を削除する
+		m_attackCol->SetIsActive(false);
+		m_attackCol->SetLifeTimeLimited();
+		m_attackCol.reset();
+	}
+}
+
+void PlayerStateUlt::DebugDraw()
+{
+}
+
+void PlayerStateUlt::DetermineAttackDirection()
+{
+	auto player = m_owner.lock();
+	if (!player) return;
+
+	auto& input = Input::GetInstance();
+	auto& camera = player->m_camera;
+	Vector3 attackDir = Vector3(0, 0, 0);
+
+	//攻撃の方向を決める//カメラの向きと入力から、回避の方向を決める
+	if (input.IsPressed("Up"))
+	{
+		attackDir += player->forward;
+	}
+	if (input.IsPressed("Down"))
+	{
+		attackDir += player->down;
+	}
+	if (input.IsPressed("Left"))
+	{
+		attackDir += player->left;
+	}
+	if (input.IsPressed("Right"))
+	{
+		attackDir += player->right;
+	}
+	//入力がないときは、playerの向いている方向に進む//あるときはその方向に進む//この処理に問題があるらしい
+	if (attackDir.Magnitude() <= 0.0f)
+	{
+		player->m_targetVec = player->m_targetVec.Normalize();
+		//player->m_targetVec = player->forward.Normalize();
+	}
+	else
+	{
+		player->m_targetVec = attackDir.Normalize();
+	}
+
+}

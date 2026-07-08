@@ -9,6 +9,7 @@
 #include "PlayerStateAvoid.h"//以下同文
 #include "PlayerStateAttack.h"//以下同文
 #include "PlayerStateSkillAttack.h"//以下同文
+#include "PlayerStateUlt.h"//以下同文
 #include "PlayerStateDashAttack.h"//以下同文
 #include "../../../DataLoader/PlayerAnimData.h"
 #include <memory>
@@ -164,6 +165,7 @@ private:
 	friend class PlayerStateAvoid;
 	friend class PlayerStateAttack;
 	friend class PlayerStateSkillAttack;
+	friend class PlayerStateUlt;
 	friend class PlayerStateDashAttack;
 
 };
