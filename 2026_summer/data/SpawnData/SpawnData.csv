@@ -2,5 +2,10 @@
 swordman,0,0,500,1
 swordman,-300,0,800,1
 swordman,-600,0,-500,1
-swordman,-600,0,-1000,1
+swordman,-600,0,-600,1
 swordman,-500,0,-100,1
+swordman,300,0,100,2
+swordman,-300,0,-100,2
+swordman,500,0,-300,2
+swordman,500,0,-500,3
+swordman,700,0,-700,3

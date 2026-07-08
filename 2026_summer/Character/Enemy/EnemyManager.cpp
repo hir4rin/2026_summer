@@ -54,6 +54,23 @@ void EnemyManager::Init()
 		spawn.name = data[0];
 		spawn.pos = Vector3(std::stof(data[1]), std::stof(data[2]), std::stof(data[3]));
 		spawn.waveNum = std::stoi(data[4]);
+		//waveNumに応じて、ワールド座標を足す
+		switch (spawn.waveNum)
+		{
+		case 1:
+			spawn.pos += kSpawnWave1;
+			break;
+		case 2:
+			spawn.pos += kSpawnWave2;
+			break;
+		case 3:
+			spawn.pos += kSpawnWave3;
+			break;
+		default:
+			assert(false && "Invalid wave number!");
+			break;
+		}
+
 		m_spawnData.push_back(spawn);
 	}
 	//falseのとき、m_spawnDataが空のとき、assertを出す
@@ -81,17 +98,33 @@ void EnemyManager::Update()
 	//プレイヤーの現在の位置によって、敵を出す
 	CheckSpawnWave();
 
-
 	for (auto& enemy : m_enemies)
 	{
 		enemy->Update();
 	}
-	//敵が死んでいるかどうかをチェックして、死んでいる敵を消す//Updateと分けるのが、普通
-	//std::erase_if(m_enemies, [](const std::shared_ptr<Enemy>&enemy)
-	//{
-	//	return enemy->IsDead();
-	//}
-	//);
+
+	//敵が死んでいるかどうかをチェックして、死んでいる敵を消す
+	//remove_ifで死んでいる敵を末尾に移動//その開始位置を返す
+	auto removeStart = std::remove_if(m_enemies.begin(),m_enemies.end(),
+		[](const std::shared_ptr<CharacterBase>& enemy)
+		{
+			return enemy->GetIsDead();
+		});
+	for(auto it = removeStart; it != m_enemies.end(); ++it)
+	{
+		//Colliderを開放//やられ判定、攻撃判定
+	/*	CollisionManager::GetInstance().ReleaseCollider((*it)->GetHitCol());
+		CollisionManager::GetInstance().ReleaseCollider((*it)->GetCollider());*/
+		
+	}
+	
+
+
+	std::erase_if(m_enemies, [](const std::shared_ptr<CharacterBase>&enemy)
+	{
+		return enemy->GetIsDead();
+	}
+	);
 }
 
 void EnemyManager::Draw()
@@ -108,9 +141,27 @@ void EnemyManager::CheckSpawnWave()
 	if (!player)return;
 	Vector3 playerPos = player->GetPos();
 	playerPos.y = 0.0f;
-	float spawnWaveDistance = (playerPos - kSpawnWave1).Magnitude();
+	
 	for(int i = 0; i < 3; i++)
 	{
+		Vector3 pos;
+		switch(i)
+		{
+		case 0:
+			pos = kSpawnWave1;
+			break;
+		case 1:
+			pos = kSpawnWave2;
+			break;
+		case 2:
+			pos = kSpawnWave3;
+			break;
+		default:
+			assert(false && "Invalid wave number!");
+			break;
+		}
+		float spawnWaveDistance = (playerPos - pos).Magnitude();
+
 		if(spawnWaveDistance < kSpawnWave1Distance && !m_isSpawnedWave[i])
 		{
 			// Wave 1の敵をスポーンさせる処理

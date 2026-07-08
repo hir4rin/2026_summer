@@ -80,6 +80,7 @@ void EnemySwordman::Init()
 
 }
 
+
 void EnemySwordman::Update()
 {
 	auto player = m_player.lock();
@@ -259,6 +260,14 @@ void EnemySwordman::Update()
 				m_vel = m_knockBackVel;
 				if (IsFloor())
 				{
+					if(m_isDieOut)
+					{
+						m_isDead = true;
+						ChangeState(EnemyState::Dead);
+						return;
+					}
+
+
 					//m_pos.y = 0.0f;
 					m_vel.y = 0.0f;
 					m_knockBackVel.y = 0.0f;
@@ -392,19 +401,33 @@ void EnemySwordman::OnDamage(Collider& other, AttackData& data)
 	auto player = m_player.lock();
 	if (!player)return;
 
+
+
 	//データの保存
 	m_attackData = data;
 
 	//死亡していたら処理しない
 	if (m_isDead)return;
+	//死亡吹っ飛び中は処理しない
+	if (m_isDieOut)return;
+
 	//Playerの攻撃データをもとに被ダメ処理をする
 	m_hp -= data.attackPower;
 	if (m_hp <= 0)
 	{
 		m_hp = 0;
-		m_isDead = true;
-		ChangeState(EnemyState::Dead);
-		return;
+		if (m_attackData.isKirimomi)
+		{
+			m_isDieOut = true;
+		}
+		else
+		{
+			
+			ChangeState(EnemyState::Dead);
+			return;
+		}
+		
+		
 	}
 
 	//Enemy->Playerのベクトルに吹き飛ばす力を加える//プレイヤーの正面に行くようにknockBackする//いずれkirimomi吹っ飛びの時の処理と分ける

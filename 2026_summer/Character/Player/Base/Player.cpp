@@ -24,9 +24,11 @@ namespace
 
 Player::Player()
 {
+	
 	//m_modelHandle = MV1LoadModel("data/Player/Player.mv1");
 	//m_modelHandle = MV1LoadModel("data/Player/Player_Init.mv1");
 	m_modelHandle = MV1LoadModel("data/Player/Player_true.mv1");
+	//m_modelHandle = MV1LoadModel("data/Player/1danme.mv1");
 	//モデルの初期位置を設定する//前を向いているようにする
 	Matrix4x4 rotY = Matrix4x4::MakeRotationY(DX_PI_F);
 	MATRIX transmat = MGetTranslate(m_pos.ToDxLibVector());

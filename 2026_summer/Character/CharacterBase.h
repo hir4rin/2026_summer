@@ -49,6 +49,10 @@ public:
 	Vector3 GetForward() const { return forward; }//前方向のベクトルを返す
 	//const AttackData& GetAttackData() { return m_attackData; }//攻撃データの取得
 	virtual void OnDamage(Collider& other,AttackData& data)=0;//ダメージを受けた時の処理
+
+	bool GetIsDead()const { return m_isDead; }//死んでいるかどうかのフラグを返す
+	std::shared_ptr<HitCol> GetHitCol() { return m_hitCol; }//やられ判定の取得
+
 protected:
 	void UpdateAngleAndPos();//回転角度と座標の更新//
 	void ApplyPos()override;
@@ -81,6 +85,7 @@ protected:
 	bool m_isGround = true;//地面にいるかどうか
 	bool m_isHit = false;//攻撃を喰らったか
 	bool m_isDead = false;//死んでいるか
+	bool m_isDieOut = false;//吹っ飛び途中で消える処理を行うかどうか
 	bool m_isAttackHit = false;//攻撃が当たったか
 	//参照用のカメラ
 	Camera* m_camera;
