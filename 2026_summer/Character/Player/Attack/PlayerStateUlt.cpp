@@ -27,6 +27,7 @@ void PlayerStateUlt::Enter()
 	//攻撃の方向を決める
 	DetermineAttackDirection();	
 	//アニメーションを流す
+	player->m_anim.ChangeAnim(player->GetAnimName("UltAttack"), false, 1.0f);
 
 	//攻撃の当たり判定を生成する
 	player->m_attackData = {
@@ -42,17 +43,48 @@ void PlayerStateUlt::Enter()
 	Vector3 offset = player->m_targetVec * player->m_attackData.kAttackColOffset
 		+ Vector3(0, kPlayerCenter, 0);//プレイヤーの前方に50.0f、y軸方向にkPlayerCenterだけオフセットする
 	m_attackCol->ColInit(player->m_pos, offset, 150.0f,
-							ColliderType::Sphere, Tags::PlayerAttack, true, true);//攻撃の当たり判定を初期化する//最初は無効にしておく
-	m_attackCol->SetIsActive(false);//最初は当たり判定を無効にしておく
+							ColliderType::Sphere, Tags::PlayerUltAttack, false, true);//攻撃の当たり判定を初期化する//最初は無効にしておく
+	//m_attackCol->SetIsActive(false);//最初は当たり判定を無効にしておく
 }
 
 void PlayerStateUlt::Update()
 {
 	//攻撃の当たり判定を有効にする
+	auto player = m_owner.lock();
+	if (!player) return;
+	auto& input = Input::GetInstance();
 
+
+	float rate = player->m_anim.GetAnimRate();
+	if(rate > 0.5f && rate < 0.9f)
+	{
+		m_attackCol->SetIsActive(true);
+	}
+	else
+	{
+		m_attackCol->SetIsActive(false);
+	}
 
 	//アニメーションが終わったらアイドルに戻す
-	//ウルトはおそらくすぐに他の物からキャンセルして出せるようにする（RB&X）のボタン押し
+	//ウルトはおそらくすぐに他の物からキャンセルして出せるようにする（LB&Y）のボタン押し
+	if(player->m_anim.GetAnimEndFlag())
+	{
+
+		if(input.IsLeftStickInput())
+		{
+			player->ChangeState(std::make_shared<PlayerStateMove>(m_owner));
+			return;
+		}
+		else
+		{
+			player->ChangeState(std::make_shared<PlayerStateIdle>(m_owner));
+			return;
+		}
+	}
+
+
+	//アニメーションの更新
+	player->m_anim.Update();
 
 }
 

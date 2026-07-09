@@ -22,6 +22,7 @@ enum class Tags
 	Player,
 	PlayerHit,
 	PlayerAttack,
+	PlayerUltAttack,
 	Enemy,
 	EnemyHit,
 	EnemyAttack,
@@ -100,7 +101,7 @@ public:
 	
 	
 	//ゲッター
-	Collider* GetCollider() { return this; }
+	std::shared_ptr<Collider> GetCollider() { return shared_from_this(); }
 	float GetCenter()const { return m_center; }
 	float GetRadius()const { return m_radius; }
 	ColliderType GetType()const { return m_type; }

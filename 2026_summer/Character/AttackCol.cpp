@@ -36,6 +36,10 @@ void AttackCol::OnCollision(Collider& other)
 			//EnemyHitに当たったら処理する
 			PlayerAttackOnCollision(other);
 			break;
+		case Tags::PlayerUltAttack:
+			//EnemyHitに当たったら処理する
+			PlayerAttackOnCollision(other);
+			break;
 		case Tags::EnemyAttack:
 			EnemyAttackOnCollision(other);
 			break;
@@ -108,8 +112,7 @@ void AttackCol::PlayerAttackOnCollision(Collider& other)
 				comboInfo.isHit = true;//攻撃が当たったことを通知する//これで、攻撃の移動を止める
 			}
 			//もしプレイヤーの攻撃だったら
-			auto player = std::dynamic_pointer_cast<Player>(m_owner.lock());
-			if (player)
+			if (GetTag() == Tags::PlayerUltAttack)
 			{
 				//演出が始まっていなかったら
 				bool isUltStart = System::GetInstance().GetIsUltimating();

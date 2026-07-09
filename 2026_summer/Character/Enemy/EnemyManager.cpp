@@ -48,7 +48,7 @@ void EnemyManager::Init()
 {
 	auto& spawnData = DataManager::GetInstance().GetSpawnData();
 
-	for(const auto& data : spawnData)
+	for (const auto& data : spawnData)
 	{
 		SpawnData spawn;
 		spawn.name = data[0];
@@ -104,23 +104,39 @@ void EnemyManager::Update()
 	}
 
 	//敵が死んでいるかどうかをチェックして、死んでいる敵を消す
-	//remove_ifで死んでいる敵を末尾に移動//その開始位置を返す
-	auto removeStart = std::remove_if(m_enemies.begin(),m_enemies.end(),
-		[](const std::shared_ptr<CharacterBase>& enemy)
-		{
-			return enemy->GetIsDead();
-		});
-	for(auto it = removeStart; it != m_enemies.end(); ++it)
+	//remove_ifで死んでいる敵を前方に移動//それらが終わった後の開始位置を返す
+	for (auto& enemy : m_enemies)
 	{
-		//Colliderを開放//やられ判定、攻撃判定
-	/*	CollisionManager::GetInstance().ReleaseCollider((*it)->GetHitCol());
-		CollisionManager::GetInstance().ReleaseCollider((*it)->GetCollider());*/
-		
+		if (!enemy->GetIsDead())continue;
+
+		auto col = enemy->GetCollider();
+		if (col)
+		{
+			CollisionManager::GetInstance().ReleaseCollider(col);
+		}
+
 	}
-	
+
+	//auto removeStart = std::remove_if(m_enemies.begin(),m_enemies.end(),
+	//	[](const std::shared_ptr<CharacterBase>& enemy)
+	//	{
+	//		return enemy->GetIsDead();
+	//	});
+	//for(auto it = removeStart; it != m_enemies.end(); ++it)
+	//{
+	//	//Colliderを開放
+	//	auto col = (*it)->GetCollider();
+	//	if (col)
+	//	{
+	//		CollisionManager::GetInstance().ReleaseCollider(col);
+	//	}
+	//}
+	//敵を削除
+	//m_enemies.erase(removeStart, m_enemies.end());
 
 
-	std::erase_if(m_enemies, [](const std::shared_ptr<CharacterBase>&enemy)
+
+	std::erase_if(m_enemies, [](const std::shared_ptr<CharacterBase>& enemy)
 	{
 		return enemy->GetIsDead();
 	}
@@ -141,11 +157,11 @@ void EnemyManager::CheckSpawnWave()
 	if (!player)return;
 	Vector3 playerPos = player->GetPos();
 	playerPos.y = 0.0f;
-	
-	for(int i = 0; i < 3; i++)
+
+	for (int i = 0; i < 3; i++)
 	{
 		Vector3 pos;
-		switch(i)
+		switch (i)
 		{
 		case 0:
 			pos = kSpawnWave1;
@@ -162,7 +178,7 @@ void EnemyManager::CheckSpawnWave()
 		}
 		float spawnWaveDistance = (playerPos - pos).Magnitude();
 
-		if(spawnWaveDistance < kSpawnWave1Distance && !m_isSpawnedWave[i])
+		if (spawnWaveDistance < kSpawnWave1Distance && !m_isSpawnedWave[i])
 		{
 			// Wave 1の敵をスポーンさせる処理
 			SpawnEnemies(i + 1);
@@ -175,14 +191,14 @@ void EnemyManager::SpawnEnemies(int waveNum)
 {
 	//waveNumの敵を入れる
 	std::vector<SpawnData>dataEnemies;
-	for(auto& data : m_spawnData)
+	for (auto& data : m_spawnData)
 	{
-		if(data.waveNum == waveNum)
+		if (data.waveNum == waveNum)
 		{
 			dataEnemies.push_back(data);
 		}
 	}
-	for(auto& data : dataEnemies)
+	for (auto& data : dataEnemies)
 	{
 		int handle = MV1DuplicateModel(enemyModelHandle);
 		//生成、初期化

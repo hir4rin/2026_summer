@@ -16,6 +16,7 @@ namespace
 	const std::string kKirimomi = "Player|kirimomi";
 	const std::string kKirimomi2 = "Player|kirimomi2";
 	const std::string kBack = "Player|dodge_bac";
+	const std::string kDie = "Player|Die";
 
 
 	constexpr float kEnemyCenter = 100.0f;//敵の当たり判定の中心点までのy軸の距離
@@ -36,7 +37,7 @@ namespace
 EnemySwordman::EnemySwordman(std::weak_ptr<Player> player, Vector3 pos, int modelHandle) : EnemyBase(player)
 {
 	m_pos = pos;//初期位置
-	m_hp = 1500;//体力
+	m_hp = 500;//体力
 	//モデルのハンドルをセット
 	m_modelHandle = modelHandle;
 	//モデルの初期位置を設定する
@@ -416,6 +417,9 @@ void EnemySwordman::OnDamage(Collider& other, AttackData& data)
 	if (m_hp <= 0)
 	{
 		m_hp = 0;
+		//当たり判定を解除する
+		Terminate();
+
 		if (m_attackData.isKirimomi)
 		{
 			m_isDieOut = true;
@@ -450,6 +454,18 @@ void EnemySwordman::OnDamage(Collider& other, AttackData& data)
 	DrawFormatString(500, 0, GetColor(255, 0, 0), "EnemySwordman: OnDamage");
 	//stateをHItにする
 	ChangeState(EnemyState::Hit);
+}
+
+void EnemySwordman::Terminate()
+{
+	if (m_attackCol)
+	{
+		CollisionManager::GetInstance().ReleaseCollider(m_attackCol);
+	}
+	if(m_hitCol)
+	{
+		CollisionManager::GetInstance().ReleaseCollider(m_hitCol);
+	}
 }
 
 void EnemySwordman::ChangeState(EnemyState newState)
@@ -543,7 +559,7 @@ void EnemySwordman::ChangeState(EnemyState newState)
 		break;
 	case EnemyState::Dead:
 		//死亡アニメーションを流す
-		//m_anim.ChangeAnim
+		m_anim.ChangeAnim(kDie, false, 0.5f);
 		break;
 	default:
 		break;

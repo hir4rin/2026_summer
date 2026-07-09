@@ -12,3 +12,4 @@ wallKick,Player|kabeKick
 DashAttack,Player|ChangeDirection
 JumpUp,Player|JumpUp
 JumpDown,Player|JumpDown
+UltAttack,Player|AirAttack4
