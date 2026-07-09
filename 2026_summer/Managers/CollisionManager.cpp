@@ -89,7 +89,6 @@ void CollisionManager::Update()
 			colliderA->m_vel *= timescale * colliderA->GetTimeScale();
 			colliderB->m_vel *= timescale * colliderB->GetTimeScale();
 			//衝突判定//球と球、BoxとBox、CapsuleとCapsuleとかで分ける
-			//球と球
 			if (m_collisionChecker->IsCollide(*colliderA, *colliderB))
 			{
 

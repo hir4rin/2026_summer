@@ -2,6 +2,7 @@
 #include "../../../Input.h"
 #include "../../AttackCol.h"
 #include "Player.h"
+#include "../../../SubWindow/SubWindow.h"
 
 namespace
 {
@@ -102,6 +103,8 @@ void PlayerStateUlt::Exit()
 
 void PlayerStateUlt::DebugDraw()
 {
+	DrawFormatString(10, 10, GetColor(255, 255, 255), "PlayerState:Ult");
+	SubWindow::AddText("PlayerState:Ult");
 }
 
 void PlayerStateUlt::DetermineAttackDirection()

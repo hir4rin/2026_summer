@@ -173,6 +173,8 @@
     <ClCompile Include="Character\Player\Locomotion\PlayerStateFall.cpp" />
     <ClCompile Include="Character\Player\Attack\PlayerStateSkillAttack.cpp" />
     <ClCompile Include="Character\Player\Attack\PlayerStateUlt.cpp" />
+    <ClCompile Include="Character\Player\Defence\PlayerStateHit.cpp" />
+    <ClCompile Include="Character\Player\Defence\PlayerStateDie.cpp" />
     <ClCompile Include="Scene\GameScene.cpp" />
     <ClCompile Include="Input.cpp" />
     <ClCompile Include="main.cpp" />
@@ -225,6 +227,8 @@
     <ClInclude Include="Character\Player\Locomotion\PlayerStateFall.h" />
     <ClInclude Include="Character\Player\Attack\PlayerStateSkillAttack.h" />
     <ClInclude Include="Character\Player\Attack\PlayerStateUlt.h" />
+    <ClInclude Include="Character\Player\Defence\PlayerStateHit.h" />
+    <ClInclude Include="Character\Player\Defence\PlayerStateDie.h" />
     <ClInclude Include="Scene\GameScene.h" />
     <ClInclude Include="Input.h" />
     <ClInclude Include="Math\Matrix4x4.h" />

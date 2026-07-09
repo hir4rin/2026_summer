@@ -398,11 +398,8 @@ void EnemySwordman::OnCollision(Collider& other)
 
 void EnemySwordman::OnDamage(Collider& other, AttackData& data)
 {
-
 	auto player = m_player.lock();
 	if (!player)return;
-
-
 
 	//データの保存
 	m_attackData = data;
@@ -411,7 +408,6 @@ void EnemySwordman::OnDamage(Collider& other, AttackData& data)
 	if (m_isDead)return;
 	//死亡吹っ飛び中は処理しない
 	if (m_isDieOut)return;
-
 	//Playerの攻撃データをもとに被ダメ処理をする
 	m_hp -= data.attackPower;
 	if (m_hp <= 0)
@@ -426,14 +422,10 @@ void EnemySwordman::OnDamage(Collider& other, AttackData& data)
 		}
 		else
 		{
-			
 			ChangeState(EnemyState::Dead);
 			return;
 		}
-		
-		
 	}
-
 	//Enemy->Playerのベクトルに吹き飛ばす力を加える//プレイヤーの正面に行くようにknockBackする//いずれkirimomi吹っ飛びの時の処理と分ける
 	Vector3 front = player->GetTargetVec();
 	Vector3 pos = player->GetPos() + player->GetVel();
@@ -487,6 +479,7 @@ void EnemySwordman::ChangeState(EnemyState newState)
 	case EnemyState::Attack:
 		m_vel = Vector3(0, 0, 0);
 		m_attackCol->SetIsActive(false);
+		m_attackCol->ClearHitIds();
 		break;
 	case EnemyState::Back:
 		m_vel = Vector3(0, 0, 0);

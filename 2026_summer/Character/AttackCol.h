@@ -12,6 +12,8 @@ public:
 	virtual ~AttackCol();
 	void OnCollision(Collider& other) override;
 	void ApplyPos() override;
+
+	void ClearHitIds() { m_hitIds.clear(); }//当たったIDのリストをクリアする//攻撃が終わったら呼ぶ
 private:
 	std::weak_ptr<CharacterBase> m_owner;//当たり判定を持つキャラクターへの弱参照
 	//当たったidのリスト

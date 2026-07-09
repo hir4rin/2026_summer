@@ -7,9 +7,11 @@
 #include "PlayerStateJump.h"//以下同文
 #include "PlayerStateFall.h"//以下同文
 #include "PlayerStateAvoid.h"//以下同文
+#include "PlayerStateHit.h"//以下同文
 #include "PlayerStateAttack.h"//以下同文
 #include "PlayerStateSkillAttack.h"//以下同文
 #include "PlayerStateUlt.h"//以下同文
+#include "PlayerStateDie.h"//以下同文
 #include "PlayerStateDashAttack.h"//以下同文
 #include "../../../DataLoader/PlayerAnimData.h"
 #include <memory>
@@ -102,6 +104,12 @@ struct AvoidInfo
 	bool isAvoidBack = false;//後ろに回避するかどうかのフラグ	
 	bool isJustAvoid = false;//ジャスト回避かどうかのフラグ
 };
+struct DamageInfo
+{
+	float damageTimer = 0.0f;//被ダメ後無敵時間
+	const float kDamageTime = 180.0f;//被ダメ後無敵時間の長さ
+};
+
 
 class Player : public CharacterBase//Playerクラスのインスタンスから、Playerクラスのshared_ptrを取得できるようになる
 {
@@ -140,6 +148,7 @@ private:
 	std::vector<ComboNode> m_comboChain = {};//コンボのデータ
 	ComboInfo m_comboInfo = {};//コンボの情報//現在のコンボの段数などを管理するためのもの
 	AvoidInfo m_avoidInfo = {};//回避の情報
+	DamageInfo m_damageInfo = {};//被ダメ後無敵時間の情報
 
 	std::shared_ptr<PlayerState> m_currentState;//プレイヤーの状態//攻撃中、移動中など//状態遷移の管理をするためのもの
 
@@ -163,9 +172,11 @@ private:
 	friend class PlayerStateJump;
 	friend class PlayerStateFall;
 	friend class PlayerStateAvoid;
+	friend class PlayerStateHit;
 	friend class PlayerStateAttack;
 	friend class PlayerStateSkillAttack;
 	friend class PlayerStateUlt;
+	friend class PlayerStateDie;
 	friend class PlayerStateDashAttack;
 
 };

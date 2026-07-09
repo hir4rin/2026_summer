@@ -24,7 +24,7 @@ namespace
 
 Player::Player()
 {
-	
+	m_hp = 100;
 	//m_modelHandle = MV1LoadModel("data/Player/Player.mv1");
 	m_modelHandle = MV1LoadModel("data/Player/Player_Init.mv1");
 	//m_modelHandle = MV1LoadModel("data/Player/Player_true.mv1");
@@ -96,6 +96,11 @@ void Player::Update(Camera& camera)
 	if (m_avoidInfo.avoidCoolTimeCount > 0.0f)
 	{
 		m_avoidInfo.avoidCoolTimeCount -= 1.0f * System::GetInstance().GetTimeScale();//回避のクールタイムを減らす
+	}
+	//被ダメ後の無敵時間の更新
+	if(m_damageInfo.damageTimer > 0.0f)
+	{
+		m_damageInfo.damageTimer -= 1.0f * System::GetInstance().GetTimeScale();//被ダメ後の無敵時間を減らす
 	}
 	
 
@@ -196,13 +201,33 @@ void Player::OnDamage(Collider& other, AttackData& data)
 	//敵の攻撃データをもらい、ダメージを減らし、体力を減らす、場合によってはプレイヤーを吹き飛ばす
 	DrawFormatString(0, 0, GetColor(255, 0, 0), "Player: OnDamage");
 	//ダメージを受けたときの処理
-	
-	//StateがAvoidで回避中かつ、時間内だったらジャスト回避
-	auto nowState = std::dynamic_pointer_cast<PlayerStateAvoid>(m_currentState);
-	if(m_currentState == nowState)
+	if(m_damageInfo.damageTimer <= 0.0f)//無敵時間が終わっている場合のみダメージを受ける
 	{
-
+		//体力を減らす
+		m_hp -= static_cast<int>(data.attackPower);
+		//無敵時間を設定する
+		m_damageInfo.damageTimer = m_damageInfo.kDamageTime;
+		if(m_hp <= 0)
+		{
+			m_isDead = true;
+		}
 	}
+	//無敵時間中はダメージを受けない
+	else
+	{
+		return;
+	}
+	//StateがAvoidで回避中かつ、時間内だったらジャスト回避
+	//auto nowState = std::dynamic_pointer_cast<PlayerStateAvoid>(m_currentState);
+	//if(m_currentState == nowState)
+	//{
+
+	//}
+	
+	//被ダメdataを更新する
+	m_attackData = data;
+	//stateをhitStateにする
+	ChangeState(std::make_shared<PlayerStateHit>(GetWeakPtr(), data));
 
 
 	//IsHitStateに変える//後でする
