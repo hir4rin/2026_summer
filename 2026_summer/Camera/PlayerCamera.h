@@ -34,6 +34,7 @@ private:
 	Vector3 m_rayVec = Vector3(0, 0, 0);//カメラの前方向のベクトル//カメラの注視点を決めるために使う　
 	//lerp用
 	Vector3 m_targetPos;//カメラの目標座標
+	Vector3 m_focusGoal;//カメラの目標注視点座標
 	
 	
 

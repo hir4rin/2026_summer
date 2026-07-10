@@ -96,7 +96,7 @@ void GameScene::NormalUpdate()
 	//ロックオンするか
 	RockOnCamera();
 
-	m_cameraManager->Update(m_player->GetPos() - Vector3(0, m_player->GetCenter(), 0));
+	m_cameraManager->Update(m_player->GetPos());
 	m_player->Update(*m_cameraManager->GetHighestPriorityCamera());
 	m_enemyManager->Update();
 	m_stage->Update();
@@ -182,7 +182,7 @@ void GameScene::NormalDraw()
 	}
 	m_player->Draw();
 #ifdef _DEBUG
-	CollisionManager::GetInstance().DebugDraw();
+	//CollisionManager::GetInstance().DebugDraw();
 	//PlayerのHpのデバッグ表示
 	DrawFormatString(0, 0, GetColor(0, 0, 0), "Player HP: %d", m_player->GetHp());
 	DrawFormatString(0, 20, GetColor(0, 0, 0), "Player SkillGauge: %d", m_player->GetSkillGauge());
