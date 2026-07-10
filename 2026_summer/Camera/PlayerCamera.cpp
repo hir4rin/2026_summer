@@ -139,8 +139,8 @@ void PlayerCamera::Update(Vector3 pos, Vector3 pos2)
 	//{
 	//	Vector3 playerVel = player->GetVel();
 	//	//上昇中は補正する
-	//	if (playerVel.y > 0.0f)
-	//	{
+	//	//if (playerVel.y > 0.0f)
+	//	//{
 	//		if (stage)
 	//		{
 	//			//stage地面とプレイヤーの距離を取得する
@@ -151,7 +151,7 @@ void PlayerCamera::Update(Vector3 pos, Vector3 pos2)
 	//				m_testPos2 = playerPos;
 	//			}
 	//		}
-	//	}
+	//	//}
 	//}
 
 
