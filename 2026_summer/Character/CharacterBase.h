@@ -53,6 +53,8 @@ public:
 	bool GetIsDead()const { return m_isDead; }//死んでいるかどうかのフラグを返す
 	std::shared_ptr<HitCol> GetHitCol() { return m_hitCol; }//やられ判定の取得
 
+	int GetHp()const { return m_hp; }//体力の取得
+
 protected:
 	void UpdateAngleAndPos();//回転角度と座標の更新//
 	void ApplyPos()override;

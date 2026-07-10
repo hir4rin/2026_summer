@@ -116,31 +116,22 @@ void EnemyManager::Update()
 		}
 
 	}
-
-	//auto removeStart = std::remove_if(m_enemies.begin(),m_enemies.end(),
-	//	[](const std::shared_ptr<CharacterBase>& enemy)
-	//	{
-	//		return enemy->GetIsDead();
-	//	});
-	//for(auto it = removeStart; it != m_enemies.end(); ++it)
-	//{
-	//	//Colliderを開放
-	//	auto col = (*it)->GetCollider();
-	//	if (col)
-	//	{
-	//		CollisionManager::GetInstance().ReleaseCollider(col);
-	//	}
-	//}
-	//敵を削除
-	//m_enemies.erase(removeStart, m_enemies.end());
-
-
-
+	//std::remove_ifも考えた
+	//削除
 	std::erase_if(m_enemies, [](const std::shared_ptr<CharacterBase>& enemy)
 	{
 		return enemy->GetIsDead();
 	}
 	);
+	//すべてのwaveが出ていて、敵がいなくなったら、ゲームクリア
+	if (m_isSpawnedWave[WaveNum::Wave3])
+	{
+		if (m_enemies.size() == 0)
+		{
+			m_isAllEnemiesDead = true;
+		}
+	
+	}
 }
 
 void EnemyManager::Draw()

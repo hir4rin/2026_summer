@@ -43,6 +43,8 @@ struct ComboInfo
 	bool isHit = false;//攻撃が当たったかどうか//当たっていたら動きを止める
 	bool isAirAttack = false;//空中で攻撃をしたかどうか
 	bool isAirSkillAttack = false;//空中でスキル攻撃をしたかどうか
+	int SkillGauge = 0;//スキルゲージ
+	int UltGauge = 0;//必殺技ゲージ
 	//int nextComboIndex = -1;//次のコンボの段数
 };
 
@@ -132,12 +134,28 @@ public:
 	/// <param name="newState"></param>
 	void ChangeState(std::shared_ptr<PlayerState> newState);//状態遷移の関数//
 	float GetCameraRockOnRange()const { return kPlayerRockOnRange; }//ロックオンする範囲を返す
+
+	//スキルゲージの増減
+	void AddSkillGauge(int value) { m_comboInfo.SkillGauge += value; }//スキル増減
+	//必殺技ゲージの増減
+	void AddUltGauge(int value) { m_comboInfo.UltGauge += value; }//必殺技増減
+	//ゲージの取得
+	int GetSkillGauge()const { return m_comboInfo.SkillGauge; }//スキルゲージの取得
+	int GetUltGauge()const { return m_comboInfo.UltGauge; }//必殺技ゲージの取得
+
+	//鴉状態かどうか
+	bool GetIsRaven()const { return m_isRaven; }
+
+
 private:
 	void InitializeComboChain();//CSVからコンボデータの読み込みをする
 	void UpdateAngle();//回転処理
 	bool IsAvoidable()const;//回避入力を受け付けるかどうか
 	void WingUpdate();//鴉状態の羽の更新
 	void ApplyPos()override;//座標の適用//Playerクラスでは、座標に加えて、首のボーンの回転も適用する
+
+	bool CanSkillAttack(bool changeGauge = true);//スキル攻撃ができるかどうか//trueならゲージを減らす
+	bool CanUltAttack();//必殺技攻撃ができるかどうか//trueならゲージを減らす
 
 	std::shared_ptr<Player> GetSharedPtr() {return std::dynamic_pointer_cast<Player>(shared_from_this());}
 

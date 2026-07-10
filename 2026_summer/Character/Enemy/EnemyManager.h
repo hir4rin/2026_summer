@@ -20,6 +20,13 @@ struct WaveData
 	int waveNum;//ウェーブの番号
 	std::vector<std::shared_ptr<EnemyBase>> enemies;//敵の配列
 };
+enum class WaveNum : int
+{
+	Wave1 = 0,
+	Wave2 = 1,
+	Wave3 = 2,
+	WaveSize = 3,
+};
 
 class EnemyManager
 {
@@ -35,6 +42,9 @@ public:
 	//敵をスポーンさせるかチェックし、スポーンさせる
 	void CheckSpawnWave();
 	void SpawnEnemies(int waveNum);
+
+	//すべての敵が死んだかどうか
+	bool IsGetAllEnemiesDead()const { return m_isAllEnemiesDead; }
 private:
 	Vector3 m_startPos;//敵の座標
 
@@ -43,6 +53,7 @@ private:
 	int enemyModelHandle = -1;//敵のモデルのハンドル//EnemySwordManのモデル
 	std::vector<SpawnData> m_spawnData;//敵のスポーンデータ
 	bool m_isSpawnedWave[3] = {};//ウェーブごとに敵がスポーンしたかどうかのフラグ
+	bool m_isAllEnemiesDead = false;//全ての敵が死んだかどうかのフラグ
 
 };
 

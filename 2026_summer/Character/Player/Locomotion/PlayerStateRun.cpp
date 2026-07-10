@@ -57,8 +57,20 @@ void PlayerStateRun::Update()
 	//スキル攻撃
 	if (input.IsPressed("LB") && input.IsTriggered("X"))
 	{
-		player->ChangeState(std::make_shared<PlayerStateAttack>(m_owner, AttackType::SkillAttack));
-		return;
+		if (player->CanSkillAttack())
+		{
+			player->ChangeState(std::make_shared<PlayerStateAttack>(m_owner, AttackType::SkillAttack));
+			return;
+		}
+	}
+	//必殺技
+	if (input.IsPressed("LB") && input.IsTriggered("Y"))
+	{
+		if (player->CanUltAttack())
+		{
+			player->ChangeState(std::make_shared<PlayerStateUlt>(m_owner));
+			return;
+		}
 	}
 
 	//攻撃状態に遷移する

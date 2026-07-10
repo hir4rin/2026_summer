@@ -1,5 +1,5 @@
-#include "Scene.h"
+﻿#include "Scene.h"
 
-Scene::Scene(SceneController& controller) : controller_(controller)
+Scene::Scene(SceneController& controller) : m_controller(controller)
 {
 }

@@ -24,7 +24,7 @@ namespace
 
 Player::Player()
 {
-	m_hp = 100;
+	m_hp = 10;
 	//m_modelHandle = MV1LoadModel("data/Player/Player.mv1");
 	m_modelHandle = MV1LoadModel("data/Player/Player_Init.mv1");
 	//m_modelHandle = MV1LoadModel("data/Player/Player_true.mv1");
@@ -196,7 +196,9 @@ void Player::OnCollision(Collider& other)
 
 void Player::OnDamage(Collider& other, AttackData& data)
 {
-	
+
+	return;
+
 	//ダメージを受けたときの処理
 	//敵の攻撃データをもらい、ダメージを減らし、体力を減らす、場合によってはプレイヤーを吹き飛ばす
 	DrawFormatString(0, 0, GetColor(255, 0, 0), "Player: OnDamage");
@@ -209,7 +211,9 @@ void Player::OnDamage(Collider& other, AttackData& data)
 		m_damageInfo.damageTimer = m_damageInfo.kDamageTime;
 		if(m_hp <= 0)
 		{
-			m_isDead = true;
+			//死亡ステートにする
+			ChangeState(std::make_shared<PlayerStateDie>(GetWeakPtr(), data));
+			return;
 		}
 	}
 	//無敵時間中はダメージを受けない
@@ -386,4 +390,30 @@ void Player::ApplyPos()
 	
 	WingUpdate();
 	m_weapon->Update();//武器の更新
+}
+
+bool Player::CanSkillAttack(bool changeGauge = true)
+{
+	bool canSkill = m_comboInfo.SkillGauge >= 20;
+	
+	if(canSkill)
+	{
+		if(changeGauge)m_comboInfo.SkillGauge -= 20;
+		return true;
+	}
+
+	return false;
+}
+
+bool Player::CanUltAttack()
+{
+	bool canUlt = m_comboInfo.UltGauge >= 100;
+
+	if(canUlt)
+	{
+		m_comboInfo.UltGauge -= 100;
+		return true;
+	}
+
+	return false;
 }

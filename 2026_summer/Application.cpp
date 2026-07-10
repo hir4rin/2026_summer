@@ -5,6 +5,7 @@
 #include "Game.h"
 #include "Scene/SceneController.h"
 #include "Scene/GameScene.h"
+#include "Scene/TitleScene.h"
 #include "DataLoader/DataManager.h"
 #include "Input.h"
 #include "SubWindow/SubWindow.h"
@@ -82,9 +83,9 @@ void Application::Run()
 	//シーンコントローラーの作成//最初のシーン生成
 	SceneController controller;
 #ifdef _DEBUG
-	controller.ChangeScene(std::make_shared<GameScene>(controller));
+	controller.ChangeScene(std::make_shared<TitleScene>(controller));
 #else
-	controller.ChangeScene(std::make_shared<GameScene>(controller));
+	controller.ChangeScene(std::make_shared<TitleScene>(controller));
 #endif 
 
 	while (ProcessMessage() == 0 && !m_requestedExit)

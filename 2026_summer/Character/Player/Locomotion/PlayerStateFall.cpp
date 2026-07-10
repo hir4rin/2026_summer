@@ -79,8 +79,11 @@ void PlayerStateFall::Update()
 		//初めての攻撃だったら
 		if (!player->m_comboInfo.isAirSkillAttack)
 		{
-			player->ChangeState(std::make_shared<PlayerStateAttack>(m_owner, AttackType::SkillAttack));
-			return;
+			if (player->CanSkillAttack())
+			{
+				player->ChangeState(std::make_shared<PlayerStateAttack>(m_owner, AttackType::SkillAttack));
+				return;
+			}
 		}
 	}
 

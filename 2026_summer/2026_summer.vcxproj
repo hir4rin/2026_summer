@@ -151,8 +151,10 @@
     <ClCompile Include="Character\Player\Weapon.cpp" />
     <ClCompile Include="Camera\MainCamera.cpp" />
     <ClCompile Include="Camera\LockOnCamera.cpp" />
-    <ClCompile Include="JustAvoidCol.cpp" />
+    <ClCompile Include="Character\JustAvoidCol.cpp" />
     <ClCompile Include="Character\Enemy\EnemyManager.cpp" />
+    <ClCompile Include="Scene\GameClearScene.cpp" />
+    <ClCompile Include="Scene\GameOverScene.cpp" />
     <ClCompile Include="Managers\FixNextPosition.cpp" />
     <ClCompile Include="Managers\CollisionChecker.cpp" />
     <ClCompile Include="DataLoader\DataManager.cpp" />
@@ -188,6 +190,7 @@
     <ClCompile Include="SubWindow\SubWindow.cpp" />
     <ClCompile Include="System.cpp" />
     <ClCompile Include="Camera\UltCamera.cpp" />
+    <ClCompile Include="Scene\TitleScene.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application.h" />
@@ -202,8 +205,10 @@
     <ClInclude Include="Character\Player\Weapon.h" />
     <ClInclude Include="Camera\MainCamera.h" />
     <ClInclude Include="Camera\LockOnCamera.h" />
-    <ClInclude Include="JustAvoidCol.h" />
+    <ClInclude Include="Character\JustAvoidCol.h" />
     <ClInclude Include="Character\Enemy\EnemyManager.h" />
+    <ClInclude Include="Scene\GameClearScene.h" />
+    <ClInclude Include="Scene\GameOverScene.h" />
     <ClInclude Include="Managers\FixNextPosition.h" />
     <ClInclude Include="Managers\CollisionChecker.h" />
     <ClInclude Include="DataLoader\DataManager.h" />
@@ -241,6 +246,7 @@
     <ClInclude Include="SubWindow\SubWindow.h" />
     <ClInclude Include="System.h" />
     <ClInclude Include="Camera\UltCamera.h" />
+    <ClInclude Include="Scene\TitleScene.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

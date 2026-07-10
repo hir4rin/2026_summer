@@ -14,7 +14,7 @@ class GameScene : public Scene
 {
 public:
 		GameScene(SceneController& controller);
-		~GameScene();
+		virtual ~GameScene();
 		void Update() override;
 		void FadeInUpdate() override;
 		void NormalUpdate() override;

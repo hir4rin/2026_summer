@@ -103,6 +103,9 @@ void PlayerStateAttack::Update()
 		{
 			m_isSkillAttackReserved = false;//スキル攻撃の予約を解除する
 			AttackFinishProcess();//攻撃の段数を初期化するなどの処理
+			//スキルゲージを減らす
+			player->AddSkillGauge(-20);
+
 			//スキル攻撃に移行する
 			player->ChangeState(std::make_shared<PlayerStateAttack>(m_owner, AttackType::SkillAttack));
 			return;
@@ -330,30 +333,31 @@ void PlayerStateAttack::AttackInputCheck()
 	//スキル攻撃
 	if (input.IsPressed("LB") && input.IsTriggered("X"))
 	{
-
-
-		//通常攻撃ならば、攻撃を終了して、スキル攻撃に移行
-			//スキル攻撃ならばコンボ攻撃に移行
-		if (isSkillAttack)
+		//スキル攻撃ができるかどうか
+		if (player->CanSkillAttack(false))
 		{
-			//コンボ攻撃に移行する
-			//弱攻撃ボタンでつながる次のコンボがあるか
-			if (!currentNode.nextWeakAttack.empty())//空じゃなかったら
+			//通常攻撃ならば、攻撃を終了して、スキル攻撃に移行
+			//スキル攻撃ならばコンボ攻撃に移行
+			if (isSkillAttack)
 			{
-				m_nextComboIndex = currentNode.nextWeakAttack[0];//次のコンボ番号をセットする//今回は1つしかないので、0番目をセットする
+				//コンボ攻撃に移行する
+				//弱攻撃ボタンでつながる次のコンボがあるか
+				if (!currentNode.nextWeakAttack.empty())//空じゃなかったら
+				{
+					m_nextComboIndex = currentNode.nextWeakAttack[0];//次のコンボ番号をセットする//今回は1つしかないので、0番目をセットする
+					m_isComboInputReserved = true;//コンボ入力が予約されているフラグを立てる
+				}
+			}
+			//コンボ処理を終了して、スキル攻撃に移行する
+			else
+			{
+				//空中でスキル攻撃を行っていたらスキル攻撃に移行しない
+				if (isPlayerAir && WasSkillAirAttack)return;
+
 				m_isComboInputReserved = true;//コンボ入力が予約されているフラグを立てる
+				m_isSkillAttackReserved = true;//スキル攻撃の予約がされているフラグを立てる
 			}
 		}
-		//コンボ処理を終了して、スキル攻撃に移行する
-		else
-		{
-			//空中でスキル攻撃を行っていたらスキル攻撃に移行しない
-			if (isPlayerAir && WasSkillAirAttack)return;
-
-			m_isComboInputReserved = true;//コンボ入力が予約されているフラグを立てる
-			m_isSkillAttackReserved = true;//スキル攻撃の予約がされているフラグを立てる
-		}
-
 	}
 	//強攻撃
 	else if (!input.IsPressed("LB") && input.IsTriggered("Y"))
@@ -439,6 +443,16 @@ void PlayerStateAttack::StartCombo(int comboIndex)
 	player->m_comboInfo.currentComboIndex = comboIndex;
 	m_isComboInputReserved = false;//コンボ入力の予約を解除する
 
+	//Skill攻撃2,3だったらスキルゲージを減らす
+	int currentComboIndex = player->m_comboInfo.currentComboIndex;	
+	bool isSkillAttack2or3 = 
+		currentComboIndex == ComboIndex::SkillAttack2 ||
+		currentComboIndex == ComboIndex::SkillAttack3;
+
+	if (isSkillAttack2or3)
+	{
+		player->AddSkillGauge(-20);
+	}
 }
 
 void PlayerStateAttack::AttackFinishProcess()

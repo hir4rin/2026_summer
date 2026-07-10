@@ -91,11 +91,18 @@ void AttackCol::PlayerAttackOnCollision(Collider& other)
 
 	if (other.GetTag() == Tags::EnemyHit)
 	{
+
+		
+
 		int otherId = other.GetId();
 		auto it = std::find(m_hitIds.begin(), m_hitIds.end(), otherId);
 		if (it == m_hitIds.end())
 		{
 			// 初めて当たった場合の処理
+			 
+			//プレイヤーのゲージ管理
+			PlayerGaugeUp(other);
+			 
 			//otherの被ダメ処理
 			m_hitIds.push_back(otherId);//当たったidのリストにotherのidを追加する
 			//hitColのOnDamageInterFaceを呼ぶ
@@ -156,4 +163,35 @@ void AttackCol::EnemyAttackOnCollision(Collider& other)
 		// 当たっていた場合の処理//なにもしない
 		return;
 	}
+}
+
+void AttackCol::PlayerGaugeUp(Collider& other)
+{
+	auto it = m_owner.lock();
+	if (!it)return;
+	auto player = std::dynamic_pointer_cast<Player>(it);
+	if (!player)return;
+
+
+	//通常攻撃ならスキル攻撃をあげる
+	if (!player->GetIsRaven())
+	{
+		//スキルゲージの上昇
+		player->AddSkillGauge(20);
+		//必殺技ゲージの上昇
+		player->AddUltGauge(10);
+	}
+	//raven状態なら
+	else
+	{
+		//必殺技ではないのならスキルゲージを上げる//スキル攻撃
+		if (!System::GetInstance().GetIsUltimating())
+		{
+			//必殺技ゲージの上昇
+			player->AddUltGauge(20);
+		}
+
+	}
+
+	
 }

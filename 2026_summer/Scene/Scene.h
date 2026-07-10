@@ -9,7 +9,7 @@ class SceneController; // シーンコントローラーのプロトタイプ宣
 class Scene
 {
 protected:
-	SceneController& controller_;
+	SceneController& m_controller;
 public:
 	Scene(SceneController& controller);
 	/// <summary>

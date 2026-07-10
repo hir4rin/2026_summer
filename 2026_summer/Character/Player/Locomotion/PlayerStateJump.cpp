@@ -7,7 +7,7 @@
 
 namespace
 {
-	constexpr float kJumpInitVel = 16.0f;//ジャンプの初速//この数値を変えることで、ジャンプの高さを調整できる
+	constexpr float kJumpInitVel = 25.0f;//ジャンプの初速//この数値を変えることで、ジャンプの高さを調整できる
 }
 
 
@@ -47,16 +47,39 @@ void PlayerStateJump::Update()
 
 	player->m_vel += Vector3(0, -Game::kGravity, 0);//重力の処理
 
+	//スキル攻撃
+	if (input.IsPressed("LB") && input.IsTriggered("X"))
+	{
+		//初めての攻撃だったら
+		if (!player->m_comboInfo.isAirSkillAttack)
+		{
+			if (player->CanSkillAttack())
+			{
+				player->ChangeState(std::make_shared<PlayerStateAttack>(m_owner, AttackType::SkillAttack));
+				return;
+			}
+		}
+	}
+
 	//攻撃状態に遷移する
 	if (input.IsTriggered("X"))//弱攻撃
 	{
-		player->ChangeState(std::make_shared<PlayerStateAttack>(m_owner, AttackType::lightAttack));
-		return;
+		//初めての攻撃だったら
+		if (!player->m_comboInfo.isAirAttack)
+		{
+			player->ChangeState(std::make_shared<PlayerStateAttack>(m_owner, AttackType::lightAttack));
+			return;
+		}
 	}
 	if (input.IsTriggered("Y"))//強攻撃
 	{
-		player->ChangeState(std::make_shared<PlayerStateAttack>(m_owner, AttackType::heavyAttack));
-		return;
+		//初めての攻撃だったら
+		if (!player->m_comboInfo.isAirAttack)
+		{
+			player->ChangeState(std::make_shared<PlayerStateAttack>(m_owner, AttackType::heavyAttack));
+			return;
+		}
+
 	}
 
 	if (player->m_vel.y <= 0.0f)//下降中に移行

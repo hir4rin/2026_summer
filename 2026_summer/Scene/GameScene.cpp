@@ -12,7 +12,8 @@
 #include "EffekseerForDXLib.h"
 #include "../Character/Enemy/EnemyManager.h"
 #include "../SubWindow/SubWindow.h"
-
+#include "SceneController.h"
+#include "GameOverScene.h"
 namespace
 {
 	constexpr int kGridRange = 2400;//グリッドのサイズ
@@ -101,6 +102,19 @@ void GameScene::NormalUpdate()
 	m_skyBox->Update();
 	CollisionManager::GetInstance().Update();
 	System::GetInstance().Update();
+
+	//playerが死んでいたらゲームオーバーシーンに遷移
+	if(m_player->GetIsDead())
+	{
+		m_controller.ChangeScene(std::make_shared<GameOverScene>(m_controller));
+	}
+	//すべての敵を倒したらゲームクリアシーンに遷移
+	if(m_enemyManager->IsGetAllEnemiesDead())
+	{
+		//m_controller.ChangeScene(std::make_shared<GameClearScene>(m_controller));
+	}
+
+
 }
 
 void GameScene::FadeOutUpdate()
@@ -168,6 +182,12 @@ void GameScene::NormalDraw()
 	m_player->Draw();
 #ifdef _DEBUG
 	CollisionManager::GetInstance().DebugDraw();
+	//PlayerのHpのデバッグ表示
+	DrawFormatString(0, 0, GetColor(0, 0, 0), "Player HP: %d", m_player->GetHp());
+	DrawFormatString(0, 20, GetColor(0, 0, 0), "Player SkillGauge: %d", m_player->GetSkillGauge());
+	DrawFormatString(0, 40, GetColor(0, 0, 0), "Player UltGauge: %d", m_player->GetUltGauge());
+
+
 #endif
 	m_cameraManager->Draw();
 
