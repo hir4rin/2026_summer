@@ -5,7 +5,9 @@
 #include "CameraManager.h"
 #include "../Character/Enemy/EnemyBase.h"
 #include "../SubWindow/SubWindow.h"
+#include "../Stage/Stage.h"
 #include <algorithm>
+
 
 namespace
 {
@@ -119,6 +121,22 @@ void PlayerCamera::Update(Vector3 pos, Vector3 pos2)
 
 	//ターゲットの位置を更新
 	Vector3 playerPos = pos;
+	//プレイヤーの位置と直下の地面との距離が一定以下の場合、カメラを動かさない
+	Vector3 endPos = playerPos + Vector3(0.0f, -400.0f, 0.0f);
+	auto stage = m_stage.lock();
+	if (stage)
+	{
+		//stage地面とプレイヤーの距離を取得する
+		auto hitPoly = MV1CollCheck_Line(stage->GetStageModelHandle(),-1,playerPos.ToDxLibVector(),endPos.ToDxLibVector());
+		if(hitPoly.HitFlag)
+			{
+			float distance = (playerPos - Vector3::FromDxLibVector(hitPoly.HitPosition)).Magnitude();
+			
+		}
+	}
+
+
+
 	//rayVecを更新
 	m_rayVec = playerPos - m_pos;
 	//rayVecを正規化

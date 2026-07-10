@@ -5,6 +5,7 @@
 class Input;
 class CameraManager;
 struct CameraContext;
+class Stage;
 
 struct CameraData
 {
@@ -76,6 +77,8 @@ public:
 	virtual void CameraSetting();
 
 	void SetCameraContext(std::shared_ptr<CameraContext> cameraContext) { m_cameraContext = cameraContext; }
+	
+	void SetStage(std::weak_ptr<Stage> stage) { m_stage = stage; }
 protected:
 	void InputRightStick();//右スティックの入力を処理する
 protected:
@@ -101,5 +104,8 @@ protected:
 	//カメラマネージャーの弱参照
 	std::weak_ptr<CameraManager> m_cameraManager;
 	std::shared_ptr<CameraContext> m_cameraContext;
+
+	//ステージの弱参照
+	std::weak_ptr<Stage> m_stage;//ステージのハンドルを取得するために使う
 };
 

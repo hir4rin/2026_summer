@@ -2,6 +2,7 @@
 #include "PlayerState.h"
 #include "PlayerEnums.h"
 #include <memory>
+#include "../../../Math/Vector3.h"
 class Input;
 class AttackCol;
 
@@ -28,6 +29,7 @@ private:
 	bool m_isComboInputReserved = false;//コンボ入力を受け付けたかどうかのフラグ
 	bool m_isSkillAttackReserved = false;//スキル攻撃の予約がされているかどうかのフラグ
 	std::shared_ptr<AttackCol> m_attackCol;//攻撃の当たり判定
+	Vector3 m_InitVel = {};//攻撃開始時の速度を保存、上下差のある攻撃のタイムスケールに使う
 	
 
 };

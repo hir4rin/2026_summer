@@ -31,6 +31,7 @@ void PlayerStateUlt::Enter()
 	player->m_anim.ChangeAnim(player->GetAnimName("UltAttack"), false, 1.0f);
 
 	//攻撃の当たり判定を生成する
+	//データ作成
 	player->m_attackData = {
 	.attackPower = 500,
 	.knockBackPower = Vector3(0, 0,0),
@@ -40,6 +41,7 @@ void PlayerStateUlt::Enter()
 	.kAttackColOffset = 30.0f,
 	.isKirimomi = false
 	};
+	//生成
 	m_attackCol = std::make_shared<AttackCol>(m_owner, player->m_attackData);
 	Vector3 offset = player->m_targetVec * player->m_attackData.kAttackColOffset
 		+ Vector3(0, kPlayerCenter, 0);//プレイヤーの前方に50.0f、y軸方向にkPlayerCenterだけオフセットする

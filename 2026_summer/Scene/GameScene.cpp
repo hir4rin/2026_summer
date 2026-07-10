@@ -37,6 +37,9 @@ GameScene::GameScene(SceneController& controller) :Scene(controller)
 	m_updateFunc = static_cast<UpdateFunc_t>(&GameScene::NormalUpdate);
 	m_drawFunc = static_cast<DrawFunc_t>(&GameScene::NormalDraw);
 
+	//ステージの初期化
+	m_stage = std::make_shared<Stage>();
+	m_stage->Init();
 	//プレイヤーの初期化
 	m_player = std::make_shared<Player>();
 	m_player->Init();
@@ -48,12 +51,9 @@ GameScene::GameScene(SceneController& controller) :Scene(controller)
 
 	m_cameraManager = std::make_shared<CameraManager>();
 	//カメラの初期化
-	m_cameraManager->Init(std::weak_ptr<Player>(m_player));
+	m_cameraManager->Init(std::weak_ptr<Player>(m_player),std::weak_ptr<Stage>(m_stage));
 	m_cameraManager->Update(m_player->GetPos());
 
-	//ステージの初期化
-	m_stage = std::make_shared<Stage>();
-	m_stage->Init();
 	//スカイボックスの初期化
 	m_skyBox = std::make_shared<SkyBox>();
 	m_skyBox->Init(std::weak_ptr<Camera>(m_cameraManager->GetMainCamera()));

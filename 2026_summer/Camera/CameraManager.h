@@ -9,6 +9,7 @@ class Input;
 class Player;
 class EnemyBase;
 class MainCamera;
+class Stage;
 
 struct CameraContext
 {
@@ -28,7 +29,7 @@ public:
 	void RemoveCamera(std::shared_ptr<Camera> camera);
 
 	//Playerのweak_ptrを渡す
-	void Init(std::weak_ptr<Player> player);
+	void Init(std::weak_ptr<Player> player,std::weak_ptr<Stage> stage);
 	/// <summary>
 	/// 
 	/// </summary>
@@ -58,6 +59,8 @@ public:
 
 	//PlayerCameraに角度をセットさせる関数
 	void SetPlayerCameraAngle(float angleH, float angleV);
+
+
 
 private:
 	void SetUpMainCamera();//priorityが最も高いカメラの情報をMainCameraに反映させる

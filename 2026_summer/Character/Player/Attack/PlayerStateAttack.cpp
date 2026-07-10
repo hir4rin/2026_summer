@@ -4,6 +4,7 @@
 #include "../../../Input.h"
 #include "../../AttackCol.h"
 #include "../../../Managers/CollisionManager.h"
+#include "../System.h"
 
 
 namespace
@@ -40,6 +41,8 @@ void PlayerStateAttack::Enter()
 	if (node.moveSpeedY != 0)
 	{
 		player->m_vel = player->m_targetVec * node.moveSpeedX + Vector3(0, node.moveSpeedY, 0);
+		//上下の速度を保存
+		m_InitVel = player->m_vel;
 		//上昇攻撃
 		if (node.moveSpeedY > 0)
 		{
@@ -81,18 +84,25 @@ void PlayerStateAttack::Update()
 	//回避
 	if(input.IsTriggered("B") && player->IsAvoidable())
 	{
-		AttackFinishProcess();//攻撃の段数を初期化するなどの処理
-		player->ChangeState(std::make_shared<PlayerStateAvoid>(m_owner));
-		return;
+		if (player->IsFloor())
+		{
+			AttackFinishProcess();//攻撃の段数を初期化するなどの処理
+			player->ChangeState(std::make_shared<PlayerStateAvoid>(m_owner));
+			return;
+		}
 	}
 
 	//攻撃の進行率によってジャンプの入力を受け付けるかどうかを決める
 	//ジャンプ
 	if (input.IsTriggered("A"))
 	{
-		AttackFinishProcess();//攻撃の段数を初期化するなどの処理
-		player->ChangeState(std::make_shared<PlayerStateJump>(m_owner));
-		return;
+		if (player->IsFloor())
+		{
+			AttackFinishProcess();//攻撃の段数を初期化するなどの処理
+			player->ChangeState(std::make_shared<PlayerStateJump>(m_owner));
+			return;
+		}
+		
 	}
 	float animRate = player->m_anim.GetAnimRate();
 	//コンボに移行
@@ -233,9 +243,11 @@ void PlayerStateAttack::AttackMoveMent()
 	}
 	else//上下差あり
 	{
-		
+		float timeScale = System::GetInstance().GetTimeScale();
 		//重力
-		player->m_vel += Vector3(0, -Game::kGravity, 0);
+		player->m_accumulatedGravity += -Game::kGravity * timeScale;
+		player->m_vel = m_InitVel + Vector3(0, player->m_accumulatedGravity,0);
+		//player->m_vel += Vector3(0, -Game::kGravity, 0) * timeScale;
 
 		//下方向は時間なし//上方向は時間制限あり
 		if(node.moveSpeedY > 0)//上向き

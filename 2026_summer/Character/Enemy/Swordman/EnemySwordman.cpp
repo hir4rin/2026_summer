@@ -205,14 +205,16 @@ void EnemySwordman::Update()
 		switch (m_hitType)
 		{
 			case HitType::Air:
-				//速度を指定
-				m_vel = m_knockBackVel;
 				//空中にいるときは、y軸の吹き飛ばしの力を減衰させる
-				m_knockBackVel.y -= Game::kGravity;
-				if (m_knockBackVel.y <= 0.0f)
+				m_accumulatedGravity += Game::kGravity * timeScale;
+				//速度を指定
+				m_vel = m_knockBackVel + Vector3(0, -m_accumulatedGravity, 0);
+				//m_knockBackVel.y -= Game::kGravity
+				if (m_vel.y <= 0.0f)
 				{
 					m_knockBackVel.y = 0.0f;
 					m_vel.y = 0.0f;
+					m_accumulatedGravity = 0.0f;//重力の累積値をリセット
 					FinishHitProcess();
 					//吹き飛ばしのベクトルが0になったらAirStayに戻す
 					ChangeState(EnemyState::AirStay);
@@ -236,7 +238,6 @@ void EnemySwordman::Update()
 					knockBackDir.y = 0.0f;//y軸の吹き飛ばしはなし
 					knockBackDir += toTarget;
 					m_vel += knockBackDir * m_attackData.knockBackPower.x;
-					
 				}
 				
 				if (m_knockBackFrame > kEnemyHitBackTime)//本来はplayerの攻撃終了タイミングを読み取って、そこから変わる
@@ -256,9 +257,14 @@ void EnemySwordman::Update()
 			}
 				break;
 			case HitType::Drop:
+
+				m_accumulatedGravity += Game::kGravity * timeScale;
 				//速度を指定
-				m_knockBackVel.y += -Game::kGravity;
-				m_vel = m_knockBackVel;
+				m_vel = m_knockBackVel + Vector3(0, -m_accumulatedGravity, 0);
+
+				//速度を指定
+				//m_knockBackVel.y += -Game::kGravity;
+				//m_vel = m_knockBackVel;
 				if (IsFloor())
 				{
 					if(m_isDieOut)
@@ -271,6 +277,7 @@ void EnemySwordman::Update()
 
 					//m_pos.y = 0.0f;
 					m_vel.y = 0.0f;
+					m_accumulatedGravity = 0.0f;//重力の累積値をリセット
 					m_knockBackVel.y = 0.0f;
 
 					FinishHitProcess();
@@ -293,11 +300,14 @@ void EnemySwordman::Update()
 		break;
 	case EnemyState::Fall:
 		//落下処理
-		m_vel.y -= Game::kGravity;//重力の処理
+		//m_vel.y -= Game::kGravity;//重力の処理
+		m_accumulatedGravity += Game::kGravity * timeScale;
+		m_vel.y -= m_accumulatedGravity;
 		if (IsFloor())
 		{
 			//m_pos.y = 0.0f;
 			m_vel.y = 0.0f;
+			m_accumulatedGravity = 0.0f;//重力の累積値をリセット
 			ChangeState(EnemyState::Idle);
 		}
 		break;

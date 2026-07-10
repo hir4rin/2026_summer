@@ -6,7 +6,8 @@ void System::Update()
 	//if (m_frameCount < 0)return;
 
 	m_frameCount--;
-	m_ultCount--;
+
+	m_ultCount -= 1.0f * timeScale;
 
 	if (m_frameCount <= 0)
 	{

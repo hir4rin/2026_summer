@@ -48,12 +48,20 @@ void CharacterBase::UpdateAngleAndPos()
 void CharacterBase::ApplyPos()
 {
 	//座標の更新//m_knockBackVelを加算する
-	float timeScale = m_ownTimeScale * System::GetInstance().GetTimeScale();
+	//float timeScale = m_ownTimeScale * System::GetInstance().GetTimeScale();
 
+	//m_pos += m_vel * timeScale;
 	m_pos += m_vel;
 
 	//モデルの座標を更新する
 	UpdateAngleAndPos();
+
+	//地上にいたら、重力の累積値をリセットする
+	if(IsFloor())
+	{
+		m_accumulatedGravity = 0.0f;
+	}
+
 
 	//お試し
 	//Vector3 totalVel;

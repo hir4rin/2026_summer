@@ -52,7 +52,7 @@ void CameraManager::RemoveCamera(std::shared_ptr<Camera> camera)
 {
 	m_cameras.remove(camera);
 }
-void CameraManager::Init(std::weak_ptr<Player> player)
+void CameraManager::Init(std::weak_ptr<Player> player,std::weak_ptr<Stage> stage)
 {
 	//プレイヤーカメラの初期化
 	SetWeakRef(player);
@@ -64,6 +64,7 @@ void CameraManager::Init(std::weak_ptr<Player> player)
 	for(auto& camera : m_cameras)
 	{
 		camera->SetCameraManager(shared_from_this());
+		camera->SetStage(stage);
 	}
 }
 

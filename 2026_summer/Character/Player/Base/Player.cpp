@@ -25,6 +25,7 @@ namespace
 Player::Player()
 {
 	m_hp = 10;
+	m_comboInfo.UltGauge = 1000;
 	//m_modelHandle = MV1LoadModel("data/Player/Player.mv1");
 	m_modelHandle = MV1LoadModel("data/Player/Player_Init.mv1");
 	//m_modelHandle = MV1LoadModel("data/Player/Player_true.mv1");

@@ -47,6 +47,12 @@ void MainCamera::Update(const CameraData& data)
 		m_pos = Vector3::Lerp(m_pos, data.pos, 0.1f);
 		
 		m_target = data.target;
+		//ターゲットとの値が近くなったら、ラープをやめる
+		if ((m_pos - data.pos).Magnitude() < 0.15f)
+		{
+			m_isLerp = false;
+		}
+
 	}
 	else if (m_isSlerp)
 	{
@@ -65,6 +71,11 @@ void MainCamera::Update(const CameraData& data)
 		//現在座標から目標までの保管をしながらm_posを計算する
 		m_pos = Vector3::Slerp(dirPrev, dirTarget, 0.1f) * m_distance + m_rotateAxis;
 		m_target = data.target;
+		//ターゲットとの値が近くなったら、スラープをやめる
+		if ((m_pos - data.pos).Magnitude() < 0.15f)
+		{
+			m_isSlerp = false;
+		}
 	}
 	else
 	{

@@ -30,7 +30,7 @@ public:
 
 	void Update();
 
-	void SetUltStart() { m_ultCount = 60; m_isUltimating = true; };
+	void SetUltStart(int frames) { m_ultCount = frames; m_isUltimating = true; };
 	bool GetIsUltimating() { return m_isUltimating; };
 private:
 	//時間の管理

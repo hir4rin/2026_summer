@@ -3,6 +3,7 @@
 #include "Player.h"
 #include "../../../Game.h"
 #include "../../../Input.h"
+#include "../../../System.h"
 
 
 namespace
@@ -45,7 +46,8 @@ void PlayerStateJump::Update()
 	if (!player) return;
 	auto& input = Input::GetInstance();
 
-	player->m_vel += Vector3(0, -Game::kGravity, 0);//重力の処理
+	float timeScale = System::GetInstance().GetTimeScale();
+	player->m_vel += Vector3(0, -Game::kGravity, 0) * timeScale;//重力の処理
 
 	//スキル攻撃
 	if (input.IsPressed("LB") && input.IsTriggered("X"))

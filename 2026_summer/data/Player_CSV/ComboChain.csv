@@ -14,9 +14,9 @@
 ‹ó’†ãUŒ‚1,Player|AirAttack1,0,8,50,0.2,12,0,9,12,0,0,0,0.25,airSlash
 ‹ó’†ãUŒ‚2,Player|AirAttack2,0,9,50,0.2,20,0,10,12,0,0,0,0.06,airSlash
 ‹ó’†ãUŒ‚3,Player|AirAttack3,0,10,50,0.2,12,0,11,12,0,0,0,0.06,airSlash
-‹ó’†ãUŒ‚4,Player|AirAttack4,0,11,50,0.2,0,-30,,,0,-30,1,0.06,airSlash
+‹ó’†ãUŒ‚4,Player|AirAttack4,0,11,50,0.2,0,-20,,,0,-30,1,0.06,airSlash
 #‹ó’†‹­UŒ‚,,,,,,,,,,,,,,
-‹ó’†‹­UŒ‚1,Player|HeavyAttack2,1,12,50,0.2,0,-30,,,0,-30,0,0.06,airSlash
+‹ó’†‹­UŒ‚1,Player|HeavyAttack2,1,12,50,0.2,0,-20,,,0,-30,0,0.06,airSlash
 ƒ_ƒbƒVƒ…UŒ‚,,0,13,50,0.4,10,0,,,15,10,1,0.06,airSlash
 #ƒXƒLƒ‹UŒ‚,,,,,,,,,,,,,,
 ƒXƒLƒ‹ã1,Player|upAttack,0,14,120,0.2,15,0,15,,0,0,0,0.06,airSlash
