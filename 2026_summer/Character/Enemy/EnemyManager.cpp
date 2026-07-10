@@ -123,8 +123,9 @@ void EnemyManager::Update()
 		return enemy->GetIsDead();
 	}
 	);
-	//すべてのwaveが出ていて、敵がいなくなったら、ゲームクリア
-	if (m_isSpawnedWave[WaveNum::Wave3])
+
+	//すべてのwaveが出ていて、敵がいなくなったら、ゲームクリア//enumは暗黙的にintに変換できないので、キャストする
+	if (m_isSpawnedWave[static_cast<int>(WaveNum::Wave3)])
 	{
 		if (m_enemies.size() == 0)
 		{

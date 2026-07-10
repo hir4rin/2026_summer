@@ -43,9 +43,9 @@ void PlayerStateUlt::Enter()
 	m_attackCol = std::make_shared<AttackCol>(m_owner, player->m_attackData);
 	Vector3 offset = player->m_targetVec * player->m_attackData.kAttackColOffset
 		+ Vector3(0, kPlayerCenter, 0);//プレイヤーの前方に50.0f、y軸方向にkPlayerCenterだけオフセットする
-	m_attackCol->ColInit(player->m_pos, offset, 150.0f,
+	m_attackCol->ColInit(player->m_pos, offset, 500.0f,
 							ColliderType::Sphere, Tags::PlayerUltAttack, false, true);//攻撃の当たり判定を初期化する//最初は無効にしておく
-	//m_attackCol->SetIsActive(false);//最初は当たり判定を無効にしておく
+
 }
 
 void PlayerStateUlt::Update()

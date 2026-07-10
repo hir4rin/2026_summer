@@ -14,6 +14,7 @@
 #include "../SubWindow/SubWindow.h"
 #include "SceneController.h"
 #include "GameOverScene.h"
+#include "GameClearScene.h"
 namespace
 {
 	constexpr int kGridRange = 2400;//グリッドのサイズ
@@ -111,7 +112,7 @@ void GameScene::NormalUpdate()
 	//すべての敵を倒したらゲームクリアシーンに遷移
 	if(m_enemyManager->IsGetAllEnemiesDead())
 	{
-		//m_controller.ChangeScene(std::make_shared<GameClearScene>(m_controller));
+		m_controller.ChangeScene(std::make_shared<GameClearScene>(m_controller));
 	}
 
 

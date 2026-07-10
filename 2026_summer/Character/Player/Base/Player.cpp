@@ -392,7 +392,7 @@ void Player::ApplyPos()
 	m_weapon->Update();//武器の更新
 }
 
-bool Player::CanSkillAttack(bool changeGauge = true)
+bool Player::CanSkillAttack(bool changeGauge)
 {
 	bool canSkill = m_comboInfo.SkillGauge >= 20;
 	
