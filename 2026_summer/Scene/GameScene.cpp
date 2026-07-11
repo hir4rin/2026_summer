@@ -18,7 +18,7 @@
 namespace
 {
 	constexpr int kGridRange = 2400;//グリッドのサイズ
-	
+
 
 
 	constexpr int kGHX = 782;
@@ -29,6 +29,9 @@ namespace
 	constexpr int kGH2Y = 910;*/
 	constexpr int kGH3X = 687;
 	constexpr int kGH3Y = 598;
+
+
+	constexpr int kLockOnCheckNum = 10;//ロックオンの検索ループ回数
 }
 
 GameScene::GameScene(SceneController& controller) :Scene(controller)
@@ -51,12 +54,17 @@ GameScene::GameScene(SceneController& controller) :Scene(controller)
 
 	m_cameraManager = std::make_shared<CameraManager>();
 	//カメラの初期化
-	m_cameraManager->Init(std::weak_ptr<Player>(m_player),std::weak_ptr<Stage>(m_stage));
+	m_cameraManager->Init(std::weak_ptr<Player>(m_player), std::weak_ptr<Stage>(m_stage));
 	m_cameraManager->Update(m_player->GetPos());
 
 	//スカイボックスの初期化
 	m_skyBox = std::make_shared<SkyBox>();
 	m_skyBox->Init(std::weak_ptr<Camera>(m_cameraManager->GetMainCamera()));
+
+	//プレイヤーにカメラマネージャーの弱参照を渡す
+	m_player->SetCameraManager(std::weak_ptr<CameraManager>(m_cameraManager));
+	//プレイヤーにEnemyManagerの弱参照を渡す
+	m_player->SetEnemyManager(std::weak_ptr<EnemyManager>(m_enemyManager));
 
 	CollisionManager::GetInstance().Init();
 	//レンダーターゲットの作成
@@ -65,9 +73,9 @@ GameScene::GameScene(SceneController& controller) :Scene(controller)
 	m_RT3 = MakeScreen(Game::kScreenWidth, Game::kScreenHeight, true);
 
 
-	 m_gHandle1 = LoadGraph("data/UI/blood_UI.png");
-	 m_gHandle2 = LoadGraph("data/UI/splash2_UI.png");
-	 m_gHandle3 = LoadGraph("data/UI/satu_UI.png");
+	m_gHandle1 = LoadGraph("data/UI/blood_UI.png");
+	m_gHandle2 = LoadGraph("data/UI/splash2_UI.png");
+	m_gHandle3 = LoadGraph("data/UI/satu_UI.png");
 
 
 }
@@ -94,23 +102,27 @@ void GameScene::FadeInUpdate()
 void GameScene::NormalUpdate()
 {
 	//ロックオンするか
-	RockOnCamera();
+	CheckLockOnCamera();
+	//ロックオンカメラの敵の切り替え処理
+	LockOnCameraInput();
+	//ロックオンしている敵が死んだら、次の敵に切り替える
+	CheckLockOnCameraEnemyDead();
 
-	m_cameraManager->Update(m_player->GetPos());
 	m_player->Update(*m_cameraManager->GetHighestPriorityCamera());
 	m_enemyManager->Update();
 	m_stage->Update();
 	m_skyBox->Update();
 	CollisionManager::GetInstance().Update();
+	m_cameraManager->Update(m_player->GetPos());//カメラの更新をplayerの前からCollisionManagerの後に変更//何かバグるかも
 	System::GetInstance().Update();
 
 	//playerが死んでいたらゲームオーバーシーンに遷移
-	if(m_player->GetIsDead())
+	if (m_player->GetIsDead())
 	{
 		m_controller.ChangeScene(std::make_shared<GameOverScene>(m_controller));
 	}
 	//すべての敵を倒したらゲームクリアシーンに遷移
-	if(m_enemyManager->IsGetAllEnemiesDead())
+	if (m_enemyManager->IsGetAllEnemiesDead())
 	{
 		m_controller.ChangeScene(std::make_shared<GameClearScene>(m_controller));
 	}
@@ -165,7 +177,7 @@ void GameScene::NormalDraw()
 	DrawEffekseer3D();
 	DrawFormatString(300, 0, GetColor(255, 255, 255), "GameScene");
 
-	
+
 	//DrawGrid();
 
 	//RT3
@@ -187,6 +199,24 @@ void GameScene::NormalDraw()
 	DrawFormatString(0, 0, GetColor(0, 0, 0), "Player HP: %d", m_player->GetHp());
 	DrawFormatString(0, 20, GetColor(0, 0, 0), "Player SkillGauge: %d", m_player->GetSkillGauge());
 	DrawFormatString(0, 40, GetColor(0, 0, 0), "Player UltGauge: %d", m_player->GetUltGauge());
+	//ロックオンしている敵のデバッグ表示
+	auto targetEnemy = m_cameraManager->GetTargetEnemy();
+	if (targetEnemy)
+	{
+		Vector3 enemyPos = targetEnemy->GetPos();
+
+		VECTOR enemyPos2D;;
+
+		//スクリーン座標に変換
+		enemyPos2D = ConvWorldPosToScreenPos(enemyPos.ToDxLibVector());
+
+		// 画面内にいるときだけ描画
+		if (enemyPos2D.z >= 0.0f && enemyPos2D.z <= 1.0f)
+		{
+			// ロックオンサークル
+			DrawCircle(enemyPos2D.x, enemyPos2D.y + 40, 20, GetColor(255, 255, 0), true);
+		}
+	}
 
 
 #endif
@@ -224,12 +254,11 @@ void GameScene::DrawGrid()
 	//}
 }
 
-void GameScene::RockOnCamera()
+void GameScene::CheckLockOnCamera()
 {
 	//問題点
 	//・敵がいないときのことを考えていない
 	// →敵がいないときはキャラクターの正面を向くようにする
-	//・敵が死んでいるときのことを考えていない
 
 
 
@@ -257,39 +286,49 @@ void GameScene::RockOnCamera()
 			const auto& enemies = m_enemyManager->GetEnemies();
 			//範囲指定をする
 			std::vector<std::shared_ptr<EnemyBase>> enemiesInRange;
-			for (auto& enemy : enemies)
+			//範囲をだんだん広げる//一旦3回繰り返す
+			for (int i = 0; i < kLockOnCheckNum; i++)
 			{
-				Vector3 enemyPos = enemy->GetPos();
-				Vector3 playerPos = m_player->GetPos();
-				float toEnemyVec = (enemyPos - playerPos).Magnitude();
-				//範囲内にいる敵を取得
-				if (toEnemyVec < m_player->GetCameraRockOnRange())
+				for (auto& enemy : enemies)
 				{
-					enemiesInRange.push_back(enemy);
-				}
+					//敵が死んでいたらスキップ//一旦飛ばし
+					if (enemy->GetIsLifeZero())continue;
 
+					Vector3 enemyPos = enemy->GetPos();
+					Vector3 playerPos = m_player->GetPos();
+					float toEnemyVecMag = (enemyPos - playerPos).Magnitude();
+					//範囲内にいる敵を取得
+					if (toEnemyVecMag < (m_player->GetCameraRockOnRange() * i))
+					{
+						enemiesInRange.push_back(enemy);
+					}
+				}
+				//敵がいたらそこで抜ける
+				if (!enemiesInRange.empty())
+				{
+					break;
+				}
 			}
-			if(enemiesInRange.empty())
+			//範囲内に敵がいなかったらreturn
+			if (enemiesInRange.empty())
 			{
-				//範囲内に敵がいなかったらreturn
 				return;
 			}
 
+
 			//ロックオンする敵を決める
 			Vector3 rayVec = m_player->GetPos() - m_cameraManager->GetHighestPriorityCamera()->GetCameraPos();
-			rayVec.Normalize();
+			rayVec = rayVec.Normalize();
 			//最小角度//Cos//最大Cosを求める
 			float maxCos = -1.0f;
 			for (auto& enemy : enemiesInRange)
 			{
-				//敵が死んでいたらスキップ//一旦飛ばし
-				
 				//敵の座標
 				Vector3 enemyPos = enemy->GetPos();
 				//カメラから敵までのベクトル
 				Vector3 toEnemyVec = enemyPos - m_cameraManager->GetHighestPriorityCamera()->GetCameraPos();
 				//vecの初期化
-				toEnemyVec.Normalize();
+				toEnemyVec = toEnemyVec.Normalize();
 
 				//rayVecとtoEnemyVecの角度を求める//acosfじゃなくてcosで十分
 				float cos = rayVec.Dot(toEnemyVec);
@@ -302,7 +341,7 @@ void GameScene::RockOnCamera()
 					m_cameraManager->SetWeakRef(std::weak_ptr<Player>(m_player), std::weak_ptr<EnemyBase>(enemy));
 					mainCamera->SetLockOn(true);
 
-					
+
 				}
 			}
 		}
@@ -311,9 +350,230 @@ void GameScene::RockOnCamera()
 		{
 			//ロックオンを解除する
 			m_cameraManager->SetWeakRef(std::weak_ptr<Player>(m_player));
-			
+
 			mainCamera->SetLockOn(false);
 		}
 
 	}
+}
+
+void GameScene::LockOnCameraInput()
+{
+	//左右の入力があったときにそれを切り替える処理をする
+
+	const auto& camera = m_cameraManager->GetHighestPriorityCamera();
+
+	auto& input = Input::GetInstance();
+
+	//ウルトカメラ中だったらreturn;
+	if (camera->GetCameraType() == Camera::Type::UltCamera)return;
+
+	auto mainCamera = m_cameraManager->GetMainCamera();
+
+	bool isLockOn = mainCamera->GetIsLockOn();
+	//playerがいなかったらreturnする
+	if (!m_player)return;
+	//ロックオンしていなかったらreturnする
+	if (!isLockOn)return;
+
+	//右スティックの入力がなかったらreturnする
+	bool isTriggerdRightStickX = input.IsTriggeredRightStickInputX();
+	if (!isTriggerdRightStickX)return;
+
+	//左右の入力があったとき、少し大きめな範囲で敵を取り、cosの値で、その敵から入力方向の敵を選ぶ
+	auto rightStick = input.GetRightStickInput();
+	if (rightStick.x != 0.0f)
+	{
+		//ロックオンしている敵を取得
+		auto lockedEnemy = m_cameraManager->GetTargetEnemy();
+		if (!lockedEnemy)return;
+		//ロックオンしている敵の座標
+		Vector3 lockedEnemyPos = lockedEnemy->GetPos();
+
+
+		//敵を持ってきて、プレイヤーの範囲内にいるやつを取得//一旦飛ばす
+		const auto& enemies = m_enemyManager->GetEnemies();
+		//範囲指定をする
+		std::vector<std::shared_ptr<EnemyBase>> enemiesInRange;
+		for (auto& enemy : enemies)
+		{
+			//敵が死んでいたらスキップ
+			if (enemy->GetIsLifeZero())continue;
+			//ロックオンしている敵はスキップ
+			if (enemy == lockedEnemy)continue;
+
+			Vector3 enemyPos = enemy->GetPos();
+			Vector3 playerPos = m_player->GetPos();
+			float toEnemyVecMag = (enemyPos - playerPos).Magnitude();
+			//範囲内にいる敵を取得
+			if (toEnemyVecMag < (m_player->GetCameraRockOnRange() * 3))//3倍の範囲で取得
+			{
+				enemiesInRange.push_back(enemy);
+			}
+		}
+		//範囲内に敵がいなかったらreturn
+		if (enemiesInRange.empty())
+		{
+			return;
+		}
+		//ターゲットエネミーとカメラのベクトルと、他の敵たちとのカメラベクトルのcosの値で決める
+		Vector3 rayVec = lockedEnemyPos - m_cameraManager->GetHighestPriorityCamera()->GetCameraPos();
+		rayVec = rayVec.Normalize();
+		std::vector<std::shared_ptr<EnemyBase>> enemiesInRangeForward;
+		//Cosが正のものを取り出す
+		for (auto& enemy : enemiesInRange)
+		{
+			//敵の座標
+			Vector3 enemyPos = enemy->GetPos();
+			//カメラから敵までのベクトル
+			Vector3 toEnemyVec = enemyPos - m_cameraManager->GetHighestPriorityCamera()->GetCameraPos();
+			//vecの初期化
+			toEnemyVec = toEnemyVec.Normalize();
+
+			//rayVecとtoEnemyVecの角度を求める
+			float cos = rayVec.Dot(toEnemyVec);
+			//cosが最大のやつをロックオンする
+			if (cos > 0)
+			{
+				//前方の敵に入れる
+				enemiesInRangeForward.push_back(enemy);
+			}
+		}
+		//範囲内に敵がいなかったらreturn
+		if (enemiesInRangeForward.empty())
+		{
+			return;
+		}
+		//前方にいる敵と、ターゲットベクトルの90度回転ベクトルとの内積で、右にいる敵か左にいる敵かを決める
+		Vector3 upVec = Vector3(0, 1, 0);
+		//外積で右方向のベクトルを求める
+		Vector3 rightVec = rayVec.Cross(upVec) * -1;
+		rightVec = rightVec.Normalize();//正規化する
+
+		float minPositiveDot = 1.0f;//正の内積の最小値を初期化
+		float minNegativeDot = -1.0f;//負の内積の最大値を初期化
+
+		for (auto& enemy : enemiesInRangeForward)
+		{
+			//敵の座標
+			Vector3 enemyPos = enemy->GetPos();
+			//カメラから敵までのベクトル
+			Vector3 toEnemyVec = enemyPos - m_cameraManager->GetHighestPriorityCamera()->GetCameraPos();
+			//vecの初期化
+			toEnemyVec = toEnemyVec.Normalize();
+			//右方向のベクトルとtoEnemyVecの内積を求める
+			float dot = rightVec.Dot(toEnemyVec);
+			//右スティックの入力が正のとき、内積が正で最も0に近い敵を選ぶ
+			if (rightStick.x > 0 && dot > 0 && dot < minPositiveDot)
+			{
+				minPositiveDot = dot;
+				m_cameraManager->SetWeakRef(std::weak_ptr<Player>(m_player), std::weak_ptr<EnemyBase>(enemy));
+			}
+			//右スティックの入力が負のとき、内積が負で最も0に近い敵を選ぶ
+			else if (rightStick.x < 0 && dot < 0 && dot > minNegativeDot)
+			{
+				minNegativeDot = dot;
+				m_cameraManager->SetWeakRef(std::weak_ptr<Player>(m_player), std::weak_ptr<EnemyBase>(enemy));
+			}
+		}
+
+
+	}
+
+
+}
+
+void GameScene::CheckLockOnCameraEnemyDead()
+{
+	//ロックオンしている敵が死んだら、次の敵に切り替える処理をする
+	//最も近くの敵
+
+	const auto& camera = m_cameraManager->GetHighestPriorityCamera();
+
+	//ウルトカメラ中だったらreturn;
+	if (camera->GetCameraType() == Camera::Type::UltCamera)return;
+
+	auto mainCamera = m_cameraManager->GetMainCamera();
+
+	bool isLockOn = mainCamera->GetIsLockOn();
+	//playerがいなかったらreturnする
+	if (!m_player)return;
+	//ロックオンしていなかったらreturnする
+	if (!isLockOn)return;
+	//ロックオンしている敵を取得
+	auto lockedEnemy = m_cameraManager->GetTargetEnemy();
+	//ロックオンしている敵がいなかったら
+	if (!lockedEnemy)
+	{
+		assert(false && "ロックオンしている敵がいません");
+		return;
+	}
+	else
+	{
+		//ロックオンしている敵が死んでいなかったらreturnする
+		if (!lockedEnemy->GetIsLifeZero())return;
+		//ロックオンしている敵の座標
+		Vector3 lockedEnemyPos = lockedEnemy->GetPos();
+
+		//敵を持ってきて、プレイヤーの範囲内にいるやつを取得
+		const auto& enemies = m_enemyManager->GetEnemies();
+		//範囲指定をする
+		std::vector<std::shared_ptr<EnemyBase>> enemiesInRange;
+		for (auto& enemy : enemies)
+		{
+			//敵が死んでいたらスキップ
+			if (enemy->GetIsLifeZero())continue;
+			//ロックオンしている敵はスキップ
+			if (enemy == lockedEnemy)continue;
+
+			Vector3 enemyPos = enemy->GetPos();
+			Vector3 playerPos = m_player->GetPos();
+			float toEnemyVecMag = (enemyPos - playerPos).Magnitude();
+			//範囲内にいる敵を取得
+			if (toEnemyVecMag < (m_player->GetCameraRockOnRange() * 3))//3倍の範囲で取得
+			{
+				enemiesInRange.push_back(enemy);
+			}
+		}
+		//範囲内に敵がいなかったらロックオンを解除する
+		if (enemiesInRange.empty())
+		{
+			//ロックオンを解除する
+			m_cameraManager->SetWeakRef(std::weak_ptr<Player>(m_player));
+			mainCamera->SetLockOn(false);
+			return;
+		}
+		//ターゲットエネミーとカメラのベクトルと、他の敵たちとのカメラベクトルのcosの値で決める
+		Vector3 rayVec = lockedEnemyPos - m_cameraManager->GetHighestPriorityCamera()->GetCameraPos();
+		rayVec = rayVec.Normalize();
+		//最小角度//Cos//最大Cosを求める
+		float maxCos = -1.0f;
+		for (auto& enemy : enemiesInRange)
+		{
+			//敵の座標
+			Vector3 enemyPos = enemy->GetPos();
+			//カメラから敵までのベクトル
+			Vector3 toEnemyVec = enemyPos - m_cameraManager->GetHighestPriorityCamera()->GetCameraPos();
+			//vecの初期化
+			toEnemyVec = toEnemyVec.Normalize();
+
+			//rayVecとtoEnemyVecの角度を求める
+			float cos = rayVec.Dot(toEnemyVec);
+			if (cos > maxCos)
+			{
+				maxCos = cos;
+				//敵をカメラに渡す
+				m_cameraManager->SetWeakRef(std::weak_ptr<Player>(m_player), std::weak_ptr<EnemyBase>(enemy));
+			}
+
+			//誰もいなかったらロックオンを解除する
+			if (maxCos == -1.0f)
+			{
+				//ロックオンを解除する
+				m_cameraManager->SetWeakRef(std::weak_ptr<Player>(m_player));
+				mainCamera->SetLockOn(false);
+			}
+		}
+	}
+
 }

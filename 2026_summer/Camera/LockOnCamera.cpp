@@ -3,6 +3,7 @@
 #include "../Character/Enemy/EnemyBase.h"
 #include "Player.h"
 #include "MainCamera.h"
+#include "../Stage/Stage.h"
 #include "../Math/Matrix4x4.h"
 namespace
 {
@@ -11,6 +12,8 @@ namespace
 	const Vector3 kCameraHeight = Vector3(0.0f, 150.0f, 0.0f);//カメラの高さ(Vector3)
 
 	constexpr float kLockOnMaxDistance = 10000.0f;//ロックオンの最大距離
+	constexpr float kGroundCheckDistance = 800.0f;//プレイヤーの最高到達点//カメラのターゲットの割合注視点
+
 }
 
 LockOnCamera::LockOnCamera()
@@ -32,6 +35,12 @@ void LockOnCamera::Init()
 
 void LockOnCamera::Update(Vector3 pos, Vector3 pos2)
 {
+	//ロックオンカメラもPlayerCaemraのように
+	//プレイヤーの高さに応じて注視点の割合を決めて変える
+
+
+
+
 	auto enemy = m_cameraContext->m_targetEnemy.lock();
 	auto player = m_cameraContext->m_player.lock();
 	auto cameraManager = m_cameraManager.lock();
@@ -67,9 +76,28 @@ void LockOnCamera::Update(Vector3 pos, Vector3 pos2)
 		if (!cameraManager)return;
 		cameraManager->SetNextCameraPriority(Camera::Type::PlayerCamera, false, true);
 	}
+	Vector3 targetPos = (playerPos + enemyPos) / 2;
+	auto stage = m_stage.lock();
+	if (stage)
+	{
+		Vector3 endPos = targetPos + Vector3(0.0f, -kGroundCheckDistance, 0.0f);
+		//stage地面とターゲットの距離を取得する
+		auto hitPoly = MV1CollCheck_Line(stage->GetStageModelHandle(), -1, targetPos.ToDxLibVector(), endPos.ToDxLibVector());
+		if (hitPoly.HitFlag)
+		{
+			float distance = targetPos.y - hitPoly.HitPosition.y;
+			if (distance >=0.0f)
+			{
+				//カメラ注視点の割合をきめる
+				float ratio = distance / kGroundCheckDistance;
+				targetPos.y *= ratio;
+			}
+		}
+	}
+
 
 	//ターゲットの位置を更新
-	m_target = (playerPos + enemyPos) / 2 + kCameraHeight;
+	m_target = targetPos + kCameraHeight;
 	//カメラの位置を調整する
 	FixCameraPos();
 	//カメラの位置と注視点を反映する

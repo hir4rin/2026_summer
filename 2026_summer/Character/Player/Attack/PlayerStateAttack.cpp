@@ -5,7 +5,10 @@
 #include "../../AttackCol.h"
 #include "../../../Managers/CollisionManager.h"
 #include "../System.h"
-
+#include "../../../Camera/CameraManager.h"
+#include "../../../Camera/MainCamera.h"
+#include "../../Enemy/EnemyBase.h"
+#include "../../Enemy/EnemyManager.h"
 
 namespace
 {
@@ -16,8 +19,8 @@ namespace
 }
 
 
-PlayerStateAttack::PlayerStateAttack(std::weak_ptr<Player> player, AttackType type):
-	PlayerState(player),m_attackType(type)
+PlayerStateAttack::PlayerStateAttack(std::weak_ptr<Player> player, AttackType type) :
+	PlayerState(player), m_attackType(type)
 {
 	//playerが既に破棄されていたら早期リターンする//trueで破棄されている
 	if (m_owner.expired())return;
@@ -33,10 +36,16 @@ void PlayerStateAttack::Enter()
 	if (!player) return;
 	//攻撃の方向を決める
 	DetermineAttackDirection();
+	//ロックオン中の攻撃の方向を決める
+	LockOnAttackDirection();
+	//ロックオンしていないとき、入力方向に敵がいたらそいつをターゲットにする
+	CheckNoLockOnTargetEnemy();
+	//ロックオンしていないときの攻撃の方向を決める//内部ターゲット
+	NoLockOnAttackDirection();
 	//アニメーションの初期化//コンボの段数によってアニメーションを変える//-1はplayerがいないとき
 	int currentComboIndex = SelectAnimInit();
 	const ComboNode& node = player->m_comboChain[currentComboIndex];
-	player->m_anim.ChangeAnim(node.animName, false,1.0f);
+	player->m_anim.ChangeAnim(node.animName, false, 1.0f);
 	//上下差がある攻撃の時はここで初速を与える
 	if (node.moveSpeedY != 0)
 	{
@@ -63,9 +72,10 @@ void PlayerStateAttack::Enter()
 	};
 	m_attackCol = std::make_shared<AttackCol>(m_owner, player->m_attackData);
 	Vector3 offset = player->m_targetVec * player->m_attackData.kAttackColOffset
-					+ Vector3(0, kPlayerCenter, 0);//プレイヤーの前方に50.0f、y軸方向にkPlayerCenterだけオフセットする
+		+ Vector3(0, kPlayerCenter, 0);//プレイヤーの前方に50.0f、y軸方向にkPlayerCenterだけオフセットする
 	m_attackCol->ColInit(player->m_pos, offset, 150.0f,
-							ColliderType::Sphere, Tags::PlayerAttack, true,true);//攻撃の当たり判定を初期化する//最初は無効にしておく
+							ColliderType::Sphere, Tags::PlayerAttack, true, true);//攻撃の当たり判定を初期化する//最初は無効にしておく
+	m_attackCol->ResetID(player->GetId());
 	m_attackCol->SetIsActive(false);//最初は当たり判定を無効にしておく
 
 }
@@ -82,7 +92,7 @@ void PlayerStateAttack::Update()
 	//コンボ予約の入力を取る//予約を取ったらもうここは通らないようにする
 	AttackInputCheck();
 	//回避
-	if(input.IsTriggered("B") && player->IsAvoidable())
+	if (input.IsTriggered("B") && player->IsAvoidable())
 	{
 		if (player->IsFloor())
 		{
@@ -102,14 +112,14 @@ void PlayerStateAttack::Update()
 			player->ChangeState(std::make_shared<PlayerStateJump>(m_owner));
 			return;
 		}
-		
+
 	}
 	float animRate = player->m_anim.GetAnimRate();
 	//コンボに移行
 	if (animRate >= 0.5f)
 	{
 		//通常攻撃からスキル攻撃に移行するとき//コンボではなく、スキル攻撃を初めて降ったというシステム
-		if(m_isSkillAttackReserved)
+		if (m_isSkillAttackReserved)
 		{
 			m_isSkillAttackReserved = false;//スキル攻撃の予約を解除する
 			AttackFinishProcess();//攻撃の段数を初期化するなどの処理
@@ -126,7 +136,7 @@ void PlayerStateAttack::Update()
 		{
 			//次のコンボに移行する
 			StartCombo(m_nextComboIndex);//m_nextComboIndexもm_currentComboIndexも更新されている
-			player->ChangeState(std::make_shared<PlayerStateAttack>(m_owner,AttackType::None));
+			player->ChangeState(std::make_shared<PlayerStateAttack>(m_owner, AttackType::None));
 			return;
 		}
 	}
@@ -158,7 +168,7 @@ void PlayerStateAttack::Update()
 			return;
 		}
 	}
-	else if(node.moveSpeedY < 0)//落下攻撃の時は、地面と当たるまで//一旦地面に当たるまで
+	else if (node.moveSpeedY < 0)//落下攻撃の時は、地面と当たるまで//一旦地面に当たるまで
 	{
 		if (player->IsFloor())//地面と当たったとき
 		{
@@ -173,7 +183,7 @@ void PlayerStateAttack::Update()
 			return;
 		}
 	}
-	
+
 	//アニメーションの更新
 	player->m_anim.Update();
 }
@@ -201,9 +211,9 @@ void PlayerStateAttack::DebugDraw()
 
 void PlayerStateAttack::AttackMoveMent()
 {
-	 auto player = m_owner.lock();
+	auto player = m_owner.lock();
 	if (!player) return;
-	
+
 
 	int currentComboIndex = player->m_comboInfo.currentComboIndex;
 	const ComboNode& node = player->m_comboChain[currentComboIndex];
@@ -217,7 +227,7 @@ void PlayerStateAttack::AttackMoveMent()
 		{
 			m_attackCol->SetIsActive(true);//攻撃の当たり判定を有効にする
 		}
-		else 
+		else
 		{
 			m_attackCol->SetIsActive(false);//攻撃の当たり判定を無効にする
 		}
@@ -246,11 +256,11 @@ void PlayerStateAttack::AttackMoveMent()
 		float timeScale = System::GetInstance().GetTimeScale();
 		//重力
 		player->m_accumulatedGravity += -Game::kGravity * timeScale;
-		player->m_vel = m_InitVel + Vector3(0, player->m_accumulatedGravity,0);
+		player->m_vel = m_InitVel + Vector3(0, player->m_accumulatedGravity, 0);
 		//player->m_vel += Vector3(0, -Game::kGravity, 0) * timeScale;
 
 		//下方向は時間なし//上方向は時間制限あり
-		if(node.moveSpeedY > 0)//上向き
+		if (node.moveSpeedY > 0)//上向き
 		{
 			//床から離れる
 			player->SetIsFloor(false);
@@ -272,10 +282,10 @@ void PlayerStateAttack::AttackMoveMent()
 			//判定を有効
 			m_attackCol->SetIsActive(true);//攻撃の当たり判定
 		}
-		
+
 
 	}
-	
+
 }
 
 void PlayerStateAttack::DetermineAttackDirection()
@@ -287,7 +297,7 @@ void PlayerStateAttack::DetermineAttackDirection()
 	auto& camera = player->m_camera;
 	Vector3 attackDir = Vector3(0, 0, 0);
 
-	//攻撃の方向を決める//カメラの向きと入力から、回避の方向を決める
+	//攻撃の方向を決める//カメラの向きと入力から、方向を決める
 	if (input.IsPressed("Up"))
 	{
 		attackDir += player->forward;
@@ -315,7 +325,166 @@ void PlayerStateAttack::DetermineAttackDirection()
 	{
 		player->m_targetVec = attackDir.Normalize();
 	}
+
+}
+
+void PlayerStateAttack::LockOnAttackDirection()
+{
+	auto player = m_owner.lock();
+	if (!player) return;
+	//ロックオンしているかどうか
+	auto cameraManager = player->m_cameraManager.lock();
+	if (!cameraManager)return;
+	//メインカメラを取得
+	auto mainCamera = cameraManager->GetMainCamera();
+
+	bool isLockOn = mainCamera->GetIsLockOn();
+	//ロックオンしていないならreturnする
+	if (!isLockOn)return;
+
+	//ターゲットしている敵を取得
+	auto lockedEnemy = cameraManager->GetTargetEnemy();
+	if (!lockedEnemy)return;
+	//ターゲットしている敵が死んでいるならreturnする
+	if (lockedEnemy->GetIsLifeZero())return;
+	//ターゲットしている敵の方向にプレイヤーを向く
+	Vector3 enemyPos = lockedEnemy->GetPos();
+
+	Vector3 dirToEnemy = (enemyPos - player->m_pos).Normalize();
+	player->m_targetVec = dirToEnemy;
+
+}
+
+void PlayerStateAttack::NoLockOnAttackDirection()
+{
+	auto player = m_owner.lock();
+	if (!player) return;
+	//ロックオンしているかどうか
+	auto cameraManager = player->m_cameraManager.lock();
+	if (!cameraManager)return;
+	//メインカメラを取得
+	auto mainCamera = cameraManager->GetMainCamera();
+
+	bool isLockOn = mainCamera->GetIsLockOn();
+	//ロックオンしていたらreturnする
+	if (isLockOn)return;
+	//ターゲットしている敵を取得
+	auto lockedEnemy = cameraManager->GetTargetEnemy();
+	if (!lockedEnemy)return;
+	//ターゲットしている敵が死んでいるならreturnする
+	if (lockedEnemy->GetIsLifeZero())return;
+	//ターゲットしている敵の方向にプレイヤーを向く
+	Vector3 enemyPos = lockedEnemy->GetPos();
+	Vector3 playerPos = player->m_pos;
+	enemyPos.y = playerPos.y = 0;//y軸方向は無視する//XZ平面での角度を計算する
+
+	Vector3 dirToEnemy = (enemyPos - playerPos).Normalize();
+	player->m_targetVec = dirToEnemy;
+}
+
+void PlayerStateAttack::CheckNoLockOnTargetEnemy()
+{
+	auto player = m_owner.lock();
+	if (!player) return;
+	auto& input = Input::GetInstance();
+
+	//ロックオンしているかどうか
+	auto cameraManager = player->m_cameraManager.lock();
+	if (!cameraManager)return;
+	//メインカメラを取得
+	auto mainCamera = cameraManager->GetMainCamera();
+
+	bool isLockOn = mainCamera->GetIsLockOn();
+	//ロックオンしていたらreturnする
+	if (isLockOn)return;
+
+	//プレイヤーの一定範囲内にいる敵を取得
+	auto enemyManager = player->m_enemyManager.lock();
+	if (!enemyManager)return;
+	auto enemies = enemyManager->GetEnemies();
+	std::vector<std::shared_ptr<EnemyBase>> nearbyEnemies;
+	//playerが空中にいるなら空中の敵の身を取得
+	bool isPlayerAir = !player->IsFloor();
+	for (auto& enemy : enemies)
+	{
+		if (enemy->GetIsLifeZero()) continue;
+		//playerが空中
+		if (isPlayerAir)
+		{
+			if (enemy->IsFloor()) continue;
+		}
+		//playerが地上
+		else
+		{
+			if (!enemy->IsFloor()) continue;
+		}
+
+
+		Vector3 enemyPos = enemy->GetPos();
+		float distance = (enemyPos - player->m_pos).Magnitude();
+		if(distance < player->GetCameraRockOnRange() * 2)
+		{
+			nearbyEnemies.push_back(enemy);
+		}
+	}
+	//近くに敵がいなかったらreturnする
+	if (nearbyEnemies.empty()) return;
+
+	//入力方向にベクトルを飛ばし、そこと、cosΘで比較
+	//30度以内の敵がいたら、そいつをターゲットにする
+	Vector3 inputDir = Vector3(0, 0, 0);
+	float cosTheta = cosf(DX_PI_F / 4);//角度以内の敵をターゲットにする//cosでの判定に使う
+
+	if (input.IsPressed("Up")) inputDir += player->forward;
+	if (input.IsPressed("Down")) inputDir += player->down;
+	if (input.IsPressed("Left")) inputDir += player->left;
+	if (input.IsPressed("Right")) inputDir += player->right;
+
+	if (inputDir.Magnitude() <= 0.0f)
+	{
+		//入力がないときは、playerの向いている方向を入力方向とする
+		inputDir = player->m_targetVec.Normalize();
+		//入力がないとき、かつ、敵ターゲットがまだいないときはカメラのベクトルにする
+		//そして、ターゲットを探す
+		if (!cameraManager->GetTargetEnemy())
+		{
+			Vector3 cameraPos = mainCamera->GetCameraPos();
+			Vector3 playerPos = player->m_pos;
+			cameraPos.y = playerPos.y = 0;//y軸方向は無視する//XZ平面での角度を計算する
+			inputDir = (playerPos - cameraPos).Normalize();
+			//cosを広げる
+			cosTheta = cosf(DX_PI_F / 3);//60度以内の敵をターゲットにする//cosでの判定に使う
+		}
+	}
+	else
+	{
+		inputDir = inputDir.Normalize();
+	}
+
+	//cosが最大の敵をターゲットにする//-1.0fで初期化
+	float MaxCos = -1.0f;
 	
+	std::shared_ptr<EnemyBase> bestTarget = nullptr;
+	for(auto& enemy : nearbyEnemies)
+	{
+		Vector3 enemyPos = enemy->GetPos();
+		Vector3 playerPos = player->m_pos;
+		enemyPos.y = playerPos.y;//y軸方向は無視する//XZ平面での角度を計算する
+		Vector3 dirToEnemy = (enemyPos - player->m_pos).Normalize();
+		float cos = inputDir.Dot(dirToEnemy);
+		if (cos < cosTheta) continue;//30度以内の敵じゃなかったらスキップ
+		if(cos > MaxCos)
+		{
+			MaxCos = cos;
+			bestTarget = enemy;
+		}
+	}
+	//ターゲットが見つかったら、カメラにセットする
+	if(bestTarget)
+	{
+		cameraManager->SetWeakTargetEnemy(bestTarget->GetId());
+	}
+
 }
 
 void PlayerStateAttack::AttackInputCheck()
@@ -336,8 +505,8 @@ void PlayerStateAttack::AttackInputCheck()
 	const ComboNode& currentNode = player->m_comboChain[currentComboIndex];
 	//スキル攻撃かどうか
 	bool isSkillAttack = currentNode.index == ComboIndex::SkillAttack1 ||
-						 currentNode.index == ComboIndex::SkillAttack2 ||
-				   	     currentNode.index == ComboIndex::SkillAttack3;
+		currentNode.index == ComboIndex::SkillAttack2 ||
+		currentNode.index == ComboIndex::SkillAttack3;
 	bool isPlayerAir = !player->IsFloor();//空中にいるかどうか//空中にいるときは、空中攻撃に移行する
 	bool WasSkillAirAttack = player->m_comboInfo.isAirSkillAttack;//空中でスキル攻撃をしたかどうか
 	bool WasAirAttack = player->m_comboInfo.isAirAttack;//空中で攻撃をしたかどうか
@@ -399,7 +568,7 @@ void PlayerStateAttack::AttackInputCheck()
 		}
 	}
 	//弱攻撃
-	else if (!input.IsPressed("LB") &&input.IsTriggered("X"))
+	else if (!input.IsPressed("LB") && input.IsTriggered("X"))
 	{
 		//スキルアタックだったら弱攻撃につなぐ
 		if (isSkillAttack)
@@ -428,7 +597,7 @@ void PlayerStateAttack::AttackInputCheck()
 			m_nextComboIndex = currentNode.nextWeakAttack[0];//次のコンボ番号をセットする//今回は1つしかないので、0番目をセットする
 			m_isComboInputReserved = true;//コンボ入力が予約されているフラグを立てる
 		}
-		
+
 	}
 	//else if (!input.IsPressed("LB") && input.IsTriggered("Y"))
 	//{
@@ -456,8 +625,8 @@ void PlayerStateAttack::StartCombo(int comboIndex)
 	m_isComboInputReserved = false;//コンボ入力の予約を解除する
 
 	//Skill攻撃2,3だったらスキルゲージを減らす
-	int currentComboIndex = player->m_comboInfo.currentComboIndex;	
-	bool isSkillAttack2or3 = 
+	int currentComboIndex = player->m_comboInfo.currentComboIndex;
+	bool isSkillAttack2or3 =
 		currentComboIndex == ComboIndex::SkillAttack2 ||
 		currentComboIndex == ComboIndex::SkillAttack3;
 
@@ -477,7 +646,7 @@ void PlayerStateAttack::AttackFinishProcess()
 	player->m_vel.y = 0.0f;
 	//鴉状態を解除する
 	player->m_isRaven = false;
-	
+
 	//攻撃の当たり判定の開放
 	//m_attackCol->SetIsActive(false);
 	//m_attackCol->SetLifeTimeLimited();
@@ -494,42 +663,42 @@ int PlayerStateAttack::SelectAnimInit()
 	if (currentComboIndex == ComboIndex::None)//コンボの段数が-1のときは、最初のコンボを再生する
 	{
 
-			
-			if (m_attackType == AttackType::lightAttack)
+
+		if (m_attackType == AttackType::lightAttack)
+		{
+			if (player->IsFloor())
 			{
-				if (player->IsFloor())
-				{
-					currentComboIndex = ComboIndex::LightAttack1;//弱攻撃の最初の段数を0に設定する
-				}
-				else
-				{
-					player->m_comboInfo.isAirAttack = true;//空中攻撃のフラグを立てる
-					currentComboIndex = ComboIndex::AirAttack1;//空中攻撃1
-				}
+				currentComboIndex = ComboIndex::LightAttack1;//弱攻撃の最初の段数を0に設定する
 			}
-			else if (m_attackType == AttackType::heavyAttack)
+			else
 			{
-				if (player->IsFloor())
-				{
-					currentComboIndex = ComboIndex::HeavyAttack1;//強攻撃の最初の段数を1に設定する//今回は、弱攻撃が0番目、強攻撃が1番目の段数から始まるようにする
-				}
-				else
-				{
-					currentComboIndex = ComboIndex::AirHeavyAttack1;//空中強攻撃1
-				}
+				player->m_comboInfo.isAirAttack = true;//空中攻撃のフラグを立てる
+				currentComboIndex = ComboIndex::AirAttack1;//空中攻撃1
 			}
-			else if (m_attackType == AttackType::SkillAttack)
+		}
+		else if (m_attackType == AttackType::heavyAttack)
+		{
+			if (player->IsFloor())
 			{
-				currentComboIndex = ComboIndex::SkillAttack1;
-				if(!player->IsFloor())player->m_comboInfo.isAirSkillAttack = true;//空中攻撃のフラグを立てる
-				
+				currentComboIndex = ComboIndex::HeavyAttack1;//強攻撃の最初の段数を1に設定する//今回は、弱攻撃が0番目、強攻撃が1番目の段数から始まるようにする
 			}
-			//スキルアタックだったら鴉状態にする
-			bool isSkillAttack = currentComboIndex == ComboIndex::SkillAttack1 ||
-								 currentComboIndex == ComboIndex::SkillAttack2 ||
-								 currentComboIndex == ComboIndex::SkillAttack3;
-			if (isSkillAttack)player->m_isRaven = true;//鴉状態にする
-			else player->m_isRaven = false;//鴉状態を解除する
+			else
+			{
+				currentComboIndex = ComboIndex::AirHeavyAttack1;//空中強攻撃1
+			}
+		}
+		else if (m_attackType == AttackType::SkillAttack)
+		{
+			currentComboIndex = ComboIndex::SkillAttack1;
+			if (!player->IsFloor())player->m_comboInfo.isAirSkillAttack = true;//空中攻撃のフラグを立てる
+
+		}
+		//スキルアタックだったら鴉状態にする
+		bool isSkillAttack = currentComboIndex == ComboIndex::SkillAttack1 ||
+			currentComboIndex == ComboIndex::SkillAttack2 ||
+			currentComboIndex == ComboIndex::SkillAttack3;
+		if (isSkillAttack)player->m_isRaven = true;//鴉状態にする
+		else player->m_isRaven = false;//鴉状態を解除する
 		//現在のコンボの段数を更新する
 		player->m_comboInfo.currentComboIndex = currentComboIndex;
 	}
@@ -538,7 +707,7 @@ int PlayerStateAttack::SelectAnimInit()
 		//コンボ攻撃で空中攻撃だった時、AirAttackをtrueにする
 		if (currentComboIndex == ComboIndex::AirAttack1)
 		{
-						player->m_comboInfo.isAirAttack = true;
+			player->m_comboInfo.isAirAttack = true;
 		}
 		//スキルアタックだったら鴉状態にする
 		bool isSkillAttack = currentComboIndex == ComboIndex::SkillAttack1 ||
@@ -573,8 +742,9 @@ void PlayerStateAttack::InpuctAttackSetUp()
 		};
 		//AttackColを生成
 		auto m_attackColForDrop = std::make_shared<AttackCol>(m_owner, dropAttackData);
-		m_attackColForDrop->ColInit(player->m_pos, Vector3(0, kPlayerCenter, 0), 150.0f,
-			ColliderType::Sphere, Tags::PlayerAttack, true, true,10.0f);//攻撃の当たり判定を初期化する//最初は無効にしておく
+		m_attackColForDrop->ColInit(player->m_pos, Vector3(0, 50, 0), 150.0f,
+			ColliderType::Sphere, Tags::PlayerAttack, true, true, 10.0f);//攻撃の当たり判定を初期化する//最初は無効にしておく
+		m_attackColForDrop->ResetID(player->GetId());
 		m_attackColForDrop->SetIsActive(true);//攻撃の当たり判定を有効にする
 	}
 }

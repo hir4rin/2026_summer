@@ -2,6 +2,7 @@
 #include <vector>
 #include <functional>
 #include <memory>
+#include <memory>
 #include "FixNextPosition.h"//unique_ptrはデストラクタでdeleteするためヘッダに書く必要あり
 #include "CollisionChecker.h"
 
@@ -37,6 +38,9 @@ public:
 	void Update();
 	//デバッグ描画
 	void DebugDraw()const;
+	//指定したidのコライダーを取得する
+	std::shared_ptr<Collider> GetColliderById(int id)const;
+
 private:
 	//コンストラクタとデストラクタをプライベートにして、シングルトンパターンを実装
 	CollisionManager() = default;

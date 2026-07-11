@@ -98,10 +98,8 @@ void EnemyManager::Update()
 	//プレイヤーの現在の位置によって、敵を出す
 	CheckSpawnWave();
 
-	for (auto& enemy : m_enemies)
-	{
-		enemy->Update();
-	}
+	//意図的にm_isDeadを1フレーム遅らせることで、死亡時の判定をゲームシーンで取れるようにしている
+	//バグったら治す
 
 	//敵が死んでいるかどうかをチェックして、死んでいる敵を消す
 	//remove_ifで死んでいる敵を前方に移動//それらが終わった後の開始位置を返す
@@ -132,6 +130,11 @@ void EnemyManager::Update()
 			m_isAllEnemiesDead = true;
 		}
 	
+	}
+
+	for (auto& enemy : m_enemies)
+	{
+		enemy->Update();
 	}
 }
 

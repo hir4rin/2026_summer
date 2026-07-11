@@ -29,8 +29,8 @@ public:
 	bool GetIsLockOn()const { return m_isLockOn; }
 
 private:
-	bool m_isLerp = false;
-	bool m_isSlerp = false;
+	bool m_isLerp[2] = { false ,false};//注視点と座標
+	bool m_isSlerp[2] = {false,false};//注視点と座標
 	bool m_isLockOn = false;//ロックオンしているかどうか
 
 	float m_distance = 0.0f;//Slerpの時に使うベクトルの大きさ

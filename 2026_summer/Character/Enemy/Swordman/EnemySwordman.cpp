@@ -37,7 +37,7 @@ namespace
 EnemySwordman::EnemySwordman(std::weak_ptr<Player> player, Vector3 pos, int modelHandle) : EnemyBase(player)
 {
 	m_pos = pos;//初期位置
-	m_hp = 500;//体力
+	m_hp = 5000;//体力
 	//モデルのハンドルをセット
 	m_modelHandle = modelHandle;
 	//モデルの初期位置を設定する
@@ -65,6 +65,7 @@ void EnemySwordman::Init()
 	//やられ判定の初期化
 	InitHitCol(GetWeakPtr());
 	m_hitCol->ColInit(m_pos, Vector3(0, kEnemyCenter, 0),120.0f, ColliderType::Sphere, Tags::EnemyHit, true,true);
+	m_hitCol->ResetID(GetId());
 	//AttackColの生成
 	m_attackData = {
 		.attackPower = 10.0f,
@@ -78,6 +79,7 @@ void EnemySwordman::Init()
 
 	Vector3 offset = m_targetVec.Normalize() * m_attackData.kAttackColOffset + Vector3(0,kEnemyCenter,0);
 	m_attackCol->ColInit(m_pos, offset, 100.0f, ColliderType::Sphere, Tags::EnemyAttack, false, true);
+	m_attackCol->ResetID(GetId());
 
 }
 
@@ -422,18 +424,29 @@ void EnemySwordman::OnDamage(Collider& other, AttackData& data)
 	m_hp -= data.attackPower;
 	if (m_hp <= 0)
 	{
-		m_hp = 0;
-		//当たり判定を解除する
-		Terminate();
-
-		if (m_attackData.isKirimomi)
+		//空中じゃ死なない
+		if (!IsFloor())
 		{
-			m_isDieOut = true;
+			m_hp = 1;
 		}
 		else
 		{
-			ChangeState(EnemyState::Dead);
-			return;
+			m_hp = 0;
+			m_isLifeZero = true;
+			//当たり判定を解除する
+			Terminate();
+
+			//キリモミ吹っ飛びの時は、途中で死ぬ
+			if (m_attackData.isKirimomi)
+			{
+				m_isDieOut = true;
+			}
+			//死亡アニメーションに移行
+			else
+			{
+				ChangeState(EnemyState::Dead);
+				return;
+			}
 		}
 	}
 	//Enemy->Playerのベクトルに吹き飛ばす力を加える//プレイヤーの正面に行くようにknockBackする//いずれkirimomi吹っ飛びの時の処理と分ける

@@ -3,6 +3,7 @@
 #include "PlayerStateIdle.h"
 #include "PlayerStateMove.h"
 #include "../Weapon.h"
+#include "../../../Camera/CameraManager.h"
 #include "../../../DataLoader/DataManager.h"
 #include "../../../System.h"
 #include "../../../Math/Matrix4x4.h"
@@ -77,6 +78,7 @@ void Player::Init()
 	//やられ判定の初期化
 	InitHitCol(GetWeakPtr());
 	m_hitCol->ColInit(m_pos, Vector3(0, kPlayerCenter, 0), 50.0f, ColliderType::Sphere, Tags::PlayerHit, true,true);
+	m_hitCol->ResetID(GetId());
 	CharacterBase::ApplyPos();//座標の更新//モデルの座標を更新する
 	ChangeState(m_currentState);//初期化
 	//武器の生成
@@ -180,7 +182,7 @@ void Player::Draw()
 	{
 		m_currentState->DebugDraw();//デバッグ描画
 	}
-	DrawSphere3D(m_pos.ToDxLibVector(), kPlayerRockOnRange, 16, GetColor(255, 0, 0), GetColor(255, 0, 0), false);
+	DrawSphere3D(m_pos.ToDxLibVector(), kPlayerRockOnRange * 5, 16, GetColor(255, 0, 0), GetColor(255, 0, 0), false);
 #endif
 }
 
@@ -417,4 +419,10 @@ bool Player::CanUltAttack()
 	}
 
 	return false;
+}
+
+std::weak_ptr<EnemyBase> Player::GetTargetEnemy() const
+{
+	auto cameraManager = m_cameraManager.lock();
+	return std::weak_ptr<EnemyBase>(cameraManager->GetTargetEnemy());
 }

@@ -19,6 +19,9 @@
 class PlayerState;
 class Camera;
 class Weapon;
+class CameraManager;
+class EnemyBase;
+class EnemyManager;
 
 struct ComboNode
 {
@@ -120,6 +123,8 @@ public:
 	virtual ~Player();
 
 	void Init();
+	void SetCameraManager(std::weak_ptr<CameraManager> cameraManager) { m_cameraManager = cameraManager; }//カメラマネージャーのセット
+	void SetEnemyManager(std::weak_ptr<EnemyManager> enemyManager) { m_enemyManager = enemyManager; }//EnemyManagerのセット
 
 	void Update(Camera& camera);
 	void Draw();
@@ -145,6 +150,11 @@ public:
 
 	//鴉状態かどうか
 	bool GetIsRaven()const { return m_isRaven; }
+
+	//ターゲットしている敵の取得
+	std::weak_ptr<EnemyBase> GetTargetEnemy()const;
+	//内部ロックオンのために
+	std::weak_ptr<CameraManager> GetCameraManager()const { return m_cameraManager; }
 
 
 private:
@@ -178,9 +188,12 @@ private:
 	int m_efHandle = -1;//エフェクトのハンドル
 	int m_efPlayingHandle = -1;//再生中のエフェクトのハンドル
 
-	const float kPlayerRockOnRange = 1500.0f;//ロックオンする範囲//この範囲内に敵がいたらロックオンする
+	const float kPlayerRockOnRange = 300.0f;//ロックオンする範囲//この範囲内に敵がいたらロックオンする
+
 	const float kJustAvoidRadius = 500.0f;//ジャスト回避の範囲
 
+	std::weak_ptr<CameraManager> m_cameraManager;//カメラマネージャ-の弱参照
+	std::weak_ptr<EnemyManager> m_enemyManager;//EnemyManagerの弱参照
 
 
 	friend class PlayerState;//PlayerStateクラスから、Playerクラスのprivateメンバにアクセスできるようにする

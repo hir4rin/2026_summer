@@ -47,7 +47,7 @@ void PlayerStateUlt::Enter()
 		+ Vector3(0, kPlayerCenter, 0);//プレイヤーの前方に50.0f、y軸方向にkPlayerCenterだけオフセットする
 	m_attackCol->ColInit(player->m_pos, offset, 500.0f,
 							ColliderType::Sphere, Tags::PlayerUltAttack, false, true);//攻撃の当たり判定を初期化する//最初は無効にしておく
-
+	m_attackCol->ResetID(player->GetId());
 }
 
 void PlayerStateUlt::Update()

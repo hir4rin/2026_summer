@@ -15,6 +15,7 @@ struct CameraContext
 {
 	std::weak_ptr<Player> m_player;
 	std::weak_ptr<EnemyBase> m_targetEnemy;
+	//std::weak_ptr<EnemyBase> m_targetEnemyNoLockOn;
 	bool m_isUltimate = false;
 };
 
@@ -54,8 +55,11 @@ public:
 
 	//RefWeakptr用
 	void SetWeakRef(std::weak_ptr<Player> m_player, std::weak_ptr<EnemyBase> m_enemy = {});
+	void SetWeakTargetEnemy(int id);//idで指定したEnemyをターゲットにする
 	//mainCameraのゲット
 	std::shared_ptr<MainCamera> GetMainCamera() { return m_mainCamera; }
+	//ターゲットのEnemyを取得する
+	std::shared_ptr<EnemyBase> GetTargetEnemy()const { return m_context->m_targetEnemy.lock(); }
 
 	//PlayerCameraに角度をセットさせる関数
 	void SetPlayerCameraAngle(float angleH, float angleV);

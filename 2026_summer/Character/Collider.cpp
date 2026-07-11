@@ -98,6 +98,11 @@ void Collider::SetID()
 	m_id = IDManager::GetNextID();
 }
 
+void Collider::ResetID(int ownerID)
+{
+	m_id = ownerID;
+}
+
 void Collider::DebugDraw() const
 {
 	//非アクティブなら描画しない

@@ -81,6 +81,7 @@ public:
 	void  ColInit(Vector3 pos,Vector3 offset, float radius, ColliderType type, Tags tag, bool isActive,bool isTrigger= false, float lifeTime = 0.0f);
 	//IDのセット//
 	void SetID();
+	void ResetID(int ownerID);//コライダーを持っている場合は、その親のidをセットする
 	//--------------------------------------------------------------------------
 
 

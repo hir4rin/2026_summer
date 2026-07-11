@@ -1,7 +1,10 @@
 ﻿#include "AttackCol.h"
 #include "CharacterBase.h"
 #include "Player.h"
+#include "../Camera/CameraManager.h"
+#include "../Camera/MainCamera.h"
 #include "../System.h"
+#include "Enemy/EnemyBase.h"
 
 namespace
 {
@@ -115,8 +118,35 @@ void AttackCol::PlayerAttackOnCollision(Collider& other)
 
 				hitCol->OnDamageInterFace(*this, *m_attackData);
 				//ownerに当たったことを連絡->AttackMoveを止める
-				auto& comboInfo = player->GetComboInfo();
-				comboInfo.isHit = true;//攻撃が当たったことを通知する//これで、攻撃の移動を止める
+				auto cameraManager = player->GetCameraManager().lock();
+				if (!cameraManager)return;
+				auto mainCamera = cameraManager->GetMainCamera();
+				if (!mainCamera)return;
+				bool isLockOn = mainCamera->GetIsLockOn();
+				if (isLockOn)
+				{
+					//ロックオンしている敵がいて、そいつに当たったら攻撃の移動を止める
+					auto playerTarget = player->GetTargetEnemy();
+					auto targetEnemy = playerTarget.lock();
+					if (!targetEnemy)
+					{
+						assert(false && "PlayerAttackOnCollision:ターゲットしている敵がいません");
+					}
+					if (otherId == targetEnemy->GetId())
+					{
+						//攻撃の移動を止める
+						auto& comboInfo = player->GetComboInfo();
+						comboInfo.isHit = true;//攻撃が当たったことを通知する//これで、攻撃の移動を止める
+					}
+				}
+				//ロックオンしていない場合
+				else
+				{
+					//内部ターゲットにセットする
+					cameraManager->SetWeakTargetEnemy(otherId);
+
+				}
+				
 			}
 			//もしプレイヤーの攻撃だったら
 			if (GetTag() == Tags::PlayerUltAttack)

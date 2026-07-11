@@ -5,7 +5,9 @@
 #include "Movie1Camera.h"
 #include "UltCamera.h"
 #include "LockOnCamera.h"
+#include "../Managers/CollisionManager.h"
 #include "../System.h"
+#include "../Character/Enemy/EnemyBase.h"
 #include "EffekseerForDXLib.h"
 #include "../SubWindow/SubWindow.h"
 
@@ -223,6 +225,33 @@ void CameraManager::SetWeakRef(std::weak_ptr<Player> m_player, std::weak_ptr<Ene
 	m_context->m_targetEnemy = m_enemy;
 
 	for(auto& camera : m_weakRefCameras)
+	{
+		camera->SetCameraContext(m_context);
+	}
+	//mainCameraにもセット
+	m_mainCamera->SetCameraContext(m_context);
+
+
+}
+void CameraManager::SetWeakTargetEnemy(int id)
+{
+	//idで指定したEnemyをターゲットにする
+	auto enemy = CollisionManager::GetInstance().GetColliderById(id);
+	if (!enemy)
+	{
+		assert(false && "指定したidのEnemyが存在しません");
+		return;
+	}
+	//EnemyBaseのshared_ptrを取得
+	auto enemyBase = std::dynamic_pointer_cast<EnemyBase>(enemy);
+	if (!enemyBase)
+	{
+		assert(false && "指定したidのEnemyはEnemyBaseではありません");
+		return;
+	}
+
+	m_context->m_targetEnemy = enemyBase;
+	for (auto& camera : m_weakRefCameras)
 	{
 		camera->SetCameraContext(m_context);
 	}

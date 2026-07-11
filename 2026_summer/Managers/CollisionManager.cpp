@@ -142,6 +142,23 @@ void CollisionManager::DebugDraw() const
 	}
 }
 
+std::shared_ptr<Collider> CollisionManager::GetColliderById(int id) const
+{
+	auto ansColIterator = std::find_if(m_colliders.begin(), m_colliders.end(), [id](const std::shared_ptr<Collider>& collider)
+		{
+			return collider->GetId() == id;
+		});
+	std::shared_ptr<Collider> ansCol = (ansColIterator != m_colliders.end()) ? *ansColIterator : nullptr;
+
+	//見つからなかったらassert
+	if(!ansCol)
+	{
+		assert(false && "GetColliderByIdで指定したidのコライダーが見つかりませんでした");
+	}
+
+	return ansCol;
+}
+
 void CollisionManager::ApplyAdjustments()
 {
 	//Colliderの座標を確定//Col自身に座標の更新をさせる

@@ -34,6 +34,8 @@ public:
 	virtual void Draw() = 0;
 
 	std::string GetEnemyStateString(EnemyState state);
+
+	bool GetIsLifeZero()const { return m_isLifeZero; }//体力が0になったかどうかを返す
 protected:
 	//ここでやりたいこと
 	//・プレイヤーを追いかける
@@ -64,6 +66,8 @@ protected:
 	bool BackMove(Vector3 target, float distance);
 	bool CanMeleeAttack(float distance);//MeleeAttackができる距離かどうか
 
+
+
 	void ToPlayerLook();//Playerの方を向く
 	void FinishHitProcess();//Hitの終了処理
 
@@ -78,6 +82,7 @@ protected:
 	float m_idleTime = 0.0f;//待機時間
 	float m_knockBackFrame = 0;//吹き飛ばしのフレーム数
 	float m_airCount = 0.0f;//空中にいる時間//AirStayのときに使う
+	bool m_isLifeZero = false;//体力が0になったか
 	HitType m_hitType = HitType::None;//空中にいるかどうか
 
 

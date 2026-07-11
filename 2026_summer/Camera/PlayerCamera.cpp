@@ -20,7 +20,7 @@ namespace
 
 	constexpr float kRockOnMaxDistance = 10000.0f;//ロックオンの最大距離
 
-	constexpr float kGroundCheckDistance = 400.0f;//プレイヤーの位置と地面の距離がこの値以下の場合、カメラを動かさない
+	constexpr float kGroundCheckDistance = 800.0f;//プレイヤーの最高到達点//カメラのターゲットの割合注視点
 }
 
 
@@ -77,53 +77,6 @@ void PlayerCamera::Draw()
 
 void PlayerCamera::Update(Vector3 pos, Vector3 pos2)
 {
-	//ロックオン問題点
-	//・ロックオン時の角度が変
-
-	//if (m_isLockOn)
-	//{
-	//	//
-	//	auto enemy = m_lockOnEnemy.lock();
-	//	if (enemy)
-	//	{
-	//		Vector3 enemyPos = enemy->GetPos();
-	//		float distance = (enemyPos - pos).Magnitude();
-	//		//ロックオンの最大距離を超えたらロックオンを解除する
-	//		if (distance > kRockOnMaxDistance)
-	//		{
-	//			m_isLockOn = false;
-	//			//解放
-	//			m_lockOnEnemy.reset();
-	//		}
-	//		//ターゲットの位置を更新
-	//		Vector3 playerPos = pos;
-	//		m_target = playerPos + (enemyPos - playerPos) / 2 + kCameraHeight;
-	//		//デバッグ用のポスを更新
-	//		m_testPos = playerPos;
-	//		m_testPos2 = enemyPos;
-	//		//カメラの角度を更新
-	//		//PlayerToEnemyVecから30度ずらす
-	//		Vector3 PtoEVec = (enemyPos - playerPos).Normalize();
-	//		//m_angleH =  
-	//		
-	//		//カメラの位置を調整する
-	//		FixCameraPosLockOn();
-	//		//Lerpでカメラの位置を更新する
-	//		m_pos = Vector3::Lerp(m_pos, m_targetPos, 0.1f);
-
-	//		//カメラの位置と注視点を反映する
-	//		//SetCameraPositionAndTarget_UpVecY(m_pos.ToDxLibVector(), m_target.ToDxLibVector());
-	//		return;
-	//	}
-	//	else
-	//	{
-	//		m_isLockOn = false;
-	//		//解放
-	//		m_lockOnEnemy.reset();
-	//	}
-	//}
-
-
 	InputRightStick();
 
 	//ターゲットの位置を更新
@@ -132,31 +85,23 @@ void PlayerCamera::Update(Vector3 pos, Vector3 pos2)
 	//プレイヤーの位置と直下の地面との距離が一定以下の場合、カメラを動かさない
 	Vector3 endPos = playerPos + Vector3(0.0f, -kGroundCheckDistance, 0.0f);
 	m_testPos2 = endPos;
-	//auto stage = m_stage.lock();
-
-	//auto player = m_cameraContext->m_player.lock();
-	//if (player)
-	//{
-	//	Vector3 playerVel = player->GetVel();
-	//	//上昇中は補正する
-	//	//if (playerVel.y > 0.0f)
-	//	//{
-	//		if (stage)
-	//		{
-	//			//stage地面とプレイヤーの距離を取得する
-	//			auto hitPoly = MV1CollCheck_Line(stage->GetStageModelHandle(), -1, playerPos.ToDxLibVector(), endPos.ToDxLibVector());
-	//			if (hitPoly.HitFlag)
-	//			{
-	//				playerPos.y = hitPoly.HitPosition.y;
-	//				m_testPos2 = playerPos;
-	//			}
-	//		}
-	//	//}
-	//}
-
-
-
-
+	auto stage = m_stage.lock();
+	if (stage)
+	{
+		//stage地面とプレイヤーの距離を取得する
+		auto hitPoly = MV1CollCheck_Line(stage->GetStageModelHandle(), -1, playerPos.ToDxLibVector(), endPos.ToDxLibVector());
+		if (hitPoly.HitFlag)
+		{
+			float distance = playerPos.y - hitPoly.HitPosition.y;
+			if (distance >= 0.0f)
+			{
+				//カメラ注視点の割合をきめる
+				float ratio = distance / kGroundCheckDistance;
+				playerPos.y *= ratio;
+			}
+			m_testPos2 = playerPos;
+		}
+	}
 	//m_testPos2 = endPos;
 
 	//rayVecを更新
@@ -168,7 +113,7 @@ void PlayerCamera::Update(Vector3 pos, Vector3 pos2)
 
 	//playerPos.y = 0.0f;//プレイヤーのy座標は0にする
 	m_focusGoal = playerPos + kCameraHeight;
-	m_target = Vector3::Lerp(m_target, m_focusGoal, 0.1f);
+	m_target = Vector3::Lerp(m_target, m_focusGoal, 0.5f);
 
 	//カメラの位置を調整する
 	FixCameraPos();
@@ -181,7 +126,7 @@ void PlayerCamera::Update(Vector3 pos, Vector3 pos2)
 	//}
 
 	//Lerpの割合を上下差がある攻撃で変えたりするとよい
-	m_pos = Vector3::Lerp(m_pos, m_targetPos, 0.1f);
+	m_pos = Vector3::Lerp(m_pos, m_targetPos, 0.5f);
 
 
 	//カメラの位置と注視点を反映する

@@ -26,7 +26,12 @@ public:
 		void FadeOutDraw() override;
 private:
 	void DrawGrid();
-	void RockOnCamera();
+	//ロックオンカメラのボタンを押すチェック処理
+	void CheckLockOnCamera();
+	//ロックオン中のカメラの入力処理
+	void LockOnCameraInput();
+	//ロックオンしている敵が死んだら、次の敵に切り替える
+	void CheckLockOnCameraEnemyDead();
 private:
 	std::shared_ptr<CameraManager> m_cameraManager;
 	std::shared_ptr<Player> m_player;
