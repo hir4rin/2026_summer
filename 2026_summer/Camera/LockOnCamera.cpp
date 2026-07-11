@@ -5,6 +5,7 @@
 #include "MainCamera.h"
 #include "../Stage/Stage.h"
 #include "../Math/Matrix4x4.h"
+#include <algorithm>
 namespace
 {
 	constexpr float kToPlayerLength = 350.0f;//プレイヤーからカメラまでの距離
@@ -12,7 +13,8 @@ namespace
 	const Vector3 kCameraHeight = Vector3(0.0f, 150.0f, 0.0f);//カメラの高さ(Vector3)
 
 	constexpr float kLockOnMaxDistance = 10000.0f;//ロックオンの最大距離
-	constexpr float kGroundCheckDistance = 800.0f;//プレイヤーの最高到達点//カメラのターゲットの割合注視点
+	constexpr float kGroundCheckDistance = 800.0f;//プレイヤーの最高到達点//カメラのターゲットの割合注視点//Y軸
+	constexpr float kRatioCheckDistance = 800.0f;//プレイヤーの最高到達点//カメラのターゲットの割合注視点//XZ軸
 
 }
 
@@ -55,7 +57,7 @@ void LockOnCamera::Update(Vector3 pos, Vector3 pos2)
 		//このカメラがメインの時、PlayerCameraにangleをずっと渡す
 		cameraManager->SetPlayerCameraAngle(m_angleH, m_angleV);
 	}
-	
+
 
 	//目標ターゲットを計算
 	FixCameraPos();
@@ -77,6 +79,13 @@ void LockOnCamera::Update(Vector3 pos, Vector3 pos2)
 		cameraManager->SetNextCameraPriority(Camera::Type::PlayerCamera, false, true);
 	}
 	Vector3 targetPos = (playerPos + enemyPos) / 2;
+	//注視点の割合を決める
+	float dis = (enemyPos - playerPos).Magnitude();
+	//割合を決める
+	float ratio = (dis - kRatioCheckDistance) / kRatioCheckDistance;
+	ratio = std::clamp(ratio, 0.1f, 0.5f);
+	targetPos = playerPos + (enemyPos - playerPos) * ratio;
+
 	auto stage = m_stage.lock();
 	if (stage)
 	{
@@ -86,7 +95,7 @@ void LockOnCamera::Update(Vector3 pos, Vector3 pos2)
 		if (hitPoly.HitFlag)
 		{
 			float distance = targetPos.y - hitPoly.HitPosition.y;
-			if (distance >=0.0f)
+			if (distance >= 0.0f)
 			{
 				//カメラ注視点の割合をきめる
 				float ratio = distance / kGroundCheckDistance;
@@ -99,7 +108,7 @@ void LockOnCamera::Update(Vector3 pos, Vector3 pos2)
 	//ターゲットの位置を更新
 	m_target = targetPos + kCameraHeight;
 	//カメラの位置を調整する
-	FixCameraPos();
+	//FixCameraPos();
 	//カメラの位置と注視点を反映する
 
 }
@@ -110,9 +119,12 @@ void LockOnCamera::FixCameraPos()
 	auto player = m_cameraContext->m_player.lock();
 	if (!enemy)return;
 	if (!player)return;
+	auto mainCamera = m_cameraManager.lock()->GetMainCamera();
 
 	//水平方向の回転//敵との距離によってこの角度を帰る
-	auto rotY = Matrix4x4::MakeRotationY(0.2f);
+	//現在のカメラtoプレイヤーの向きとプレイヤーto敵の向きに応じて角度を反転？
+	Matrix4x4 rotY;
+
 	//auto rotX = Matrix4x4::MakeRotationX(0.16f);//固定
 
 	//ここも敵との距離に寄って変える
@@ -128,6 +140,23 @@ void LockOnCamera::FixCameraPos()
 	Vector3 EtoPVec = (playerPos - enemyPos).Normalize();
 	EtoPVec *= cameraToPlayerLength;
 
+	//EtoPVecを90度回転させたベクトルとMainCtoPVecの内積が正か負かでどちらに回転させるかを決める
+	Vector3 upVec = Vector3(0.0f, 1.0f, 0.0f);
+	Vector3 rotateBase = EtoPVec.Cross(upVec).Normalize();//EtoPVecを90度回転させたベクトル
+	Vector3 PtoMainCVec = (mainCamera->GetCameraPos() - playerPos).Normalize();//プレイヤーからメインカメラへのベクトル
+	float dot = rotateBase.Dot(PtoMainCVec);
+	if (dot >= 0.0f)
+	{
+		//正の時、rotateBaseの方向に回転させる
+		rotY = Matrix4x4::MakeRotationY(-DX_PI_F / 6);
+	}
+	else
+	{
+		//負の時、rotateBaseの逆方向に回転させる
+		rotY = Matrix4x4::MakeRotationY(DX_PI_F / 6);
+	}
+	//やり方がわからないので、一旦これで
+	rotY = Matrix4x4::MakeRotationY(DX_PI_F / 6);
 
 	//auto CtoP = Vector3(0.0f, 0.0f, -cameraToPlayerLength);//プレイヤーからカメラへのベクトル
 
@@ -174,8 +203,8 @@ void LockOnCamera::Draw()
 	//このカメラがメインカメラの時、デバッグ
 	if (cameraManager->GetHighestPriorityCamera()->GetCameraType() == Camera::Type::LockOnCamera)
 	{
-		Vector3 startPos = player->GetPos() + Vector3(0,100,0);
-		Vector3 endPos = enemy->GetPos() + Vector3(0,100,0);
+		Vector3 startPos = player->GetPos() + Vector3(0, 100, 0);
+		Vector3 endPos = enemy->GetPos() + Vector3(0, 100, 0);
 		DrawLine3D(startPos.ToDxLibVector(), endPos.ToDxLibVector(), GetColor(0, 0, 255));
 	}
 }

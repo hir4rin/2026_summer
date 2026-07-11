@@ -6,6 +6,7 @@
 #include "../Camera/CameraManager.h"
 #include "../SubWindow/SubWindow.h"
 #include "MainCamera.h"
+#include <algorithm>
 namespace
 {
 	constexpr float kToPlayerLength = 700.0f;//プレイヤーからカメラまでの距離
@@ -14,6 +15,7 @@ namespace
 
 	const float kUltDistance = kToPlayerLength   / 2.0f;
 	//const float kUltDistance = kToPlayerLength   * 2.0f;
+	constexpr float kRatioCheckDistance = 800.0f;//プレイヤーの最高到達点//カメラのターゲットの割合注視点//XZ軸
 }
 
 UltCamera::UltCamera()
@@ -104,6 +106,14 @@ void UltCamera::Update(Vector3 pos, Vector3 pos2)
 
 	//注視点
 	m_target = (playerPos + enemyPos) / 2 + kCameraHeight;
+	//注視点の割合を決める//あんまり気に入ってない//なんか変だから値を小さくしている
+	enemyPos.y = playerPos.y = 0.0f;
+	float dis = (enemyPos - playerPos).Magnitude();
+	//割合を決める
+	float ratio = (dis - kRatioCheckDistance) / kRatioCheckDistance;
+	ratio = std::clamp(ratio, 0.5f, 0.6f);
+	m_target = playerPos + (enemyPos - playerPos) * ratio + kCameraHeight;
+
 	//カメラの位置と注視点を反映する
 	//SetCameraPositionAndTarget_UpVecY(m_pos.ToDxLibVector(), m_target.ToDxLibVector());
 
