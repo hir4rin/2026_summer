@@ -208,6 +208,11 @@ void FixNextPosition::AnalyzeWallAndFloor(MV1_COLL_RESULT_POLY_DIM hitDim, const
 
 Vector3 FixNextPosition::OverlapVecSP(const Vector3& nextPos, std::vector<MV1_COLL_RESULT_POLY>& dim, float shortDistance)
 {
+	//わからん
+	//なんで最期クランプしているのかもわからん
+
+
+
 	//垂線を下ろして近い点を探して祭壇距離を求める
 	float hitShortDis = FLT_MAX;//最短距離//FLT_MAXはfloat型の最大値
 	//法線
@@ -220,6 +225,7 @@ Vector3 FixNextPosition::OverlapVecSP(const Vector3& nextPos, std::vector<MV1_CO
 
 		//ポリゴンと当たったオブジェクトが法線方向にいるなら向きを反転//???
 		//dotではposからのベクトルなので、hitPosを求めるために反転させる必要がある
+		//なぜ、Yの成分なのかわからん
 		if ((PolyToPos.y > 0 && poly.Normal.y > 0) || (PolyToPos.y < 0 && poly.Normal.y < 0))
 		{
 			//ベクトルと法線が同じ向きなら反転が必要

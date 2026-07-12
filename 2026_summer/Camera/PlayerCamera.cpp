@@ -88,8 +88,10 @@ void PlayerCamera::Update(Vector3 pos, Vector3 pos2)
 	auto stage = m_stage.lock();
 	if (stage)
 	{
+		//ちょっと上から判定
+		Vector3 startPos = playerPos + Vector3(0,250,0);
 		//stage地面とプレイヤーの距離を取得する
-		auto hitPoly = MV1CollCheck_Line(stage->GetStageModelHandle(), -1, playerPos.ToDxLibVector(), endPos.ToDxLibVector());
+		auto hitPoly = MV1CollCheck_Line(stage->GetStageModelHandle(), -1, startPos.ToDxLibVector(), endPos.ToDxLibVector());
 		if (hitPoly.HitFlag)
 		{
 			float distance = playerPos.y - hitPoly.HitPosition.y;
