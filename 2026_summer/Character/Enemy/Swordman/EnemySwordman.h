@@ -22,8 +22,16 @@ private:
 	//一旦表示をさせる、次にEnemyBaseの関数を呼び出して確認する
 	std::shared_ptr<EnemySwordman> GetSharedPtr() { return std::dynamic_pointer_cast<EnemySwordman>(shared_from_this()); }
 	std::shared_ptr<EnemySwordman> GetWeakPtr() { return GetSharedPtr(); }
+	/// <summary>
+	/// intervalフレーム事にtrueを返す関数
+	/// </summary>
+	/// <param name="timer"></param>
+	/// <param name="interval"></param>
+	/// <returns></returns>
+	bool TickInterval(float& timer, float interval);//タイマーのインターバルをチェックする//trueならインターバルが経過した
 private:
 	std::shared_ptr<AttackCol>  m_attackCol;
+	float m_cautionUpdateTimer = 0.0f;
 	
 };
 

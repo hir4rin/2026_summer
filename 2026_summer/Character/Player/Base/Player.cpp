@@ -9,6 +9,7 @@
 #include "../../../Math/Matrix4x4.h"
 #include "../../../Camera/Camera.h"
 #include "../../../SubWindow/SubWindow.h"
+#include "../../../Stage/Stage.h"
 #include "../../../Input.h"
 #include "EffekseerForDXLib.h"
 #include <cmath>
@@ -384,6 +385,38 @@ void Player::ApplyPos()
 {
 	//モデルの座標を更新する
 	CharacterBase::ApplyPos();
+
+	//下方向とのレイキャストで、地面から空中に遷移したかを判定する
+	Vector3 causuleTop = m_pos + Vector3(0, 100, 0);//カプセルの上端の座標//レイキャストの始点
+	Vector3 causuleBottom = m_pos + Vector3(0, -20, 0);//カプセルの下端の座標//レイキャストの終点
+	
+	Vector3 rayCastSphere = m_pos;
+	auto stage = m_stage.lock();
+	if (stage)
+	{
+		auto hitDim = MV1CollCheck_Capsule(stage->GetStageModelHandle(), -1, causuleTop.ToDxLibVector(), causuleBottom.ToDxLibVector(), 40);
+		//地面にいる判定はCollisionMangerの押し戻し処理の際にしているのでしない
+		if (hitDim.HitNum > 0)
+		{
+		}
+		//当たっていなかったら、地面にいないと判定する
+		else
+		{
+			//地面にいたら、地面から離れたときの処理をする
+			if (IsFloor())
+			{
+				ChangeState(std::make_shared<PlayerStateFall>(GetWeakPtr()));//落下ステートにする
+			}
+
+			SetIsFloor(false);
+			m_isGround = false;
+			
+		}
+		MV1CollResultPolyDimTerminate(hitDim);
+	}
+
+	
+
 	//プレイヤーが地上にいたら空中攻撃をリセット
 	if (IsFloor())
 	{

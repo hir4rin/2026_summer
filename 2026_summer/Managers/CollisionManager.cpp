@@ -1,6 +1,7 @@
 ﻿#include "CollisionManager.h"
 #include "../Character/Collider.h"
 #include"../System.h"
+#include "../Stage/Stage.h"
 #include <algorithm>
 #include <cassert>
 
@@ -40,6 +41,10 @@ void CollisionManager::Init()
 	m_collisionChecker = std::make_unique<CollisionChecker>();
 	m_fixNextPositioner = std::make_unique<FixNextPosition>();
 }
+void CollisionManager::SetStage(std::weak_ptr<Stage> stage)
+{
+	m_stage = stage;
+}	
 
 void CollisionManager::Terminate()
 {
@@ -51,12 +56,20 @@ void CollisionManager::Update()
 	//IsTriggerを作って、押し戻し判定を無視するという条件式を追加する//今は押し戻し判定を無視する条件式はない
 	//PushBackの中でその処理をするのでいい
 
+	//Stageのポインタをセットする//絶対この辺もっといい方法ある
+	for(auto& collider : m_colliders)
+	{
+		if (!collider)continue;
+		collider->SetStagePtr(m_stage);
+	}
+
 	//CollisionのUpdate(今は寿命カウント用)
 	for(auto& collider  : m_colliders)
 	{
 		if (!collider)continue;
 		collider->ColUpdate();
 	}
+
 
 
 	//寿命が尽きたコライダーを削除する

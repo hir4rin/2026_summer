@@ -1,6 +1,7 @@
 ﻿#include "Collider.h"
 #include "../IDManager.h"
 #include "../System.h"
+#include "../Stage/Stage.h"
 
 Collider::Collider():
 	m_type(ColliderType::Sphere),

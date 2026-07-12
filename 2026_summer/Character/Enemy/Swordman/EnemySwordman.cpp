@@ -144,7 +144,7 @@ void EnemySwordman::Update()
 			break;
 		}
 		//定期的にプレイヤーの位置を更新する
-		if (m_cautionTime > kEnemyCautionMaxTime * 2/3)
+		if (TickInterval(m_cautionUpdateTimer, kEnemyCautionMaxTime / 3))
 		{
 			m_targetPos = TargetPlayerPos();
 		}
@@ -284,7 +284,7 @@ void EnemySwordman::Update()
 
 					FinishHitProcess();
 					//地面についたらChange//knockDown状態とか作ったっていい
-					ChangeState(EnemyState::Idle);
+					ChangeState(EnemyState::KnockDown);
 				}
 				break;
 			default : 
@@ -317,6 +317,15 @@ void EnemySwordman::Update()
 		if (m_anim.GetAnimEndFlag())
 		{
 			m_isDead = true;
+		}
+		break;
+	case EnemyState::KnockDown:
+		//吹き飛んだ後のダウン時間
+		m_knockBackDownFrame += 1.0f * timeScale;
+		if (m_knockBackDownFrame > 55)
+		{
+			m_knockBackDownFrame = 0.0f;
+			ChangeState(EnemyState::Idle);
 		}
 		break;
 	default:
@@ -415,6 +424,12 @@ void EnemySwordman::OnDamage(Collider& other, AttackData& data)
 
 	//データの保存
 	m_attackData = data;
+	////もし、ダメージが0以下なら無視せず、ヒットステートに更新する
+	//if(m_attackData.attackPower <= 0.0f)
+	//{
+	//	ChangeState(EnemyState::Hit);
+	//	return;
+	//}
 
 	//死亡していたら処理しない
 	if (m_isDead)return;
@@ -520,6 +535,8 @@ void EnemySwordman::ChangeState(EnemyState newState)
 		break;
 	case EnemyState::Dead:
 		break;
+	case EnemyState::KnockDown:
+		break;
 	default:
 		break;
 	}
@@ -529,6 +546,7 @@ void EnemySwordman::ChangeState(EnemyState newState)
 	{
 	case EnemyState::Idle:
 		m_anim.ChangeAnim(kIdle, true);
+		m_idleTime = 0.0f;
 		break;
 	case EnemyState::Chase:
 		m_anim.ChangeAnim(kRunName, true,0.8f);
@@ -577,8 +595,27 @@ void EnemySwordman::ChangeState(EnemyState newState)
 		//死亡アニメーションを流す
 		m_anim.ChangeAnim(kDie, false, 0.5f);
 		break;
+	case EnemyState::KnockDown:
+		//knockDownフレームのリセット
+		m_knockBackDownFrame = 0.0f;
+		break;
 	default:
 		break;
 	}
+	//重力の累積値をリセットする
+	m_accumulatedGravity = 0.0f;
+}
+
+bool EnemySwordman::TickInterval(float& timer, float interval)
+{
+	float timeScale = System::GetInstance().GetTimeScale();
+
+	timer += timeScale;
+	if (timer >= interval)
+	{
+		timer = 0.0f;
+		return true;
+	}
+	return false;
 }
 

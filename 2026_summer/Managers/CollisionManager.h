@@ -7,6 +7,7 @@
 #include "CollisionChecker.h"
 
 class Collider;
+class Stage;
 
 //衝突情報
 struct CollisionInfo
@@ -31,6 +32,7 @@ public:
 	void ReleaseCollider(std::shared_ptr<Collider> collider);
 	//初期化
 	void Init();
+	void SetStage(std::weak_ptr<Stage> stage);
 
 	//すべてのコライダーをクリア
 	void Terminate();
@@ -60,5 +62,7 @@ private:
 	//当たり判定のチェックを行うクラス
 	std::unique_ptr<CollisionChecker> m_collisionChecker;
 	std::unique_ptr<FixNextPosition> m_fixNextPositioner;
+private:
+	std::weak_ptr<Stage> m_stage;//ステージへの弱参照//ステージのポリゴンの当たり判定をするために必要
 };
 

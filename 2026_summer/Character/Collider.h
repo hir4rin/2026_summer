@@ -3,7 +3,9 @@
 #include "../Managers/CollisionManager.h"
 #include "../IDManager.h"
 #include <string>
+#include <memory>
 
+class Stage;
 
 enum class ColliderType
 {
@@ -82,6 +84,7 @@ public:
 	//IDのセット//
 	void SetID();
 	void ResetID(int ownerID);//コライダーを持っている場合は、その親のidをセットする
+	void SetStagePtr(std::weak_ptr<Stage> stage) { m_stage = stage; }//ステージへの弱参照をセット
 	//--------------------------------------------------------------------------
 
 
@@ -150,7 +153,7 @@ protected:
 	float m_ownTimeScale = 1.0f;//自分のtimeScale
 	CapsuleInfo m_capsuleInfo = {};//カプセルの情報//カプセルの時に使う
 
-	
+	std::weak_ptr<Stage> m_stage;//ステージへの弱参照//ステージとのレイキャスト用
 
 	friend class CollisionManager;
 	friend class CollisionChecker;

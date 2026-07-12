@@ -67,6 +67,8 @@ GameScene::GameScene(SceneController& controller) :Scene(controller)
 	m_player->SetEnemyManager(std::weak_ptr<EnemyManager>(m_enemyManager));
 
 	CollisionManager::GetInstance().Init();
+	CollisionManager::GetInstance().SetStage(std::weak_ptr(m_stage));
+
 	//レンダーターゲットの作成
 	m_RT1 = MakeScreen(Game::kScreenWidth, Game::kScreenHeight, true);
 	m_RT2 = MakeScreen(Game::kScreenWidth, Game::kScreenHeight, true);

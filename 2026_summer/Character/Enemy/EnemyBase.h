@@ -17,6 +17,7 @@ public:
 		AirStay = 6,
 		Fall = 7,
 		Dead = 8,
+		KnockDown = 9,
 	};
 	enum class HitType : int
 	{
@@ -81,6 +82,7 @@ protected:
 	float m_cautionTime = 0.0f;//警戒している時間
 	float m_idleTime = 0.0f;//待機時間
 	float m_knockBackFrame = 0;//吹き飛ばしのフレーム数
+	float m_knockBackDownFrame = 0.0f;//吹き飛ばし後のダウン時間
 	float m_airCount = 0.0f;//空中にいる時間//AirStayのときに使う
 	bool m_isLifeZero = false;//体力が0になったか
 	HitType m_hitType = HitType::None;//空中にいるかどうか

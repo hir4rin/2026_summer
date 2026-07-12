@@ -194,6 +194,7 @@ private:
 
 	std::weak_ptr<CameraManager> m_cameraManager;//カメラマネージャ-の弱参照
 	std::weak_ptr<EnemyManager> m_enemyManager;//EnemyManagerの弱参照
+	
 
 
 	friend class PlayerState;//PlayerStateクラスから、Playerクラスのprivateメンバにアクセスできるようにする
