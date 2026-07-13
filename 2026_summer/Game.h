@@ -20,3 +20,26 @@ namespace Game
 	constexpr float kEnemyMoveSpeed = 4.0f;//敵の移動速度
 	constexpr float kEnemyBackSpeed = 5.0f;//敵の距離を取るときの移動速度
 }
+
+
+
+//UIの表示座標一覧
+namespace UI
+{
+	constexpr int kBarScale = 300;//バーの長さ//割合
+
+	/*constexpr int HpBarX = Game::kScreenWidth * 1 / 2;
+	constexpr int HpBarY = Game::kScreenHeight / 40;*/
+	constexpr int HpBarX = 10;
+	constexpr int HpBarY = 10;
+
+	/*constexpr int SkillGaugeBarX = Game::kScreenWidth / 15;
+	constexpr int SkillGaugeBarY = Game::kScreenHeight / 20;*/
+	constexpr int SkillGaugeBarX = 10;
+	constexpr int SkillGaugeBarY = 30;
+
+	/*constexpr int UltGaugeBarX = Game::kScreenWidth / 15;
+	constexpr int UltGaugeBarY = Game::kScreenHeight / 10;*/
+	constexpr int UltGaugeBarX = 10;
+	constexpr int UltGaugeBarY = 50;
+}

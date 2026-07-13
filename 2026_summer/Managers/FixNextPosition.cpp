@@ -210,6 +210,8 @@ Vector3 FixNextPosition::OverlapVecSP(const Vector3& nextPos, std::vector<MV1_CO
 {
 	//わからん
 	//なんで最期クランプしているのかもわからん
+	//いったん自分でやってみる
+	//
 
 
 
@@ -226,11 +228,11 @@ Vector3 FixNextPosition::OverlapVecSP(const Vector3& nextPos, std::vector<MV1_CO
 		//ポリゴンと当たったオブジェクトが法線方向にいるなら向きを反転//???
 		//dotではposからのベクトルなので、hitPosを求めるために反転させる必要がある
 		//なぜ、Yの成分なのかわからん
-		if ((PolyToPos.y > 0 && poly.Normal.y > 0) || (PolyToPos.y < 0 && poly.Normal.y < 0))
-		{
-			//ベクトルと法線が同じ向きなら反転が必要
-			dot *= -1;
-		}
+		//if ((PolyToPos.y > 0 && poly.Normal.y > 0) || (PolyToPos.y < 0 && poly.Normal.y < 0))
+		//{
+		//	//ベクトルと法線が同じ向きなら反転が必要
+		//	dot *= -1;
+		//}
 		//当たった座標
 		Vector3 hitPos = Vector3::FromDxLibVector(poly.Normal) * dot + nextPos;
 		//距離

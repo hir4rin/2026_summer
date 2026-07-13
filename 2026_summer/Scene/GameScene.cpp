@@ -11,6 +11,8 @@
 #include "../Input.h"
 #include "EffekseerForDXLib.h"
 #include "../Character/Enemy/EnemyManager.h"
+#include "../UI/UIManager.h"
+#include "../UI/PlayerHUD.h"
 #include "../SubWindow/SubWindow.h"
 #include "SceneController.h"
 #include "GameOverScene.h"
@@ -18,8 +20,6 @@
 namespace
 {
 	constexpr int kGridRange = 2400;//グリッドのサイズ
-
-
 
 	constexpr int kGHX = 782;
 	constexpr int kGHY = 639;
@@ -74,6 +74,11 @@ GameScene::GameScene(SceneController& controller) :Scene(controller)
 	m_RT2 = MakeScreen(Game::kScreenWidth, Game::kScreenHeight, true);
 	m_RT3 = MakeScreen(Game::kScreenWidth, Game::kScreenHeight, true);
 
+	m_uiManager = std::make_shared<UIManager>();
+	//UIの追加
+	auto playerHUD = std::make_shared<PlayerHUD>();
+	playerHUD->SetPlayer(std::weak_ptr<Player>(m_player));
+	m_uiManager->AddUI(playerHUD);
 
 	m_gHandle1 = LoadGraph("data/UI/blood_UI.png");
 	m_gHandle2 = LoadGraph("data/UI/splash2_UI.png");
@@ -117,16 +122,19 @@ void GameScene::NormalUpdate()
 	CollisionManager::GetInstance().Update();
 	m_cameraManager->Update(m_player->GetPos());//カメラの更新をplayerの前からCollisionManagerの後に変更//何かバグるかも
 	System::GetInstance().Update();
+	m_uiManager->Update();
 
 	//playerが死んでいたらゲームオーバーシーンに遷移
 	if (m_player->GetIsDead())
 	{
 		m_controller.ChangeScene(std::make_shared<GameOverScene>(m_controller));
+		return;
 	}
 	//すべての敵を倒したらゲームクリアシーンに遷移
 	if (m_enemyManager->IsGetAllEnemiesDead())
 	{
 		m_controller.ChangeScene(std::make_shared<GameClearScene>(m_controller));
+		return;
 	}
 
 
@@ -223,6 +231,7 @@ void GameScene::NormalDraw()
 
 #endif
 	m_cameraManager->Draw();
+	m_uiManager->Draw();
 
 	//最終的に画面に描画する
 	SetDrawScreen(DX_SCREEN_BACK); ClearDrawScreen();

@@ -78,64 +78,67 @@ void CollisionManager::Update()
 			return collider->GetIsLifeTimeLimited();
 		});
 
-
-	//すべてのコライダーの組み合わせをチェックする//当たっているかの確認かつ、速度をいじる
-	for (size_t i = 0; i < m_colliders.size(); i++)
+	for (int i = 0; i < 3; i++)
 	{
-		std::shared_ptr<Collider> colliderA = m_colliders[i];
-		if (!colliderA->IsActive())continue;
-		//if (colliderA->GetTag() == Tags::StaticObject)continue;//静的オブジェクトがAの時無視
-
-		for (size_t j = i + 1; j < m_colliders.size(); j++)
+		//すべてのコライダーの組み合わせをチェックする//当たっているかの確認かつ、速度をいじる
+		for (size_t i = 0; i < m_colliders.size(); i++)
 		{
-			
-			std::shared_ptr<Collider> colliderB = m_colliders[j];
-			//アクティブなコライダーだけをチェックする//ここ関数化
-			if (!colliderB)continue;
-			if (!colliderB->IsActive())continue;
-			//静的オブジェクト同士の時無視
-			if (colliderA->GetTag() == Tags::StaticObject &&
-				colliderB->GetTag() == Tags::StaticObject)continue;
-			//それぞれの速度の更新
-			float timescale = System::GetInstance().GetTimeScale();
-			//ここですべての速度にtimescaleをかける
-			colliderA->m_vel *= timescale * colliderA->GetTimeScale();
-			colliderB->m_vel *= timescale * colliderB->GetTimeScale();
-			//衝突判定//球と球、BoxとBox、CapsuleとCapsuleとかで分ける
-			if (m_collisionChecker->IsCollide(*colliderA, *colliderB))
+			std::shared_ptr<Collider> colliderA = m_colliders[i];
+			if (!colliderA->IsActive())continue;
+			//if (colliderA->GetTag() == Tags::StaticObject)continue;//静的オブジェクトがAの時無視
+
+			for (size_t j = i + 1; j < m_colliders.size(); j++)
 			{
 
-				//衝突したときの処理を呼び出す
-				colliderA->OnCollision(*colliderB);
-				colliderB->OnCollision(*colliderA);
+				std::shared_ptr<Collider> colliderB = m_colliders[j];
+				//アクティブなコライダーだけをチェックする//ここ関数化
+				if (!colliderB)continue;
+				if (!colliderB->IsActive())continue;
+				//静的オブジェクト同士の時無視
+				if (colliderA->GetTag() == Tags::StaticObject &&
+					colliderB->GetTag() == Tags::StaticObject)continue;
+				//それぞれの速度の更新
+				float timescale = System::GetInstance().GetTimeScale();
+				//ここですべての速度にtimescaleをかける
+				colliderA->m_vel *= timescale * colliderA->GetTimeScale();
+				colliderB->m_vel *= timescale * colliderB->GetTimeScale();
+				//衝突判定//球と球、BoxとBox、CapsuleとCapsuleとかで分ける
+				if (m_collisionChecker->IsCollide(*colliderA, *colliderB))
+				{
 
-				//ここで押し戻し
-				//isTriggerは押し戻しを無視
-				if (colliderA->GetIsTrigger() || colliderB->GetIsTrigger()) continue;
-				//押し戻しの処理
-				//ここで速度を変更する//ここでタイムスケールを変更<-？？多分違う
-				//PushBackのvelを加える
-				m_fixNextPositioner->FixNextPos(*colliderA, *colliderB);
+					//衝突したときの処理を呼び出す
+					colliderA->OnCollision(*colliderB);
+					colliderB->OnCollision(*colliderA);
+
+					//ここで押し戻し
+					//isTriggerは押し戻しを無視
+					if (colliderA->GetIsTrigger() || colliderB->GetIsTrigger()) continue;
+					//押し戻しの処理
+					//ここで速度を変更する//ここでタイムスケールを変更<-？？多分違う
+					//PushBackのvelを加える
+					m_fixNextPositioner->FixNextPos(*colliderA, *colliderB);
+				}
+				////球と球
+				//if (colliderA->IsCollidable(*colliderB))
+				//{
+
+				//	//衝突したときの処理を呼び出す
+				//	colliderA->OnCollision(*colliderB);
+				//	colliderB->OnCollision(*colliderA);
+				//
+				//	//ここで押し戻し
+				//	//isTriggerは押し戻しを無視
+				//	if(colliderA->GetIsTrigger() || colliderB->GetIsTrigger()) continue;
+				//	//押し戻しの処理
+				//	//ここで速度を変更する//ここでタイムスケールを変更<-？？多分違う
+				//	//PushBackのvelを加える
+				//	colliderA->m_vel += colliderA->PushBack(*colliderB);
+				//	colliderB->m_vel += colliderB->PushBack(*colliderA);
+				//}
 			}
-			////球と球
-			//if (colliderA->IsCollidable(*colliderB))
-			//{
-
-			//	//衝突したときの処理を呼び出す
-			//	colliderA->OnCollision(*colliderB);
-			//	colliderB->OnCollision(*colliderA);
-			//
-			//	//ここで押し戻し
-			//	//isTriggerは押し戻しを無視
-			//	if(colliderA->GetIsTrigger() || colliderB->GetIsTrigger()) continue;
-			//	//押し戻しの処理
-			//	//ここで速度を変更する//ここでタイムスケールを変更<-？？多分違う
-			//	//PushBackのvelを加える
-			//	colliderA->m_vel += colliderA->PushBack(*colliderB);
-			//	colliderB->m_vel += colliderB->PushBack(*colliderA);
-			//}
 		}
 	}
+
 	//ここで位置確定用の関数を読んで位置をおいておく
 	//ここですべてのコライダーの位置を更新させる関数
 	//速度をSetVelだと、どこからでもいじれちゃうけど、CollisionManagerがColのfriendクラスになって速度をいじれるようにして、更新させる

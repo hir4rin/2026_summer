@@ -26,8 +26,9 @@ namespace
 
 Player::Player()
 {
-	m_hp = 10;
-	m_comboInfo.UltGauge = 1000;
+	m_hp = 100;
+	m_comboInfo.SkillGauge = 100;
+	m_comboInfo.UltGauge = 100;
 	//m_modelHandle = MV1LoadModel("data/Player/Player.mv1");
 	m_modelHandle = MV1LoadModel("data/Player/Player_Init.mv1");
 	//m_modelHandle = MV1LoadModel("data/Player/Player_true.mv1");
@@ -205,7 +206,7 @@ void Player::OnCollision(Collider& other)
 void Player::OnDamage(Collider& other, AttackData& data)
 {
 
-	return;
+	//return;
 
 	//ダメージを受けたときの処理
 	//敵の攻撃データをもらい、ダメージを減らし、体力を減らす、場合によってはプレイヤーを吹き飛ばす
