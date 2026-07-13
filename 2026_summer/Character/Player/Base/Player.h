@@ -185,6 +185,8 @@ private:
 	int m_wingModelHandle = -1;//鴉の羽のモデルのハンドル//鴉状態の時に表示する
 	std::shared_ptr<Weapon> m_weapon;//武器
 
+	int m_attackModelHandle = -1;//攻撃のモデルのハンドル
+
 	int m_efHandle = -1;//エフェクトのハンドル
 	int m_efPlayingHandle = -1;//再生中のエフェクトのハンドル
 
