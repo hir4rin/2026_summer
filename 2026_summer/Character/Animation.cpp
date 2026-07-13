@@ -169,6 +169,20 @@ void Animation::ChangeAnim(std::string name, bool isRoop, float timescale)
 
 }
 
+void Animation::ChangeAnimWithModelHandle(int modelHandle, std::string name, bool isRoop, float timescale)
+{
+	if (m_modelHandle = modelHandle)
+	{
+		//同じモデルなら、ブレンド遷移
+		ChangeAnim(name, isRoop, timescale);
+	}
+	else
+	{
+		//違うモデルなら、Initで初期化//ブレンドなし	
+		Init(modelHandle, name, isRoop, timescale);
+	}
+}
+
 float Animation::GetAnimRate()
 {
 	float totalAnimCount = MV1GetAttachAnimTotalTime(m_modelHandle, m_currentAnimHandle);//アタッチしているアニメーションの総フレーム数を取得する

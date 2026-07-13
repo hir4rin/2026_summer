@@ -10,7 +10,7 @@ Weapon::Weapon(std::weak_ptr<Player> owner)
 	auto player = m_owner.lock();
 	if (!player)return;
 
-	m_modelHandle = MV1LoadModel("data/Player/Weapon/katana_blend.mv1");
+	m_modelHandle = MV1LoadModel("data/Player/Weapon/red_katana.mv1");
 }
 
 Weapon::~Weapon()
@@ -31,10 +31,18 @@ void Weapon::Update()
 
 	//MATRIX transmat = MGetTranslate(weaponPos.ToDxLibVector());
 	//90度回転させる
-	MATRIX rotmat = MGetRotY(DX_PI_F);//回転行列を作成する//90度回転させる
+	MATRIX rotmat = MGetRotY(DX_PI_F / 2);//回転行列を作成する//90度回転させる
+	MATRIX rotXmat = MGetRotX(DX_PI_F / 2);//回転行列を作成する//90度回転させる
+	//回転の合成
+	rotmat = MMult(rotXmat, rotmat);//回転行列を掛ける//90度回転させる
+
+	//下方向に移動
+	MATRIX transmat = MGetTranslate(VGet(45.0f, 0.0f, 0.0f));//移動行列を作成する//下方向に移動
+	rotmat = MMult(transmat, rotmat);//移動行列を掛ける//下方向に移動
 	mat = MMult(rotmat, mat);//回転行列を掛ける//90度回転させる
 
-	MATRIX scale = MGetScale(VGet(0.6f, 0.6f, 0.6f));//スケーリング行列を作成する//モデルの大きさを半分にする
+
+	MATRIX scale = MGetScale(VGet(0.3f, 0.3f, 0.3f));//スケーリング行列を作成する//モデルの大きさを半分にする
 
 	mat = MMult(scale, mat);//スケーリング行列を掛ける//モデルの大きさを半分にする
 

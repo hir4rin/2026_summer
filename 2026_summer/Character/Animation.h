@@ -22,6 +22,11 @@ public:
 	void SetAnim(bool isRoop);//アニメーションのループ再生を設定する//m_isEndを初期化
 	void ChangeAnim(std::string name,bool isRoop = true,float timescale = 1.0f);//アニメーションを切り替える//nameはアニメーションの名前
 
+	/// <summary>
+	/// モデルを考慮したアニメーション切換え
+	/// </summary>
+	void ChangeAnimWithModelHandle(int modelHandle,std::string name,bool isRoop,float timescale = 1.0f);
+
 	bool GetAnimEndFlag() { return m_isEndAnim;}//アニメーションが終わったかどうかのフラグを返す
 	float GetAnimRate();//アニメーションの進行率を返す//0から1の値を返す
 	float GetAnimTotalFrame(const std::string& name);//指定したアニメーションの総フレーム数を返す
