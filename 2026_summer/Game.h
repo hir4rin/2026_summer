@@ -31,15 +31,15 @@ namespace UI
 	/*constexpr int HpBarX = Game::kScreenWidth * 1 / 2;
 	constexpr int HpBarY = Game::kScreenHeight / 40;*/
 	constexpr int HpBarX = 10;
-	constexpr int HpBarY = 10;
+	constexpr int HpBarY = 20;
 
 	/*constexpr int SkillGaugeBarX = Game::kScreenWidth / 15;
 	constexpr int SkillGaugeBarY = Game::kScreenHeight / 20;*/
 	constexpr int SkillGaugeBarX = 10;
-	constexpr int SkillGaugeBarY = 30;
+	constexpr int SkillGaugeBarY = 90;
 
 	/*constexpr int UltGaugeBarX = Game::kScreenWidth / 15;
 	constexpr int UltGaugeBarY = Game::kScreenHeight / 10;*/
 	constexpr int UltGaugeBarX = 10;
-	constexpr int UltGaugeBarY = 50;
+	constexpr int UltGaugeBarY = 160;
 }

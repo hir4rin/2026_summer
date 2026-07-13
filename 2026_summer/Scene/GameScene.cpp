@@ -131,11 +131,12 @@ void GameScene::NormalUpdate()
 		return;
 	}
 	//すべての敵を倒したらゲームクリアシーンに遷移
-	if (m_enemyManager->IsGetAllEnemiesDead())
+	if (m_enemyManager->IsGetAllEnemiesDead(static_cast<int>(WaveNum::WaveSize)))
 	{
 		m_controller.ChangeScene(std::make_shared<GameClearScene>(m_controller));
 		return;
 	}
+	//playerはそのwaveの敵を倒さないと次のwaveに進めない
 
 
 }
@@ -206,9 +207,7 @@ void GameScene::NormalDraw()
 #ifdef _DEBUG
 	//CollisionManager::GetInstance().DebugDraw();
 	//PlayerのHpのデバッグ表示
-	DrawFormatString(0, 0, GetColor(0, 0, 0), "Player HP: %d", m_player->GetHp());
-	DrawFormatString(0, 20, GetColor(0, 0, 0), "Player SkillGauge: %d", m_player->GetSkillGauge());
-	DrawFormatString(0, 40, GetColor(0, 0, 0), "Player UltGauge: %d", m_player->GetUltGauge());
+	
 	//ロックオンしている敵のデバッグ表示
 	auto targetEnemy = m_cameraManager->GetTargetEnemy();
 	if (targetEnemy)

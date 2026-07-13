@@ -123,13 +123,16 @@ void EnemyManager::Update()
 	);
 
 	//すべてのwaveが出ていて、敵がいなくなったら、ゲームクリア//enumは暗黙的にintに変換できないので、キャストする
-	if (m_isSpawnedWave[static_cast<int>(WaveNum::Wave3)])
+	//そのwaveの敵がすべて死んでいるかどうかをチェックする
+	for(int i = 0; i < static_cast<int>(WaveNum::WaveSize); i++)
 	{
-		if (m_enemies.size() == 0)
+		if (m_isSpawnedWave[i])
 		{
-			m_isAllEnemiesDead = true;
+			if (m_enemies.size() == 0)
+			{
+				m_isAllEnemiesDead[i] = true;
+			}
 		}
-	
 	}
 
 	for (auto& enemy : m_enemies)

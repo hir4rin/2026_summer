@@ -265,6 +265,24 @@ void Player::ChangeState(std::shared_ptr<PlayerState> newState)
 	}
 }
 
+void Player::AddSkillGauge(int value)
+{
+	m_comboInfo.SkillGauge += value;
+	if(m_comboInfo.SkillGauge > 100)
+	{
+		m_comboInfo.SkillGauge = 100;
+	}
+}
+
+void Player::AddUltGauge(int value)
+{
+	m_comboInfo.UltGauge += value;
+	if(m_comboInfo.UltGauge > 100)
+	{
+		m_comboInfo.UltGauge = 100;
+	}
+}
+
 void Player::InitializeComboChain()
 {
 	//コンボチェーンの初期化

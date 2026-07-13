@@ -44,7 +44,7 @@ public:
 	void SpawnEnemies(int waveNum);
 
 	//すべての敵が死んだかどうか
-	bool IsGetAllEnemiesDead()const { return m_isAllEnemiesDead; }
+	bool IsGetAllEnemiesDead(int num)const { return m_isAllEnemiesDead[num]; }
 private:
 	Vector3 m_startPos;//敵の座標
 
@@ -53,7 +53,7 @@ private:
 	int enemyModelHandle = -1;//敵のモデルのハンドル//EnemySwordManのモデル
 	std::vector<SpawnData> m_spawnData;//敵のスポーンデータ
 	bool m_isSpawnedWave[3] = {};//ウェーブごとに敵がスポーンしたかどうかのフラグ
-	bool m_isAllEnemiesDead = false;//全ての敵が死んだかどうかのフラグ
+	bool m_isAllEnemiesDead[static_cast<int>(WaveNum::WaveSize)] = { false};//全ての敵が死んだかどうかのフラグ
 
 };
 

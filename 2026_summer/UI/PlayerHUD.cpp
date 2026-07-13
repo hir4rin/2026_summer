@@ -49,5 +49,9 @@ void PlayerHUD::Draw() const
 	DrawExtendGraph(UI::UltGaugeBarX, UI::UltGaugeBarY, UI::UltGaugeBarX + UI::kBarScale,					 UI::UltGaugeBarY + kBarHeight, m_barHideHandle, false);//必殺技ゲージバーの背景
 	DrawExtendGraph(UI::UltGaugeBarX, UI::UltGaugeBarY, UI::UltGaugeBarX + UI::kBarScale * (ultGauge / 100), UI::UltGaugeBarY + kBarHeight, m_ultGaugeBarHandle, false);//必殺技ゲージバー
 
+	//デバッグ用に数値を表示
+	DrawFormatString(10, UI::HpBarY-20, GetColor(0, 0, 0), "Player HP: %d", player->GetHp());
+	DrawFormatString(10, UI::SkillGaugeBarY - 20, GetColor(0, 0, 0), "Player SkillGauge: %d", player->GetSkillGauge());
+	DrawFormatString(10, UI::UltGaugeBarY - 20, GetColor(0, 0, 0), "Player UltGauge: %d", player->GetUltGauge());
 
 }

@@ -141,9 +141,9 @@ public:
 	float GetCameraRockOnRange()const { return kPlayerRockOnRange; }//ロックオンする範囲を返す
 
 	//スキルゲージの増減
-	void AddSkillGauge(int value) { m_comboInfo.SkillGauge += value; }//スキル増減
+	void AddSkillGauge(int value);//スキル増減
 	//必殺技ゲージの増減
-	void AddUltGauge(int value) { m_comboInfo.UltGauge += value; }//必殺技増減
+	void AddUltGauge(int value);//必殺技増減
 	//ゲージの取得
 	int GetSkillGauge()const { return m_comboInfo.SkillGauge; }//スキルゲージの取得
 	int GetUltGauge()const { return m_comboInfo.UltGauge; }//必殺技ゲージの取得

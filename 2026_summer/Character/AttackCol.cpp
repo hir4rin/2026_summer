@@ -215,7 +215,7 @@ void AttackCol::PlayerGaugeUp(Collider& other)
 	else
 	{
 		//必殺技ではないのならスキルゲージを上げる//スキル攻撃
-		if (!System::GetInstance().GetIsUltimating())
+		if (GetTag() != Tags::PlayerUltAttack)
 		{
 			//必殺技ゲージの上昇
 			player->AddUltGauge(20);

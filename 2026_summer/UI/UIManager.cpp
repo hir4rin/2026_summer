@@ -26,4 +26,5 @@ void UIManager::Draw()
 	{
 		ui->Draw();
 	}
+
 }
