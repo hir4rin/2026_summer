@@ -127,7 +127,8 @@ void PlayerCamera::Update(Vector3 pos, Vector3 pos2)
 	//	m_pos = m_targetPos;
 	//}
 
-	//Lerpの割合を上下差がある攻撃で変えたりするとよい
+	//Lerpの割合を上下差がある攻撃で変えたりす
+	// るとよい
 	m_pos = Vector3::Lerp(m_pos, m_targetPos, 0.5f);
 
 

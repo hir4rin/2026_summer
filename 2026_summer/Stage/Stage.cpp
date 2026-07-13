@@ -3,7 +3,8 @@
 
 Stage::Stage()
 {
-	m_stageModelHandle = MV1LoadModel("data/PreStage2/Stage2Prev.mv1");
+	m_stageModelHandle = MV1LoadModel("data/PreStage2/Stage2.mv1");
+	//m_stageModelHandle = MV1LoadModel("data/PreStage2/Stage2Prev.mv1");
 	m_pos = Vector3(1200, -50, 2500);
 	
 	// モデルのポリゴンの当たり判定を構築する(第二引数を-1にすると全てのポリゴンを対象にする)
