@@ -43,3 +43,39 @@ namespace UI
 	constexpr int UltGaugeBarX = 10;
 	constexpr int UltGaugeBarY = 160;
 }
+
+enum class ComboButton : int
+{
+	X = 0,
+	Y = 1,
+};
+
+namespace ComboUI
+{
+	constexpr int kButtonScale = 1.0f;//ボタンの大きさ//倍率
+
+	//弱5ボタン
+	constexpr ComboButton kCombo1[] = { ComboButton::X, ComboButton::X, ComboButton::X,ComboButton::X,ComboButton::X };
+	//開始位置
+	constexpr int kCombo1StartX = 1110;
+	constexpr int kCombo1StartY = 10;
+
+
+	//強2ボタン
+	constexpr ComboButton kCombo2[] = { ComboButton::Y, ComboButton::Y };
+	//開始位置
+	constexpr int kCombo2StartX = 1110;
+	constexpr int kCombo2StartY = 100;
+
+	//必殺技3ボタン
+	constexpr ComboButton kSkill[] = { ComboButton::X, ComboButton::Y, ComboButton::X };
+	//開始位置
+	constexpr int kSkillStartX = 1110;
+	constexpr int kSkillStartY = 200;
+
+	//必殺技ボタン
+	constexpr ComboButton kUlt[] = { ComboButton::Y };
+	//開始位置
+	constexpr int kUltStartX = 1110;
+	constexpr int kUltStartY = 300;
+}
