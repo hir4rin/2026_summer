@@ -1,8 +1,11 @@
 ﻿#include "UIManager.h"
 #include "UIBase.h"
+#include "ComboHUD.h"
 
 UIManager::UIManager()
 {
+	auto comboHUD = std::make_shared<ComboHUD>();
+	m_uiLists.push_back(comboHUD);
 }
 
 UIManager::~UIManager()

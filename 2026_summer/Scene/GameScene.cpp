@@ -80,6 +80,7 @@ GameScene::GameScene(SceneController& controller) :Scene(controller)
 	playerHUD->SetPlayer(std::weak_ptr<Player>(m_player));
 	m_uiManager->AddUI(playerHUD);
 
+
 	m_gHandle1 = LoadGraph("data/UI/blood_UI.png");
 	m_gHandle2 = LoadGraph("data/UI/splash2_UI.png");
 	m_gHandle3 = LoadGraph("data/UI/satu_UI.png");
@@ -131,13 +132,13 @@ void GameScene::NormalUpdate()
 		return;
 	}
 	//すべての敵を倒したらゲームクリアシーンに遷移
-	if (m_enemyManager->IsGetAllEnemiesDead(static_cast<int>(WaveNum::WaveSize)))
+	if (m_enemyManager->IsGetAllEnemiesDead(static_cast<int>(WaveNum::WaveSize) -1))
 	{
 		m_controller.ChangeScene(std::make_shared<GameClearScene>(m_controller));
 		return;
 	}
 	//playerはそのwaveの敵を倒さないと次のwaveに進めない
-
+	//spawnwaveがtrueでそのwaveのenemyAllDeadがfalseならそのwaveを進めない
 
 }
 

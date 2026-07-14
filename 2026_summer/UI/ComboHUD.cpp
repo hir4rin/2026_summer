@@ -22,14 +22,14 @@ ComboHUD::~ComboHUD()
 
 void ComboHUD::Init()
 {
-	m_buttonHandles[static_cast<int>(ComboButton::X)] = MV1LoadModel("data/UI/button/X.mv1");
-	m_buttonHandles[static_cast<int>(ComboButton::Y)] = MV1LoadModel("data/UI/button/Y.mv1");
-	m_buttonHandles[static_cast<int>(ComboButton::A)] = MV1LoadModel("data/UI/button/A.mv1");
-	m_buttonHandles[static_cast<int>(ComboButton::B)] = MV1LoadModel("data/UI/button/B.mv1");
-	m_buttonHandles[static_cast<int>(ComboButton::RB)] = MV1LoadModel("data/UI/button/RB.mv1");
-	m_buttonHandles[static_cast<int>(ComboButton::RT)] = MV1LoadModel("data/UI/button/RT.mv1");
-	m_buttonHandles[static_cast<int>(ComboButton::LB)] = MV1LoadModel("data/UI/button/LB.mv1");
-	m_buttonHandles[static_cast<int>(ComboButton::LT)] = MV1LoadModel("data/UI/button/LT.mv1");
+	m_buttonHandles[static_cast<int>(ComboButton::X)] = LoadGraph("data/UI/button/X.png");
+	m_buttonHandles[static_cast<int>(ComboButton::Y)] = LoadGraph("data/UI/button/Y.png");
+	m_buttonHandles[static_cast<int>(ComboButton::A)] = LoadGraph("data/UI/button/A.png");
+	m_buttonHandles[static_cast<int>(ComboButton::B)] = LoadGraph("data/UI/button/B.png");
+	m_buttonHandles[static_cast<int>(ComboButton::RB)] = LoadGraph("data/UI/button/RB.png");
+	m_buttonHandles[static_cast<int>(ComboButton::RT)] = LoadGraph("data/UI/button/RT.png");
+	m_buttonHandles[static_cast<int>(ComboButton::LB)] = LoadGraph("data/UI/button/LB.png");
+	m_buttonHandles[static_cast<int>(ComboButton::LT)] = LoadGraph("data/UI/button/LT.png");
 
 }
 
@@ -45,13 +45,30 @@ void ComboHUD::Draw() const
 	for(int i = 0; i < 5; ++i)
 	{
 		int handle = m_buttonHandles[static_cast<int>(ComboUI::kCombo1[i])];
-		DrawRectRotaGraph(ComboUI::kCombo1StartX + i * 50, ComboUI::kCombo1StartY,0,0, kButtonWidth, kButtonHeight,1.0f,0.0f, handle, true);
+		DrawRectRotaGraph(ComboUI::kCombo1StartX + i * ComboUI::ButtonToButtonDistanceX, ComboUI::kCombo1StartY,0,0, kButtonWidth, kButtonHeight, ComboUI::kButtonScale,0.0f, handle, true);
 	}
 	//強攻撃のコンボボタン
 	for(int i = 0; i < 2; ++i)
 	{
 		int handle = m_buttonHandles[static_cast<int>(ComboUI::kCombo2[i])];
-		DrawRectRotaGraph(ComboUI::kCombo2StartX + i * 50, ComboUI::kCombo2StartY,0,0, kButtonWidth, kButtonHeight,1.0f,0.0f, handle, true);
+		DrawRectRotaGraph(ComboUI::kCombo2StartX + i * ComboUI::ButtonToButtonDistanceX, ComboUI::kCombo2StartY,0,0, kButtonWidth, kButtonHeight, ComboUI::kButtonScale,0.0f, handle, true);
 	}
+	//スキル攻撃のコンボボタン
+	for(int i = 0; i < 3; ++i)
+	{
+		int handle = m_buttonHandles[static_cast<int>(ComboUI::kSkillCombo[i])];
+		DrawRectRotaGraph(ComboUI::kSkillStartX + i * ComboUI::ButtonToButtonDistanceX, ComboUI::kSkillStartY,0,0, kButtonWidth, kButtonHeight, ComboUI::kButtonScale,0.0f, handle, true);
+	}
+	//必殺技のボタン
+	{
+		int handle = m_buttonHandles[static_cast<int>(ComboUI::kUlt[0])];
+		DrawRectRotaGraph(ComboUI::kUltStartX, ComboUI::kUltStartY,0,0, kButtonWidth, kButtonHeight, ComboUI::kButtonScale,0.0f, handle, true);
+	}
+	//ロックオン
+	{
+		int handle = m_buttonHandles[static_cast<int>(ComboUI::kLockOn)];
+		DrawRectRotaGraph(ComboUI::kLockOnStartX, ComboUI::kLockOnStartY, 0, 0, kButtonWidth, kButtonHeight, ComboUI::kButtonScale, 0.0f, handle, true);
+	}
+
 
 }
