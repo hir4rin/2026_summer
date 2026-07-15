@@ -37,7 +37,7 @@ namespace
 EnemySwordman::EnemySwordman(std::weak_ptr<Player> player, Vector3 pos, int modelHandle) : EnemyBase(player)
 {
 	m_pos = pos;//初期位置
-	m_hp = 5000;//体力
+	m_hp = 500;//体力
 	//モデルのハンドルをセット
 	m_modelHandle = modelHandle;
 	//モデルの初期位置を設定する

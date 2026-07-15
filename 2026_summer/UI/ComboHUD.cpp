@@ -30,6 +30,7 @@ void ComboHUD::Init()
 	m_buttonHandles[static_cast<int>(ComboButton::RT)] = LoadGraph("data/UI/button/RT.png");
 	m_buttonHandles[static_cast<int>(ComboButton::LB)] = LoadGraph("data/UI/button/LB.png");
 	m_buttonHandles[static_cast<int>(ComboButton::LT)] = LoadGraph("data/UI/button/LT.png");
+	m_buttonHandles[static_cast<int>(ComboButton::RStickLR)] = LoadGraph("data/UI/button/RStickLR.png");
 
 }
 
@@ -42,32 +43,54 @@ void ComboHUD::Draw() const
 	//ここで、コンボのボタンを描画する処理を実装する
 	
 	//弱攻撃のコンボボタン
+	DrawFormatString(ComboUI::kCombo1StartX, ComboUI::kCombo1StartY - ComboUI::kStringDistanceY, GetColor(0, 0, 0), "弱攻撃コンボ");
 	for(int i = 0; i < 5; ++i)
 	{
 		int handle = m_buttonHandles[static_cast<int>(ComboUI::kCombo1[i])];
 		DrawRectRotaGraph(ComboUI::kCombo1StartX + i * ComboUI::ButtonToButtonDistanceX, ComboUI::kCombo1StartY,0,0, kButtonWidth, kButtonHeight, ComboUI::kButtonScale,0.0f, handle, true);
 	}
 	//強攻撃のコンボボタン
+	DrawFormatString(ComboUI::kCombo2StartX, ComboUI::kCombo2StartY - ComboUI::kStringDistanceY, GetColor(0, 0, 0), "強攻撃コンボ");
 	for(int i = 0; i < 2; ++i)
 	{
 		int handle = m_buttonHandles[static_cast<int>(ComboUI::kCombo2[i])];
 		DrawRectRotaGraph(ComboUI::kCombo2StartX + i * ComboUI::ButtonToButtonDistanceX, ComboUI::kCombo2StartY,0,0, kButtonWidth, kButtonHeight, ComboUI::kButtonScale,0.0f, handle, true);
 	}
+	//打ち上げコンボボタン
+	DrawFormatString(ComboUI::kAirComboStartX, ComboUI::kAirComboStartY - ComboUI::kStringDistanceY, GetColor(0, 0, 0), "打ち上げコンボ");
+	for(int i = 0; i < 2; ++i)
+	{
+		int handle = m_buttonHandles[static_cast<int>(ComboUI::kAirCombo[i])];
+		DrawRectRotaGraph(ComboUI::kAirComboStartX + i * ComboUI::ButtonToButtonDistanceX, ComboUI::kAirComboStartY,0,0, kButtonWidth, kButtonHeight, ComboUI::kButtonScale,0.0f, handle, true);
+	}
+
 	//スキル攻撃のコンボボタン
-	for(int i = 0; i < 3; ++i)
+	DrawFormatString(ComboUI::kSkillStartX, ComboUI::kSkillStartY - ComboUI::kStringDistanceY, GetColor(0, 0, 0), "スキル攻撃コンボ");
+	for(int i = 0; i < 4; ++i)
 	{
 		int handle = m_buttonHandles[static_cast<int>(ComboUI::kSkillCombo[i])];
 		DrawRectRotaGraph(ComboUI::kSkillStartX + i * ComboUI::ButtonToButtonDistanceX, ComboUI::kSkillStartY,0,0, kButtonWidth, kButtonHeight, ComboUI::kButtonScale,0.0f, handle, true);
 	}
 	//必殺技のボタン
+	DrawFormatString(ComboUI::kUltStartX, ComboUI::kUltStartY - ComboUI::kStringDistanceY, GetColor(0, 0, 0), "必殺技コンボ");
 	{
-		int handle = m_buttonHandles[static_cast<int>(ComboUI::kUlt[0])];
-		DrawRectRotaGraph(ComboUI::kUltStartX, ComboUI::kUltStartY,0,0, kButtonWidth, kButtonHeight, ComboUI::kButtonScale,0.0f, handle, true);
+		for(int i = 0; i < 2; ++i)
+		{
+			int handle = m_buttonHandles[static_cast<int>(ComboUI::kUlt[i])];
+			DrawRectRotaGraph(ComboUI::kUltStartX + i * ComboUI::ButtonToButtonDistanceX, ComboUI::kUltStartY,0,0, kButtonWidth, kButtonHeight, ComboUI::kButtonScale,0.0f, handle, true);
+		}
 	}
 	//ロックオン
+	DrawFormatString(ComboUI::kLockOnStartX, ComboUI::kLockOnStartY - ComboUI::kStringDistanceY, GetColor(0, 0, 0), "ロックオン");
 	{
 		int handle = m_buttonHandles[static_cast<int>(ComboUI::kLockOn)];
 		DrawRectRotaGraph(ComboUI::kLockOnStartX, ComboUI::kLockOnStartY, 0, 0, kButtonWidth, kButtonHeight, ComboUI::kButtonScale, 0.0f, handle, true);
+	}
+	//ロックオン切換え
+	DrawFormatString(ComboUI::kLockOnChangeStartX, ComboUI::kLockOnChangeStartY - ComboUI::kStringDistanceY, GetColor(0, 0, 0), "ロックオン切換え");
+	{
+		int handle = m_buttonHandles[static_cast<int>(ComboButton::RStickLR)];
+		DrawRectRotaGraph(ComboUI::kLockOnChangeStartX, ComboUI::kLockOnChangeStartY, 0, 0, kButtonWidth, kButtonHeight, ComboUI::kButtonScale, 0.0f, handle, true);
 	}
 
 

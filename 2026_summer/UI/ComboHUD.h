@@ -13,7 +13,8 @@ enum class ComboButton : int
 	RT = 5,
 	LB = 6,
 	LT = 7,
-	ButtonSize = 8
+	RStickLR = 8,
+	ButtonSize = 9
 
 };
 

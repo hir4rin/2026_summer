@@ -12,8 +12,8 @@ namespace
 {
 	//スポーン座標
 	const Vector3 kSpawnWave1 = Vector3(0, 0, 0);
-	const Vector3 kSpawnWave2 = Vector3(-6000, 0, 175);
-	const Vector3 kSpawnWave3 = Vector3(-12346, 0, 145);
+	const Vector3 kSpawnWave2 = Vector3(-2726, 0, 184);
+	const Vector3 kSpawnWave3 = Vector3(-5082, 0, 28);
 	constexpr float kSpawnWave1Distance = 1000.0f;//wave1のスポーン座標からの距離
 }
 

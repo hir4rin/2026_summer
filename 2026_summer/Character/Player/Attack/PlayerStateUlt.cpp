@@ -93,6 +93,8 @@ void PlayerStateUlt::Update()
 
 void PlayerStateUlt::Exit()
 {
+	auto player = m_owner.lock();
+	if (!player) return;
 	//攻撃の当たり判定を削除する//
 	if (m_attackCol)
 	{
@@ -101,6 +103,7 @@ void PlayerStateUlt::Exit()
 		m_attackCol->SetLifeTimeLimited();
 		m_attackCol.reset();
 	}
+	player->m_comboInfo.UltGauge = 100;
 }
 
 void PlayerStateUlt::DebugDraw()
