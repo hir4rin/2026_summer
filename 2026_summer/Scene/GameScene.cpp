@@ -139,6 +139,21 @@ void GameScene::NormalUpdate()
 	}
 	//playerはそのwaveの敵を倒さないと次のwaveに進めない
 	//spawnwaveがtrueでそのwaveのenemyAllDeadがfalseならそのwaveを進めない
+	for(int i = 0; i < static_cast<int>(WaveNum::WaveSize); i++)
+	{
+		//spawnwaveがtrueでそのwaveのenemyAllDeadがfalseならそのwaveを進めない
+		if (m_enemyManager->isSpawnedWave(i) && !m_enemyManager->IsGetAllEnemiesDead(i))
+		{
+			//プレイヤーの条件にセット
+			m_player->SetLimitPlayerArea(i,true);
+		}
+		////もしどちらもtrueならplayerの条件をセットする
+		//if (m_enemyManager->isSpawnedWave(i) && m_enemyManager->IsGetAllEnemiesDead(i))
+		//{
+		//	//プレイヤーの条件にセット
+		//	m_player->SetLimitPlayerArea(i,false);
+		//}
+	}
 
 }
 

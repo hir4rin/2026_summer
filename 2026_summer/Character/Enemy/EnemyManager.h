@@ -45,6 +45,8 @@ public:
 
 	//すべての敵が死んだかどうか
 	bool IsGetAllEnemiesDead(int num)const { return m_isAllEnemiesDead[num]; }
+	//そのスポーンWaveがスポーンしたかどうか
+	bool isSpawnedWave(int num)const { return m_isSpawnedWave[num]; }
 private:
 	Vector3 m_startPos;//敵の座標
 

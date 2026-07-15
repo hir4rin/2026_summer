@@ -96,7 +96,6 @@ namespace ComboIndex
 	constexpr int SkillAttack1 = 14;
 	constexpr int SkillAttack2 = 15;
 	constexpr int SkillAttack3 = 16;
-
 };
 
 struct AvoidInfo
@@ -115,6 +114,13 @@ struct DamageInfo
 	const float kDamageTime = 180.0f;//被ダメ後無敵時間の長さ
 };
 
+enum class WaveNumForPlayer : int
+{
+	Wave1 = 0,
+	Wave2 = 1,
+	Wave3 = 2,
+	WaveSize = 3,
+};
 
 class Player : public CharacterBase//Playerクラスのインスタンスから、Playerクラスのshared_ptrを取得できるようになる
 {
@@ -155,7 +161,8 @@ public:
 	std::weak_ptr<EnemyBase> GetTargetEnemy()const;
 	//内部ロックオンのために
 	std::weak_ptr<CameraManager> GetCameraManager()const { return m_cameraManager; }
-
+	//プレイヤーの移動制限
+	void SetLimitPlayerArea(int num,bool value) { m_isWaveArea[num] = value; }
 
 private:
 	void InitializeComboChain();//CSVからコンボデータの読み込みをする
@@ -177,6 +184,8 @@ private:
 	ComboInfo m_comboInfo = {};//コンボの情報//現在のコンボの段数などを管理するためのもの
 	AvoidInfo m_avoidInfo = {};//回避の情報
 	DamageInfo m_damageInfo = {};//被ダメ後無敵時間の情報
+
+	bool m_isWaveArea[static_cast<int>(WaveNumForPlayer::WaveSize)] = {false};//ウェーブごとに敵がスポーンしたかどうかのフラグ//EnemyManagerのフラグと同じものを持つ
 
 	std::shared_ptr<PlayerState> m_currentState;//プレイヤーの状態//攻撃中、移動中など//状態遷移の管理をするためのもの
 

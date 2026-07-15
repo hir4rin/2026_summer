@@ -21,6 +21,11 @@
 namespace
 {
 	constexpr float kPlayerCenter = 100.0f;//プレイヤーの当たり判定の中心点までのy軸の距離
+
+	constexpr float kArea1MaxX = 1000.0f;//エリア1のx座標の範囲//左側
+	constexpr float kArea1MinX = 2000.0f;//エリア2のx座標の範囲//右側
+	constexpr float kArea1MaxZ = 1000.0f;//エリア1のz座標の範囲//手前側
+	constexpr float kArea1MinZ = 2000.0f;//エリア2のz座標の範囲//奥側
 }
 
 
@@ -408,6 +413,27 @@ void Player::ApplyPos()
 {
 	//モデルの座標を更新する
 	CharacterBase::ApplyPos();
+	//移動制限
+	for(int i = 0; i < static_cast<int>(WaveNumForPlayer::WaveSize); ++i)
+	{
+		//最期のiならbreakする//最後のiは、ウェーブがないエリアなので、制限しない
+		if (i == static_cast<int>(WaveNumForPlayer::WaveSize) - 1)break;
+		if(m_isWaveArea[i] && !m_isWaveArea[i+1])
+		{
+			if(m_pos.x < -1000.0f)
+			{
+				m_pos.x = -1000.0f;
+			}
+			if(m_pos.x > 1000.0f)
+			{
+				m_pos.x = 1000.0f;
+			}
+			if(m_pos.z > 1000.0f)
+			{
+				m_pos.z = 1000.0f;
+			}
+		}
+	}
 
 	//下方向とのレイキャストで、地面から空中に遷移したかを判定する
 	Vector3 causuleTop = m_pos + Vector3(0, 100, 0);//カプセルの上端の座標//レイキャストの始点
