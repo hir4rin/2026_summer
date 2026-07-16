@@ -23,7 +23,7 @@ namespace
 	constexpr float kPlayerCenter = 100.0f;//プレイヤーの当たり判定の中心点までのy軸の距離
 
 	constexpr float kArea1MaxX = -1510.0f;//エリア1のx座標の範囲//上側
-	constexpr float kArea2MaxX = 3970.0f;//エリア2のx座標の範囲//右側
+	constexpr float kArea2MaxX = -3970.0f;//エリア2のx座標の範囲//右側
 }
 
 
@@ -418,9 +418,9 @@ void Player::ApplyPos()
 		if (i == static_cast<int>(WaveNumForPlayer::WaveSize) - 1)break;
 		if (i == 0)
 		{
-			if (m_isWaveArea[i] && !m_isWaveArea[i + 1])
+			if (m_isWaveArea[i])
 			{
-				if (m_pos.x >= kArea1MaxX)
+				if (m_pos.x <= kArea1MaxX)
 				{
 					{
 						m_pos.x = kArea1MaxX;
@@ -428,15 +428,15 @@ void Player::ApplyPos()
 				}
 			}
 		}
-\		if (i == 1)
+		if (i == 1)
 		{
-			if (m_isWaveArea[i] && !m_isWaveArea[i + 1])
+			if (m_isWaveArea[i])
 			{
-				if (m_pos.x <= kArea1MaxX)
+				if (m_pos.x >= kArea1MaxX)
 				{
 					m_pos.x = kArea1MaxX;
 				}
-				if (m_pos.x >= kArea2MaxX)
+				if (m_pos.x <= kArea2MaxX)
 				{
 					m_pos.x = kArea2MaxX;
 				}
