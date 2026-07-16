@@ -148,11 +148,11 @@ void GameScene::NormalUpdate()
 			m_player->SetLimitPlayerArea(i,true);
 		}
 		////もしどちらもtrueならplayerの条件をセットする
-		//if (m_enemyManager->isSpawnedWave(i) && m_enemyManager->IsGetAllEnemiesDead(i))
-		//{
-		//	//プレイヤーの条件にセット
-		//	m_player->SetLimitPlayerArea(i,false);
-		//}
+		if (m_enemyManager->isSpawnedWave(i) && m_enemyManager->IsGetAllEnemiesDead(i))
+		{
+			//プレイヤーの条件にセット
+			m_player->SetLimitPlayerArea(i,false);
+		}
 	}
 
 }

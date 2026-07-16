@@ -1,4 +1,4 @@
-﻿			#include "Player.h"
+﻿#include "Player.h"
 #include "PlayerState.h"
 #include "PlayerStateIdle.h"
 #include "PlayerStateMove.h"
@@ -22,10 +22,8 @@ namespace
 {
 	constexpr float kPlayerCenter = 100.0f;//プレイヤーの当たり判定の中心点までのy軸の距離
 
-	constexpr float kArea1MaxX = 1000.0f;//エリア1のx座標の範囲//左側
-	constexpr float kArea1MinX = 2000.0f;//エリア2のx座標の範囲//右側
-	constexpr float kArea1MaxZ = 1000.0f;//エリア1のz座標の範囲//手前側
-	constexpr float kArea1MinZ = 2000.0f;//エリア2のz座標の範囲//奥側
+	constexpr float kArea1MaxX = -1510.0f;//エリア1のx座標の範囲//上側
+	constexpr float kArea2MaxX = 3970.0f;//エリア2のx座標の範囲//右側
 }
 
 
@@ -38,7 +36,7 @@ Player::Player()
 	m_modelHandle = MV1LoadModel("data/Player/Player_Init.mv1");
 	//m_modelHandle = MV1LoadModel("data/Player/Player_true.mv1");
 	//m_modelHandle = MV1LoadModel("data/Player/1danme.mv1");
-	
+
 	//攻撃のモデルの読み込み
 	m_attackModelHandle = MV1LoadModel("data/Player/Sonoda/sonoda.mv1");
 
@@ -48,7 +46,7 @@ Player::Player()
 	Matrix4x4 trans = Matrix4x4::FromDxLibMatrix(transmat);
 	Matrix4x4 mtx = trans * rotY;
 	MV1SetMatrix(m_modelHandle, Matrix4x4::ToDxLibMatrix(mtx));
-	
+
 	//コンボチェーンの初期化
 	InitializeComboChain();
 	//アニメーションの名前のマップの初期化
@@ -62,7 +60,7 @@ Player::Player()
 
 Player::~Player()
 {
-	if(m_currentState)
+	if (m_currentState)
 	{
 		m_currentState->Exit();//状態を抜ける
 	}
@@ -76,7 +74,7 @@ void Player::Init()
 	//向いている方向
 	m_targetVec = Vector3(0, 0, 1);//最初は前を向いているようにする
 	//初期状態をIdleにする//アニメーションの初期化
-	m_anim.Init(m_modelHandle,GetAnimName("Idle"), true);
+	m_anim.Init(m_modelHandle, GetAnimName("Idle"), true);
 	//weak_from_this()は、shared_ptrを作成,
 	//Playerクラスのインスタンスから、Playerクラスのshared_ptrを取得できるようになる
 	m_currentState = std::make_shared<PlayerStateIdle>(GetWeakPtr());
@@ -88,14 +86,14 @@ void Player::Init()
 	ColInit(m_pos, Vector3(0, kPlayerCenter, 0), 80.0f, ColliderType::Sphere, Tags::Player, true);
 	//やられ判定の初期化
 	InitHitCol(GetWeakPtr());
-	m_hitCol->ColInit(m_pos, Vector3(0, kPlayerCenter, 0), 50.0f, ColliderType::Sphere, Tags::PlayerHit, true,true);
+	m_hitCol->ColInit(m_pos, Vector3(0, kPlayerCenter, 0), 50.0f, ColliderType::Sphere, Tags::PlayerHit, true, true);
 	m_hitCol->ResetID(GetId());
 	CharacterBase::ApplyPos();//座標の更新//モデルの座標を更新する
 	ChangeState(m_currentState);//初期化
 	//武器の生成
 	m_weapon = std::make_shared<Weapon>(GetWeakPtr());//武器の生成//Playerクラスのインスタンスから、Playerクラスのshared_ptrを取得できるようになる
 	//effectの生成
-	m_efHandle = LoadEffekseerEffect("data/Effect/fire.efk",1.0f);
+	m_efHandle = LoadEffekseerEffect("data/Effect/fire.efk", 1.0f);
 }
 
 void Player::Update(Camera& camera)
@@ -112,11 +110,11 @@ void Player::Update(Camera& camera)
 		m_avoidInfo.avoidCoolTimeCount -= 1.0f * System::GetInstance().GetTimeScale();//回避のクールタイムを減らす
 	}
 	//被ダメ後の無敵時間の更新
-	if(m_damageInfo.damageTimer > 0.0f)
+	if (m_damageInfo.damageTimer > 0.0f)
 	{
 		m_damageInfo.damageTimer -= 1.0f * System::GetInstance().GetTimeScale();//被ダメ後の無敵時間を減らす
 	}
-	
+
 
 	//押し戻しの処理が続かないように消す
 	m_vel = Vector3(0, m_vel.y, 0);
@@ -139,7 +137,7 @@ void Player::Update(Camera& camera)
 
 		// エフェクトの位置をリセットする。
 	}
-	
+
 
 	//座標の更新の前に、当たり判定の更新をする
 
@@ -150,7 +148,7 @@ void Player::Update(Camera& camera)
 	//回転処理//座標も行列で更新
 	//UpdateAngle();
 	//UpdateAngleAndPos();
-	 
+
 	//-----------------------変わらなかった；；-----------------------------------------
 	////ルートモーションONの場合、
 	////アニメーションが適用された後のモデルの行列を取得
@@ -174,10 +172,10 @@ void Player::Draw()
 {
 	MV1DrawModel(m_modelHandle);
 	//鴉状態のときのみ描画
-	if(m_isRaven)MV1DrawModel(m_wingModelHandle);
+	if (m_isRaven)MV1DrawModel(m_wingModelHandle);
 	m_weapon->Draw();//武器
 	//コンボチェーンの描画
-	for(int i = 0; i < m_comboChain.size(); ++i)
+	for (int i = 0; i < m_comboChain.size(); ++i)
 	{
 		std::string text = std::to_string(i) + ": " + m_comboChain[i].animName;
 		//SubWindow::AddText(text);
@@ -217,13 +215,13 @@ void Player::OnDamage(Collider& other, AttackData& data)
 	//敵の攻撃データをもらい、ダメージを減らし、体力を減らす、場合によってはプレイヤーを吹き飛ばす
 	DrawFormatString(0, 0, GetColor(255, 0, 0), "Player: OnDamage");
 	//ダメージを受けたときの処理
-	if(m_damageInfo.damageTimer <= 0.0f)//無敵時間が終わっている場合のみダメージを受ける
+	if (m_damageInfo.damageTimer <= 0.0f)//無敵時間が終わっている場合のみダメージを受ける
 	{
 		//体力を減らす
 		m_hp -= static_cast<int>(data.attackPower);
 		//無敵時間を設定する
 		m_damageInfo.damageTimer = m_damageInfo.kDamageTime;
-		if(m_hp <= 0)
+		if (m_hp <= 0)
 		{
 			//死亡ステートにする
 			ChangeState(std::make_shared<PlayerStateDie>(GetWeakPtr(), data));
@@ -241,7 +239,7 @@ void Player::OnDamage(Collider& other, AttackData& data)
 	//{
 
 	//}
-	
+
 	//被ダメdataを更新する
 	m_attackData = data;
 	//stateをhitStateにする
@@ -257,14 +255,14 @@ void Player::OnDamage(Collider& other, AttackData& data)
 void Player::ChangeState(std::shared_ptr<PlayerState> newState)
 {
 	//現在の状態から抜ける
-	if(m_currentState)
+	if (m_currentState)
 	{
 		m_currentState->Exit();
 	}
 	//newStateに更新
 	m_currentState = newState;
 	//newStateの初期化
-	if(m_currentState)
+	if (m_currentState)
 	{
 		m_currentState->Enter();
 	}
@@ -273,7 +271,7 @@ void Player::ChangeState(std::shared_ptr<PlayerState> newState)
 void Player::AddSkillGauge(int value)
 {
 	m_comboInfo.SkillGauge += value;
-	if(m_comboInfo.SkillGauge > 100)
+	if (m_comboInfo.SkillGauge > 100)
 	{
 		m_comboInfo.SkillGauge = 100;
 	}
@@ -282,7 +280,7 @@ void Player::AddSkillGauge(int value)
 void Player::AddUltGauge(int value)
 {
 	m_comboInfo.UltGauge += value;
-	if(m_comboInfo.UltGauge > 100)
+	if (m_comboInfo.UltGauge > 100)
 	{
 		m_comboInfo.UltGauge = 100;
 	}
@@ -414,23 +412,34 @@ void Player::ApplyPos()
 	//モデルの座標を更新する
 	CharacterBase::ApplyPos();
 	//移動制限
-	for(int i = 0; i < static_cast<int>(WaveNumForPlayer::WaveSize); ++i)
+	for (int i = 0; i < static_cast<int>(WaveNumForPlayer::WaveSize); ++i)
 	{
 		//最期のiならbreakする//最後のiは、ウェーブがないエリアなので、制限しない
 		if (i == static_cast<int>(WaveNumForPlayer::WaveSize) - 1)break;
-		if(m_isWaveArea[i] && !m_isWaveArea[i+1])
+		if (i == 0)
 		{
-			if(m_pos.x < -1000.0f)
+			if (m_isWaveArea[i] && !m_isWaveArea[i + 1])
 			{
-				m_pos.x = -1000.0f;
+				if (m_pos.x >= kArea1MaxX)
+				{
+					{
+						m_pos.x = kArea1MaxX;
+					}
+				}
 			}
-			if(m_pos.x > 1000.0f)
+		}
+\		if (i == 1)
+		{
+			if (m_isWaveArea[i] && !m_isWaveArea[i + 1])
 			{
-				m_pos.x = 1000.0f;
-			}
-			if(m_pos.z > 1000.0f)
-			{
-				m_pos.z = 1000.0f;
+				if (m_pos.x <= kArea1MaxX)
+				{
+					m_pos.x = kArea1MaxX;
+				}
+				if (m_pos.x >= kArea2MaxX)
+				{
+					m_pos.x = kArea2MaxX;
+				}
 			}
 		}
 	}
@@ -438,7 +447,7 @@ void Player::ApplyPos()
 	//下方向とのレイキャストで、地面から空中に遷移したかを判定する
 	Vector3 causuleTop = m_pos + Vector3(0, 100, 0);//カプセルの上端の座標//レイキャストの始点
 	Vector3 causuleBottom = m_pos + Vector3(0, -20, 0);//カプセルの下端の座標//レイキャストの終点
-	
+
 	Vector3 rayCastSphere = m_pos;
 	auto stage = m_stage.lock();
 	if (stage)
@@ -459,12 +468,12 @@ void Player::ApplyPos()
 
 			SetIsFloor(false);
 			m_isGround = false;
-			
+
 		}
 		MV1CollResultPolyDimTerminate(hitDim);
 	}
 
-	
+
 
 	//プレイヤーが地上にいたら空中攻撃をリセット
 	if (IsFloor())
@@ -472,7 +481,7 @@ void Player::ApplyPos()
 		m_comboInfo.isAirAttack = false;
 		m_comboInfo.isAirSkillAttack = false;
 	}
-	
+
 	WingUpdate();
 	m_weapon->Update();//武器の更新
 }
@@ -480,10 +489,10 @@ void Player::ApplyPos()
 bool Player::CanSkillAttack(bool changeGauge)
 {
 	bool canSkill = m_comboInfo.SkillGauge >= 20;
-	
-	if(canSkill)
+
+	if (canSkill)
 	{
-		if(changeGauge)m_comboInfo.SkillGauge -= 20;
+		if (changeGauge)m_comboInfo.SkillGauge -= 20;
 		return true;
 	}
 
@@ -494,7 +503,7 @@ bool Player::CanUltAttack()
 {
 	bool canUlt = m_comboInfo.UltGauge >= 100;
 
-	if(canUlt)
+	if (canUlt)
 	{
 		m_comboInfo.UltGauge -= 100;
 		return true;

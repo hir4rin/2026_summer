@@ -55,25 +55,24 @@ enum class ComboChainButton : int
 	LB = 6,
 	LT = 7,
 	RStickLR = 8,
-	ButtonSize = 9
+	Hold = 9,
+	ButtonSize = 10
 };
 
 namespace ComboUI
 {
-	constexpr float kButtonScale = 0.3f;//ボタンの大きさ//倍率
+	constexpr float kButtonScale = 1.0f;//ボタンの大きさ//倍率
 
 	constexpr int ButtonToButtonDistanceX = 50;//ボタンとボタンの間の距離//横
 	constexpr int ButtonToButtonDistanceY = 60;//ボタンとボタンの間の距離//縦
 
 	constexpr int kStringDistanceY = 35;//文字とボタンの間の距離//縦
 
-
 	//弱5ボタン
 	constexpr ComboChainButton kCombo1[] = { ComboChainButton::X, ComboChainButton::X, ComboChainButton::X,ComboChainButton::X,ComboChainButton::X };
 	//開始位置
 	const int kCombo1StartX = Game::kScreenWidth* 8 /10;
 	const int kCombo1StartY = 100 + ButtonToButtonDistanceY * 1;
-
 
 	//強2ボタン
 	constexpr ComboChainButton kCombo2[] = { ComboChainButton::Y, ComboChainButton::Y };
@@ -86,14 +85,14 @@ namespace ComboUI
 	const int kAirComboStartX = Game::kScreenWidth * 8 / 10;
 	const int kAirComboStartY = 100 + ButtonToButtonDistanceY * 3;
 
-	//必殺技3ボタン
-	constexpr ComboChainButton kSkillCombo[] = {ComboChainButton::LB, ComboChainButton::X, ComboChainButton::X, ComboChainButton::X };
+	//スキル3コンボボタン
+	constexpr ComboChainButton kSkillCombo[] = {ComboChainButton::Hold,ComboChainButton::LB, ComboChainButton::X, ComboChainButton::X, ComboChainButton::X };
 	//開始位置
 	const int kSkillStartX = Game::kScreenWidth * 8 / 10;
 	const int kSkillStartY = 100 + ButtonToButtonDistanceY * 4;
 
 	//必殺技ボタン
-	constexpr ComboChainButton kUlt[] = { ComboChainButton::LB, ComboChainButton::Y };
+	constexpr ComboChainButton kUlt[] = { ComboChainButton::Hold,ComboChainButton::LB, ComboChainButton::Y };
 	//開始位置
 	const int kUltStartX = Game::kScreenWidth * 8 / 10;
 	const int kUltStartY = 100 + ButtonToButtonDistanceY * 5;
