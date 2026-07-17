@@ -65,6 +65,7 @@ Player::~Player()
 		m_currentState->Exit();//状態を抜ける
 	}
 	MV1DeleteModel(m_modelHandle);
+	MV1DeleteModel(m_attackModelHandle);
 	MV1DeleteModel(m_wingModelHandle);
 	DeleteEffekseerEffect(m_efHandle);
 }
@@ -93,7 +94,7 @@ void Player::Init()
 	//武器の生成
 	m_weapon = std::make_shared<Weapon>(GetWeakPtr());//武器の生成//Playerクラスのインスタンスから、Playerクラスのshared_ptrを取得できるようになる
 	//effectの生成
-	m_efHandle = LoadEffekseerEffect("data/Effect/fire.efk", 1.0f);
+	m_efHandle = LoadEffekseerEffect("data/Effect/Slash.efk", 1.0f);
 }
 
 void Player::Update(Camera& camera)
@@ -136,8 +137,10 @@ void Player::Update(Camera& camera)
 		m_efPlayingHandle = PlayEffekseer3DEffect(m_efHandle);
 
 		// エフェクトの位置をリセットする。
+		SetPosPlayingEffekseer3DEffect(m_efPlayingHandle, m_pos.x, m_pos.y + 100.0f, m_pos.z);
 	}
 
+	SetPosPlayingEffekseer3DEffect(m_efPlayingHandle, m_pos.x, m_pos.y + 100.0f, m_pos.z);
 
 	//座標の更新の前に、当たり判定の更新をする
 
@@ -170,7 +173,16 @@ void Player::Update(Camera& camera)
 }
 void Player::Draw()
 {
-	MV1DrawModel(m_modelHandle);
+	//モデルの描画
+	if (m_anim.GetModelHandleForCheck() == m_modelHandle)
+	{
+		MV1DrawModel(m_modelHandle);
+	}
+	else
+	{
+		MV1DrawModel(m_attackModelHandle);
+	}
+
 	//鴉状態のときのみ描画
 	if (m_isRaven)MV1DrawModel(m_wingModelHandle);
 	m_weapon->Draw();//武器
@@ -197,8 +209,9 @@ void Player::Draw()
 
 void Player::EffectDraw()
 {
+	//Vector3 offset = m_targetVec * 50.0f;
 	// 再生中のエフェクトを移動する。
-	SetPosPlayingEffekseer3DEffect(m_efPlayingHandle, m_pos.x, m_pos.y, m_pos.z);
+	
 	//SetColorPlayingEffekseer3DEffect(m_efPlayingHandle, 255, 255, 255, 255);
 }
 
@@ -209,7 +222,7 @@ void Player::OnCollision(Collider& other)
 void Player::OnDamage(Collider& other, AttackData& data)
 {
 
-	//return;
+	return;
 
 	//ダメージを受けたときの処理
 	//敵の攻撃データをもらい、ダメージを減らし、体力を減らす、場合によってはプレイヤーを吹き飛ばす
@@ -260,6 +273,7 @@ void Player::ChangeState(std::shared_ptr<PlayerState> newState)
 		m_currentState->Exit();
 	}
 	//newStateに更新
+	m_prevState = m_currentState;
 	m_currentState = newState;
 	//newStateの初期化
 	if (m_currentState)
@@ -304,6 +318,7 @@ void Player::InitializeComboChain()
 		}
 		ComboNode node;
 		node.animName = tokens[ComboNodeType::AnimName];
+		node.modelType = std::stoi(tokens[ComboNodeType::Model]);
 		node.type = static_cast<AttackType>(std::stoi(tokens[ComboNodeType::Type]));
 		node.index = std::stoi(tokens[ComboNodeType::Index]);
 		node.attackPower = std::stof(tokens[ComboNodeType::AttackPower]);
@@ -379,8 +394,20 @@ bool Player::IsAvoidable() const
 
 void Player::WingUpdate()
 {
+	//モデルハンドルの取得
+	int modelHandle = -1;
+	if(m_anim.GetModelHandleForCheck() == m_modelHandle)
+	{
+		modelHandle = m_modelHandle;
+	}
+	else
+	{
+		modelHandle = m_attackModelHandle;
+	}
+
+
 	//モデルフレームのローカルワールド行列を取得
-	MATRIX mat = MV1GetFrameLocalWorldMatrix(m_modelHandle, kPlayerNeckBoneIndex);//モデルフレームのローカルワールド行列を取得
+	MATRIX mat = MV1GetFrameLocalWorldMatrix(modelHandle, kPlayerNeckBoneIndex);//モデルフレームのローカルワールド行列を取得
 
 	////武器の位置を取得
 	//Vector3 weaponPos = MV1GetFramePosition(m_ownerHandle, slotIndex);
@@ -411,6 +438,8 @@ void Player::ApplyPos()
 {
 	//モデルの座標を更新する
 	CharacterBase::ApplyPos();
+	//攻撃モデルの座標を更新する
+	ApplyPosWithAttackModel();
 	//移動制限
 	for (int i = 0; i < static_cast<int>(WaveNumForPlayer::WaveSize); ++i)
 	{
@@ -484,6 +513,33 @@ void Player::ApplyPos()
 
 	WingUpdate();
 	m_weapon->Update();//武器の更新
+}
+
+void Player::ApplyPosWithAttackModel()
+{
+	float targetAngle = 0.0f;//目標の角度
+	if (m_targetVec.Magnitude() > 0.0f)//最初の入力されないとき以外、ここを通り、モデルの向きを変える
+	{
+		//モデルの移動方向にモデルの方向を近づける
+		targetAngle = atan2f(m_targetVec.x, m_targetVec.z);//移動ベクトルのx成分とz成分から、プレイヤーの向きたい方向の角度を求める
+		// Y軸回転行列を作成する//この工程は毎フレーム、原点からモデルの位置に移動してから、回転する行列を作成している
+		//180度ずれてたので、回転角度を180度ずらす
+		/* m_rotAngle = targetAngle - DX_PI_F;*/
+		 //角度の差分を計算//回転角度を-90から90にするため(最短経路を選択)
+		float difference = targetAngle - m_rotAngleY - DX_PI_F;
+		while (difference > DX_PI_F) difference -= 2.0f * DX_PI_F;
+		while (difference < -DX_PI_F) difference += 2.0f * DX_PI_F;
+		//targetAngle + DX_PI_F
+		m_rotAngleY += difference * 0.1f;//回転角度を少しずつ目標の角度に近づける//ほぼlerp
+	}
+	//モデルは、座標の位置のcenter分下で表示
+
+	Matrix4x4 rotY = Matrix4x4::MakeRotationY(m_rotAngleY);
+	MATRIX transmat = MGetTranslate(m_pos.ToDxLibVector());
+	Matrix4x4 trans = Matrix4x4::FromDxLibMatrix(transmat);
+
+	Matrix4x4 mtx = trans * rotY;
+	MV1SetMatrix(m_attackModelHandle, Matrix4x4::ToDxLibMatrix(mtx));
 }
 
 bool Player::CanSkillAttack(bool changeGauge)

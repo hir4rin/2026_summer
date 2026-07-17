@@ -42,10 +42,14 @@ void PlayerStateAttack::Enter()
 	CheckNoLockOnTargetEnemy();
 	//ロックオンしていないときの攻撃の方向を決める//内部ターゲット
 	NoLockOnAttackDirection();
+
 	//アニメーションの初期化//コンボの段数によってアニメーションを変える//-1はplayerがいないとき
 	int currentComboIndex = SelectAnimInit();
 	const ComboNode& node = player->m_comboChain[currentComboIndex];
-	player->m_anim.ChangeAnim(node.animName, false, 1.0f);
+	//モデルハンドルの取得//攻撃モデルか通常モデルかで切り替える
+	int modelHandle = (node.modelType == 0) ? player->m_modelHandle : player->m_attackModelHandle;
+	player->m_anim.ChangeAnimWithModelHandle(modelHandle, node.animName, false, 1.0f);
+
 	//上下差がある攻撃の時はここで初速を与える
 	if (node.moveSpeedY != 0)
 	{
@@ -59,6 +63,7 @@ void PlayerStateAttack::Enter()
 			player->SetIsFloor(false);
 		}
 	}
+
 	float totalAnimFrame = player->m_anim.GetAnimTotalFrame(node.animName);
 	//ここでColliderを生成する//あとhitstopとkAttackColOffset
 	player->m_attackData = {
@@ -70,11 +75,13 @@ void PlayerStateAttack::Enter()
 	.kAttackColOffset = 30.0f,
 	.isKirimomi = node.isKirimomi
 	};
+
 	m_attackCol = std::make_shared<AttackCol>(m_owner, player->m_attackData);
 	Vector3 offset = player->m_targetVec * player->m_attackData.kAttackColOffset
 		+ Vector3(0, kPlayerCenter, 0);//プレイヤーの前方に50.0f、y軸方向にkPlayerCenterだけオフセットする
+
 	m_attackCol->ColInit(player->m_pos, offset, 150.0f,
-							ColliderType::Sphere, Tags::PlayerAttack, true, true);//攻撃の当たり判定を初期化する//最初は無効にしておく
+							ColliderType::Sphere, Tags::PlayerAttack, false, true);//攻撃の当たり判定を初期化する//最初は無効にしておく
 	m_attackCol->ResetID(player->GetId());
 	m_attackCol->SetIsActive(false);//最初は当たり判定を無効にしておく
 
@@ -255,7 +262,7 @@ void PlayerStateAttack::AttackMoveMent()
 	{
 		float timeScale = System::GetInstance().GetTimeScale();
 		//重力
-		player->m_accumulatedGravity += -Game::kGravity * timeScale;
+		player->m_accumulatedGravity += -Game::kGravity * timeScale * player->m_ownTimeScale;
 		player->m_vel = m_InitVel + Vector3(0, player->m_accumulatedGravity, 0);
 		//player->m_vel += Vector3(0, -Game::kGravity, 0) * timeScale;
 

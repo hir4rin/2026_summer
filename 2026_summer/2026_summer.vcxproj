@@ -79,6 +79,7 @@
       <AdditionalIncludeDirectories>../EffekseerForDXLib;$(ProjectDir)Character/Player/Attack;$(ProjectDir)Character/Player/Base;$(ProjectDir)Character/Player/Defence;$(ProjectDir)Character/Player/Locomotion;$(ProjectDir)Character</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <LanguageStandard>stdcpp20</LanguageStandard>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -97,6 +98,7 @@
       <AdditionalIncludeDirectories>../EffekseerForDXLib;$(ProjectDir)Character/Player/Attack;$(ProjectDir)Character/Player/Base;$(ProjectDir)Character/Player/Defence;$(ProjectDir)Character/Player/Locomotion;$(ProjectDir)Character</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <LanguageStandard>stdcpp20</LanguageStandard>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -113,6 +115,7 @@
       <AdditionalIncludeDirectories>../EffekseerForDXLib;$(ProjectDir)Character/Player/Attack;$(ProjectDir)Character/Player/Base;$(ProjectDir)Character/Player/Defence;$(ProjectDir)Character/Player/Locomotion;$(ProjectDir)Character</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <LanguageStandard>stdcpp20</LanguageStandard>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -131,6 +134,7 @@
       <AdditionalIncludeDirectories>../EffekseerForDXLib;$(ProjectDir)Character/Player/Attack;$(ProjectDir)Character/Player/Base;$(ProjectDir)Character/Player/Defence;$(ProjectDir)Character/Player/Locomotion;$(ProjectDir)Character</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <LanguageStandard>stdcpp20</LanguageStandard>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>

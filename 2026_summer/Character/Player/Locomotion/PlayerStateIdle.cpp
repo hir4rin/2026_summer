@@ -18,7 +18,7 @@ void PlayerStateIdle::Enter()
 	auto player = m_owner.lock();
 	if (!player) return;
 	//animationの初期化
-	player->m_anim.ChangeAnim(player->GetAnimName("Idle"), true);
+	player->m_anim.ChangeAnimWithModelHandle(player->m_modelHandle,player->GetAnimName("Idle"), true);
 	//移動速度を0にする//だんだん遅くするにする予定
 	//Runの後だったら専用の切り返しモーションとかやりたい
 	player->m_vel = Vector3(0, 0, 0);

@@ -95,7 +95,7 @@ void EnemySwordman::Update()
 	{
 		float timeScale = System::GetInstance().GetTimeScale();
 
-		m_attackCoolTime -= 1.0f * timeScale;
+		m_attackCoolTime -= 1.0f * timeScale * m_ownTimeScale;
 	}
 	//押し戻しの処理が続かないように消す//応急処置
 	m_vel = Vector3(0, m_vel.y, 0);
@@ -107,7 +107,7 @@ void EnemySwordman::Update()
 	case EnemyState::Idle:
 		//Playerを見る
 		ToPlayerLook();
-		m_idleTime += 1.0f * timeScale;
+		m_idleTime += 1.0f * timeScale * m_ownTimeScale;
 		//一定時間Idle状態でいる
 		if (m_idleTime < kEnemyIdleMaxTime)break;
 
@@ -136,7 +136,7 @@ void EnemySwordman::Update()
 		//一定時間様子を見る
 		//その後、Chaseに移行
 	
-		m_cautionTime += 1.0f * timeScale;
+		m_cautionTime += 1.0f * timeScale * m_ownTimeScale;
 		if (m_cautionTime > kEnemyCautionMaxTime)
 		{
 			m_cautionTime = 0.0f;
@@ -160,7 +160,7 @@ void EnemySwordman::Update()
 		//定期的にプレイヤーの位置を更新する
 		if (!ChasePlayer(m_targetPos, kEnemyMeleeAttackRange))
 		{
-			m_chasingTime += 1.0f * timeScale;
+			m_chasingTime += 1.0f * timeScale * m_ownTimeScale;
 			//更新
 			if (m_chasingTime > kEnemyTargetUpdateTime)
 			{
@@ -202,13 +202,13 @@ void EnemySwordman::Update()
 	case EnemyState::Hit:
 		//m_knockBackVelで保存したベクトルをm_velに追加
 		//y軸があるときとないときで処理を変える
-		m_knockBackFrame += 1.0f * timeScale;
+		m_knockBackFrame += 1.0f * timeScale * m_ownTimeScale;
 		
 		switch (m_hitType)
 		{
 			case HitType::Air:
 				//空中にいるときは、y軸の吹き飛ばしの力を減衰させる
-				m_accumulatedGravity += Game::kGravity * timeScale;
+				m_accumulatedGravity += Game::kGravity * timeScale * m_ownTimeScale;
 				//速度を指定
 				m_vel = m_knockBackVel + Vector3(0, -m_accumulatedGravity, 0);
 				//m_knockBackVel.y -= Game::kGravity
@@ -260,7 +260,7 @@ void EnemySwordman::Update()
 				break;
 			case HitType::Drop:
 
-				m_accumulatedGravity += Game::kGravity * timeScale;
+				m_accumulatedGravity += Game::kGravity * timeScale * m_ownTimeScale;
 				//速度を指定
 				m_vel = m_knockBackVel + Vector3(0, -m_accumulatedGravity, 0);
 
@@ -303,7 +303,7 @@ void EnemySwordman::Update()
 	case EnemyState::Fall:
 		//落下処理
 		//m_vel.y -= Game::kGravity;//重力の処理
-		m_accumulatedGravity += Game::kGravity * timeScale;
+		m_accumulatedGravity += Game::kGravity * timeScale * m_ownTimeScale;
 		m_vel.y -= m_accumulatedGravity;
 		if (IsFloor())
 		{
@@ -321,7 +321,7 @@ void EnemySwordman::Update()
 		break;
 	case EnemyState::KnockDown:
 		//吹き飛んだ後のダウン時間
-		m_knockBackDownFrame += 1.0f * timeScale;
+		m_knockBackDownFrame += 1.0f * timeScale * m_ownTimeScale;
 		if (m_knockBackDownFrame > 55)
 		{
 			m_knockBackDownFrame = 0.0f;
@@ -336,7 +336,7 @@ void EnemySwordman::Update()
 
 
 
-	m_anim.Update();
+	m_anim.Update(m_ownTimeScale);
 	//m_pos += m_vel;//速度を座標に加算する//移動する
 	//回転と座標の更新
 	//UpdateAngleAndPos();
@@ -436,7 +436,7 @@ void EnemySwordman::OnDamage(Collider& other, AttackData& data)
 	//死亡吹っ飛び中は処理しない
 	if (m_isDieOut)return;
 	//Playerの攻撃データをもとに被ダメ処理をする
-	m_hp -= data.attackPower;
+	m_hp -= static_cast<int>(data.attackPower);
 	if (m_hp <= 0)
 	{
 		//空中じゃ死なない
@@ -610,7 +610,7 @@ bool EnemySwordman::TickInterval(float& timer, float interval)
 {
 	float timeScale = System::GetInstance().GetTimeScale();
 
-	timer += timeScale;
+	timer += timeScale * m_ownTimeScale;
 	if (timer >= interval)
 	{
 		timer = 0.0f;

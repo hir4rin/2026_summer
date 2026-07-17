@@ -16,8 +16,8 @@ public:
 	/// <param name="name"></param>
 	void Init(int modelHandle,std::string name,bool isRoop,float timescale = 1.0f);
 	
-	void Update();//ここにtimeScaleを引数にして渡して、することで、プレイヤーでもエネミーでも使うと一緒に使える
-	void AnimBlend();//アニメーションのブレンドを行う
+	void Update(float ownTimeScale = 1.0f);//ここにtimeScaleを引数にして渡して、することで、プレイヤーでもエネミーでも使うと一緒に使える
+	void AnimBlend(float ownTimeScale = 1.0f);//アニメーションのブレンドを行う
 
 	void SetAnim(bool isRoop);//アニメーションのループ再生を設定する//m_isEndを初期化
 	void ChangeAnim(std::string name,bool isRoop = true,float timescale = 1.0f);//アニメーションを切り替える//nameはアニメーションの名前
@@ -26,6 +26,10 @@ public:
 	/// モデルを考慮したアニメーション切換え
 	/// </summary>
 	void ChangeAnimWithModelHandle(int modelHandle,std::string name,bool isRoop,float timescale = 1.0f);
+	//モデルハンドルの取得//確認用
+	int GetModelHandleForCheck() { return m_modelHandle; }
+
+
 
 	bool GetAnimEndFlag() { return m_isEndAnim;}//アニメーションが終わったかどうかのフラグを返す
 	float GetAnimRate();//アニメーションの進行率を返す//0から1の値を返す

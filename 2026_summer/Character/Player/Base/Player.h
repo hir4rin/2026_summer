@@ -26,7 +26,8 @@ class EnemyManager;
 struct ComboNode
 {
 	std::string animName;//アニメーションの名
-	AttackType type;//攻撃するタイプ
+	int  modelType = 0;//モデルの種類//0:通常モデル、1:攻撃モデル
+	AttackType type = AttackType::None;//攻撃するタイプ
 	int index = -1;//攻撃の種類を管理するための変数
 	float attackPower = 0;//攻撃力
 	float moveFrame = -1;//突進する時間
@@ -56,20 +57,21 @@ enum ComboNodeType : int
 {
 	None = 0,
 	AnimName = 1,
-	Type = 2,
-	Index = 3,
-	AttackPower = 4,
-	MoveTimeRate = 5,
-	MoveSpeedX = 6,
-	MoveSpeedY = 7,
-	NextLightAttack = 8,
-	NextHeavyAttack = 9,
-	knockBackXZ = 10,
-	knockBackY = 11,
-	IsKirimomi = 12,
-	SeFrameRate = 13,
-	SeName = 14,
-	Size = 15,
+	Model = 2,
+	Type = 3,
+	Index = 4,
+	AttackPower = 5,
+	MoveTimeRate = 6,
+	MoveSpeedX = 7,
+	MoveSpeedY = 8,
+	NextLightAttack = 9,
+	NextHeavyAttack = 10,
+	knockBackXZ = 11,
+	knockBackY = 12,
+	IsKirimomi = 13,
+	SeFrameRate = 14,
+	SeName = 15,
+	Size = 16,
 };
 namespace ComboIndex
 {
@@ -139,11 +141,7 @@ public:
 	void OnCollision(Collider& other) override;
 	void OnDamage(Collider& other, AttackData& data) override;
 	ComboInfo& GetComboInfo() { return m_comboInfo; }//攻撃コンボの情報を取得する
-	/// <summary>
-	/// 状態を変更する関数
-	/// </summary>
-	/// <param name="newState"></param>
-	void ChangeState(std::shared_ptr<PlayerState> newState);//状態遷移の関数//
+
 	float GetCameraRockOnRange()const { return kPlayerRockOnRange; }//ロックオンする範囲を返す
 
 	//スキルゲージの増減
@@ -165,11 +163,18 @@ public:
 	void SetLimitPlayerArea(int num,bool value) { m_isWaveArea[num] = value; }
 
 private:
+	/// <summary>
+	/// 状態を変更する関数
+	/// </summary>
+	/// <param name="newState"></param>
+	void ChangeState(std::shared_ptr<PlayerState> newState);//状態遷移の関数//
+
 	void InitializeComboChain();//CSVからコンボデータの読み込みをする
 	void UpdateAngle();//回転処理
 	bool IsAvoidable()const;//回避入力を受け付けるかどうか
 	void WingUpdate();//鴉状態の羽の更新
 	void ApplyPos()override;//座標の適用//Playerクラスでは、座標に加えて、首のボーンの回転も適用する
+	void ApplyPosWithAttackModel();//アタックモデルにも適用
 
 	bool CanSkillAttack(bool changeGauge = true);//スキル攻撃ができるかどうか//trueならゲージを減らす
 	bool CanUltAttack();//必殺技攻撃ができるかどうか//trueならゲージを減らす
@@ -188,6 +193,7 @@ private:
 	bool m_isWaveArea[static_cast<int>(WaveNumForPlayer::WaveSize)] = {false};//ウェーブごとに敵がスポーンしたかどうかのフラグ//EnemyManagerのフラグと同じものを持つ
 
 	std::shared_ptr<PlayerState> m_currentState;//プレイヤーの状態//攻撃中、移動中など//状態遷移の管理をするためのもの
+	std::shared_ptr<PlayerState> m_prevState;//前の状態
 
 	bool m_isRaven = false;//鴉状態かどうか//攻撃が変化する
 	const int kPlayerNeckBoneIndex = 25;//首のボーンのインデックス
@@ -207,7 +213,7 @@ private:
 	std::weak_ptr<EnemyManager> m_enemyManager;//EnemyManagerの弱参照
 	
 
-
+	//PlayerState
 	friend class PlayerState;//PlayerStateクラスから、Playerクラスのprivateメンバにアクセスできるようにする
 	friend class PlayerStateIdle;
 	friend class PlayerStateMove;
@@ -221,6 +227,8 @@ private:
 	friend class PlayerStateUlt;
 	friend class PlayerStateDie;
 	friend class PlayerStateDashAttack;
+	//武器
+	friend class Weapon;
 
 };
 

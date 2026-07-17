@@ -33,21 +33,21 @@ void PlayerHUD::Update()
 void PlayerHUD::Draw() const
 {
 	auto player = m_player.lock();
-	float hp = player->GetHp();
-	float skillGauge = player->GetSkillGauge();
-	float ultGauge = player->GetUltGauge();
+	float hp = static_cast<float>(player->GetHp());
+	float skillGauge = static_cast<float>(player->GetSkillGauge());
+	float ultGauge = static_cast<float>(player->GetUltGauge());
 
 
 
 	//HPバーの描画
 	DrawExtendGraph(UI::HpBarX, UI::HpBarY, UI::HpBarX + UI::kBarScale,			     UI::HpBarY + kBarHeight, m_barHideHandle, false);//HPバーの背景　
-	DrawExtendGraph(UI::HpBarX, UI::HpBarY, UI::HpBarX + UI::kBarScale * (hp / 100), UI::HpBarY +kBarHeight, m_hpBarHandle, false);//HPバー
+	DrawExtendGraph(UI::HpBarX, UI::HpBarY, static_cast<int>(UI::HpBarX + UI::kBarScale * (hp / 100)), UI::HpBarY +kBarHeight, m_hpBarHandle, false);//HPバー
 	//スキルゲージバーの描画
 	DrawExtendGraph(UI::SkillGaugeBarX, UI::SkillGaugeBarY, UI::SkillGaugeBarX + UI::kBarScale,						 UI::SkillGaugeBarY + kBarHeight, m_barHideHandle, false);//スキルゲージバーの背景
-	DrawExtendGraph(UI::SkillGaugeBarX, UI::SkillGaugeBarY,	UI::SkillGaugeBarX + UI::kBarScale * (skillGauge / 100), UI::SkillGaugeBarY + kBarHeight, m_skillGaugeBarHandle, false);//スキルゲージバー
+	DrawExtendGraph(UI::SkillGaugeBarX, UI::SkillGaugeBarY,	static_cast<int>(UI::SkillGaugeBarX + UI::kBarScale * (skillGauge / 100)), UI::SkillGaugeBarY + kBarHeight, m_skillGaugeBarHandle, false);//スキルゲージバー
 	//必殺技ゲージバーの描画
 	DrawExtendGraph(UI::UltGaugeBarX, UI::UltGaugeBarY, UI::UltGaugeBarX + UI::kBarScale,					 UI::UltGaugeBarY + kBarHeight, m_barHideHandle, false);//必殺技ゲージバーの背景
-	DrawExtendGraph(UI::UltGaugeBarX, UI::UltGaugeBarY, UI::UltGaugeBarX + UI::kBarScale * (ultGauge / 100), UI::UltGaugeBarY + kBarHeight, m_ultGaugeBarHandle, false);//必殺技ゲージバー
+	DrawExtendGraph(UI::UltGaugeBarX, UI::UltGaugeBarY, static_cast<int>(UI::UltGaugeBarX + UI::kBarScale * (ultGauge / 100)), UI::UltGaugeBarY + kBarHeight, m_ultGaugeBarHandle, false);//必殺技ゲージバー
 
 	//デバッグ用に数値を表示
 	DrawFormatString(10, UI::HpBarY-20, GetColor(0, 0, 0), "Player HP: %d", player->GetHp());

@@ -18,11 +18,20 @@ Collider::~Collider()
 
 void Collider::ColUpdate(Vector3 pos)
 {
+	//自身のタイムスケールの計算
+	if(m_ownTimeScale != 1.0f)
+	{
+		m_timeCounter -= 1.0f;
+		if (m_timeCounter <= 0.0f)
+		{
+			m_ownTimeScale = 1.0f;
+		}
+	}
 	//寿命計算
 	float timeScale = System::GetInstance().GetTimeScale();
 	if (m_lifeTime > 0.0f)
 	{
-		m_lifeTime -= 1.0f * timeScale;
+		m_lifeTime -= 1.0f * timeScale * m_ownTimeScale;
 
 		if (m_lifeTime <= 0.0f)
 		{

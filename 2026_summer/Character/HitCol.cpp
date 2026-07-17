@@ -26,6 +26,14 @@ void HitCol::OnDamageInterFace(Collider& other, AttackData& data)
 	owner->OnDamage(other, data);
 }
 
+void HitCol::SetTimeScaleInterFace(float timeScale, float time)
+{
+	//所有者にデータを渡す
+	auto owner = m_owner.lock();
+	if (!owner)return;
+	owner->SetOwnTimeScale(timeScale,time);
+}
+
 void HitCol::ApplyPos()
 {
 	auto owner = m_owner.lock();

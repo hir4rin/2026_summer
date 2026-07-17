@@ -212,7 +212,7 @@ void UltCamera::CameraSetting()
 
 void UltCamera::Draw()
 {
-	DrawSphere3D(m_pos.ToDxLibVector(), 10.0f,16, GetColor(255, 255, 255),GetColor(0, 0, 0), 1.0f);
+	DrawSphere3D(m_pos.ToDxLibVector(), 10.0f,16, GetColor(255, 255, 255),GetColor(0, 0, 0), true);
 
 	std::string posText = "UltCameraPos:(" + std::to_string(m_pos.x) + "," + std::to_string(m_pos.y) + "," + std::to_string(m_pos.z) + ")";
 	std::string targetText = "UltCameraTarget:(" + std::to_string(m_target.x) + "," + std::to_string(m_target.y) + "," + std::to_string(m_target.z) + ")";

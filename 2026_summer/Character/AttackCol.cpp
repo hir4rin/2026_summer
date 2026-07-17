@@ -103,11 +103,11 @@ void AttackCol::PlayerAttackOnCollision(Collider& other)
 		{
 			// 初めて当たった場合の処理
 			 
-			//プレイヤーのゲージ管理
+			//プレイヤーのゲージ管理//今は複数の敵に当たったらその分ゲージが上がるようになっている
 			PlayerGaugeUp(other);
 			 
 			//otherの被ダメ処理
-			m_hitIds.push_back(otherId);//当たったidのリストにotherのidを追加する
+			
 			//hitColのOnDamageInterFaceを呼ぶ
 			auto hitCol = dynamic_cast<HitCol*>(&other);
 			if (hitCol)
@@ -115,13 +115,24 @@ void AttackCol::PlayerAttackOnCollision(Collider& other)
 				//attackDataの変更//現在経過時間を引いて、敵の移動距離、時間を決める
 				float nowAnimFrame = player->GetAnimation().GetNowAnimFrame();
 				m_attackData->knockBackFrame -= nowAnimFrame;
-
+				//ダメージの受け渡し
 				hitCol->OnDamageInterFace(*this, *m_attackData);
+				//ヒットストップの受け渡し
+				hitCol->SetTimeScaleInterFace(0.3f, 10.0f);
+
 				//ownerに当たったことを連絡->AttackMoveを止める
 				auto cameraManager = player->GetCameraManager().lock();
-				if (!cameraManager)return;
+				if (!cameraManager)
+				{
+					m_hitIds.push_back(otherId);//当たったidのリストにotherのidを追加する
+					return;
+				}
 				auto mainCamera = cameraManager->GetMainCamera();
-				if (!mainCamera)return;
+				if (!mainCamera)
+				{
+					m_hitIds.push_back(otherId);//当たったidのリストにotherのidを追加する
+					return;
+				}
 				bool isLockOn = mainCamera->GetIsLockOn();
 				if (isLockOn)
 				{
@@ -159,7 +170,7 @@ void AttackCol::PlayerAttackOnCollision(Collider& other)
 					System::GetInstance().SetTimeScaleForFrames(0.1f, 120);//時間を遅くする//60フレームで元に戻す
 				}
 			}
-
+			m_hitIds.push_back(otherId);//当たったidのリストにotherのidを追加する
 		}
 	}
 	else

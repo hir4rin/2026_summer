@@ -19,7 +19,7 @@ void PlayerStateDashAttack::Enter()
 	auto player = m_owner.lock();
 	if (!player) return;
 	//animationの初期化
-	player->m_anim.ChangeAnim(player->GetAnimName("DashAttack"), false);
+	player->m_anim.ChangeAnimWithModelHandle(player->m_modelHandle,player->GetAnimName("DashAttack"), false);
 }
 
 void PlayerStateDashAttack::Update()

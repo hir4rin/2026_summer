@@ -8,10 +8,7 @@ public:
 	Weapon(std::weak_ptr<Player> owner);
 	virtual ~Weapon();
 
-
-
 	void Update();
-	void TitleUpdate();
 	void Draw();
 	
 private:

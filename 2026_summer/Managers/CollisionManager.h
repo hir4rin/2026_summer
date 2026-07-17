@@ -58,6 +58,10 @@ private:
 	//後々、コライダーを停止、再開する機能を追加するかも
 
 	void ApplyAdjustments();
+	/// <summary>
+	/// コライダーにtimeScaleを考慮した速度を加算する
+	/// </summary>
+	void AddVelocity();
 private:
 	//当たり判定のチェックを行うクラス
 	std::unique_ptr<CollisionChecker> m_collisionChecker;

@@ -45,15 +45,15 @@ void Animation::Init(int modelHandle, std::string name, bool isRoop, float times
 }
 
 
-void Animation::Update()
+void Animation::Update(float ownTimeScale)
 {
 	float timeScale = System::GetInstance().GetTimeScale();//時間のスケールを取得する//0から1の値を返す//0.5なら、時間が半分になる
 	//アニメーションの更新
-	m_currentAnimCount += 1.0f * timeScale * m_animtimeScale;//アニメーションのフレーム数を増やす
-	m_prevAnimCount += 1.0f * timeScale * m_prevAnimTimeScale;//前のアニメーションのフレーム数を増やす
+	m_currentAnimCount += 1.0f * timeScale * m_animtimeScale * ownTimeScale;//アニメーションのフレーム数を増やす
+	m_prevAnimCount += 1.0f * timeScale * m_prevAnimTimeScale * ownTimeScale;//前のアニメーションのフレーム数を増やす
 
 	//アニメーションのブレンド
-	AnimBlend();
+	AnimBlend(ownTimeScale);
 	//アニメーションのループ再生
 	//アタッチしているアニメーションの総フレーム数を取得する
 	float totalAnimCount = MV1GetAttachAnimTotalTime(m_modelHandle, m_currentAnimHandle);
@@ -91,7 +91,7 @@ void Animation::Update()
 	}
 }
 
-void Animation::AnimBlend()
+void Animation::AnimBlend(float ownTimeScale)
 {
 	if (m_prevAnimHandle == -1)
 	{
@@ -103,8 +103,9 @@ void Animation::AnimBlend()
 		//timeScale
 		float timeScale = System::GetInstance().GetTimeScale();//時間のスケールを取得する//0から1の値を返す//0.5なら、時間が半分になる
 
-		//m_animtimeScaleを足さないといけないと思った
-		m_animChangeFrame += 1.0f * timeScale;//アニメーションを切り替えるフレーム数を増やす
+		//m_animtimeScaleを足さないといけないと思った//どっちのm_animTimeScaleを足すか不明なのでいったんパス
+		m_animChangeFrame += 1.0f * timeScale * ownTimeScale;//アニメーションを切り替えるフレーム数を増やす
+
 		//currentAnimBlendのブレンド率を計算
 		float rate = m_animChangeFrame / kAnimChangeFrame;//アニメーションを切り替えるフレーム数で割ることで、0から1までの値を作る
 		if (rate > 1.0f)
@@ -115,6 +116,7 @@ void Animation::AnimBlend()
 			m_prevAnimHandle = -1;
 			m_prevAnimCount = 0.0f;
 		}
+
 		MV1SetAttachAnimBlendRate(m_modelHandle, m_currentAnimHandle, rate);//現在のアニメーションのブレンド率を設定する
 		if (m_prevAnimHandle != -1)//prevが有効な時だけ呼ぶ//prevが-1の時にSetAttachAnimBlendRateを呼ぶと、そのハンドルのブレンド率が0になってしまうので、呼ばないようにする
 		{
@@ -171,13 +173,27 @@ void Animation::ChangeAnim(std::string name, bool isRoop, float timescale)
 
 void Animation::ChangeAnimWithModelHandle(int modelHandle, std::string name, bool isRoop, float timescale)
 {
-	if (m_modelHandle = modelHandle)
+	if (m_modelHandle == modelHandle)
 	{
 		//同じモデルなら、ブレンド遷移
 		ChangeAnim(name, isRoop, timescale);
 	}
 	else
 	{
+		// 違うモデルに切り替える前に、古いモデルのアニメーションを全てデタッチする
+		if (m_currentAnimHandle != -1)
+		{
+			MV1DetachAnim(m_modelHandle, m_currentAnimHandle);
+			m_currentAnimHandle = -1;
+		}
+		if (m_prevAnimHandle != -1)
+		{
+			MV1DetachAnim(m_modelHandle, m_prevAnimHandle);
+			m_prevAnimHandle = -1;
+		}
+		//m_prevAnimCount = 0.0f;
+		m_animChangeFrame = 0.0f;
+
 		//違うモデルなら、Initで初期化//ブレンドなし	
 		Init(modelHandle, name, isRoop, timescale);
 	}

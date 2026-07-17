@@ -22,7 +22,20 @@ void Weapon::Update()
 	auto player = m_owner.lock();
 	if (!player)return;
 	//モデルフレームのローカルワールド行列を取得
-	MATRIX mat = MV1GetFrameLocalWorldMatrix(player->GetModelHandle(), slotIndex);//モデルフレームのローカルワールド行列を取得
+	//プレイヤーの状態によってモデルを変える
+	int modelHandle = -1;
+	int currentModelHandle = player->m_anim.GetModelHandleForCheck();
+	if (currentModelHandle == player->m_modelHandle)
+	{
+		modelHandle = player->m_modelHandle;
+	}
+	else
+	{
+		modelHandle = player->m_attackModelHandle;
+	}
+	
+
+	MATRIX mat = MV1GetFrameLocalWorldMatrix(modelHandle, slotIndex);//モデルフレームのローカルワールド行列を取得
 
 	////武器の位置を取得
 	//Vector3 weaponPos = MV1GetFramePosition(m_ownerHandle, slotIndex);
@@ -55,23 +68,7 @@ void Weapon::Update()
 
 }
 
-void Weapon::TitleUpdate()
-{
-	//モデルフレームのローカルワールド行列を取得
-	MATRIX mat = MV1GetFrameLocalWorldMatrix(m_ownerHandle, slotIndex);//モデルフレームのローカルワールド行列を取得
-	//MATRIX transmat = MGetTranslate(weaponPos.ToDxLibVector());
-	//90度回転させる
-	//MATRIX rotmat = MGetRotY(DX_PI_F / 2.0f);//回転行列を作成する//90度回転させる
-	//mat = MMult(rotmat, mat);//回転行列を掛ける//90度回転させる
 
-	MATRIX scale = MGetScale(VGet(0.6f, 0.6f, 0.6f));//スケーリング行列を作成する//モデルの大きさを半分にする
-
-	mat = MMult(scale, mat);//スケーリング行列を掛ける//モデルの大きさを半分にする
-
-	//モデルにマトリクスをセット
-	MV1SetMatrix(m_modelHandle, mat);
-
-}
 
 void Weapon::Draw()
 {

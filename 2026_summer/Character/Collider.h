@@ -124,6 +124,9 @@ public:
 	//寿命の設定
 	void SetLifeTimeLimited() { m_isLifeTimeLimited = true; }
 	bool GetIsLifeTimeLimited() const { return m_isLifeTimeLimited; }
+	//タイムスケールのセット
+	void SetOwnTimeScale(float timeScale, float time) { m_ownTimeScale = timeScale; m_timeCounter = time; }
+
 
 	//デバッグ描画
 	void DebugDraw()const;
@@ -151,6 +154,7 @@ protected:
 	float m_lifeTime = 0.0f;//寿命//0.0fで無限//1.0fで1秒
 	bool m_isLifeTimeLimited = false;//trueになったらCollisionManagerから削除される
 	float m_ownTimeScale = 1.0f;//自分のtimeScale
+	float m_timeCounter = 0.0f;//timeScaleのカウンター
 	CapsuleInfo m_capsuleInfo = {};//カプセルの情報//カプセルの時に使う
 
 	std::weak_ptr<Stage> m_stage;//ステージへの弱参照//ステージとのレイキャスト用

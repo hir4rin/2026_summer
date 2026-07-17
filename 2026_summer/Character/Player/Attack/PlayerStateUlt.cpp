@@ -28,7 +28,7 @@ void PlayerStateUlt::Enter()
 	//攻撃の方向を決める
 	DetermineAttackDirection();	
 	//アニメーションを流す
-	player->m_anim.ChangeAnim(player->GetAnimName("UltAttack"), false, 1.0f);
+	player->m_anim.ChangeAnimWithModelHandle(player->m_attackModelHandle, player->GetAnimName("UltAttack"), false, 1.0f);
 
 	//攻撃の当たり判定を生成する
 	//データ作成
@@ -59,7 +59,7 @@ void PlayerStateUlt::Update()
 
 
 	float rate = player->m_anim.GetAnimRate();
-	if(rate > 0.5f && rate < 0.9f)
+	if(rate > 0.7f && rate < 0.9f)
 	{
 		m_attackCol->SetIsActive(true);
 	}

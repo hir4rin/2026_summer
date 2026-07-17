@@ -239,7 +239,7 @@ void GameScene::NormalDraw()
 		if (enemyPos2D.z >= 0.0f && enemyPos2D.z <= 1.0f)
 		{
 			// ロックオンサークル
-			DrawCircle(enemyPos2D.x, enemyPos2D.y + 40, 20, GetColor(255, 255, 0), true);
+			DrawCircle(static_cast<int>(enemyPos2D.x), static_cast<int>(enemyPos2D.y) + 40, 20, GetColor(255, 255, 0), true);
 		}
 	}
 

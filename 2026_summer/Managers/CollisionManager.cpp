@@ -7,6 +7,7 @@
 
 void CollisionManager::RegisterCollider(std::shared_ptr<Collider> collider)
 {
+
 	//すでに登録されているかどうかを確認する
 	auto it = std::find(m_colliders.begin(), m_colliders.end(), collider);
 
@@ -78,7 +79,10 @@ void CollisionManager::Update()
 			return collider->GetIsLifeTimeLimited();
 		});
 
-	for (int i = 0; i < 3; i++)
+	//速度を足す
+	AddVelocity();
+
+	for (int t = 0; t < 3; t++)
 	{
 		//すべてのコライダーの組み合わせをチェックする//当たっているかの確認かつ、速度をいじる
 		for (size_t i = 0; i < m_colliders.size(); i++)
@@ -97,11 +101,7 @@ void CollisionManager::Update()
 				//静的オブジェクト同士の時無視
 				if (colliderA->GetTag() == Tags::StaticObject &&
 					colliderB->GetTag() == Tags::StaticObject)continue;
-				//それぞれの速度の更新
-				float timescale = System::GetInstance().GetTimeScale();
-				//ここですべての速度にtimescaleをかける
-				colliderA->m_vel *= timescale * colliderA->GetTimeScale();
-				colliderB->m_vel *= timescale * colliderB->GetTimeScale();
+			
 				//衝突判定//球と球、BoxとBox、CapsuleとCapsuleとかで分ける
 				if (m_collisionChecker->IsCollide(*colliderA, *colliderB))
 				{
@@ -182,6 +182,19 @@ void CollisionManager::ApplyAdjustments()
 	{
 		if (!collider)continue;
 		collider->ApplyPos();
+	}
+}
+
+void CollisionManager::AddVelocity()
+{
+	for (size_t i = 0; i < m_colliders.size(); i++)
+	{
+		std::shared_ptr<Collider> colliderA = m_colliders[i];
+		if (!colliderA)continue;
+		if (!colliderA->IsActive())continue;
+		float timescale = System::GetInstance().GetTimeScale();
+		//ここですべてのコライダーに速度、timescaleをかける
+		colliderA->m_vel *= timescale * colliderA->GetTimeScale();
 	}
 }
 

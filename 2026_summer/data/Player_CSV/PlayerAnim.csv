@@ -1,7 +1,7 @@
 #key,animName
 Idle,Player|Idle
 Walk,Player|Walk
-Run,Player|Walk
+Run,Player|FastRun.001
 ChangeDirection,Player|ChangeDirection
 DodgeForward,Player|DodgeForward
 DodgeBackward,Player|DodgeBackward
@@ -10,6 +10,6 @@ DodgeRight,Player|DodgeRight
 AttackPose,Player|AttackPose
 wallKick,Player|kabeKick
 DashAttack,Player|ChangeDirection
-JumpUp,Player|JumpUp
+JumpUp,Player|FrontJump
 JumpDown,Player|JumpDown
-UltAttack,Player|AirAttack4
+UltAttack,Player|Skil1

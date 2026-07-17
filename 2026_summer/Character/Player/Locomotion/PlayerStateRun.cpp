@@ -26,7 +26,7 @@ void PlayerStateRun::Enter()
 	auto player = m_owner.lock();
 	if (!player) return;
 	//animationの初期化
-	player->m_anim.ChangeAnim(player->GetAnimName("Run"), true,1.0f);
+	player->m_anim.ChangeAnimWithModelHandle(player->m_modelHandle, player->GetAnimName("Run"), true,1.0f);
 }
 
 void PlayerStateRun::Update()
@@ -76,7 +76,7 @@ void PlayerStateRun::Update()
 	//攻撃状態に遷移する
 	if (input.IsTriggered("X"))//突進攻撃
 	{
-		player->ChangeState(std::make_shared<PlayerStateDashAttack>(m_owner));
+		player->ChangeState(std::make_shared<PlayerStateAttack>(m_owner,AttackType::lightAttack));
 		return;
 	}
 	if (input.IsTriggered("Y"))//強攻撃

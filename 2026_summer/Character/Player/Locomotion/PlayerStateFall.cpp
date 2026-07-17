@@ -108,6 +108,8 @@ void PlayerStateFall::Update()
 		
 	}
 	Move(input);
+	//アニメーション
+	player->m_anim.Update();
 }
 
 void PlayerStateFall::Exit()

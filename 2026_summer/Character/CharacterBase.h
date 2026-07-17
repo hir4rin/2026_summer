@@ -41,7 +41,6 @@ public:
 	/// <param name="owner"></param>
 	void InitHitCol(std::weak_ptr<CharacterBase> owner);//やられ判定の初期化//継承先で呼ぶ
 
-	void SetTimeScale(float timeScale) { m_ownTimeScale = timeScale; }
 	Vector3 GetTargetVec() const { return m_targetVec; }
 
 	int GetModelHandle() const { return m_modelHandle; }
