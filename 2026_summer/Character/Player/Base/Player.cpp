@@ -138,10 +138,11 @@ void Player::Update(Camera& camera)
 
 		// エフェクトの位置をリセットする。
 		SetPosPlayingEffekseer3DEffect(m_efPlayingHandle, m_pos.x, m_pos.y + 100.0f, m_pos.z);
+		//SetColorPlayingEffekseer3DEffect(m_efPlayingHandle, 255, 255, 255, 255);
 	}
 
 	SetPosPlayingEffekseer3DEffect(m_efPlayingHandle, m_pos.x, m_pos.y + 100.0f, m_pos.z);
-
+	//SetColorPlayingEffekseer3DEffect(m_efPlayingHandle, 255, 255, 255, 255);
 	//座標の更新の前に、当たり判定の更新をする
 
 	//座標の更新
@@ -212,7 +213,7 @@ void Player::EffectDraw()
 	//Vector3 offset = m_targetVec * 50.0f;
 	// 再生中のエフェクトを移動する。
 	
-	//SetColorPlayingEffekseer3DEffect(m_efPlayingHandle, 255, 255, 255, 255);
+	
 }
 
 void Player::OnCollision(Collider& other)
@@ -445,31 +446,32 @@ void Player::ApplyPos()
 	{
 		//最期のiならbreakする//最後のiは、ウェーブがないエリアなので、制限しない
 		if (i == static_cast<int>(WaveNumForPlayer::WaveSize) - 1)break;
-		if (i == 0)
+		switch (i)
 		{
-			if (m_isWaveArea[i])
-			{
-				if (m_pos.x <= kArea1MaxX)
+			case static_cast<int>(WaveNumForPlayer::Wave1):
+				if (m_isWaveArea[i])
 				{
+					if (m_pos.x <= kArea1MaxX)
 					{
-						m_pos.x = kArea1MaxX;
+						{
+							m_pos.x = kArea1MaxX;
+						}
 					}
-				}
-			}
-		}
-		if (i == 1)
-		{
-			if (m_isWaveArea[i])
-			{
-				if (m_pos.x >= kArea1MaxX)
-				{
-					m_pos.x = kArea1MaxX;
-				}
-				if (m_pos.x <= kArea2MaxX)
-				{
-					m_pos.x = kArea2MaxX;
-				}
-			}
+				}	
+				break;
+				case static_cast<int>(WaveNumForPlayer::Wave2):
+					if (m_isWaveArea[i])
+					{
+						if (m_pos.x >= kArea1MaxX)
+						{
+							m_pos.x = kArea1MaxX;
+						}
+						if (m_pos.x <= kArea2MaxX)
+						{
+							m_pos.x = kArea2MaxX;
+						}
+					}	
+					break;
 		}
 	}
 

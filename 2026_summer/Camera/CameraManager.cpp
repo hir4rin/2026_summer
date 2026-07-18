@@ -157,6 +157,8 @@ void CameraManager::Draw()
 void CameraManager::ApplyCameraSettings()
 {
 	m_mainCamera->CameraSetting();
+	//カメラ変更を反映させる
+	Effekseer_Sync3DSetting();
 }
 
 void CameraManager::SetNextCameraPriority(Camera::Type type,bool isLerp,bool isSlerp)

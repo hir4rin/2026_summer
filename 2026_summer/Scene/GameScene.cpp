@@ -70,7 +70,7 @@ GameScene::GameScene(SceneController& controller) :Scene(controller)
 	CollisionManager::GetInstance().SetStage(std::weak_ptr(m_stage));
 
 	//レンダーターゲットの作成
-	m_RT1 = MakeScreen(Game::kScreenWidth, Game::kScreenHeight, true);
+	m_RT1 = MakeScreen(Game::kScreenWidth, Game::kScreenHeight, false);
 	m_RT2 = MakeScreen(Game::kScreenWidth, Game::kScreenHeight, true);
 	m_RT3 = MakeScreen(Game::kScreenWidth, Game::kScreenHeight, true);
 
@@ -201,7 +201,8 @@ void GameScene::NormalDraw()
 	//SetDrawBright(0, 0, 0);  // R=255, G=255, B=255	
 	m_player->EffectDraw();
 	//描画前に色を設定
-	DrawEffekseer3D();
+	//Effekseer_Sync3DSetting();;
+	//awEffekseer3D();
 	DrawFormatString(300, 0, GetColor(255, 255, 255), "GameScene");
 
 
@@ -250,9 +251,17 @@ void GameScene::NormalDraw()
 
 	//最終的に画面に描画する
 	SetDrawScreen(DX_SCREEN_BACK); ClearDrawScreen();
-	DrawGraph(0, 0, m_RT1, TRUE); // 背景
-	DrawGraph(0, 0, m_RT2, TRUE); // エフェクト・文字
-	DrawGraph(0, 0, m_RT3, TRUE); // キャラクター
+	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 255);
+	DrawGraph(0, 0, m_RT1, false); // 背景
+	// 以降はアルファブレンドで合成
+		// RT2・RT3はアルファ合成で重ねる
+	SetDrawBlendMode(DX_BLENDMODE_ALPHA, 255);
+	DrawGraph(0, 0, m_RT2, true); // エフェクト・文字
+	DrawGraph(0, 0, m_RT3, true); // キャラクター
+	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 255);
+	// Effekseerはバックバッファ上で描画する（MakeScreenへの描画は非対応）
+	m_cameraManager->ApplyCameraSettings();
+	DrawEffekseer3D();	
 }
 
 void GameScene::FadeOutDraw()

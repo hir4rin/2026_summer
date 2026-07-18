@@ -43,7 +43,7 @@ bool Application::Init()
 
 	// DirectX11を使用するようにする。(DirectX9も可、一部機能不可)
 	// Effekseerを使用するには必ず設定する。
-	//SetUseDirect3DVersion(DX_DIRECT3D_11);
+	SetUseDirect3DVersion(DX_DIRECT3D_11);
 	if (DxLib_Init() == -1)		// ＤＸライブラリ初期化処理
 	{
 		return -1;			// エラーが起きたら直ちに終了
@@ -58,6 +58,10 @@ bool Application::Init()
 	// フルスクリーンウインドウの切り替えでリソースが消えるのを防ぐ。
 	// Effekseerを使用する場合は必ず設定する。
 	SetChangeScreenModeGraphicsSystemResetFlag(FALSE);
+
+	// DX11使用時、Effekseerのガンマカラーをリニア空間で維持するよう設定する
+	// これがないとテクスチャが白飛びして見える
+	//GetEffekseer3DRenderer()->SetMaintainGammaColorInLinearColorSpace(true);
 
 	//データの読み込み
 	DataManager::GetInstance().LoadAll();
@@ -107,11 +111,11 @@ void Application::Run()
 				pSceneMain->Init();
 			}*/
 		}
-		// Effekseerにより再生中のエフェクトを更新する。
-		UpdateEffekseer3D();
 
 		Input::GetInstance().Update();
 		controller.Update();
+		// Effekseerにより再生中のエフェクトを更新する。
+		UpdateEffekseer3D();
 		controller.Draw();
 		SubWindow::Draw();//サブウィンドウの描画
 		//裏画面と表画面を入れ替える
