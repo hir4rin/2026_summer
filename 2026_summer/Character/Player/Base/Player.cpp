@@ -33,12 +33,12 @@ Player::Player()
 	m_comboInfo.SkillGauge = 100;
 	m_comboInfo.UltGauge = 100;
 	//m_modelHandle = MV1LoadModel("data/Player/Player.mv1");
-	m_modelHandle = MV1LoadModel("data/Player/Player_Init.mv1");
+	m_modelHandle = System::GetInstance().GetHandle(AsyncData::PlayerModel);
 	//m_modelHandle = MV1LoadModel("data/Player/Player_true.mv1");
 	//m_modelHandle = MV1LoadModel("data/Player/1danme.mv1");
 
 	//攻撃のモデルの読み込み
-	m_attackModelHandle = MV1LoadModel("data/Player/Sonoda/sonoda.mv1");
+	m_attackModelHandle = System::GetInstance().GetHandle(AsyncData::PlayerAttackModel);
 
 	//モデルの初期位置を設定する//前を向いているようにする
 	Matrix4x4 rotY = Matrix4x4::MakeRotationY(DX_PI_F);
@@ -54,7 +54,7 @@ Player::Player()
 	m_animNames = animData.animNames;
 
 	//鴉の羽のモデルの読み込み
-	m_wingModelHandle = MV1LoadModel("data/Player/Weapon/Wing/wing.mv1");
+	m_wingModelHandle = System::GetInstance().GetHandle(AsyncData::PlayerWingModel);
 	WingUpdate();//鴉状態の羽の更新
 }
 
@@ -94,7 +94,7 @@ void Player::Init()
 	//武器の生成
 	m_weapon = std::make_shared<Weapon>(GetWeakPtr());//武器の生成//Playerクラスのインスタンスから、Playerクラスのshared_ptrを取得できるようになる
 	//effectの生成
-	m_efHandle = LoadEffekseerEffect("data/Effect/Slash.efk", 1.0f);
+	m_efHandle = System::GetInstance().GetHandle(AsyncData::PlayerEffectSkill);
 }
 
 void Player::Update(Camera& camera)

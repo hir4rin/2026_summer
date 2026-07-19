@@ -1,4 +1,21 @@
 ﻿#pragma once
+#include <unordered_map>
+
+enum class AsyncData : int
+{
+	//プレイヤー
+	PlayerModel = 0,
+	PlayerAttackModel = 1,
+	PlayerWeaponModel = 2,
+	PlayerWingModel = 3,
+	PlayerEffectSkill = 4,
+	//敵
+	EnemyModel = 5,
+	//ステージ
+	StageModel = 6,
+	StageModelCollider = 7,
+};
+
 class System
 {
 private:
@@ -28,6 +45,10 @@ public:
 		m_frameCount = frames;//フレームカウントを設定する
 	}
 
+	//非同期ロードのハンドルを保存する
+	void SetHandleData(std::unordered_map<AsyncData, int> data) { m_asyncHandles = data; }
+	int GetHandle(AsyncData key) { return m_asyncHandles[key]; }
+
 	void Update();
 
 	void SetUltStart(int frames) { m_ultCount = frames; m_isUltimating = true; };
@@ -41,6 +62,8 @@ private:
 
 	bool m_isUltimating = false;//必殺技の演出中かどうか
 	int m_ultCount = -1;//必殺技の演出時間カウント
+
+	std::unordered_map<AsyncData, int> m_asyncHandles; //非同期ロードのハンドルを保持するマップ
 
 };
 

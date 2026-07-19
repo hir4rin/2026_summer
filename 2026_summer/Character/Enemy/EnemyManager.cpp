@@ -5,6 +5,7 @@
 #include "../Game.h"
 #include "../DataLoader/DataManager.h"
 #include "Collider.h"
+#include "../System.h"
 #include <cstdlib>
 #include <ctime>
 
@@ -22,7 +23,7 @@ EnemyManager::EnemyManager(std::weak_ptr<Player> player)
 {
 	//参照を保存
 	m_player = player;
-	enemyModelHandle = MV1LoadModel("data/Enemy/sasakiPlayer.mv1");
+	enemyModelHandle = System::GetInstance().GetHandle(AsyncData::EnemyModel);
 	srand(static_cast<unsigned int>(time(nullptr)));//乱数の初期化//これを入れないと、毎回同じ位置に敵が出る
 	//5体の敵を出す
 	//for (int i = 0; i < 5; i++)

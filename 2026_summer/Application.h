@@ -54,6 +54,11 @@ public:
 	/// </summary>
 	/// <param name="hInstance">WinMainから渡されるインスタンスハンドル</param>
 	void CreateSubWindow(HINSTANCE hInstance);
+
+	/// <summary>
+	/// 非同期ロード
+	/// </summary>
+	void AsyncLoad();
 };
 
 

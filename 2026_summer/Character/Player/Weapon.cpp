@@ -3,6 +3,7 @@
 #include "Base/Player.h"
 #include "../Math/Vector3.h"
 #include "../Math/Matrix4x4.h"
+#include "../System.h"
 
 Weapon::Weapon(std::weak_ptr<Player> owner)
 	: m_owner(owner)
@@ -10,7 +11,7 @@ Weapon::Weapon(std::weak_ptr<Player> owner)
 	auto player = m_owner.lock();
 	if (!player)return;
 
-	m_modelHandle = MV1LoadModel("data/Player/Weapon/red_katana.mv1");
+	m_modelHandle = System::GetInstance().GetHandle(AsyncData::PlayerWeaponModel);
 }
 
 Weapon::~Weapon()

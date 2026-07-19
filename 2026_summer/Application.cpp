@@ -2,6 +2,8 @@
 #include "DxLib.h"
 #include "EffekseerForDXLib.h"
 #include <cassert>
+#include <unordered_map>
+#include <string>
 #include "Game.h"
 #include "Scene/SceneController.h"
 #include "Scene/GameScene.h"
@@ -9,6 +11,7 @@
 #include "DataLoader/DataManager.h"
 #include "Input.h"
 #include "SubWindow/SubWindow.h"
+#include "System.h"
 
 constexpr int kWindowSizeW = 1920;	// デフォルトウィンドウ幅
 constexpr int kWindowSizeH = 1080;	// デフォルトウィンドウ高
@@ -91,9 +94,17 @@ void Application::Run()
 #else
 	controller.ChangeScene(std::make_shared<TitleScene>(controller));
 #endif 
+	//player,enemy,stage,weapon,UI画像
+
+	//非同期ロード
+	AsyncLoad();
 
 	while (ProcessMessage() == 0 && !m_requestedExit)
 	{
+		
+
+
+
 		LONGLONG time = GetNowHiPerformanceCount();
 		//画面のクリア
 		ClearDrawScreen();
@@ -158,4 +169,48 @@ void Application::CreateSubWindow(HINSTANCE hInstance)
 	//サブウィンドウの作成//引数で位置とサイズを指定できるようにする
 	SubWindow::Create(hInstance, 1300, 0, 600, 400);
 }
+
+void Application::AsyncLoad()
+{
+	// これがロード処理より前に呼ばれているか確認
+	SetUseASyncLoadFlag(TRUE);
+	//ロード
+	std::unordered_map<AsyncData, int> handleData;
+	//player
+	handleData[AsyncData::PlayerModel] = MV1LoadModel("data/Player/Player_Init.mv1");
+	handleData[AsyncData::PlayerAttackModel] = MV1LoadModel("data/Player/Sonoda/sonoda.mv1");
+	handleData[AsyncData::PlayerWeaponModel] = MV1LoadModel("data/Player/Weapon/red_katana.mv1");
+	handleData[AsyncData::PlayerWingModel] = MV1LoadModel("data/Player/Weapon/Wing/wing.mv1");
+	handleData[AsyncData::PlayerEffectSkill] = LoadEffekseerEffect("data/Effect/Slash.efk", 1.0f);
+	//enemy
+	handleData[AsyncData::EnemyModel] = MV1LoadModel("data/Enemy/sasakiPlayer.mv1");
+	//stage
+	handleData[AsyncData::StageModel] = MV1LoadModel("data/Stage_Graphic/Stage.mv1");
+	handleData[AsyncData::StageModelCollider] = MV1LoadModel("data/Stage_Graphic/coll.mv1");
+
+	int totalNum = handleData.size();
+
+	while (ProcessMessage() == 0 && !m_requestedExit)
+	{
+		//非同期ロード
+		int loadingNum = GetASyncLoadNum();//非同期ロード中の数を取得
+		if (loadingNum == 0) 
+		{
+			break;
+		}
+		ClearDrawScreen();
+		//現在のロード状況を表示する
+		DrawFormatString(Game::kScreenWidth / 2, Game::kScreenHeight / 2, GetColor(255, 255, 255), "Loading... %d / %d", totalNum - loadingNum, totalNum);
+
+		ScreenFlip();
+
+
+	}
+	SetUseASyncLoadFlag(false);
+	//システムにデータを渡す
+	System::GetInstance().SetHandleData(handleData);
+
+}
+
+
 
