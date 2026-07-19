@@ -4,8 +4,12 @@
 Stage::Stage()
 {
 	//m_stageModelHandle = MV1LoadModel("data/PreStage2/Stage2.mv1");
-	m_stageModelHandle = MV1LoadModel("data/PreStage2/Stage2Prev.mv1");
-	m_pos = Vector3(1200, -50, 2500);
+	//m_stageModelHandle = MV1LoadModel("data/PreStage2/Stage2Prev.mv1");
+	m_stageModelHandle = MV1LoadModel("data/Stage_Graphic/coll.mv1");
+	m_stageViewHandle = MV1LoadModel("data/Stage_Graphic/Stage.mv1");
+	//m_pos = Vector3(1200, -50, 2500);
+	m_pos = Vector3(1200, 0, 0);
+	m_pos_graphic = Vector3(1200, 0, 0);
 	
 	// モデルのポリゴンの当たり判定を構築する(第二引数を-1にすると全てのポリゴンを対象にする)
 	MV1SetupCollInfo(m_stageModelHandle, -1);
@@ -13,7 +17,10 @@ Stage::Stage()
 	MATRIX transmat = MGetTranslate(m_pos.ToDxLibVector());
 	Matrix4x4 trans = Matrix4x4::FromDxLibMatrix(transmat);
 
+	MATRIX transmat_graphic = MGetTranslate(m_pos_graphic.ToDxLibVector());
+
 	MV1SetMatrix(m_stageModelHandle, Matrix4x4::ToDxLibMatrix(trans));
+	MV1SetMatrix(m_stageViewHandle, transmat_graphic);
 }
 void Stage::Init()
 {
@@ -24,6 +31,7 @@ void Stage::Init()
 Stage::~Stage()
 {
 	MV1DeleteModel(m_stageModelHandle);
+	MV1DeleteModel(m_stageViewHandle);
 }
 
 void Stage::Update()
@@ -34,7 +42,8 @@ void Stage::Update()
 
 void Stage::Draw() const
 {
-	MV1DrawModel(m_stageModelHandle);
+	//MV1DrawModel(m_stageModelHandle);
+	MV1DrawModel(m_stageViewHandle);
 }
 
 void Stage::OnCollision(Collider& other)

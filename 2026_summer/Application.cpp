@@ -72,13 +72,13 @@ bool Application::Init()
 	// カリングの設定
 	SetUseBackCulling(true);
 
-	// Zバッファを有効にする。
-	// Effekseerを使用する場合、2DゲームでもZバッファを使用する。
-	SetUseZBuffer3D(TRUE);
-
 	// Zバッファへの書き込みを有効にする。
 	// Effekseerを使用する場合、2DゲームでもZバッファを使用する。
 	SetWriteZBuffer3D(TRUE);
+
+	// Zバッファを有効にする。
+	// Effekseerを使用する場合、2DゲームでもZバッファを使用する。
+	SetUseZBuffer3D(TRUE);
 	return true;
 }
 

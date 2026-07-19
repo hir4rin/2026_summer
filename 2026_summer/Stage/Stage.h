@@ -16,8 +16,10 @@ public:
 private:
 	void ApplyPos() override {};//座標の更新はしない
 
+	Vector3 m_pos_graphic;
+
 	int m_stageModelHandle;
-	//ポリゴンを持たせる?のかな
+	int m_stageViewHandle;
 	//当たったポリゴンの情報
 	MV1_COLL_RESULT_POLY_DIM m_hitDim;
 };
