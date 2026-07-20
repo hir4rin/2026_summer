@@ -1,11 +1,12 @@
 ﻿#pragma once
 #include <unordered_map>
 
+//非同期ロードリストの種類
 enum class AsyncData : int
 {
 	//プレイヤー
 	PlayerModel = 0,
-	PlayerAttackModel = 1,
+	PlayerAttackModel = 1,							
 	PlayerWeaponModel = 2,
 	PlayerWingModel = 3,
 	PlayerEffectSkill = 4,
