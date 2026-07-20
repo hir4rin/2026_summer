@@ -27,6 +27,14 @@ enum class WaveNum : int
 	Wave3 = 2,
 	WaveSize = 3,
 };
+//Shader用
+struct Matrices
+{
+	MATRIX world;
+	MATRIX view;
+	MATRIX projection;
+	float various[4] = {};
+};
 
 class EnemyManager
 {
@@ -57,5 +65,7 @@ private:
 	bool m_isSpawnedWave[3] = {};//ウェーブごとに敵がスポーンしたかどうかのフラグ
 	bool m_isAllEnemiesDead[static_cast<int>(WaveNum::WaveSize)] = { false};//全ての敵が死んだかどうかのフラグ
 
+	int m_matCBuffH = -1;
+	Matrices* m_matCBuff = nullptr;
 };
 

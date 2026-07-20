@@ -11,6 +11,16 @@ class Player;
 class EnemySwordman;
 class EnemyManager;
 
+//シェーダー
+struct UltParam
+{
+	float ultAmount = 0.0f;//黒さの割合
+	float padding[3] = {};
+};	
+
+
+
+
 class GameScene : public Scene
 {
 public:
@@ -51,6 +61,12 @@ private:
 	int m_RT1 = -1;
 	int m_RT2 = -1;
 	int m_RT3 = -1;
+
+	int m_ultShaderHandle = -1;
+	UltParam* m_ultCBuff = nullptr;
+
+	int m_enemyPSH = -1;
+	int m_enemyVSH = -1;
 
 
 };

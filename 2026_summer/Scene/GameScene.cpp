@@ -34,6 +34,9 @@ namespace
 	constexpr int kLockOnCheckNum = 10;//ロックオンの検索ループ回数
 }
 
+
+
+
 GameScene::GameScene(SceneController& controller) :Scene(controller)
 {
 	//基底クラスに継承先のポインタをキャストして代入する
@@ -73,6 +76,13 @@ GameScene::GameScene(SceneController& controller) :Scene(controller)
 	m_RT1 = MakeScreen(Game::kScreenWidth, Game::kScreenHeight, true);
 	m_RT2 = MakeScreen(Game::kScreenWidth, Game::kScreenHeight, true);
 	m_RT3 = MakeScreen(Game::kScreenWidth, Game::kScreenHeight, true);
+	//シェーダーの作成
+	m_ultShaderHandle = CreateShaderConstantBuffer(sizeof(UltParam));
+	m_ultCBuff = static_cast<UltParam*>(GetBufferShaderConstantBuffer(m_ultShaderHandle));
+	
+	m_enemyPSH = LoadPixelShader("EnemyBlackPS.pso");
+	m_enemyVSH = LoadVertexShader("EnemyBlack.pso");
+
 
 	m_uiManager = std::make_shared<UIManager>();
 	//UIの追加
@@ -213,7 +223,31 @@ void GameScene::NormalDraw()
 	//RT3
 	SetDrawScreen(m_RT3); ClearDrawScreen();
 	m_cameraManager->ApplyCameraSettings();
+	//シェーダーのセット
+	MV1SetUseOrigShader(true);
+	SetUsePixelShader(m_enemyPSH);
+	SetUseVertexShader(m_enemyVSH);
+
+
+	if (isUlt)
+	{
+		m_ultCBuff->ultAmount = 1.0f;
+		UpdateShaderConstantBuffer(m_ultShaderHandle);
+	}
+	else
+	{
+		m_ultCBuff->ultAmount = 0.0f;
+		UpdateShaderConstantBuffer(m_ultShaderHandle);
+	}
+	SetShaderConstantBuffer(m_ultShaderHandle, DX_SHADERTYPE_PIXEL, 5);
+
 	m_enemyManager->Draw();
+	//シェーダーの解除
+	SetShaderConstantBuffer(-1, DX_SHADERTYPE_PIXEL, 5);
+
+	SetUsePixelShader(-1);
+	SetUseVertexShader(-1);
+	MV1SetUseOrigShader(false);
 
 	//UIの表示
 	if (isUlt)

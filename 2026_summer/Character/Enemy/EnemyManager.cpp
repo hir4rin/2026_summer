@@ -47,6 +47,10 @@ EnemyManager::~EnemyManager()
 
 void EnemyManager::Init()
 {
+	//ShaderConstantBufferの作成
+	m_matCBuffH = CreateShaderConstantBuffer(sizeof(Matrices));
+	m_matCBuff = static_cast<Matrices*>(GetBufferShaderConstantBuffer(m_matCBuffH));
+
 	auto& spawnData = DataManager::GetInstance().GetSpawnData();
 
 	for (const auto& data : spawnData)
@@ -144,9 +148,21 @@ void EnemyManager::Update()
 
 void EnemyManager::Draw()
 {
+	//カメラ行列のセット
+	MATRIX viewMat = GetCameraViewMatrix();
+	MATRIX projMat = GetCameraProjectionMatrix();
+
 	for (auto& enemy : m_enemies)
 	{
+		//world行列をセット
+		MATRIX world = MV1GetMatrix(enemy->GetModelHandle());
+		m_matCBuff->world = world;
+		m_matCBuff->view = viewMat;
+		m_matCBuff->projection = projMat;
+		UpdateShaderConstantBuffer(m_matCBuffH);
+		SetShaderConstantBuffer(m_matCBuffH,DX_SHADERTYPE_VERTEX,4);
 		enemy->Draw();
+		SetShaderConstantBuffer(-1, DX_SHADERTYPE_VERTEX, 4);
 	}
 }
 

@@ -360,4 +360,8 @@
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
   </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="EnemyBlack.hlsl" />
+    <FxCompile Include="EnemyBlackPS.hlsl" />
+  </ItemGroup>
 </Project>
