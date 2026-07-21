@@ -12,10 +12,10 @@
 namespace
 {
 	//スポーン座標
-	const Vector3 kSpawnWave1 = Vector3(0, 0, 0);
-	const Vector3 kSpawnWave2 = Vector3(-2726, 0, 184);
-	const Vector3 kSpawnWave3 = Vector3(-5082, 0, 28);
-	constexpr float kSpawnWave1Distance = 1000.0f;//wave1のスポーン座標からの距離
+	const Vector3 kSpawnWave1 = Vector3(308, 0, 800);
+	const Vector3 kSpawnWave2 = Vector3(205, 0, 3318);
+	const Vector3 kSpawnWave3 = Vector3(325, 0, 7183);
+	constexpr float kSpawnWave1Distance = 500.0f;//wave1のスポーン座標からの距離
 }
 
 
@@ -23,7 +23,7 @@ EnemyManager::EnemyManager(std::weak_ptr<Player> player)
 {
 	//参照を保存
 	m_player = player;
-	enemyModelHandle = System::GetInstance().GetHandle(AsyncData::EnemyModel);
+	enemyModelHandle = MV1DuplicateModel(System::GetInstance().GetHandle(AsyncData::EnemyModel));
 	srand(static_cast<unsigned int>(time(nullptr)));//乱数の初期化//これを入れないと、毎回同じ位置に敵が出る
 	//5体の敵を出す
 	//for (int i = 0; i < 5; i++)

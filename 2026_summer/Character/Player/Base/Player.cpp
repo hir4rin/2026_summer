@@ -22,8 +22,8 @@ namespace
 {
 	constexpr float kPlayerCenter = 100.0f;//プレイヤーの当たり判定の中心点までのy軸の距離
 
-	constexpr float kArea1MaxX = -1510.0f;//エリア1のx座標の範囲//上側
-	constexpr float kArea2MaxX = -3970.0f;//エリア2のx座標の範囲//右側
+	constexpr float kArea1MaxZ = 1197;//エリア1のz座標の範囲//上側
+	constexpr float kArea2MaxZ = 5275;//エリア2のz座標の範囲//右側
 }
 
 
@@ -33,12 +33,15 @@ Player::Player()
 	m_comboInfo.SkillGauge = 100;
 	m_comboInfo.UltGauge = 100;
 	//m_modelHandle = MV1LoadModel("data/Player/Player.mv1");
-	m_modelHandle = System::GetInstance().GetHandle(AsyncData::PlayerModel);
+	m_modelHandle = MV1DuplicateModel(System::GetInstance().GetHandle(AsyncData::PlayerModel));
 	//m_modelHandle = MV1LoadModel("data/Player/Player_true.mv1");
 	//m_modelHandle = MV1LoadModel("data/Player/1danme.mv1");
 
 	//攻撃のモデルの読み込み
-	m_attackModelHandle = System::GetInstance().GetHandle(AsyncData::PlayerAttackModel);
+	m_attackModelHandle = MV1DuplicateModel(System::GetInstance().GetHandle(AsyncData::PlayerAttackModel));
+
+
+	m_pos = Vector3(0, 0, 0);
 
 	//モデルの初期位置を設定する//前を向いているようにする
 	Matrix4x4 rotY = Matrix4x4::MakeRotationY(DX_PI_F);
@@ -451,10 +454,10 @@ void Player::ApplyPos()
 			case static_cast<int>(WaveNumForPlayer::Wave1):
 				if (m_isWaveArea[i])
 				{
-					if (m_pos.x <= kArea1MaxX)
+					if (m_pos.z >= kArea1MaxZ)
 					{
 						{
-							m_pos.x = kArea1MaxX;
+							m_pos.z = kArea1MaxZ;
 						}
 					}
 				}	
@@ -462,13 +465,13 @@ void Player::ApplyPos()
 				case static_cast<int>(WaveNumForPlayer::Wave2):
 					if (m_isWaveArea[i])
 					{
-						if (m_pos.x >= kArea1MaxX)
+						if (m_pos.z <= kArea1MaxZ)
 						{
-							m_pos.x = kArea1MaxX;
+							m_pos.z = kArea1MaxZ;
 						}
-						if (m_pos.x <= kArea2MaxX)
+						if (m_pos.z >= kArea2MaxZ)
 						{
-							m_pos.x = kArea2MaxX;
+							m_pos.z = kArea2MaxZ;
 						}
 					}	
 					break;

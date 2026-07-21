@@ -6,8 +6,8 @@ Stage::Stage()
 {
 	//m_stageModelHandle = MV1LoadModel("data/PreStage2/Stage2.mv1");
 	//m_stageModelHandle = MV1LoadModel("data/PreStage2/Stage2Prev.mv1");
-	m_stageModelHandle = System::GetInstance().GetHandle(AsyncData::StageModelCollider);
-	m_stageViewHandle = System::GetInstance().GetHandle(AsyncData::StageModel);
+	m_stageModelHandle = MV1DuplicateModel(System::GetInstance().GetHandle(AsyncData::StageModelCollider));
+	m_stageViewHandle = MV1DuplicateModel(System::GetInstance().GetHandle(AsyncData::StageModel));
 	//m_pos = Vector3(1200, -50, 2500);
 	m_pos = Vector3(1200, 0, 0);
 	m_pos_graphic = Vector3(1200, 0, 0);

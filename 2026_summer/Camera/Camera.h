@@ -15,6 +15,13 @@ struct CameraData
 	float angleV;
 };
 
+//保管するカメラかどうかのセットアップ
+struct CameraSetUp
+{
+	bool DoLerp = false;
+	bool DoSlerp = false;
+};
+
 class Camera
 {
 protected:
@@ -59,6 +66,8 @@ public:
 	float GetCameraAngleH()const { return m_angleH; }
 	float GetCameraAngleV()const { return m_angleV; }
 
+	CameraSetUp& GetCameraSetUp() { return m_cameraSetUp; }
+
 	//カメラデータを渡す//この時、場合によっては初期化
 	virtual void SetCameraData(const CameraData& data) { m_cameraData = data; }
 	const CameraData& GetCameraData()const { return m_cameraData; }
@@ -92,6 +101,7 @@ protected:
 	float m_angleH = 0.0f;// 水平方向の回転角度
 	float m_angleV = 0.0f;// 垂直方向の回転角度
 	CameraData m_cameraData;
+	CameraSetUp m_cameraSetUp;
 
 	//カメラ揺れ用
 	float m_shakePower = 0.0f;

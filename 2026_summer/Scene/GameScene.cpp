@@ -20,7 +20,6 @@
 namespace
 {
 	constexpr int kGridRange = 2400;//グリッドのサイズ
-
 	constexpr int kGHX = 782;
 	constexpr int kGHY = 639;
 	constexpr int kGH2X = 1156;
@@ -33,8 +32,6 @@ namespace
 
 	constexpr int kLockOnCheckNum = 10;//ロックオンの検索ループ回数
 }
-
-
 
 
 GameScene::GameScene(SceneController& controller) :Scene(controller)
@@ -437,6 +434,10 @@ void GameScene::CheckLockOnCamera()
 			m_cameraManager->SetWeakRef(std::weak_ptr<Player>(m_player));
 
 			mainCamera->SetLockOn(false);
+			//ラープを切る
+			mainCamera->SetLerp(false);
+			mainCamera->SetSlerp(false);
+			m_cameraManager->SetNextCameraPriority(Camera::Type::PlayerCamera, false, false);
 		}
 
 	}

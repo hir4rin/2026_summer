@@ -96,6 +96,8 @@ void CameraManager::Update(Vector3 pos, Vector3 pos2)
 	{
 		if (camera->GetPriority() > highestPriorityCamera->GetPriority())
 		{
+			SetNextCameraPriority(camera->GetCameraType(),
+				camera->GetCameraSetUp().DoLerp, camera->GetCameraSetUp().DoSlerp);
 			highestPriorityCamera = camera;
 		}
 	}
@@ -134,7 +136,6 @@ void CameraManager::Update(Vector3 pos, Vector3 pos2)
 		camera->Update(pos, pos2);
 	}
 
-
 	//MainCameraに情報を渡す
 	CameraData data;
 		data.pos = highestPriorityCamera->GetCameraPos();
@@ -142,7 +143,6 @@ void CameraManager::Update(Vector3 pos, Vector3 pos2)
 	//MainCameraに情報を渡す
 	m_mainCamera->Update(data);
 	//SetUpMainCamera();
-
 }
 void CameraManager::Draw()
 {
@@ -150,6 +150,7 @@ void CameraManager::Draw()
 	{
 		camera->Draw();
 	}
+
 	int num = static_cast<int>(highestPriorityCamera->GetCameraType());
 	std::string text = std::to_string(num);
 	SubWindow::AddText("CameraType:" + text);

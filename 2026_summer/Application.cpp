@@ -147,6 +147,9 @@ void Application::Run()
 
 void Application::Terminate()
 {
+	//非同期ロードのハンドルを削除する
+	System::GetInstance().SetTerminate();
+
 	// Effekseerを終了する。
 	Effkseer_End();
 

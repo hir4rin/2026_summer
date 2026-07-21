@@ -51,7 +51,7 @@ void MainCamera::Update(const CameraData& data)
 	if (!player)return;
 	auto enemy = m_cameraContext->m_targetEnemy.lock();
 
-	//ターゲットのらーぷをする
+	//ターゲットのラープをする
 	if (m_isLerp[0])
 	{
 		float dist = (data.target - m_target).Magnitude();
@@ -177,6 +177,14 @@ void MainCamera::SetLerp(bool isLerp)
 
 void MainCamera::SetSlerp(bool isSlerp)
 {
+	//falseの時はfalseにするだけ
+	if (!isSlerp)
+	{
+		m_isSlerp[0] = false;
+		m_isSlerp[1] = false;
+		return;
+	}
+
 	auto player = m_cameraContext->m_player.lock();
 	if (!player)return;
 	auto enemy = m_cameraContext->m_targetEnemy.lock();

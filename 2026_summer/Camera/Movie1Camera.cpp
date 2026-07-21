@@ -22,6 +22,7 @@ Movie1Camera::Movie1Camera():
 	m_pos = Vector3(0.0f, kCameraHeightFloat, -kToPlayerLength);
 	m_target = Vector3(0.0f, 0.0f, 0.0f);
 	m_type = Type::Movie1Camera;
+	m_cameraSetUp = { .DoLerp = false, .DoSlerp = false };
 }
 
 Movie1Camera::~Movie1Camera()

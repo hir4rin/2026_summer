@@ -31,6 +31,7 @@ PlayerCamera::PlayerCamera() :
 	m_priority = 10;//プレイヤーカメラは優先度が高い
 	m_pos = Vector3(0.0f, kCameraHeightFloat, -kToPlayerLength);
 	m_target = Vector3(0.0f, 0.0f, 0.0f);
+	m_cameraSetUp = { .DoLerp = false, .DoSlerp = false };
 }
 
 PlayerCamera::~PlayerCamera()

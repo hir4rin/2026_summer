@@ -25,6 +25,7 @@ UltCamera::UltCamera()
 	m_priority = 0;
 	m_pos = Vector3(0.0f, 0.0f, 0.0f);//いらないと思うけどなぜか正規化
 	m_target = Vector3(0.0f, 0.0f, 0.0f);
+	m_cameraSetUp = { .DoLerp = false, .DoSlerp = true };
 }
 
 UltCamera::~UltCamera()
@@ -61,9 +62,10 @@ void UltCamera::Update(Vector3 pos, Vector3 pos2)
 	auto player = m_cameraContext->m_player.lock();
 	if (!enemy)
 	{
-		//敵がいない場合は、PlayerCameraに切り替える
+		//敵がいない場合は、PlayerCameraに切り替える//このカメラが一番優先度高いとき
 		auto cameraManager = m_cameraManager.lock();
 		if (!cameraManager)return;
+		if (cameraManager->GetHighestPriorityCamera()->GetCameraType() != Camera::Type::UltCamera)return;
 		cameraManager->SetNextCameraPriority(Camera::Type::PlayerCamera, true, false);
 		return;
 	}

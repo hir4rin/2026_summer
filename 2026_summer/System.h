@@ -33,6 +33,9 @@ public:
 		static System instance;
 		return instance;
 	}
+
+	void SetTerminate();
+
 	void SetTimeScale(float scale) { timeScale = scale; }
 	float GetTimeScale() const { return timeScale; }
 	/// <summary>

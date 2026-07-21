@@ -1,5 +1,24 @@
 ﻿#include "System.h"
+#include "DxLib.h"
+#include "EffekseerForDXLib.h"
 
+
+void System::SetTerminate()
+{
+	MV1DeleteModel(m_asyncHandles[AsyncData::PlayerModel]);
+	MV1DeleteModel(m_asyncHandles[AsyncData::PlayerAttackModel]);
+	MV1DeleteModel(m_asyncHandles[AsyncData::PlayerWeaponModel]);
+	MV1DeleteModel(m_asyncHandles[AsyncData::PlayerWingModel]);
+	DeleteEffekseerEffect(m_asyncHandles[AsyncData::PlayerEffectSkill]);
+	//enemy
+	MV1DeleteModel(m_asyncHandles[AsyncData::EnemyModel]);
+	//stage
+	MV1DeleteModel(m_asyncHandles[AsyncData::StageModel]);
+	MV1DeleteModel(m_asyncHandles[AsyncData::StageModelCollider]);
+
+	m_asyncHandles[AsyncData::StageModel] = MV1LoadModel("data/Stage_Graphic/Stage.mv1");
+	m_asyncHandles[AsyncData::StageModelCollider] = MV1LoadModel("data/Stage_Graphic/coll.mv1");
+}
 
 void System::Update()
 {

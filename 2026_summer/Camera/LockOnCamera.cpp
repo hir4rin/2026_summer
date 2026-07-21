@@ -25,6 +25,7 @@ LockOnCamera::LockOnCamera()
 	m_priority = 0;
 	m_pos = Vector3(0.0f, 0.0f, 0.0f);//いらないと思うけどなぜか正規化
 	m_target = Vector3(0.0f, 0.0f, 0.0f);
+	m_cameraSetUp = { .DoLerp = false, .DoSlerp = true };
 }
 
 LockOnCamera::~LockOnCamera()
@@ -47,9 +48,15 @@ void LockOnCamera::Update(Vector3 pos, Vector3 pos2)
 	auto player = m_cameraContext->m_player.lock();
 	auto cameraManager = m_cameraManager.lock();
 	auto mainCamera = cameraManager->GetMainCamera();
-	if (!enemy)return;
 	if (!player)return;
 	if (!mainCamera)return;
+	if (!enemy)
+	{
+		//ターゲットがいない場合、かつ、PlayerCameraに切り替える
+		cameraManager->SetNextCameraPriority(Camera::Type::PlayerCamera, false, false);
+		return;
+	}
+	
 
 	//ロックオンカメラの時、常にPlayerCameraにアングルを渡し続ける
 	if (cameraManager->GetHighestPriorityCamera()->GetCameraType() == Camera::Type::LockOnCamera)
@@ -76,7 +83,7 @@ void LockOnCamera::Update(Vector3 pos, Vector3 pos2)
 		//PlayerCameraに切り替える
 		auto cameraManager = m_cameraManager.lock();
 		if (!cameraManager)return;
-		cameraManager->SetNextCameraPriority(Camera::Type::PlayerCamera, false, true);
+		cameraManager->SetNextCameraPriority(Camera::Type::PlayerCamera, false, false);
 	}
 	Vector3 targetPos = (playerPos + enemyPos) / 2;
 	//注視点の割合を決める
