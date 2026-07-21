@@ -5,11 +5,13 @@
 
 void System::SetTerminate()
 {
+
 	MV1DeleteModel(m_asyncHandles[AsyncData::PlayerModel]);
 	MV1DeleteModel(m_asyncHandles[AsyncData::PlayerAttackModel]);
 	MV1DeleteModel(m_asyncHandles[AsyncData::PlayerWeaponModel]);
 	MV1DeleteModel(m_asyncHandles[AsyncData::PlayerWingModel]);
 	DeleteEffekseerEffect(m_asyncHandles[AsyncData::PlayerEffectSkill]);
+
 	//enemy
 	MV1DeleteModel(m_asyncHandles[AsyncData::EnemyModel]);
 	//stage
