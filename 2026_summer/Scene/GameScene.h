@@ -2,6 +2,8 @@
 #include <memory>
 #include "Scene.h"
 #include "../UI/UIManager.h"
+#include <d3dcompiler.h>
+#include <string>
 
 
 class CameraManager;
@@ -43,6 +45,8 @@ private:
 	void LockOnCameraInput();
 	//ロックオンしている敵が死んだら、次の敵に切り替える
 	void CheckLockOnCameraEnemyDead();
+
+	int LoadVertexShaderWithMacro(const std::string& filePath, std::vector<D3D_SHADER_MACRO>& macros);
 private:
 	std::shared_ptr<CameraManager> m_cameraManager;
 	std::shared_ptr<Player> m_player;

@@ -8,7 +8,7 @@ struct PSInput
     float4 viewPos : POSITION;
     float4 worldPos : POSITION1;
     float4 norm : NORMAL;
-    float2 uv : TEXCOORD0;
+    float4 uv : TEXCOORD0;
 };
 
 cbuffer UltBuffer : register(b5)

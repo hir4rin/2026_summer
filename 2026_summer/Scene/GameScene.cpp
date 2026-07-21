@@ -81,7 +81,19 @@ GameScene::GameScene(SceneController& controller) :Scene(controller)
 	m_ultCBuff = static_cast<UltParam*>(GetBufferShaderConstantBuffer(m_ultShaderHandle));
 	
 	m_enemyPSH = LoadPixelShader("EnemyBlackPS.pso");
-	m_enemyVSH = LoadVertexShader("EnemyBlack.pso");
+
+	//bone確かめ用
+	int triangleType = MV1GetTriangleListVertexType(System::GetInstance().GetHandle(AsyncData::EnemyModel),0);
+
+
+	std::vector<D3D_SHADER_MACRO> macros = {
+		{"SKINMESH",""},//最後に空のマクロを入れる
+		{"BUMPMAP",""},//最後に空のマクロを入れる
+		{nullptr,nullptr}
+	};
+
+	m_enemyVSH = LoadVertexShaderWithMacro("Shader/MV1VertexShader.hlsl", macros);
+	//m_enemyVSH = LoadVertexShader("EnemyBlack.pso");
 
 
 	m_uiManager = std::make_shared<UIManager>();
@@ -188,7 +200,6 @@ void GameScene::NormalDraw()
 
 	bool isUlt = System::GetInstance().GetIsUltimating();
 
-
 	//RT1
 	SetDrawScreen(m_RT1); ClearDrawScreen();
 	m_cameraManager->ApplyCameraSettings();
@@ -214,7 +225,8 @@ void GameScene::NormalDraw()
 	m_player->EffectDraw();
 	//描画前に色を設定
 	Effekseer_Sync3DSetting();;
-	//DrawEffekseer3D();
+	//ultの時だけ、ここに描画して、エフェクトを白くする
+	DrawEffekseer3D();
 	DrawFormatString(300, 0, GetColor(255, 255, 255), "GameScene");
 
 
@@ -297,9 +309,9 @@ void GameScene::NormalDraw()
 	//SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 255);
 	// Effekseerはバックバッファ上で描画する（MakeScreenへの描画は非対応）
 	m_cameraManager->ApplyCameraSettings();
-	//SetDrawBlendMode(DX_BLENDMODE_ADD, 255);
-	DrawEffekseer3D();	
-	//SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 255);
+	//SetDrawBlendMode(DX_BLENDMODE_MUL, 255);
+	//DrawEffekseer3D();	
+	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 255);
 }
 
 void GameScene::FadeOutDraw()
@@ -649,4 +661,46 @@ void GameScene::CheckLockOnCameraEnemyDead()
 		}
 	}
 
+}
+
+int GameScene::LoadVertexShaderWithMacro(const std::string& filePath, std::vector<D3D_SHADER_MACRO>& macros)
+{
+
+	//BLOB=Binary Learge OBjectの略
+		//おそらく、「なんかよくわからない塊」という意味のBlobとかけている
+	ID3DBlob* pVSShader = nullptr;//バイナリの塊(形式がよくわからない:中身はコンパイル済みシェーダ)→vso,psoにあたる
+	ID3DBlob* pMsg = nullptr;//バイナリの塊(エラーを起こしたときのエラーメッセージが入る)
+	//resultはただのlong型の数値ですが、この値によって何が起きてるかわかるようになっている。
+	std::wstring wstr(filePath.begin(), filePath.end());
+	HRESULT result = D3DCompileFromFile(wstr.c_str(),
+		macros.data(),
+		D3D_COMPILE_STANDARD_FILE_INCLUDE,
+		"main",
+		"vs_5_0",
+		0, 0, &pVSShader, &pMsg);
+
+	//失敗したらエラー出力
+	//if (result != S_OK) {
+	if (FAILED(result)) {
+		//メッセージをVisualStudio等の「出力」に出力する
+		auto size = pMsg->GetBufferSize();
+		std::string strMsg;
+		strMsg.resize(size);
+		std::copy_n((char*)pMsg->GetBufferPointer(), size, strMsg.data());
+		OutputDebugStringA(strMsg.c_str());//「出力」にエラーの内容を出力する
+		assert(0);
+	}//ここまでDirectXの関数です
+
+	//最後のこれだけDXライブラリの関数です
+	//成功したら、頂点バッファオブジェクトを作る(スキンメッシュ)
+	int vsH = LoadVertexShaderFromMem(pVSShader->GetBufferPointer(), pVSShader->GetBufferSize());
+	assert(vsH >= 0);
+	//DirectX系のオブジェクトは解放がちょっとややこしくてdeleteではなく、Releaseメソッドを
+	//呼び出します。
+	pVSShader->Release();
+	if (pMsg != nullptr) {
+		pMsg->Release();
+	}
+
+	return vsH;
 }
