@@ -118,7 +118,7 @@ void AttackCol::PlayerAttackOnCollision(Collider& other)
 				//ダメージの受け渡し
 				hitCol->OnDamageInterFace(*this, *m_attackData);
 				//ヒットストップの受け渡し
-				hitCol->SetTimeScaleInterFace(0.3f, 10.0f);
+				//hitCol->SetTimeScaleInterFace(0.3f, 10.0f);
 
 				//ownerに当たったことを連絡->AttackMoveを止める
 				auto cameraManager = player->GetCameraManager().lock();

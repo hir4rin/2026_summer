@@ -181,6 +181,7 @@ void CollisionManager::ApplyAdjustments()
 	for (auto& collider : m_colliders)
 	{
 		if (!collider)continue;
+		if (!collider->IsActive())continue;
 		collider->ApplyPos();
 	}
 }

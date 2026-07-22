@@ -223,7 +223,7 @@ void GameScene::NormalDraw()
 	//描画前に色を設定
 	Effekseer_Sync3DSetting();;
 	//ultの時だけ、ここに描画して、エフェクトを白くする
-	DrawEffekseer3D();
+	//DrawEffekseer3D();
 	DrawFormatString(300, 0, GetColor(255, 255, 255), "GameScene");
 
 
@@ -266,7 +266,7 @@ void GameScene::NormalDraw()
 		DrawRectRotaGraph(Game::kScreenWidth * 3 / 5, Game::kScreenHeight - 200, 0, 0, kGH3X, kGH3Y, 0.5f, 0.0f, m_gHandle3, TRUE);
 	}
 	m_player->Draw();
-#ifdef _DEBUG
+//#ifdef _DEBUG
 	//CollisionManager::GetInstance().DebugDraw();
 	//PlayerのHpのデバッグ表示
 	
@@ -274,7 +274,7 @@ void GameScene::NormalDraw()
 	auto targetEnemy = m_cameraManager->GetTargetEnemy();
 	if (targetEnemy)
 	{
-		Vector3 enemyPos = targetEnemy->GetPos();
+		Vector3 enemyPos = targetEnemy->GetPos() + Vector3 (0,200,0);
 
 		VECTOR enemyPos2D;;
 
@@ -285,12 +285,12 @@ void GameScene::NormalDraw()
 		if (enemyPos2D.z >= 0.0f && enemyPos2D.z <= 1.0f)
 		{
 			// ロックオンサークル
-			DrawCircle(static_cast<int>(enemyPos2D.x), static_cast<int>(enemyPos2D.y) + 40, 20, GetColor(255, 255, 0), true);
+			DrawCircle(static_cast<int>(enemyPos2D.x), static_cast<int>(enemyPos2D.y), 20, GetColor(255, 255, 0), true);
 		}
 	}
 
 
-#endif
+//#endif
 	m_cameraManager->Draw();
 	m_uiManager->Draw();
 

@@ -337,6 +337,14 @@ void EnemySwordman::Update()
 
 
 	m_anim.Update(m_ownTimeScale);
+
+
+	//いったん対策で敵のy座標が-300ぐらいで殺す
+	if(m_pos.y < -300.0f)
+	{
+		m_isDead = true;
+	}
+
 	//m_pos += m_vel;//速度を座標に加算する//移動する
 	//回転と座標の更新
 	//UpdateAngleAndPos();

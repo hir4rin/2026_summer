@@ -117,7 +117,6 @@ void EnemyManager::Update()
 		{
 			CollisionManager::GetInstance().ReleaseCollider(col);
 		}
-
 	}
 	//std::remove_ifも考えた
 	//削除
