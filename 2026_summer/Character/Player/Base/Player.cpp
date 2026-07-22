@@ -57,7 +57,7 @@ Player::Player()
 	m_animNames = animData.animNames;
 
 	//鴉の羽のモデルの読み込み
-	m_wingModelHandle = System::GetInstance().GetHandle(AsyncData::PlayerWingModel);
+	m_wingModelHandle = MV1DuplicateModel(System::GetInstance().GetHandle(AsyncData::PlayerWingModel));
 	WingUpdate();//鴉状態の羽の更新
 }
 
