@@ -192,6 +192,8 @@ void Application::AsyncLoad()
 	//stage
 	handleData[AsyncData::StageModel] = MV1LoadModel("data/Stage_Graphic/Stage.mv1");
 	handleData[AsyncData::StageModelCollider] = MV1LoadModel("data/Stage_Graphic/coll.mv1");
+	handleData[AsyncData::AreaWallEffect] = LoadEffekseerEffect("data/Effect/AreaWall.efk", 1.0f);
+
 
 	int totalNum = handleData.size();
 

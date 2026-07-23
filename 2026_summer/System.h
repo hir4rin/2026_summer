@@ -17,6 +17,7 @@ enum class AsyncData : int
 	//ステージ
 	StageModel,
 	StageModelCollider,
+	AreaWallEffect,
 };
 
 class System

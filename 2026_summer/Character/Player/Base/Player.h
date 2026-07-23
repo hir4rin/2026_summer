@@ -204,6 +204,8 @@ private:
 
 	int m_efHandle = -1;//エフェクトのハンドル
 	int m_efPlayingHandle = -1;//再生中のエフェクトのハンドル
+	int m_efAreaHandle = -1;//壁エフェクトのハンドル
+	int m_efAreaPlayingHandle = -1;//再生中
 
 	const float kPlayerRockOnRange = 300.0f;//ロックオンする範囲//この範囲内に敵がいたらロックオンする
 

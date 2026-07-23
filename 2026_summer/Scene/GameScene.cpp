@@ -31,6 +31,8 @@ namespace
 
 
 	constexpr int kLockOnCheckNum = 10;//ロックオンの検索ループ回数
+
+	const Vector3 kArea1EfPos = Vector3(105.0f, 0.0f, 1197.0f);
 }
 
 
@@ -104,6 +106,12 @@ GameScene::GameScene(SceneController& controller) :Scene(controller)
 	m_gHandle2 = LoadGraph("data/UI/splash2_UI.png");
 	m_gHandle3 = LoadGraph("data/UI/satu_UI.png");
 
+	//エフェクト確かめよう
+	
+	m_efAreaHandle = System::GetInstance().GetHandle(AsyncData::AreaWallEffect);
+	m_efAreaPlayingHandle = PlayEffekseer3DEffect(m_efAreaHandle);
+	SetPosPlayingEffekseer3DEffect(m_efAreaPlayingHandle, kArea1EfPos.x, kArea1EfPos.y, kArea1EfPos.z);
+	SetRotationPlayingEffekseer3DEffect(m_efAreaPlayingHandle, 0.0f, 0.0f, 0.0f);
 
 }
 GameScene::~GameScene()
@@ -174,6 +182,20 @@ void GameScene::NormalUpdate()
 		}
 	}
 
+	//確かめよう
+	// 	//エリア制限のエフェクトを出す
+	if (m_efAreaPlayingHandle == -1)
+	{
+		m_efAreaPlayingHandle = PlayEffekseer3DEffect(m_efAreaHandle);
+		SetPosPlayingEffekseer3DEffect(m_efAreaPlayingHandle, kArea1EfPos.x, kArea1EfPos.y, kArea1EfPos.z);
+		SetRotationPlayingEffekseer3DEffect(m_efAreaPlayingHandle, 0.0f, 0.0f, 0.0f);
+	}
+	else
+	{
+		SetPosPlayingEffekseer3DEffect(m_efAreaPlayingHandle, kArea1EfPos.x, kArea1EfPos.y, kArea1EfPos.z);
+		SetRotationPlayingEffekseer3DEffect(m_efAreaPlayingHandle, 0.0f, 0.0f, 0.0f);
+	}
+
 }
 
 void GameScene::FadeOutUpdate()
@@ -219,7 +241,7 @@ void GameScene::NormalDraw()
 	m_cameraManager->ApplyCameraSettings();
 	//シェーダーで色をとって白くする
 	//SetDrawBright(0, 0, 0);  // R=255, G=255, B=255	
-	m_player->EffectDraw();
+	//m_player->EffectDraw();
 	//描画前に色を設定
 	Effekseer_Sync3DSetting();;
 	//ultの時だけ、ここに描画して、エフェクトを白くする
@@ -266,7 +288,7 @@ void GameScene::NormalDraw()
 		DrawRectRotaGraph(Game::kScreenWidth * 3 / 5, Game::kScreenHeight - 200, 0, 0, kGH3X, kGH3Y, 0.5f, 0.0f, m_gHandle3, TRUE);
 	}
 	m_player->Draw();
-//#ifdef _DEBUG
+#ifdef _DEBUG
 	//CollisionManager::GetInstance().DebugDraw();
 	//PlayerのHpのデバッグ表示
 	
@@ -290,8 +312,8 @@ void GameScene::NormalDraw()
 	}
 
 
-//#endif
 	m_cameraManager->Draw();
+#endif
 	m_uiManager->Draw();
 
 	//最終的に画面に描画する
@@ -307,6 +329,7 @@ void GameScene::NormalDraw()
 	// Effekseerはバックバッファ上で描画する（MakeScreenへの描画は非対応）
 	m_cameraManager->ApplyCameraSettings();
 	//SetDrawBlendMode(DX_BLENDMODE_MUL, 255);
+	UpdateEffekseer3D();
 	DrawEffekseer3D();	
 	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 255);
 }

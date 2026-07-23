@@ -24,6 +24,8 @@ namespace
 
 	constexpr float kArea1MaxZ = 1197;//エリア1のz座標の範囲//上側
 	constexpr float kArea2MaxZ = 5275;//エリア2のz座標の範囲//右側
+
+	const Vector3 kArea1EfPos = Vector3(105.0f, 0.0f, 1197.0f);
 }
 
 
@@ -97,6 +99,7 @@ void Player::Init()
 	m_weapon = std::make_shared<Weapon>(GetWeakPtr());//武器の生成//Playerクラスのインスタンスから、Playerクラスのshared_ptrを取得できるようになる
 	//effectの生成
 	m_efHandle = System::GetInstance().GetHandle(AsyncData::PlayerEffectSkill);
+	m_efAreaHandle = System::GetInstance().GetHandle(AsyncData::AreaWallEffect);
 }
 
 void Player::Update(Camera& camera)
@@ -144,6 +147,8 @@ void Player::Update(Camera& camera)
 	}
 
 	SetPosPlayingEffekseer3DEffect(m_efPlayingHandle, m_pos.x, m_pos.y + 100.0f, m_pos.z);
+	if (m_efAreaPlayingHandle != -1)
+		SetPosPlayingEffekseer3DEffect(m_efAreaPlayingHandle, kArea1EfPos.x, kArea1EfPos.y, kArea1EfPos.z);
 	//SetColorPlayingEffekseer3DEffect(m_efPlayingHandle, 255, 255, 255, 255);
 	//座標の更新の前に、当たり判定の更新をする
 
@@ -214,7 +219,7 @@ void Player::EffectDraw()
 {
 	//Vector3 offset = m_targetVec * 50.0f;
 	// 再生中のエフェクトを移動する。
-	
+
 	
 }
 
@@ -459,6 +464,17 @@ void Player::ApplyPos()
 							m_pos.z = kArea1MaxZ;
 						}
 					}
+					//エリア制限のエフェクトを出す
+					if (m_efAreaPlayingHandle == -1)
+					{
+						//m_efAreaPlayingHandle = PlayEffekseer3DEffect(m_efAreaHandle);
+						//SetPosPlayingEffekseer3DEffect(m_efAreaPlayingHandle, kArea1EfPos.x, kArea1EfPos.y, kArea1EfPos.z);
+					}
+					else
+					{
+						//SetPosPlayingEffekseer3DEffect(m_efAreaPlayingHandle, kArea1EfPos.x, kArea1EfPos.y, kArea1EfPos.z);
+					}
+
 				}	
 				break;
 				case static_cast<int>(WaveNumForPlayer::Wave2):
@@ -473,6 +489,13 @@ void Player::ApplyPos()
 							m_pos.z = kArea2MaxZ;
 						}
 					}	
+					break;
+				default:
+					if (m_efAreaPlayingHandle != -1)	
+					{
+						StopEffekseer3DEffect(m_efAreaPlayingHandle);
+						m_efAreaPlayingHandle = -1;
+					}
 					break;
 		}
 	}

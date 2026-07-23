@@ -61,6 +61,9 @@ private:
 	int m_gHandle2 = -1;
 	int m_gHandle3 = -1;
 
+	int m_efAreaHandle = -1;//壁エフェクトのハンドル
+	int m_efAreaPlayingHandle = -1;//再生中
+
 	//シェーダー用
 	int m_RT1 = -1;
 	int m_RT2 = -1;

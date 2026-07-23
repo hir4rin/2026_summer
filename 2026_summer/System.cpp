@@ -19,9 +19,8 @@ void System::SetTerminate()
 	//stage
 	MV1DeleteModel(m_asyncHandles[AsyncData::StageModel]);
 	MV1DeleteModel(m_asyncHandles[AsyncData::StageModelCollider]);
+	DeleteEffekseerEffect(m_asyncHandles[AsyncData::AreaWallEffect]);
 
-	m_asyncHandles[AsyncData::StageModel] = MV1LoadModel("data/Stage_Graphic/Stage.mv1");
-	m_asyncHandles[AsyncData::StageModelCollider] = MV1LoadModel("data/Stage_Graphic/coll.mv1");
 }
 
 void System::Update()
