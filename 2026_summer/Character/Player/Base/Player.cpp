@@ -70,7 +70,6 @@ Player::~Player()
 	MV1DeleteModel(m_modelHandle);
 	MV1DeleteModel(m_attackModelHandle);
 	MV1DeleteModel(m_wingModelHandle);
-	DeleteEffekseerEffect(m_efHandle);
 }
 
 void Player::Init()

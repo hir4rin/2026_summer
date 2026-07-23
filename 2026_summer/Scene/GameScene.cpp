@@ -307,7 +307,7 @@ void GameScene::NormalDraw()
 	// Effekseerはバックバッファ上で描画する（MakeScreenへの描画は非対応）
 	m_cameraManager->ApplyCameraSettings();
 	//SetDrawBlendMode(DX_BLENDMODE_MUL, 255);
-	//DrawEffekseer3D();	
+	DrawEffekseer3D();	
 	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 255);
 }
 

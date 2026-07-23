@@ -26,6 +26,9 @@ private:
 	//AttackDataを保持
 	std::shared_ptr<AttackData> m_attackData;
 
+	int m_hitEfHandle = -1;//ヒットエフェクトのハンドル
+	int m_hitEfPlayingHandle = -1;//再生中のヒットエフェクトのハンドル
+
 
 	
 };

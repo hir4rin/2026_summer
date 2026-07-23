@@ -5,10 +5,16 @@
 #include "../Camera/MainCamera.h"
 #include "../System.h"
 #include "Enemy/EnemyBase.h"
+#include "EffekseerForDXLib.h"
 
 namespace
 {
 	constexpr float kAttackColOffset = 50.0f;//攻撃判定を前に出す距離//本来はここも攻撃ごとに変えるべき
+
+	constexpr float kCameraShakePower = 2.5f;//カメラの揺れの強さ
+	constexpr float kCameraShakeTime = 5.0f;//カメラの揺れの時間
+
+	constexpr float kEfOffset = 80.0f;//エフェクトの座標のオフセット
 }
 
 AttackCol::AttackCol(std::weak_ptr<CharacterBase> owner,const AttackData& data)
@@ -17,6 +23,8 @@ AttackCol::AttackCol(std::weak_ptr<CharacterBase> owner,const AttackData& data)
 	if (m_owner.expired())return;
 	//AttackDataを保持
 	m_attackData = std::make_shared<AttackData>(data);
+	//通常エフェクトを出す
+	m_hitEfHandle = System::GetInstance().GetHandle(AsyncData::PlayerHitEffect);
 }
 
 AttackCol::~AttackCol()
@@ -95,8 +103,6 @@ void AttackCol::PlayerAttackOnCollision(Collider& other)
 	if (other.GetTag() == Tags::EnemyHit)
 	{
 
-		
-
 		int otherId = other.GetId();
 		auto it = std::find(m_hitIds.begin(), m_hitIds.end(), otherId);
 		if (it == m_hitIds.end())
@@ -112,15 +118,6 @@ void AttackCol::PlayerAttackOnCollision(Collider& other)
 			auto hitCol = dynamic_cast<HitCol*>(&other);
 			if (hitCol)
 			{
-				//attackDataの変更//現在経過時間を引いて、敵の移動距離、時間を決める
-				float nowAnimFrame = player->GetAnimation().GetNowAnimFrame();
-				m_attackData->knockBackFrame -= nowAnimFrame;
-				//ダメージの受け渡し
-				hitCol->OnDamageInterFace(*this, *m_attackData);
-				//ヒットストップの受け渡し
-				//hitCol->SetTimeScaleInterFace(0.3f, 10.0f);
-
-				//ownerに当たったことを連絡->AttackMoveを止める
 				auto cameraManager = player->GetCameraManager().lock();
 				if (!cameraManager)
 				{
@@ -133,6 +130,17 @@ void AttackCol::PlayerAttackOnCollision(Collider& other)
 					m_hitIds.push_back(otherId);//当たったidのリストにotherのidを追加する
 					return;
 				}
+
+				//attackDataの変更//現在経過時間を引いて、敵の移動距離、時間を決める
+				float nowAnimFrame = player->GetAnimation().GetNowAnimFrame();
+				m_attackData->knockBackFrame -= nowAnimFrame;
+				//ダメージの受け渡し
+				hitCol->OnDamageInterFace(*this, *m_attackData);
+				//ヒットストップの受け渡し
+				//hitCol->SetTimeScaleInterFace(0.3f, 10.0f);
+				mainCamera->StartCameraShake(kCameraShakePower, kCameraShakeTime);//カメラを揺らす
+
+				//ownerに当たったことを連絡->AttackMoveを止める
 				bool isLockOn = mainCamera->GetIsLockOn();
 				if (isLockOn)
 				{
@@ -159,7 +167,7 @@ void AttackCol::PlayerAttackOnCollision(Collider& other)
 				}
 				
 			}
-			//もしプレイヤーの攻撃だったら
+			//もしプレイヤーの必殺技攻撃だったら
 			if (GetTag() == Tags::PlayerUltAttack)
 			{
 				//演出が始まっていなかったら
@@ -169,6 +177,13 @@ void AttackCol::PlayerAttackOnCollision(Collider& other)
 					System::GetInstance().SetUltStart(120);//必殺技の演出をスタートする
 					System::GetInstance().SetTimeScaleForFrames(0.1f, 120);//時間を遅くする//60フレームで元に戻す
 				}
+			}
+			//もしプレイヤーの通常攻撃だったら
+			else
+			{
+				m_hitEfPlayingHandle = PlayEffekseer3DEffect(m_hitEfHandle);
+				SetPosPlayingEffekseer3DEffect(m_hitEfPlayingHandle, other.GetPos().x, other.GetPos().y+ kEfOffset, other.GetPos().z);
+
 			}
 			m_hitIds.push_back(otherId);//当たったidのリストにotherのidを追加する
 		}

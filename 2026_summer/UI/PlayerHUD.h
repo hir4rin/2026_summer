@@ -21,7 +21,9 @@ private:
 	int m_barHideHandle = -1;//バーの背景
 	int m_hpBarHandle = -1;//HPバー
 	int m_skillGaugeBarHandle = -1;//スキルゲージバー
+	int m_ultGaugeHandle = -1;//必殺技ゲージバー
 	int m_ultGaugeBarHandle = -1;//アルティメットゲージバー
+
 
 };
 

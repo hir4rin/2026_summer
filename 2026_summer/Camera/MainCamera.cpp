@@ -146,6 +146,10 @@ void MainCamera::Update(const CameraData& data)
 
 	
 	//データを受け取ってそれをもとにみるだけ
+	if(m_isShaking)
+	{
+		m_pos += CameraShakeUpdate();
+	}
 	
 	//カメラの位置と注視点を反映する
 	SetCameraPositionAndTarget_UpVecY(m_pos.ToDxLibVector(), m_target.ToDxLibVector());

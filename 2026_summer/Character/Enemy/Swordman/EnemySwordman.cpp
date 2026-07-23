@@ -4,6 +4,7 @@
 #include "../../AttackCol.h"
 #include "../../../Game.h"
 #include "../System.h"
+#include "EffekseerForDXLib.h"
 
 namespace
 {
@@ -20,18 +21,21 @@ namespace
 
 
 	constexpr float kEnemyCenter = 100.0f;//敵の当たり判定の中心点までのy軸の距離
+	constexpr float kEnemyEfOffset = 130.0f;//敵のエフェクトの中心点までのy軸の距離
 
 	constexpr float kEnemyMeleeAttackRange = 400.0f;//敵の近接攻撃の距離
 	constexpr float kEnemyBackDistance = 600.0f;//敵が距離を取るときの距離
 
-	constexpr float kEnemyIdleMaxTime = 60.0f;//敵がIdle状態でいる時間の最大値
+	constexpr float kEnemyIdleMaxTime = 120.0f;//敵がIdle状態でいる時間の最大値
 	constexpr float kEnemyTargetUpdateTime = 30.0f;//敵がターゲットを更新する時間
 	constexpr float kEnemyCautionMaxTime = 600.0f;//敵が警戒する時間の最大値
-	constexpr float kEnemyAttackCoolTime = 60.0f;//敵の攻撃のクールタイム
+	constexpr float kEnemyAttackCoolTime = 120.0f;//敵の攻撃のクールタイム
 	constexpr float kEnemyHitBackTime = 30.0f;//敵が攻撃を受けたときの吹き飛ばしの時間
 	constexpr float kEnemyAirTime = 90.0f;//敵が空中にとどまるる時間
 	constexpr float kEnemyDistance = 50.0f;
 	constexpr float kToTargetPower = 3.0f;//プレイヤーの正面に行くようにknockBackする力
+
+	constexpr float kUltDamagePower = 500.0f;//必殺技の攻撃力
 }
 
 EnemySwordman::EnemySwordman(std::weak_ptr<Player> player, Vector3 pos, int modelHandle) : EnemyBase(player)
@@ -48,7 +52,7 @@ EnemySwordman::EnemySwordman(std::weak_ptr<Player> player, Vector3 pos, int mode
 	MV1SetMatrix(m_modelHandle, Matrix4x4::ToDxLibMatrix(mtx));
 	m_anim.Init(m_modelHandle, kIdle, true);
 	
-
+	m_hitEfHandle = System::GetInstance().GetHandle(AsyncData::EnemyHitEffect);
 }
 
 EnemySwordman::~EnemySwordman()
@@ -97,6 +101,17 @@ void EnemySwordman::Update()
 
 		m_attackCoolTime -= 1.0f * timeScale * m_ownTimeScale;
 	}
+	//Effectの位置の更新
+	if(m_hitEfPlayingHandle != -1)
+	{
+		SetPosPlayingEffekseer3DEffect(m_hitEfPlayingHandle, m_pos.x, m_pos.y + kEnemyEfOffset, m_pos.z);
+	}
+	//Effectの再生が終わったらハンドルをリセット
+	if (IsEffekseer3DEffectPlaying(m_hitEfPlayingHandle) == -1 && m_hitEfPlayingHandle != -1)
+	{
+		m_hitEfPlayingHandle = -1;
+	}
+
 	//押し戻しの処理が続かないように消す//応急処置
 	m_vel = Vector3(0, m_vel.y, 0);
 	float timeScale = System::GetInstance().GetTimeScale();
@@ -445,6 +460,24 @@ void EnemySwordman::OnDamage(Collider& other, AttackData& data)
 	if (m_isDieOut)return;
 	//Playerの攻撃データをもとに被ダメ処理をする
 	m_hp -= static_cast<int>(data.attackPower);
+
+	//ダメージがあるなら、ヒットエフェクトを再生する//必殺技の時は、ヒットエフェクトをスローのものにする
+	if(static_cast<int>(data.attackPower) > 0)
+	{
+		//必殺技
+		if(data.attackPower >= kUltDamagePower)
+		{
+			//m_hitEfPlayingHandle = PlayEffekseer3DEffectSlow(m_hitEfHandle, 0.5f);
+		}
+		//その他
+		else
+		{
+			m_hitEfPlayingHandle = PlayEffekseer3DEffect(m_hitEfHandle);
+			SetPosPlayingEffekseer3DEffect(m_hitEfPlayingHandle, m_pos.x, m_pos.y + kEnemyEfOffset, m_pos.z);
+		}
+	}
+
+
 	if (m_hp <= 0)
 	{
 		//空中じゃ死なない

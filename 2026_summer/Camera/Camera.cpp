@@ -64,17 +64,21 @@ void Camera::FixCameraPos()
 	
 }
 
-void Camera::StartCameraShake(Camera& camera, float power, float time)
+void Camera::StartCameraShake(float power, float time)
 {
-	camera.m_shakePower = power;
-	camera.m_shakeTimer = time;
-	camera.m_shakeTimerMax = time;
-	camera.m_isShaking = true;
+	m_shakePower = power;
+	m_shakeTimer = time;
+	m_shakeTimerMax = time;
+	m_isShaking = true;
 }
 
 Vector3 Camera::CameraShakeUpdate()
 {
-	if (m_shakeTimer <= 0.0f)return Vector3();
+	if (m_shakeTimer <= 0.0f)
+	{
+		m_isShaking = false;
+		return Vector3();
+	}
 	m_shakeTimer -= 1.0;//
 
 	float progress = m_shakeTimer / m_shakeTimerMax;//揺れの進行度合いを0から1の範囲で表す

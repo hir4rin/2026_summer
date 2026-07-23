@@ -78,7 +78,7 @@ public:
 	/// <param name="camera">カメラのポインタ</param>
 	/// <param name="power">揺れの強さ</param>
 	/// <param name="time">揺らす時間</param>
-	void StartCameraShake(Camera& camera, float power, float time);
+	void StartCameraShake(float power, float time);
 	Vector3 CameraShakeUpdate();
 	void UpdateLight();//ライトの位置を更新
 	void SetCameraManager(std::weak_ptr<CameraManager> cameraManager) { m_cameraManager = cameraManager; }

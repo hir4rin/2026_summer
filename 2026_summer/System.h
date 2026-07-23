@@ -5,16 +5,18 @@
 enum class AsyncData : int
 {
 	//プレイヤー
-	PlayerModel = 0,
-	PlayerAttackModel = 1,							
-	PlayerWeaponModel = 2,
-	PlayerWingModel = 3,
-	PlayerEffectSkill = 4,
+	PlayerModel,
+	PlayerAttackModel,							
+	PlayerWeaponModel,
+	PlayerWingModel,
+	PlayerEffectSkill,
+	PlayerHitEffect,
 	//敵
-	EnemyModel = 5,
+	EnemyModel,
+	EnemyHitEffect,
 	//ステージ
-	StageModel = 6,
-	StageModelCollider = 7,
+	StageModel,
+	StageModelCollider,
 };
 
 class System

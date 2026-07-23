@@ -185,8 +185,10 @@ void Application::AsyncLoad()
 	handleData[AsyncData::PlayerWeaponModel] = MV1LoadModel("data/Player/Weapon/red_katana.mv1");
 	handleData[AsyncData::PlayerWingModel] = MV1LoadModel("data/Player/Weapon/Wing/wing.mv1");
 	handleData[AsyncData::PlayerEffectSkill] = LoadEffekseerEffect("data/Effect/Slash.efk", 1.0f);
+	handleData[AsyncData::PlayerHitEffect] = LoadEffekseerEffect("data/Effect/HitEffect.efk", 1.0f);
 	//enemy
 	handleData[AsyncData::EnemyModel] = MV1LoadModel("data/Enemy/sasakiPlayer.mv1");
+	handleData[AsyncData::EnemyHitEffect] = LoadEffekseerEffect("data/Effect/EnemyHit.efk", 1.0f);
 	//stage
 	handleData[AsyncData::StageModel] = MV1LoadModel("data/Stage_Graphic/Stage.mv1");
 	handleData[AsyncData::StageModelCollider] = MV1LoadModel("data/Stage_Graphic/coll.mv1");

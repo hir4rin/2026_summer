@@ -4,6 +4,12 @@
 
 struct CameraContext;
 
+/// <summary>
+//・抽象化が適切ではない
+//・コンポーネント思考も勉強したほうがいい
+
+
+
 //MainCameraはpriorityが高いものの座標や、注視点、角度をもらってそこをDxLibで見るだけの機能
 //MainCameraはLerpでいどうするか、Slerpで移動するか(その場合、回転の中心点をもらう)
 class MainCamera :public Camera
