@@ -332,6 +332,11 @@ void GameScene::NormalDraw()
 	UpdateEffekseer3D();
 	DrawEffekseer3D();	
 	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 255);
+
+	//MATRIX debugView = GetCameraViewMatrix();
+	//DrawFormatString(110, 20, GetColor(255, 255, 0),
+	//	"View: %.2f %.2f %.2f %.2f",
+	//	debugView.m[0][0], debugView.m[0][1], debugView.m[0][2], debugView.m[0][3]);
 }
 
 void GameScene::FadeOutDraw()
