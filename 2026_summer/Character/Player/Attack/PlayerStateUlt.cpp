@@ -3,10 +3,17 @@
 #include "../../AttackCol.h"
 #include "Player.h"
 #include "../../../SubWindow/SubWindow.h"
+#include "EffekseerForDXLib.h"
 
 namespace
 {
 	constexpr float kPlayerCenter = 100.0f;//プレイヤーの当たり判定の中心点までのy軸の距離
+
+	constexpr float kEffectTriggerTime = 0.5f;
+
+	constexpr float kAttackDamage = 500.0f;
+
+	constexpr float kRadius = 500.0f;
 }
 	
 
@@ -31,9 +38,9 @@ void PlayerStateUlt::Enter()
 	player->m_anim.ChangeAnimWithModelHandle(player->m_attackModelHandle, player->GetAnimName("UltAttack"), false, 1.0f);
 
 	//攻撃の当たり判定を生成する
-	//データ作成
+	//データ作成//後ほどデータ化する
 	player->m_attackData = {
-	.attackPower = 500,
+	.attackPower = kAttackDamage,
 	.knockBackPower = Vector3(0, 0,0),
 	//.knockBackPower = Vector3(0.0f,node.knockBackY,0.0f),//吹き飛ばない攻撃にする
 	.knockBackFrame = 0,
@@ -45,7 +52,7 @@ void PlayerStateUlt::Enter()
 	m_attackCol = std::make_shared<AttackCol>(m_owner, player->m_attackData);
 	Vector3 offset = player->m_targetVec * player->m_attackData.kAttackColOffset
 		+ Vector3(0, kPlayerCenter, 0);//プレイヤーの前方に50.0f、y軸方向にkPlayerCenterだけオフセットする
-	m_attackCol->ColInit(player->m_pos, offset, 500.0f,
+	m_attackCol->ColInit(player->m_pos, offset, kRadius,
 							ColliderType::Sphere, Tags::PlayerUltAttack, false, true);//攻撃の当たり判定を初期化する//最初は無効にしておく
 	m_attackCol->ResetID(player->GetId());
 }
@@ -67,6 +74,8 @@ void PlayerStateUlt::Update()
 	{
 		m_attackCol->SetIsActive(false);
 	}
+	//エフェクトを発生、位置、回転の再設定
+	EffectCheck();
 
 	//アニメーションが終わったらアイドルに戻す
 	//ウルトはおそらくすぐに他の物からキャンセルして出せるようにする（LB&Y）のボタン押し
@@ -149,4 +158,24 @@ void PlayerStateUlt::DetermineAttackDirection()
 		player->m_targetVec = attackDir.Normalize();
 	}
 
+}
+void PlayerStateUlt::EffectCheck()
+{
+	auto player = m_owner.lock();
+	if (!player)return;
+
+	float rate = player->m_anim.GetAnimRate();//アニメーションの進行率を取得
+	if (rate >= kEffectTriggerTime && !m_isTriggerdEffec)
+	{
+		player->m_efPlayingHandle = PlayEffekseer3DEffect(player->m_efHandle);
+		SetPosPlayingEffekseer3DEffect(player->m_efPlayingHandle, player->m_pos.x, player->m_pos.y + 100, player->m_pos.z);
+		SetRotationPlayingEffekseer3DEffect(player->m_efPlayingHandle, 0.0f, player->m_rotAngleY + DX_PI_F, 0.0f);
+	}
+	//エフェクトが出ているとき
+	else if (m_isTriggerdEffec)
+	{
+		//座標の更新
+		SetPosPlayingEffekseer3DEffect(player->m_efPlayingHandle, player->m_pos.x, player->m_pos.y + 100, player->m_pos.z);
+		SetRotationPlayingEffekseer3DEffect(player->m_efPlayingHandle, 0.0f, player->m_rotAngleY + DX_PI_F, 0.0f);
+	}
 }

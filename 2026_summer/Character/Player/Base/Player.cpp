@@ -99,7 +99,14 @@ void Player::Init()
 	m_weapon = std::make_shared<Weapon>(GetWeakPtr());//武器の生成//Playerクラスのインスタンスから、Playerクラスのshared_ptrを取得できるようになる
 	//effectの生成
 	m_efHandle = System::GetInstance().GetHandle(AsyncData::PlayerEffectSkill);
-	m_efAreaHandle = System::GetInstance().GetHandle(AsyncData::AreaWallEffect);
+	for (auto& handle : m_efAreaMaxHandle)
+	{
+		handle = System::GetInstance().GetHandle(AsyncData::AreaWallEffect);
+	}
+	for (auto& handle : m_efAreaMinHandle)
+	{
+		handle = System::GetInstance().GetHandle(AsyncData::AreaWallEffect);
+	}
 }
 
 void Player::Update(Camera& camera)
@@ -138,17 +145,15 @@ void Player::Update(Camera& camera)
 	static int time = 0;
 	if (time++ % 60 == 0)
 	{
-		// エフェクトを再生する。
+	/*	 エフェクトを再生する。
 		m_efPlayingHandle = PlayEffekseer3DEffect(m_efHandle);
 
-		// エフェクトの位置をリセットする。
+		 エフェクトの位置をリセットする。
 		SetPosPlayingEffekseer3DEffect(m_efPlayingHandle, m_pos.x, m_pos.y + 100.0f, m_pos.z);
-		//SetColorPlayingEffekseer3DEffect(m_efPlayingHandle, 255, 255, 255, 255);
+		SetColorPlayingEffekseer3DEffect(m_efPlayingHandle, 255, 255, 255, 255);*/
 	}
 
-	SetPosPlayingEffekseer3DEffect(m_efPlayingHandle, m_pos.x, m_pos.y + 100.0f, m_pos.z);
-	if (m_efAreaPlayingHandle != -1)
-		SetPosPlayingEffekseer3DEffect(m_efAreaPlayingHandle, kArea1EfPos.x, kArea1EfPos.y, kArea1EfPos.z);
+	//SetPosPlayingEffekseer3DEffect(m_efPlayingHandle, m_pos.x, m_pos.y + 100.0f, m_pos.z);
 	//SetColorPlayingEffekseer3DEffect(m_efPlayingHandle, 255, 255, 255, 255);
 	//座標の更新の前に、当たり判定の更新をする
 
@@ -465,17 +470,31 @@ void Player::ApplyPos()
 						}
 					}
 					//エリア制限のエフェクトを出す
-					if (m_efAreaPlayingHandle == -1)
+					if (m_efAreaMaxPlayingHandle[i] == -1)
 					{
-						//m_efAreaPlayingHandle = PlayEffekseer3DEffect(m_efAreaHandle);
-						//SetPosPlayingEffekseer3DEffect(m_efAreaPlayingHandle, kArea1EfPos.x, kArea1EfPos.y, kArea1EfPos.z);
+						m_efAreaMaxPlayingHandle[i] = PlayEffekseer3DEffect(m_efAreaMaxHandle[i]);
+						SetPosPlayingEffekseer3DEffect(m_efAreaMaxPlayingHandle[i], kArea1EfPos.x, kArea1EfPos.y, kArea1EfPos.z);
 					}
 					else
 					{
-						//SetPosPlayingEffekseer3DEffect(m_efAreaPlayingHandle, kArea1EfPos.x, kArea1EfPos.y, kArea1EfPos.z);
+						SetPosPlayingEffekseer3DEffect(m_efAreaMaxPlayingHandle[i], kArea1EfPos.x, kArea1EfPos.y, kArea1EfPos.z);
 					}
 
-				}	
+				}
+				//違うならエフェクトを止める
+				else
+				{
+					if (m_efAreaMinPlayingHandle[i] != -1)
+					{
+						StopEffekseer3DEffect(m_efAreaMinPlayingHandle[i]);
+						m_efAreaMinPlayingHandle[i] = -1;
+					}
+					if (m_efAreaMaxPlayingHandle[i] != -1)
+					{
+						StopEffekseer3DEffect(m_efAreaMaxPlayingHandle[i]);
+						m_efAreaMaxPlayingHandle[i] = -1;
+					}
+				}
 				break;
 				case static_cast<int>(WaveNumForPlayer::Wave2):
 					if (m_isWaveArea[i])
@@ -488,13 +507,59 @@ void Player::ApplyPos()
 						{
 							m_pos.z = kArea2MaxZ;
 						}
+						//エリア制限のエフェクトを出す
+						//下限
+						if (m_efAreaMinPlayingHandle[i] == -1)
+						{
+							m_efAreaMinPlayingHandle[i] = PlayEffekseer3DEffect(m_efAreaMinHandle[i]);
+							SetPosPlayingEffekseer3DEffect(m_efAreaMinPlayingHandle[i], kArea1EfPos.x, kArea1EfPos.y, kArea1MaxZ);
+						}
+						else
+						{
+							SetPosPlayingEffekseer3DEffect(m_efAreaMinPlayingHandle[i], kArea1EfPos.x, kArea1EfPos.y, kArea1EfPos.z);
+						}
+						//上限
+						if (m_efAreaMaxPlayingHandle[i] == -1)
+						{
+							m_efAreaMaxPlayingHandle[i] = PlayEffekseer3DEffect(m_efAreaMaxHandle[i]);
+							SetPosPlayingEffekseer3DEffect(m_efAreaMaxPlayingHandle[i], kArea1EfPos.x, kArea1EfPos.y, kArea1MaxZ);
+						}
+						else
+						{
+							SetPosPlayingEffekseer3DEffect(m_efAreaMaxPlayingHandle[i], kArea1EfPos.x, kArea1EfPos.y, kArea2MaxZ);
+						}
 					}	
+					//違うならエフェクトを止める
+					else
+					{
+						if (m_efAreaMinPlayingHandle[i] != -1)
+						{
+							StopEffekseer3DEffect(m_efAreaMinPlayingHandle[i]);
+							m_efAreaMinPlayingHandle[i] = -1;
+						}
+						if (m_efAreaMaxPlayingHandle[i] != -1)
+						{
+							StopEffekseer3DEffect(m_efAreaMaxPlayingHandle[i]);
+							m_efAreaMaxPlayingHandle[i] = -1;
+						}
+					}
 					break;
 				default:
-					if (m_efAreaPlayingHandle != -1)	
+					for (auto& playingHandle : m_efAreaMinPlayingHandle)
 					{
-						StopEffekseer3DEffect(m_efAreaPlayingHandle);
-						m_efAreaPlayingHandle = -1;
+						if (playingHandle != -1)
+						{
+							StopEffekseer3DEffect(playingHandle);
+							playingHandle = -1;
+						}
+					}
+					for (auto& playingHandle : m_efAreaMaxPlayingHandle)
+					{
+						if (playingHandle != -1)
+						{
+							StopEffekseer3DEffect(playingHandle);
+							playingHandle = -1;
+						}
 					}
 					break;
 		}

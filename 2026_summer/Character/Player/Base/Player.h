@@ -202,10 +202,15 @@ private:
 
 	int m_attackModelHandle = -1;//攻撃のモデルのハンドル
 
+
+	//エフェクトマネージャー作るからいったん表示させる
 	int m_efHandle = -1;//エフェクトのハンドル
 	int m_efPlayingHandle = -1;//再生中のエフェクトのハンドル
-	int m_efAreaHandle = -1;//壁エフェクトのハンドル
-	int m_efAreaPlayingHandle = -1;//再生中
+	int m_efAreaMaxHandle[static_cast<int>(WaveNumForPlayer::WaveSize)] ={ -1,-1,-1 } ;//壁エフェクトのハンドル
+	int m_efAreaMaxPlayingHandle[static_cast<int>(WaveNumForPlayer::WaveSize)] = { -1,-1,-1 };//再生中
+
+	int m_efAreaMinHandle[static_cast<int>(WaveNumForPlayer::WaveSize)] = { -1,-1,-1 };
+	int m_efAreaMinPlayingHandle[static_cast<int>(WaveNumForPlayer::WaveSize)] = { -1,-1,-1 };
 
 	const float kPlayerRockOnRange = 300.0f;//ロックオンする範囲//この範囲内に敵がいたらロックオンする
 

@@ -32,7 +32,6 @@ namespace
 
 	constexpr int kLockOnCheckNum = 10;//ロックオンの検索ループ回数
 
-	const Vector3 kArea1EfPos = Vector3(105.0f, 0.0f, 1197.0f);
 }
 
 
@@ -74,7 +73,6 @@ GameScene::GameScene(SceneController& controller) :Scene(controller)
 	//レンダーターゲットの作成
 	m_RT1 = MakeScreen(Game::kScreenWidth, Game::kScreenHeight, true);
 	m_RT2 = MakeScreen(Game::kScreenWidth, Game::kScreenHeight, true);
-	m_RT3 = MakeScreen(Game::kScreenWidth, Game::kScreenHeight, true);
 	//シェーダーの作成
 	m_ultShaderHandle = CreateShaderConstantBuffer(sizeof(UltParam));
 	m_ultCBuff = static_cast<UltParam*>(GetBufferShaderConstantBuffer(m_ultShaderHandle));
@@ -106,12 +104,6 @@ GameScene::GameScene(SceneController& controller) :Scene(controller)
 	m_gHandle2 = LoadGraph("data/UI/splash2_UI.png");
 	m_gHandle3 = LoadGraph("data/UI/satu_UI.png");
 
-	//エフェクト確かめよう
-	
-	m_efAreaHandle = System::GetInstance().GetHandle(AsyncData::AreaWallEffect);
-	m_efAreaPlayingHandle = PlayEffekseer3DEffect(m_efAreaHandle);
-	SetPosPlayingEffekseer3DEffect(m_efAreaPlayingHandle, kArea1EfPos.x, kArea1EfPos.y, kArea1EfPos.z);
-	SetRotationPlayingEffekseer3DEffect(m_efAreaPlayingHandle, 0.0f, 0.0f, 0.0f);
 
 }
 GameScene::~GameScene()
@@ -182,20 +174,6 @@ void GameScene::NormalUpdate()
 		}
 	}
 
-	//確かめよう
-	// 	//エリア制限のエフェクトを出す
-	if (m_efAreaPlayingHandle == -1)
-	{
-		m_efAreaPlayingHandle = PlayEffekseer3DEffect(m_efAreaHandle);
-		SetPosPlayingEffekseer3DEffect(m_efAreaPlayingHandle, kArea1EfPos.x, kArea1EfPos.y, kArea1EfPos.z);
-		SetRotationPlayingEffekseer3DEffect(m_efAreaPlayingHandle, 0.0f, 0.0f, 0.0f);
-	}
-	else
-	{
-		SetPosPlayingEffekseer3DEffect(m_efAreaPlayingHandle, kArea1EfPos.x, kArea1EfPos.y, kArea1EfPos.z);
-		SetRotationPlayingEffekseer3DEffect(m_efAreaPlayingHandle, 0.0f, 0.0f, 0.0f);
-	}
-
 }
 
 void GameScene::FadeOutUpdate()
@@ -214,46 +192,26 @@ void GameScene::FadeInDraw()
 void GameScene::NormalDraw()
 {
 	//UltDrawを作ったほうがいいかも
-	//レンダリングを4つに分ける(map,Effect,UI,Character)
+	//UI描画や、必殺技時のエフェクトを白くするようにレンダーターゲットを使う
 	//map,effectにシェーダーをかける
+
+	SetDrawScreen(DX_SCREEN_BACK); ClearDrawScreen();
+	m_cameraManager->ApplyCameraSettings();
 
 	bool isUlt = System::GetInstance().GetIsUltimating();
 
-	//RT1
-	SetDrawScreen(m_RT1); ClearDrawScreen();
-	m_cameraManager->ApplyCameraSettings();
-	//赤くする
 	m_skyBox->Draw();
 	m_stage->Draw();
+	//赤くする
 	if (isUlt)
 	{
 		SetDrawBlendMode(DX_BLENDMODE_ALPHA, 128);
 		DrawBox(0, 0, Game::kScreenWidth, Game::kScreenHeight, GetColor(255, 0, 0), TRUE);
 		SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0); // ← 必ずリセット！
 	}
-	//SetDrawBright(255, 255, 255);
-	// Effekseerにより再生中のエフェクトを描画する。
 
-	//RT2
-	SetDrawScreen(m_RT2);
-	SetBackgroundColor(0, 0, 0); 
-	ClearDrawScreen();
-	m_cameraManager->ApplyCameraSettings();
-	//シェーダーで色をとって白くする
-	//SetDrawBright(0, 0, 0);  // R=255, G=255, B=255	
-	//m_player->EffectDraw();
-	//描画前に色を設定
-	Effekseer_Sync3DSetting();;
-	//ultの時だけ、ここに描画して、エフェクトを白くする
-	//DrawEffekseer3D();
 	DrawFormatString(300, 0, GetColor(255, 255, 255), "GameScene");
 
-
-	//DrawGrid();
-
-	//RT3
-	SetDrawScreen(m_RT3); ClearDrawScreen();
-	m_cameraManager->ApplyCameraSettings();
 	//シェーダーのセット
 	MV1SetUseOrigShader(true);
 	SetUsePixelShader(m_enemyPSH);
@@ -280,23 +238,29 @@ void GameScene::NormalDraw()
 	SetUseVertexShader(-1);
 	MV1SetUseOrigShader(false);
 
-	//UIの表示
+	//必殺技UIの表示//レンダーターゲット
 	if (isUlt)
 	{
+		SetDrawScreen(m_RT1); ClearDrawScreen();
+		m_cameraManager->ApplyCameraSettings();
 		DrawRectRotaGraph(Game::kScreenWidth - 200, Game::kScreenHeight / 4, 0, 0, kGHX, kGHY, 0.8f, -DX_PI_F / 12, m_gHandle1, TRUE);
 		DrawRectRotaGraph(Game::kScreenWidth / 15, Game::kScreenHeight - 150, 0, 0, kGH2X, kGH2Y, 1.0f, DX_PI_F / 4, m_gHandle2, TRUE);
 		DrawRectRotaGraph(Game::kScreenWidth * 3 / 5, Game::kScreenHeight - 200, 0, 0, kGH3X, kGH3Y, 0.5f, 0.0f, m_gHandle3, TRUE);
+
+		SetDrawScreen(DX_SCREEN_BACK);
+		m_cameraManager->ApplyCameraSettings();
+		DrawGraph(0, 0, m_RT1, true);
 	}
 	m_player->Draw();
 #ifdef _DEBUG
 	//CollisionManager::GetInstance().DebugDraw();
 	//PlayerのHpのデバッグ表示
-	
+
 	//ロックオンしている敵のデバッグ表示
 	auto targetEnemy = m_cameraManager->GetTargetEnemy();
 	if (targetEnemy)
 	{
-		Vector3 enemyPos = targetEnemy->GetPos() + Vector3 (0,200,0);
+		Vector3 enemyPos = targetEnemy->GetPos() + Vector3(0, 200, 0);
 
 		VECTOR enemyPos2D;;
 
@@ -315,28 +279,10 @@ void GameScene::NormalDraw()
 	m_cameraManager->Draw();
 #endif
 	m_uiManager->Draw();
+	//エフェクトの描画
+	DrawEffekseer3D();
 
-	//最終的に画面に描画する
-	SetDrawScreen(DX_SCREEN_BACK); ClearDrawScreen();
-	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 255);
-	DrawGraph(0, 0, m_RT1, true); // 背景
-	SetDrawBlendMode(DX_BLENDMODE_ADD, 255);
-	SetDrawBlendMode(DX_BLENDMODE_ALPHA, 255);
-	DrawGraph(0, 0, m_RT2, true); // エフェクト・文字
-	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 255);
-	DrawGraph(0, 0, m_RT3, true); // キャラクター
-	//SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 255);
-	// Effekseerはバックバッファ上で描画する（MakeScreenへの描画は非対応）
-	m_cameraManager->ApplyCameraSettings();
-	//SetDrawBlendMode(DX_BLENDMODE_MUL, 255);
-	UpdateEffekseer3D();
-	DrawEffekseer3D();	
-	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 255);
 
-	//MATRIX debugView = GetCameraViewMatrix();
-	//DrawFormatString(110, 20, GetColor(255, 255, 0),
-	//	"View: %.2f %.2f %.2f %.2f",
-	//	debugView.m[0][0], debugView.m[0][1], debugView.m[0][2], debugView.m[0][3]);
 }
 
 void GameScene::FadeOutDraw()

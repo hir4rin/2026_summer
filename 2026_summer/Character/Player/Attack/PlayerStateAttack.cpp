@@ -9,6 +9,7 @@
 #include "../../../Camera/MainCamera.h"
 #include "../../Enemy/EnemyBase.h"
 #include "../../Enemy/EnemyManager.h"
+#include "EffekseerForDXLib.h"
 
 namespace
 {
@@ -16,6 +17,11 @@ namespace
 	constexpr float kComboInputEnd = 0.8f;//コンボ入力受付終了のアニメーションの進行率
 
 	constexpr float kPlayerCenter = 100.0f;//プレイヤーの当たり判定の中心点までのy軸の距離
+
+	constexpr float kEffectTriggerTime = 0.2f;//エフェクトを出すタイミング
+
+	constexpr float kColStart = 0.2f;
+	constexpr float kColEnd = 0.6f;
 }
 
 
@@ -95,6 +101,9 @@ void PlayerStateAttack::Update()
 
 	//攻撃中の移動処理
 	AttackMoveMent();
+	//エフェクトを出す
+	EffectCheck();
+
 
 	//コンボ予約の入力を取る//予約を取ったらもうここは通らないようにする
 	AttackInputCheck();
@@ -230,7 +239,7 @@ void PlayerStateAttack::AttackMoveMent()
 	if (node.moveSpeedY == 0.0f)
 	{
 		//攻撃判定//いったん
-		if (rate > 0.2f && rate < 0.6f)
+		if (rate > kColStart && rate < kColEnd)
 		{
 			m_attackCol->SetIsActive(true);//攻撃の当たり判定を有効にする
 		}
@@ -753,5 +762,30 @@ void PlayerStateAttack::InpuctAttackSetUp()
 			ColliderType::Sphere, Tags::PlayerAttack, true, true, 10.0f);//攻撃の当たり判定を初期化する//最初は無効にしておく
 		m_attackColForDrop->ResetID(player->GetId());
 		m_attackColForDrop->SetIsActive(true);//攻撃の当たり判定を有効にする
+	}
+}
+
+void PlayerStateAttack::EffectCheck()
+{
+	auto player = m_owner.lock();
+	if (!player)return;
+	int currentComboIndex = player->m_comboInfo.currentComboIndex;
+	const ComboNode& node = player->m_comboChain[currentComboIndex];
+	float rate = player->m_anim.GetAnimRate();//アニメーションの進行率を取得
+	if (currentComboIndex == ComboIndex::SkillAttack1)
+	{
+		if (rate >= kEffectTriggerTime && !m_isTriggerdEffec)
+		{
+			player->m_efPlayingHandle = PlayEffekseer3DEffect(player->m_efHandle);
+			SetPosPlayingEffekseer3DEffect(player->m_efPlayingHandle, player->m_pos.x, player->m_pos.y+100, player->m_pos.z);
+			SetRotationPlayingEffekseer3DEffect(player->m_efPlayingHandle, 0.0f, player->m_rotAngleY + DX_PI_F, 0.0f);
+		}
+		//エフェクトが出ているとき
+		else if (m_isTriggerdEffec)
+		{
+			//座標の更新
+			SetPosPlayingEffekseer3DEffect(player->m_efPlayingHandle, player->m_pos.x, player->m_pos.y+100, player->m_pos.z);
+			SetRotationPlayingEffekseer3DEffect(player->m_efPlayingHandle, 0.0f, player->m_rotAngleY + DX_PI_F, 0.0f);
+		}
 	}
 }

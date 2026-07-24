@@ -48,6 +48,9 @@ private:
 
 	int LoadVertexShaderWithMacro(const std::string& filePath, std::vector<D3D_SHADER_MACRO>& macros);
 private:
+	
+
+private:
 	std::shared_ptr<CameraManager> m_cameraManager;
 	std::shared_ptr<Player> m_player;
 	std::shared_ptr<EnemySwordman> m_enemySwordman;
@@ -65,9 +68,8 @@ private:
 	int m_efAreaPlayingHandle = -1;//再生中
 
 	//シェーダー用
-	int m_RT1 = -1;
-	int m_RT2 = -1;
-	int m_RT3 = -1;
+	int m_RT1 = -1;//一部UI描画用
+	int m_RT2 = -1;//必殺技時のエフェクト用
 
 	int m_ultShaderHandle = -1;
 	UltParam* m_ultCBuff = nullptr;
