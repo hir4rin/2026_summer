@@ -60,6 +60,8 @@ void PlayerStateHit::Exit()
 
 void PlayerStateHit::DebugDraw()
 {
+#ifdef _DEBUG
 	DrawFormatString(10, 10, GetColor(255, 255, 255), "PlayerState:Hit");
 	SubWindow::AddText("PlayerState:Hit");
+#endif
 }

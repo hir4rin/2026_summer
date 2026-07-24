@@ -111,7 +111,9 @@ void PlayerStateRun::Exit()
 
 void PlayerStateRun::DebugDraw()
 {
+#ifdef _DEBUG
 	DrawFormatString(10, 10, GetColor(255, 255, 255), "PlayerState:Run");
+#endif
 }
 
 void PlayerStateRun::Move(Input& input)

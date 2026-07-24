@@ -86,7 +86,9 @@ void PlayerStateAvoid::Exit()
 
 void PlayerStateAvoid::DebugDraw()
 {
+#ifdef _DEBUG
 	DrawFormatString(10, 10, GetColor(255, 255, 255), "PlayerState:Avoid");
+#endif
 }
 
 void PlayerStateAvoid::DetermineAvoidDirection()

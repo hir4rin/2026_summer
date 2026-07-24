@@ -14,6 +14,11 @@ namespace
 	constexpr float kAttackDamage = 500.0f;
 
 	constexpr float kRadius = 500.0f;
+	constexpr float kAttackColOffset = 30.0f;
+
+
+	constexpr float kColStartRate = 0.7f;
+	constexpr float kColEndRate = 0.9f;
 }
 	
 
@@ -45,7 +50,7 @@ void PlayerStateUlt::Enter()
 	//.knockBackPower = Vector3(0.0f,node.knockBackY,0.0f),//吹き飛ばない攻撃にする
 	.knockBackFrame = 0,
 	.hitStopTime = 0.1f,
-	.kAttackColOffset = 30.0f,
+	.kAttackColOffset = kAttackColOffset,
 	.isKirimomi = false
 	};
 	//生成
@@ -66,7 +71,7 @@ void PlayerStateUlt::Update()
 
 
 	float rate = player->m_anim.GetAnimRate();
-	if(rate > 0.7f && rate < 0.9f)
+	if(rate > kColStartRate && rate < kColEndRate)
 	{
 		m_attackCol->SetIsActive(true);
 	}
@@ -112,7 +117,9 @@ void PlayerStateUlt::Exit()
 		m_attackCol->SetLifeTimeLimited();
 		m_attackCol.reset();
 	}
+#ifdef _DEBUG
 	player->m_comboInfo.UltGauge = 100;
+#endif
 }
 
 void PlayerStateUlt::DebugDraw()
@@ -168,14 +175,14 @@ void PlayerStateUlt::EffectCheck()
 	if (rate >= kEffectTriggerTime && !m_isTriggerdEffec)
 	{
 		player->m_efPlayingHandle = PlayEffekseer3DEffect(player->m_efHandle);
-		SetPosPlayingEffekseer3DEffect(player->m_efPlayingHandle, player->m_pos.x, player->m_pos.y + 100, player->m_pos.z);
+		SetPosPlayingEffekseer3DEffect(player->m_efPlayingHandle, player->m_pos.x, player->m_pos.y + kPlayerCenter, player->m_pos.z);
 		SetRotationPlayingEffekseer3DEffect(player->m_efPlayingHandle, 0.0f, player->m_rotAngleY + DX_PI_F, 0.0f);
 	}
 	//エフェクトが出ているとき
 	else if (m_isTriggerdEffec)
 	{
 		//座標の更新
-		SetPosPlayingEffekseer3DEffect(player->m_efPlayingHandle, player->m_pos.x, player->m_pos.y + 100, player->m_pos.z);
+		SetPosPlayingEffekseer3DEffect(player->m_efPlayingHandle, player->m_pos.x, player->m_pos.y + kPlayerCenter, player->m_pos.z);
 		SetRotationPlayingEffekseer3DEffect(player->m_efPlayingHandle, 0.0f, player->m_rotAngleY + DX_PI_F, 0.0f);
 	}
 }

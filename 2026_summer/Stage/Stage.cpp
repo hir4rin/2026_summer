@@ -2,6 +2,13 @@
 #include "../Math/Matrix4x4.h"
 #include "../System.h"
 
+namespace
+{
+	constexpr float kStageColOffsetX = 1200.0f;
+	constexpr float kStageColOffsetY = 20.0f;
+}
+
+
 Stage::Stage()
 {
 	//m_stageModelHandle = MV1LoadModel("data/PreStage2/Stage2.mv1");
@@ -9,8 +16,8 @@ Stage::Stage()
 	m_stageModelHandle = MV1DuplicateModel(System::GetInstance().GetHandle(AsyncData::StageModelCollider));
 	m_stageViewHandle = MV1DuplicateModel(System::GetInstance().GetHandle(AsyncData::StageModel));
 	//m_pos = Vector3(1200, -50, 2500);
-	m_pos = Vector3(1200, 0, 0);
-	m_pos_graphic = Vector3(1200, 0, 0);
+	m_pos = Vector3(kStageColOffsetX, kStageColOffsetY, 0);
+	m_pos_graphic = Vector3(kStageColOffsetX, 0, 0);
 	
 	// モデルのポリゴンの当たり判定を構築する(第二引数を-1にすると全てのポリゴンを対象にする)
 	MV1SetupCollInfo(m_stageModelHandle, -1);

@@ -170,7 +170,9 @@ void Application::RequestExit()
 void Application::CreateSubWindow(HINSTANCE hInstance)
 {
 	//サブウィンドウの作成//引数で位置とサイズを指定できるようにする
-	//SubWindow::Create(hInstance, 1300, 0, 600, 400);
+#ifdef _DEBUG
+	SubWindow::Create(hInstance, 1300, 0, 600, 400);
+#endif
 }
 
 void Application::AsyncLoad()

@@ -118,7 +118,9 @@ void PlayerStateFall::Exit()
 
 void PlayerStateFall::DebugDraw()
 {
+#ifdef _DEBUG
 	DrawFormatString(10, 10, GetColor(255, 255, 255), "PlayerState:Fall");
+#endif
 }
 
 void PlayerStateFall::Move(Input& input)

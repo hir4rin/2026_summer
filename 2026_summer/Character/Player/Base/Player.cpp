@@ -26,6 +26,9 @@ namespace
 	constexpr float kArea2MaxZ = 5275;//エリア2のz座標の範囲//右側
 
 	const Vector3 kArea1EfPos = Vector3(105.0f, 0.0f, 1197.0f);
+
+	constexpr float kRadius = 80.0f;
+	constexpr float kRadiusHit = 50.0f;
 }
 
 
@@ -86,15 +89,18 @@ void Player::Init()
 
 	//IDの取得
 	SetID();
+
 	//当たり判定の初期化
 	//中心点、オフセット、半径、当たり判定のタイプ、タグ、当たり判定が有効かどうか
-	ColInit(m_pos, Vector3(0, kPlayerCenter, 0), 80.0f, ColliderType::Sphere, Tags::Player, true);
+	ColInit(m_pos, Vector3(0, kPlayerCenter, 0), kRadius, ColliderType::Sphere, Tags::Player, true);
 	//やられ判定の初期化
 	InitHitCol(GetWeakPtr());
-	m_hitCol->ColInit(m_pos, Vector3(0, kPlayerCenter, 0), 50.0f, ColliderType::Sphere, Tags::PlayerHit, true, true);
+	m_hitCol->ColInit(m_pos, Vector3(0, kPlayerCenter, 0), kRadiusHit, ColliderType::Sphere, Tags::PlayerHit, true, true);
 	m_hitCol->ResetID(GetId());
+
 	CharacterBase::ApplyPos();//座標の更新//モデルの座標を更新する
 	ChangeState(m_currentState);//初期化
+
 	//武器の生成
 	m_weapon = std::make_shared<Weapon>(GetWeakPtr());//武器の生成//Playerクラスのインスタンスから、Playerクラスのshared_ptrを取得できるようになる
 	//effectの生成
@@ -141,25 +147,6 @@ void Player::Update(Camera& camera)
 	//これらは押し戻しの時に呼ばれないのでずれる→そこでも呼ぶ必要あり
 	WingUpdate();
 	m_weapon->Update();//武器の更新
-	// 定期的にエフェクトを再生する
-	static int time = 0;
-	if (time++ % 60 == 0)
-	{
-	/*	 エフェクトを再生する。
-		m_efPlayingHandle = PlayEffekseer3DEffect(m_efHandle);
-
-		 エフェクトの位置をリセットする。
-		SetPosPlayingEffekseer3DEffect(m_efPlayingHandle, m_pos.x, m_pos.y + 100.0f, m_pos.z);
-		SetColorPlayingEffekseer3DEffect(m_efPlayingHandle, 255, 255, 255, 255);*/
-	}
-
-	//SetPosPlayingEffekseer3DEffect(m_efPlayingHandle, m_pos.x, m_pos.y + 100.0f, m_pos.z);
-	//SetColorPlayingEffekseer3DEffect(m_efPlayingHandle, 255, 255, 255, 255);
-	//座標の更新の前に、当たり判定の更新をする
-
-	//座標の更新
-	//float timeScale = System::GetInstance().GetTimeScale();
-	//m_pos += m_vel * timeScale;
 
 	//回転処理//座標も行列で更新
 	//UpdateAngle();
@@ -205,19 +192,20 @@ void Player::Draw()
 		std::string text = std::to_string(i) + ": " + m_comboChain[i].animName;
 		//SubWindow::AddText(text);
 	}
+#ifdef _DEBUG
 	std::string posText = "Pos: " + std::to_string(m_pos.x) + ", " + std::to_string(m_pos.y) + ", " + std::to_string(m_pos.z);
 	SubWindow::AddText(posText);
 	std::string velText = "Vel: " + std::to_string(m_vel.x) + ", " + std::to_string(m_vel.y) + ", " + std::to_string(m_vel.z);
 	SubWindow::AddText(velText);
 	std::string ravenText = "Raven: " + std::string(m_isRaven ? "true" : "false");
 	SubWindow::AddText(ravenText);
-#ifdef _DEBUG
 	if (m_currentState)
 	{
 		m_currentState->DebugDraw();//デバッグ描画
 	}
 	DrawSphere3D(m_pos.ToDxLibVector(), kPlayerRockOnRange * 5, 16, GetColor(255, 0, 0), GetColor(255, 0, 0), false);
 #endif
+
 }
 
 void Player::EffectDraw()
@@ -234,12 +222,13 @@ void Player::OnCollision(Collider& other)
 
 void Player::OnDamage(Collider& other, AttackData& data)
 {
-
+#ifdef _DEBUG
 	return;
+#endif
 
 	//ダメージを受けたときの処理
 	//敵の攻撃データをもらい、ダメージを減らし、体力を減らす、場合によってはプレイヤーを吹き飛ばす
-	DrawFormatString(0, 0, GetColor(255, 0, 0), "Player: OnDamage");
+	//DrawFormatString(0, 0, GetColor(255, 0, 0), "Player: OnDamage");
 	//ダメージを受けたときの処理
 	if (m_damageInfo.damageTimer <= 0.0f)//無敵時間が終わっている場合のみダメージを受ける
 	{

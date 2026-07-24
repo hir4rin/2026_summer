@@ -103,7 +103,9 @@ void PlayerStateJump::Exit()
 
 void PlayerStateJump::DebugDraw()
 {
+#ifdef _DEBUG
 	DrawFormatString(10, 10, GetColor(255, 255, 255), "PlayerState:Jump");
+#endif
 }
 
 void PlayerStateJump::Move(Input& input)
