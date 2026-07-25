@@ -36,12 +36,33 @@ namespace
 	constexpr float kToTargetPower = 3.0f;//プレイヤーの正面に行くようにknockBackする力
 
 	constexpr float kUltDamagePower = 500.0f;//必殺技の攻撃力
+
+	constexpr int kEnemyInitialHp = 500;//敵の初期HP
+	constexpr float kEnemyColliderRadius = 80.0f;//本体コライダーの半径
+	constexpr float kEnemyHitColliderRadius = 120.0f;//やられ判定コライダーの半径
+
+	constexpr float kEnemyAttackPower = 10.0f;//初期攻撃データの攻撃力
+	constexpr float kEnemyAttackKnockBackFrame = 30.0f;//初期攻撃データのノックバック時間
+	constexpr float kEnemyAttackColOffset = 30.0f;//初期攻撃データの攻撃判定オフセット
+	constexpr float kEnemyAttackColliderRadius = 100.0f;//攻撃コライダーの半径
+
+	constexpr int kStateChangeRandomMax = 100;//Chase/Caution遷移の抽選範囲
+	constexpr int kStateChangeThreshold = 50;//Chase/Caution遷移のしきい値
+	constexpr float kEnemyCautionUpdateIntervalDivisor = 3.0f;//警戒中の位置更新間隔の分母
+
+	constexpr float kEnemyKnockDownFrame = 55.0f;//ダウン状態が続くフレーム数
+	constexpr float kEnemyDeathYThreshold = -300.0f;//敵を強制的に死亡させるY座標のしきい値
+
+	constexpr float kAttackMoveStartRate = 0.3f;//攻撃モーション:移動を開始するrate
+	constexpr float kAttackColActivateRate = 0.5f;//攻撃モーション:攻撃判定を有効にするrateの上限
+	constexpr float kAttackMoveSpeed1 = 10.0f;//攻撃モーション前半の移動速度
+	constexpr float kAttackMoveSpeed2 = 16.0f;//攻撃モーション後半の移動速度
 }
 
 EnemySwordman::EnemySwordman(std::weak_ptr<Player> player, Vector3 pos, int modelHandle) : EnemyBase(player)
 {
 	m_pos = pos;//初期位置
-	m_hp = 500;//体力
+	m_hp = kEnemyInitialHp;//体力
 	//モデルのハンドルをセット
 	m_modelHandle = modelHandle;
 	//モデルの初期位置を設定する
@@ -65,24 +86,24 @@ void EnemySwordman::Init()
 	//IDの取得
 	SetID();
 	//当たり判定の初期化j
-	ColInit(m_pos, Vector3(0, kEnemyCenter, 0), 80.0f, ColliderType::Sphere, Tags::Enemy, true);//中心点、半径、当たり判定のタイプ、タグ、当たり判定が有効かどうか
+	ColInit(m_pos, Vector3(0, kEnemyCenter, 0), kEnemyColliderRadius, ColliderType::Sphere, Tags::Enemy, true);//中心点、半径、当たり判定のタイプ、タグ、当たり判定が有効かどうか
 	//やられ判定の初期化
 	InitHitCol(GetWeakPtr());
-	m_hitCol->ColInit(m_pos, Vector3(0, kEnemyCenter, 0),120.0f, ColliderType::Sphere, Tags::EnemyHit, true,true);
+	m_hitCol->ColInit(m_pos, Vector3(0, kEnemyCenter, 0),kEnemyHitColliderRadius, ColliderType::Sphere, Tags::EnemyHit, true,true);
 	m_hitCol->ResetID(GetId());
 	//AttackColの生成
 	m_attackData = {
-		.attackPower = 10.0f,
+		.attackPower = kEnemyAttackPower,
 		.knockBackPower = Vector3(0.0f, 0.0f, 0.0f),
-		.knockBackFrame = 30.0f,
+		.knockBackFrame = kEnemyAttackKnockBackFrame,
 		.hitStopTime = 0.0f,
-		.kAttackColOffset = 30.0f,
+		.kAttackColOffset = kEnemyAttackColOffset,
 		.isKirimomi = false
 	};
 	m_attackCol = std::make_shared<AttackCol>(GetWeakPtr(), m_attackData);
 
 	Vector3 offset = m_targetVec.Normalize() * m_attackData.kAttackColOffset + Vector3(0,kEnemyCenter,0);
-	m_attackCol->ColInit(m_pos, offset, 100.0f, ColliderType::Sphere, Tags::EnemyAttack, false, true);
+	m_attackCol->ColInit(m_pos, offset, kEnemyAttackColliderRadius, ColliderType::Sphere, Tags::EnemyAttack, false, true);
 	m_attackCol->ResetID(GetId());
 
 }
@@ -133,12 +154,12 @@ void EnemySwordman::Update()
 			break;
 		}
 		//ランダム
-		if (rand() % 100 < 50)
+		if (rand() % kStateChangeRandomMax < kStateChangeThreshold)
 		{
 			ChangeState(EnemyState::Chase);
 			break;
 		}
-		else if (rand() % 100 >= 50)
+		else if (rand() % kStateChangeRandomMax >= kStateChangeThreshold)
 		{
 			ChangeState(EnemyState::Caution);
 			break;
@@ -159,11 +180,11 @@ void EnemySwordman::Update()
 			break;
 		}
 		//定期的にプレイヤーの位置を更新する
-		if (TickInterval(m_cautionUpdateTimer, kEnemyCautionMaxTime / 3))
+		if (TickInterval(m_cautionUpdateTimer, kEnemyCautionMaxTime / kEnemyCautionUpdateIntervalDivisor))
 		{
 			m_targetPos = TargetPlayerPos();
 		}
-		CautionMove(m_targetPos, 400.0f);
+		CautionMove(m_targetPos, kEnemyMeleeAttackRange);
 		break;
 	case EnemyState::Chase:
 		//攻撃可能な距離に入ったら攻撃
@@ -337,7 +358,7 @@ void EnemySwordman::Update()
 	case EnemyState::KnockDown:
 		//吹き飛んだ後のダウン時間
 		m_knockBackDownFrame += 1.0f * timeScale * m_ownTimeScale;
-		if (m_knockBackDownFrame > 55)
+		if (m_knockBackDownFrame > kEnemyKnockDownFrame)
 		{
 			m_knockBackDownFrame = 0.0f;
 			ChangeState(EnemyState::Idle);
@@ -355,7 +376,7 @@ void EnemySwordman::Update()
 
 
 	//いったん対策で敵のy座標が-300ぐらいで殺す
-	if(m_pos.y < -300.0f)
+	if(m_pos.y < kEnemyDeathYThreshold)
 	{
 		m_isDead = true;
 	}
@@ -419,13 +440,13 @@ void EnemySwordman::Attack()
 	forward.y = 0.0f;
 	forward = forward.Normalize();
 	//移動距離
-	if (rate <= 0.3)
+	if (rate <= kAttackMoveStartRate)
 	{
-		m_vel = forward * 10.0f;
+		m_vel = forward * kAttackMoveSpeed1;
 	}
-	else if(rate > 0.3 && rate <= 0.5)
+	else if(rate > kAttackMoveStartRate && rate <= kAttackColActivateRate)
 	{
-		m_vel = forward * 16.0f;
+		m_vel = forward * kAttackMoveSpeed2;
 		m_attackCol->SetIsActive(true);
 	}
 
