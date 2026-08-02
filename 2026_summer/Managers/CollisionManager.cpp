@@ -79,6 +79,14 @@ void CollisionManager::Update()
 			return collider->GetIsLifeTimeLimited();
 		});
 
+
+	//現在触れているコライダーのリストをクリアする
+	for (auto& collider : m_colliders)
+	{
+		if (!collider) continue;
+		collider->m_currentPressColliders.clear();
+	}
+
 	//速度を足す
 	AddVelocity();
 
@@ -105,6 +113,17 @@ void CollisionManager::Update()
 				//衝突判定//球と球、BoxとBox、CapsuleとCapsuleとかで分ける
 				if (m_collisionChecker->IsCollide(*colliderA, *colliderB))
 				{
+					//今触れているコライダーのリストに追加する
+					colliderA->m_currentPressColliders.push_back(colliderB);
+					colliderB->m_currentPressColliders.push_back(colliderA);
+
+					//Trigger処理
+					if (!ContainsCollider(colliderA->m_prevPressColliders, colliderB))
+					{
+						colliderA->OnTriggerEnter(*colliderB);
+						colliderB->OnTriggerEnter(*colliderA);
+					}
+
 
 					//衝突したときの処理を呼び出す
 					colliderA->OnCollision(*colliderB);
@@ -138,6 +157,26 @@ void CollisionManager::Update()
 			}
 		}
 	}
+	//ループが終わった後、ExitTriggerの処理を検出
+	for (auto& collider : m_colliders)
+	{
+		if (!collider)continue;
+		for (auto& weakPrev : collider->m_prevPressColliders)
+		{
+			auto prevCol = weakPrev.lock();
+			if (!prevCol)continue;
+			//当たっているコライダーに前フレームのコライダーが含まれていなければ、ExitTriggerの処理を呼ぶ
+			if(!ContainsCollider(collider->m_currentPressColliders, prevCol))
+			{
+				//ExitTriggerの処理
+				collider->OnTriggerExit(*prevCol);
+				prevCol->OnTriggerExit(*collider);
+			}
+			//更新
+			collider->m_prevPressColliders = collider->m_currentPressColliders;
+		}
+	}
+
 
 	//ここで位置確定用の関数を読んで位置をおいておく
 	//ここですべてのコライダーの位置を更新させる関数
@@ -173,6 +212,23 @@ std::shared_ptr<Collider> CollisionManager::GetColliderById(int id) const
 	}
 
 	return ansCol;
+}
+
+bool CollisionManager::ContainsCollider(const std::vector<std::weak_ptr<Collider>>& list, const std::shared_ptr<Collider>& target)
+{
+	for (auto& weak : list)
+	{
+		std::shared_ptr<Collider> locked = weak.lock();
+
+		//実体がtargetと同じかどうかを確認
+		if (locked == target)
+		{
+			return true;
+		}
+	}
+
+	//見つからなかった場合はfalseを返す
+	return false;
 }
 
 void CollisionManager::ApplyAdjustments()

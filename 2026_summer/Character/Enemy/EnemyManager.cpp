@@ -5,6 +5,7 @@
 #include "../Game.h"
 #include "../DataLoader/DataManager.h"
 #include "Collider.h"
+#include "../WaveAreaCol.h"
 #include "../System.h"
 #include <cstdlib>
 #include <ctime>
@@ -16,6 +17,9 @@ namespace
 	const Vector3 kSpawnWave2 = Vector3(205, 0, 3318);
 	const Vector3 kSpawnWave3 = Vector3(325, 0, 7183);
 	constexpr float kSpawnWave1Distance = 500.0f;//wave1のスポーン座標からの距離
+
+	//wave半径
+	constexpr float kWave1Radius = 1000.0f;
 }
 
 
@@ -221,4 +225,23 @@ void EnemyManager::SpawnEnemies(int waveNum)
 		enemy->Update();
 		m_enemies.push_back(enemy);
 	}
+	//当たり判定のエリアを生成
+	auto waveArea = std::make_shared<WaveAreaCol>();
+	switch (waveNum)
+	{
+	case 0:
+		waveArea->ColInit(kSpawnWave1, Vector3(), kWave1Radius, ColliderType::Sphere, Tags::WaveArea, true, true);
+		break;
+	case 1:
+		waveArea->ColInit(kSpawnWave2, Vector3(), kWave1Radius, ColliderType::Sphere, Tags::WaveArea, true, true);
+		break;
+	case 2:
+		waveArea->ColInit(kSpawnWave3, Vector3(), kWave1Radius, ColliderType::Sphere, Tags::WaveArea, true, true);
+		break;
+	default:
+		assert(false && "Invalid wave number!");
+		break;
+	}
+	waveArea->SetID();
+	m_waveAreas.push_back(waveArea);
 }

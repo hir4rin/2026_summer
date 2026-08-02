@@ -42,6 +42,9 @@ public:
 	void DebugDraw()const;
 	//指定したidのコライダーを取得する
 	std::shared_ptr<Collider> GetColliderById(int id)const;
+private:
+	//隠し関数
+	bool ContainsCollider(const std::vector<std::weak_ptr<Collider>>& list, const std::shared_ptr<Collider>& target);
 
 private:
 	//コンストラクタとデストラクタをプライベートにして、シングルトンパターンを実装

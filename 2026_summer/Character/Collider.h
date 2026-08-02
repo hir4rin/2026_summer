@@ -25,9 +25,10 @@ enum class Tags
 	PlayerHit,
 	PlayerAttack,
 	PlayerUltAttack,
-	Enemy,
+	Enemy = 5,
 	EnemyHit,
 	EnemyAttack,
+	WaveArea
 };
 /// <summary>
 /// 位置補正の優先度
@@ -75,6 +76,9 @@ public:
 
 	//押し戻しの処理//この後、ColUpdateをして、更新すること
 	Vector3 PushBack(Collider& other);
+
+	void OnTriggerEnter(Collider& other);//トリガー処理//当たり判定のみで、押し戻しなどはしない
+	void OnTriggerExit(Collider& other);//トリガーから離れたときの処理
 
 
 	//Actorが派生先ですること-------------------------------------------------------------
@@ -158,6 +162,9 @@ protected:
 	CapsuleInfo m_capsuleInfo = {};//カプセルの情報//カプセルの時に使う
 
 	std::weak_ptr<Stage> m_stage;//ステージへの弱参照//ステージとのレイキャスト用
+
+	std::vector<std::weak_ptr<Collider>> m_currentPressColliders;///現在触れているコライダーのリスト
+	std::vector<std::weak_ptr<Collider>> m_prevPressColliders;///前のフレームで触れていたコライダーのリスト
 
 	friend class CollisionManager;
 	friend class CollisionChecker;

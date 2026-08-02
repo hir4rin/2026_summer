@@ -88,6 +88,16 @@ Vector3 Collider::PushBack(Collider& other)
 	return Vector3(0, 0, 0);
 }
 
+void Collider::OnTriggerEnter(Collider& other)
+{
+}
+
+void Collider::OnTriggerExit(Collider& other)
+{
+}
+
+
+
 void Collider::ColInit(Vector3 pos, Vector3 offset, float radius, ColliderType type, Tags tag, bool isActive,bool isTrigger, float lifeTime)
 {
 	m_pos = pos;

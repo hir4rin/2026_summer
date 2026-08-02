@@ -199,6 +199,7 @@
     <ClCompile Include="Scene\TitleScene.cpp" />
     <ClCompile Include="UI\UIBase.cpp" />
     <ClCompile Include="UI\UIManager.cpp" />
+    <ClCompile Include="Character\WaveAreaCol.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application.h" />
@@ -259,6 +260,7 @@
     <ClInclude Include="Scene\TitleScene.h" />
     <ClInclude Include="UI\UIBase.h" />
     <ClInclude Include="UI\UIManager.h" />
+    <ClInclude Include="Character\WaveAreaCol.h" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="EnemyBlack.hlsl">

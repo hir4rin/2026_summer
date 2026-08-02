@@ -8,6 +8,7 @@ class EnemyBase;
 class Camera;
 class Collider;
 class Player;
+class WaveAreaCol;
 
 struct SpawnData
 {
@@ -60,6 +61,7 @@ private:
 
 	std::weak_ptr<Player> m_player;//プレイヤーの弱参照
 	std::vector<std::shared_ptr<EnemyBase>> m_enemies;//敵の配列
+	std::vector<std::shared_ptr<WaveAreaCol>> m_waveAreas;//ウェーブのエリアの配列
 	int enemyModelHandle = -1;//敵のモデルのハンドル//EnemySwordManのモデル
 	std::vector<SpawnData> m_spawnData;//敵のスポーンデータ
 	bool m_isSpawnedWave[3] = {};//ウェーブごとに敵がスポーンしたかどうかのフラグ
