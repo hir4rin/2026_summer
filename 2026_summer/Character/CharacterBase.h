@@ -54,6 +54,10 @@ public:
 
 	int GetHp()const { return m_hp; }//体力の取得
 
+	void OnTriggerEnter(Collider& other)override;
+	void OnTriggerExit(Collider& other)override;
+
+
 protected:
 	void UpdateAngleAndPos();//回転角度と座標の更新//
 	void ApplyPos()override;

@@ -172,9 +172,9 @@ void CollisionManager::Update()
 				collider->OnTriggerExit(*prevCol);
 				prevCol->OnTriggerExit(*collider);
 			}
+		}
 			//更新
 			collider->m_prevPressColliders = collider->m_currentPressColliders;
-		}
 	}
 
 

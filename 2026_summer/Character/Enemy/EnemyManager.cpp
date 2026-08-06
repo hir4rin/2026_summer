@@ -139,6 +139,7 @@ void EnemyManager::Update()
 			if (m_enemies.size() == 0)
 			{
 				m_isAllEnemiesDead[i] = true;
+				m_waveAreas[i]->SetIsActive(false);//当たり判定を無効化
 			}
 		}
 	}
@@ -166,6 +167,10 @@ void EnemyManager::Draw()
 		SetShaderConstantBuffer(m_matCBuffH,DX_SHADERTYPE_VERTEX,4);
 		enemy->Draw();
 		SetShaderConstantBuffer(-1, DX_SHADERTYPE_VERTEX, 4);
+	}
+	for(auto& area: m_waveAreas)
+	{
+		area->Draw();
 	}
 }
 
@@ -229,13 +234,13 @@ void EnemyManager::SpawnEnemies(int waveNum)
 	auto waveArea = std::make_shared<WaveAreaCol>();
 	switch (waveNum)
 	{
-	case 0:
+	case 1:
 		waveArea->ColInit(kSpawnWave1, Vector3(), kWave1Radius, ColliderType::Sphere, Tags::WaveArea, true, true);
 		break;
-	case 1:
+	case 2:
 		waveArea->ColInit(kSpawnWave2, Vector3(), kWave1Radius, ColliderType::Sphere, Tags::WaveArea, true, true);
 		break;
-	case 2:
+	case 3:
 		waveArea->ColInit(kSpawnWave3, Vector3(), kWave1Radius, ColliderType::Sphere, Tags::WaveArea, true, true);
 		break;
 	default:

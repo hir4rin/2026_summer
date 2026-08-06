@@ -77,8 +77,8 @@ public:
 	//押し戻しの処理//この後、ColUpdateをして、更新すること
 	Vector3 PushBack(Collider& other);
 
-	void OnTriggerEnter(Collider& other);//トリガー処理//当たり判定のみで、押し戻しなどはしない
-	void OnTriggerExit(Collider& other);//トリガーから離れたときの処理
+	virtual void OnTriggerEnter(Collider& other);//トリガー処理//当たり判定のみで、押し戻しなどはしない
+	virtual void OnTriggerExit(Collider& other);//トリガーから離れたときの処理
 
 
 	//Actorが派生先ですること-------------------------------------------------------------

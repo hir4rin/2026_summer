@@ -442,117 +442,117 @@ void Player::ApplyPos()
 	CharacterBase::ApplyPos();
 	//攻撃モデルの座標を更新する
 	ApplyPosWithAttackModel();
-	//移動制限
-	for (int i = 0; i < static_cast<int>(WaveNumForPlayer::WaveSize); ++i)
-	{
-		//最期のiならbreakする//最後のiは、ウェーブがないエリアなので、制限しない
-		if (i == static_cast<int>(WaveNumForPlayer::WaveSize) - 1)break;
-		switch (i)
-		{
-			case static_cast<int>(WaveNumForPlayer::Wave1):
-				if (m_isWaveArea[i])
-				{
-					if (m_pos.z >= kArea1MaxZ)
-					{
-						{
-							m_pos.z = kArea1MaxZ;
-						}
-					}
-					//エリア制限のエフェクトを出す
-					if (m_efAreaMaxPlayingHandle[i] == -1)
-					{
-						m_efAreaMaxPlayingHandle[i] = PlayEffekseer3DEffect(m_efAreaMaxHandle[i]);
-						SetPosPlayingEffekseer3DEffect(m_efAreaMaxPlayingHandle[i], kArea1EfPos.x, kArea1EfPos.y, kArea1EfPos.z);
-					}
-					else
-					{
-						SetPosPlayingEffekseer3DEffect(m_efAreaMaxPlayingHandle[i], kArea1EfPos.x, kArea1EfPos.y, kArea1EfPos.z);
-					}
+	////移動制限
+	//for (int i = 0; i < static_cast<int>(WaveNumForPlayer::WaveSize); ++i)
+	//{
+	//	//最期のiならbreakする//最後のiは、ウェーブがないエリアなので、制限しない
+	//	if (i == static_cast<int>(WaveNumForPlayer::WaveSize) - 1)break;
+	//	switch (i)
+	//	{
+	//		case static_cast<int>(WaveNumForPlayer::Wave1):
+	//			if (m_isWaveArea[i])
+	//			{
+	//				if (m_pos.z >= kArea1MaxZ)
+	//				{
+	//					{
+	//						m_pos.z = kArea1MaxZ;
+	//					}
+	//				}
+	//				//エリア制限のエフェクトを出す
+	//				if (m_efAreaMaxPlayingHandle[i] == -1)
+	//				{
+	//					m_efAreaMaxPlayingHandle[i] = PlayEffekseer3DEffect(m_efAreaMaxHandle[i]);
+	//					SetPosPlayingEffekseer3DEffect(m_efAreaMaxPlayingHandle[i], kArea1EfPos.x, kArea1EfPos.y, kArea1EfPos.z);
+	//				}
+	//				else
+	//				{
+	//					SetPosPlayingEffekseer3DEffect(m_efAreaMaxPlayingHandle[i], kArea1EfPos.x, kArea1EfPos.y, kArea1EfPos.z);
+	//				}
 
-				}
-				//違うならエフェクトを止める
-				else
-				{
-					if (m_efAreaMinPlayingHandle[i] != -1)
-					{
-						StopEffekseer3DEffect(m_efAreaMinPlayingHandle[i]);
-						m_efAreaMinPlayingHandle[i] = -1;
-					}
-					if (m_efAreaMaxPlayingHandle[i] != -1)
-					{
-						StopEffekseer3DEffect(m_efAreaMaxPlayingHandle[i]);
-						m_efAreaMaxPlayingHandle[i] = -1;
-					}
-				}
-				break;
-				case static_cast<int>(WaveNumForPlayer::Wave2):
-					if (m_isWaveArea[i])
-					{
-						if (m_pos.z <= kArea1MaxZ)
-						{
-							m_pos.z = kArea1MaxZ;
-						}
-						if (m_pos.z >= kArea2MaxZ)
-						{
-							m_pos.z = kArea2MaxZ;
-						}
-						//エリア制限のエフェクトを出す
-						//下限
-						if (m_efAreaMinPlayingHandle[i] == -1)
-						{
-							m_efAreaMinPlayingHandle[i] = PlayEffekseer3DEffect(m_efAreaMinHandle[i]);
-							SetPosPlayingEffekseer3DEffect(m_efAreaMinPlayingHandle[i], kArea1EfPos.x, kArea1EfPos.y, kArea1MaxZ);
-						}
-						else
-						{
-							SetPosPlayingEffekseer3DEffect(m_efAreaMinPlayingHandle[i], kArea1EfPos.x, kArea1EfPos.y, kArea1EfPos.z);
-						}
-						//上限
-						if (m_efAreaMaxPlayingHandle[i] == -1)
-						{
-							m_efAreaMaxPlayingHandle[i] = PlayEffekseer3DEffect(m_efAreaMaxHandle[i]);
-							SetPosPlayingEffekseer3DEffect(m_efAreaMaxPlayingHandle[i], kArea1EfPos.x, kArea1EfPos.y, kArea1MaxZ);
-						}
-						else
-						{
-							SetPosPlayingEffekseer3DEffect(m_efAreaMaxPlayingHandle[i], kArea1EfPos.x, kArea1EfPos.y, kArea2MaxZ);
-						}
-					}	
-					//違うならエフェクトを止める
-					else
-					{
-						if (m_efAreaMinPlayingHandle[i] != -1)
-						{
-							StopEffekseer3DEffect(m_efAreaMinPlayingHandle[i]);
-							m_efAreaMinPlayingHandle[i] = -1;
-						}
-						if (m_efAreaMaxPlayingHandle[i] != -1)
-						{
-							StopEffekseer3DEffect(m_efAreaMaxPlayingHandle[i]);
-							m_efAreaMaxPlayingHandle[i] = -1;
-						}
-					}
-					break;
-				default:
-					for (auto& playingHandle : m_efAreaMinPlayingHandle)
-					{
-						if (playingHandle != -1)
-						{
-							StopEffekseer3DEffect(playingHandle);
-							playingHandle = -1;
-						}
-					}
-					for (auto& playingHandle : m_efAreaMaxPlayingHandle)
-					{
-						if (playingHandle != -1)
-						{
-							StopEffekseer3DEffect(playingHandle);
-							playingHandle = -1;
-						}
-					}
-					break;
-		}
-	}
+	//			}
+	//			//違うならエフェクトを止める
+	//			else
+	//			{
+	//				if (m_efAreaMinPlayingHandle[i] != -1)
+	//				{
+	//					StopEffekseer3DEffect(m_efAreaMinPlayingHandle[i]);
+	//					m_efAreaMinPlayingHandle[i] = -1;
+	//				}
+	//				if (m_efAreaMaxPlayingHandle[i] != -1)
+	//				{
+	//					StopEffekseer3DEffect(m_efAreaMaxPlayingHandle[i]);
+	//					m_efAreaMaxPlayingHandle[i] = -1;
+	//				}
+	//			}
+	//			break;
+	//			case static_cast<int>(WaveNumForPlayer::Wave2):
+	//				if (m_isWaveArea[i])
+	//				{
+	//					if (m_pos.z <= kArea1MaxZ)
+	//					{
+	//						m_pos.z = kArea1MaxZ;
+	//					}
+	//					if (m_pos.z >= kArea2MaxZ)
+	//					{
+	//						m_pos.z = kArea2MaxZ;
+	//					}
+	//					//エリア制限のエフェクトを出す
+	//					//下限
+	//					if (m_efAreaMinPlayingHandle[i] == -1)
+	//					{
+	//						m_efAreaMinPlayingHandle[i] = PlayEffekseer3DEffect(m_efAreaMinHandle[i]);
+	//						SetPosPlayingEffekseer3DEffect(m_efAreaMinPlayingHandle[i], kArea1EfPos.x, kArea1EfPos.y, kArea1MaxZ);
+	//					}
+	//					else
+	//					{
+	//						SetPosPlayingEffekseer3DEffect(m_efAreaMinPlayingHandle[i], kArea1EfPos.x, kArea1EfPos.y, kArea1EfPos.z);
+	//					}
+	//					//上限
+	//					if (m_efAreaMaxPlayingHandle[i] == -1)
+	//					{
+	//						m_efAreaMaxPlayingHandle[i] = PlayEffekseer3DEffect(m_efAreaMaxHandle[i]);
+	//						SetPosPlayingEffekseer3DEffect(m_efAreaMaxPlayingHandle[i], kArea1EfPos.x, kArea1EfPos.y, kArea1MaxZ);
+	//					}
+	//					else
+	//					{
+	//						SetPosPlayingEffekseer3DEffect(m_efAreaMaxPlayingHandle[i], kArea1EfPos.x, kArea1EfPos.y, kArea2MaxZ);
+	//					}
+	//				}	
+	//				//違うならエフェクトを止める
+	//				else
+	//				{
+	//					if (m_efAreaMinPlayingHandle[i] != -1)
+	//					{
+	//						StopEffekseer3DEffect(m_efAreaMinPlayingHandle[i]);
+	//						m_efAreaMinPlayingHandle[i] = -1;
+	//					}
+	//					if (m_efAreaMaxPlayingHandle[i] != -1)
+	//					{
+	//						StopEffekseer3DEffect(m_efAreaMaxPlayingHandle[i]);
+	//						m_efAreaMaxPlayingHandle[i] = -1;
+	//					}
+	//				}
+	//				break;
+	//			default:
+	//				for (auto& playingHandle : m_efAreaMinPlayingHandle)
+	//				{
+	//					if (playingHandle != -1)
+	//					{
+	//						StopEffekseer3DEffect(playingHandle);
+	//						playingHandle = -1;
+	//					}
+	//				}
+	//				for (auto& playingHandle : m_efAreaMaxPlayingHandle)
+	//				{
+	//					if (playingHandle != -1)
+	//					{
+	//						StopEffekseer3DEffect(playingHandle);
+	//						playingHandle = -1;
+	//					}
+	//				}
+	//				break;
+	//	}
+	//}
 
 	//下方向とのレイキャストで、地面から空中に遷移したかを判定する
 	Vector3 causuleTop = m_pos + Vector3(0, 100, 0);//カプセルの上端の座標//レイキャストの始点

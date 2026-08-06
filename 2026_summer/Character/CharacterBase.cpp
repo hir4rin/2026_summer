@@ -2,6 +2,7 @@
 #include <assert.h>
 #include "../Math/Matrix4x4.h"
 #include "../System.h"
+#include "../Managers/CollisionManager.h"
 
 CharacterBase::CharacterBase()
 {
@@ -16,6 +17,29 @@ CharacterBase::~CharacterBase()
 void CharacterBase::InitHitCol(std::weak_ptr<CharacterBase> owner)
 {
 	m_hitCol = std::make_shared<HitCol>(owner);
+}
+
+void CharacterBase::OnTriggerEnter(Collider& other)
+{
+}
+
+void CharacterBase::OnTriggerExit(Collider& other)
+{
+	//areaから離れたら、内側にいさせる
+	if(other.GetTag() == Tags::WaveArea)
+	{
+		Vector3 otherPos = other.GetWorldCenter();
+		float otherRadius = other.GetRadius();
+		float dis = (m_pos - otherPos).Magnitude();
+		float overlap = dis - otherRadius;
+		if (overlap > 0.0f)
+		{
+			Vector3 dir = (m_pos - otherPos).Normalize();
+			m_pos = otherPos + dir * otherRadius;
+			m_vel = Vector3(0, 0, 0);//速度をリセット
+		}
+
+	}
 }
 
 void CharacterBase::UpdateAngleAndPos()
@@ -37,6 +61,7 @@ void CharacterBase::UpdateAngleAndPos()
 	}
 	//モデルは、座標の位置のcenter分下で表示
 
+
 	Matrix4x4 rotY = Matrix4x4::MakeRotationY(m_rotAngleY);
 	MATRIX transmat = MGetTranslate(m_pos.ToDxLibVector());
 	Matrix4x4 trans = Matrix4x4::FromDxLibMatrix(transmat);
@@ -47,6 +72,9 @@ void CharacterBase::UpdateAngleAndPos()
 
 void CharacterBase::ApplyPos()
 {
+	//円から出ていないかの確認
+
+
 	//座標の更新//m_knockBackVelを加算する
 	//float timeScale = m_ownTimeScale * System::GetInstance().GetTimeScale();
 

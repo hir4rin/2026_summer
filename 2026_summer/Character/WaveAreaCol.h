@@ -8,6 +8,8 @@ public :
     virtual ~WaveAreaCol() = default;
 	void OnCollision(Collider& other) override;
 	void ApplyPos() override;
+
+	void Draw();
 private:
 
 
