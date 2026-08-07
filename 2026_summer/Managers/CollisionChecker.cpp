@@ -36,6 +36,10 @@ bool CollisionChecker::IsCollide(Collider& colA, Collider& colB)
 		{
 			isHit = CheckCollSP(colA, colB);
 		}
+		else if(typeB == ColliderType::Box)
+		{
+			isHit = CheckColSB(ColA,ColB);
+		}
 	}
 	//カプセルと
 	else if (typeA == ColliderType::Capsule)
@@ -101,10 +105,6 @@ bool CollisionChecker::CheckCollSS(Collider& colA, Collider& colB)
 bool CollisionChecker::CheckCollCS(Collider& colA, Collider& colB)
 {
 	//球からカプセルに垂線を引いて球とカプセルの最短距離を求める
-
-
-
-
 	return false;
 }
 

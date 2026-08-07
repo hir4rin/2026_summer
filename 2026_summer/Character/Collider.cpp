@@ -68,7 +68,7 @@ bool Collider::IsCollidable(const Collider& other) const
 }
 
 Vector3 Collider::PushBack(Collider& other)
-{
+{ 
 	////otherから自分へのベクトル//velを足した値
 	//Vector3 centerA = GetWorldCenter() + m_vel;//自分の当たり判定の中心の座標
 	//Vector3 centerB = other.GetWorldCenter() + other.m_vel;//相手の当たり判定の中心の座標
@@ -102,6 +102,15 @@ void Collider::ColInit(Vector3 pos, Vector3 offset, float radius, ColliderType t
 {
 	m_pos = pos;
 	m_offset = offset;//m_posからのoffset
+	switch (m_type)
+	{
+		case ColliderType::Sphere:
+			m_radius = radius;
+			break;
+		case ColliderType::Box:
+			m_boxInfo.halfExtents = Vector3(radius, radius, radius);
+			break;
+	}
 	SetRadius(radius);
 	SetType(type);
 	SetTag(tag);
@@ -155,7 +164,31 @@ void Collider::DebugDraw() const
 			DrawSphere3D(GetWorldCenter().ToDxLibVector(), m_radius, 16, color, color, false);
 			break;
 		case ColliderType::Box:
+		{
 			//Boxの描画は、中心と幅から、8点の頂点を求めて、そこから線を引いて描画する
+			Vector3 center = GetWorldCenter();
+			Vector3 half = m_boxInfo.halfExtents;
+
+			Vector3 corners[8] = {
+				center + Vector3(-half.x, -half.y, -half.z),
+				center + Vector3(half.x, -half.y, -half.z),
+				center + Vector3(half.x,  half.y, -half.z),
+				center + Vector3(-half.x,  half.y, -half.z),
+				center + Vector3(-half.x, -half.y,  half.z),
+				center + Vector3(half.x, -half.y,  half.z),
+				center + Vector3(half.x,  half.y,  half.z),
+				center + Vector3(-half.x,  half.y,  half.z)
+			};
+			const int edges[12][2] = {
+				{0, 1}, {1, 2}, {2, 3}, {3, 0},
+				{4, 5}, {5, 6}, {6, 7}, {7, 4},
+				{0, 4}, {1, 5}, {2, 6}, {3, 7}
+			};
+			for (auto& edge : edges)
+			{
+				DrawLine3D(corners[edge[0]].ToDxLibVector(), corners[edge[1]].ToDxLibVector(), color);
+			}
+		}
 			break;
 		case ColliderType::Capsule:
 			//Capsuleの描画は、球と円柱を組み合わせて描画する

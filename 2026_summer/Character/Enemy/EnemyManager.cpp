@@ -20,6 +20,9 @@ namespace
 
 	//wave半径
 	constexpr float kWave1Radius = 1000.0f;
+
+	//waveのBOXの半径
+	const Vector3 kWaveBoxHalfExtent = Vector3(1000, 1250, 1250);
 }
 
 
@@ -79,7 +82,6 @@ void EnemyManager::Init()
 			assert(false && "Invalid wave number!");
 			break;
 		}
-
 		m_spawnData.push_back(spawn);
 	}
 	//falseのとき、m_spawnDataが空のとき、assertを出す
@@ -235,13 +237,16 @@ void EnemyManager::SpawnEnemies(int waveNum)
 	switch (waveNum)
 	{
 	case 1:
-		waveArea->ColInit(kSpawnWave1, Vector3(), kWave1Radius, ColliderType::Sphere, Tags::WaveArea, true, true);
+		waveArea->ColInit(kSpawnWave1, Vector3(), kWave1Radius, ColliderType::Box, Tags::WaveArea, true, true);
+		waveArea->SetBoxHalfExtents(kWaveBoxHalfExtent);
 		break;
 	case 2:
-		waveArea->ColInit(kSpawnWave2, Vector3(), kWave1Radius, ColliderType::Sphere, Tags::WaveArea, true, true);
+		waveArea->ColInit(kSpawnWave2, Vector3(), kWave1Radius, ColliderType::Box, Tags::WaveArea, true, true);
+		waveArea->SetBoxHalfExtents(kWaveBoxHalfExtent);
 		break;
 	case 3:
-		waveArea->ColInit(kSpawnWave3, Vector3(), kWave1Radius, ColliderType::Sphere, Tags::WaveArea, true, true);
+		waveArea->ColInit(kSpawnWave3, Vector3(), kWave1Radius, ColliderType::Box, Tags::WaveArea, true, true);
+		waveArea->SetBoxHalfExtents(kWaveBoxHalfExtent);
 		break;
 	default:
 		assert(false && "Invalid wave number!");

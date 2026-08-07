@@ -58,6 +58,11 @@ struct CapsuleInfo
 	float hitNearestDistance;
 };
 
+struct BoxInfo
+{
+	Vector3 halfExtents;//半分の大きさ//x,y,z
+};
+
 
 /// <summary>
 /// MathVector3をincludeしないとつかえない
@@ -91,45 +96,54 @@ public:
 	void SetStagePtr(std::weak_ptr<Stage> stage) { m_stage = stage; }//ステージへの弱参照をセット
 	//--------------------------------------------------------------------------
 
-
-
-	//地面に当たったかどうか
-	void SetIsFloor(bool isFloor) { m_isFloor = isFloor; }
-	bool IsFloor()const { return m_isFloor; }
-	void SetIsWall(bool isWall) { m_isWall = isWall; }
-	bool IsWall()const { return m_isWall; }
-
-	//セッター
-	void SetCenter(const float center) { m_center = center; }
-	void SetRadius(float radius) { m_radius = radius; }
-	void SetType(ColliderType type) { m_type = type; }
-	void SetTag(Tags tag) { m_tag = tag; }
-	void SetIsActive(bool isActive) { m_isActive = isActive; }
-	void SetCapsuleEndPos(Vector3 endPos) { m_capsuleInfo.endPos = endPos; }//カプセルの終点の座標をセット//最初に使う
-	
-	
-	//ゲッター
+	//ID・自身への参照
 	std::shared_ptr<Collider> GetCollider() { return shared_from_this(); }
-	float GetCenter()const { return m_center; }
-	float GetRadius()const { return m_radius; }
-	ColliderType GetType()const { return m_type; }
-	Tags GetTag()const { return m_tag; }
-	bool IsActive()const { return m_isActive;}
 	int GetId()const { return m_id; }
+
+	//タイプ・タグ
+	void SetType(ColliderType type) { m_type = type; }
+	ColliderType GetType()const { return m_type; }
+	void SetTag(Tags tag) { m_tag = tag; }
+	Tags GetTag()const { return m_tag; }
+
+	//有効・トリガー
+	void SetIsActive(bool isActive) { m_isActive = isActive; }
+	bool IsActive()const { return m_isActive;}
 	bool GetIsTrigger()const { return m_isTrigger; }
+
+	//地面・壁への接触
+	void SetIsFloor(bool isFloor) { m_isFloor = isFloor;}
+	bool IsFloor()const { return m_isFloor;}
+	void SetIsWall(bool isWall) { m_isWall = isWall;}
+	bool IsWall()const { return m_isWall;}
+
+	//座標・速度
 	Vector3 GetPos() const { return m_pos; }
+	Vector3 GetWorldCenter() const { return m_pos + m_offset; }//ワールド座標での中心位置を返す
 	Vector3 GetNextPos() const { return GetWorldCenter() + m_vel; }//次のフレームでの座標を返す
 	Vector3 GetVel() const { return m_vel; }
-	Vector3 GetWorldCenter() const { return m_pos + m_offset; }//ワールド座標での中心位置を返す
+	void SetCenter(const float center) { m_center = center; }
+	float GetCenter()const { return m_center; }
+
+	//半径(Sphere・Capsuleで使用)
+	void SetRadius(float radius) { m_radius = radius; }
+	float GetRadius()const { return m_radius; }
+
+	//BOX
+	void SetBoxHalfExtents(Vector3 halfExtents) { m_boxInfo.halfExtents = halfExtents; }
+	Vector3 GetBoxHalfExtents() const { return m_boxInfo.halfExtents; }
+
+	//CAPSULE
+	void SetCapsuleEndPos(Vector3 endPos) { m_capsuleInfo.endPos = endPos; }//カプセルの終点の座標をセット//最初に使う
 	Vector3 GetCapsuleEndPos() const { return m_capsuleInfo.endPos; }//カプセルの終点の座標を返す
-	float GetTimeScale() const { return m_ownTimeScale; }
 
-
-	//寿命の設定
+	//寿命
 	void SetLifeTimeLimited() { m_isLifeTimeLimited = true; }
 	bool GetIsLifeTimeLimited() const { return m_isLifeTimeLimited; }
-	//タイムスケールのセット
+
+	//タイムスケール
 	void SetOwnTimeScale(float timeScale, float time) { m_ownTimeScale = timeScale; m_timeCounter = time; }
+	float GetTimeScale() const { return m_ownTimeScale; }
 
 
 	//デバッグ描画
@@ -160,6 +174,7 @@ protected:
 	float m_ownTimeScale = 1.0f;//自分のtimeScale
 	float m_timeCounter = 0.0f;//timeScaleのカウンター
 	CapsuleInfo m_capsuleInfo = {};//カプセルの情報//カプセルの時に使う
+	BoxInfo m_boxInfo = {};//ボックスの情報//ボックスの時に使う
 
 	std::weak_ptr<Stage> m_stage;//ステージへの弱参照//ステージとのレイキャスト用
 

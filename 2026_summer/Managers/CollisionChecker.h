@@ -31,6 +31,11 @@ private:
 	/// <returns></returns>
 	bool CheckCollCS(Collider& colA, Collider& colB);
 
+	bool CheckColCB(Collider& colA,Collider& colB){};//今回は省略;
+	bool CheckColSB(Collider& colA,Collider& colB);
+	bool CheckColPB(Collider& colA,Collider& colB){};//今回は省略
+	bool CheckColBB(Collider& colA,Collider& colB){};//今回は省略
+
 	/// <summary>
 	/// カプセルとカプセルの当たり判定
 	/// </summary>
