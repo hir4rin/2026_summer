@@ -30,7 +30,7 @@ public:
 	void RemoveCamera(std::shared_ptr<Camera> camera);
 
 	//Playerのweak_ptrを渡す
-	void Init(std::weak_ptr<Player> player,std::weak_ptr<Stage> stage);
+	void Init(std::weak_ptr<Player> player, std::weak_ptr<Stage> stage = {});
 	/// <summary>
 	/// 
 	/// </summary>
@@ -64,7 +64,8 @@ public:
 	//PlayerCameraに角度をセットさせる関数
 	void SetPlayerCameraAngle(float angleH, float angleV);
 
-
+	//タイトル画面かどうかをセットする//trueの場合、TitleCamera以外の更新・優先度争いを行わない
+	void SetIsTitle(bool isTitle) { m_isTitle = isTitle; }
 
 private:
 	void SetUpMainCamera();//priorityが最も高いカメラの情報をMainCameraに反映させる
@@ -79,11 +80,13 @@ private:
 	std::shared_ptr<Camera> m_movieCamera;
 	std::shared_ptr<Camera> m_ultCamera;
 	std::shared_ptr<Camera> m_LockOnCamera;
+	std::shared_ptr<Camera> m_TitleCamera;
 	//必要な情報
 	std::shared_ptr<CameraContext> m_context;
 	//不本意だがいまはとりあえずここにかく
 	bool m_isUltimating = false;
 	bool m_isPrevUltimating = false;
+	bool m_isTitle = false;//タイトル画面かどうか//trueの場合、TitleCamera以外の更新・優先度争いを行わない
 
 };
 

@@ -157,6 +157,8 @@
     <ClCompile Include="Camera\LockOnCamera.cpp" />
     <ClCompile Include="Character\JustAvoidCol.cpp" />
     <ClCompile Include="Character\Enemy\EnemyManager.cpp" />
+    <ClCompile Include="Effect\EffectManager.cpp" />
+    <ClCompile Include="Camera\TitleCamera.cpp" />
     <ClCompile Include="UI\ComboHUD.cpp" />
     <ClCompile Include="UI\PlayerHUD.cpp" />
     <ClCompile Include="Scene\GameClearScene.cpp" />
@@ -216,6 +218,8 @@
     <ClInclude Include="Camera\LockOnCamera.h" />
     <ClInclude Include="Character\JustAvoidCol.h" />
     <ClInclude Include="Character\Enemy\EnemyManager.h" />
+    <ClInclude Include="Effect\EffectManager.h" />
+    <ClInclude Include="Camera\TitleCamera.h" />
     <ClInclude Include="UI\ComboHUD.h" />
     <ClInclude Include="UI\PlayerHUD.h" />
     <ClInclude Include="Scene\GameClearScene.h" />

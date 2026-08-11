@@ -4,6 +4,7 @@
 #include "PlayerCamera.h"
 #include "Movie1Camera.h"
 #include "UltCamera.h"
+#include "TitleCamera.h"
 #include "LockOnCamera.h"
 #include "../Managers/CollisionManager.h"
 #include "../System.h"
@@ -22,11 +23,13 @@ CameraManager::CameraManager()
 
 	m_ultCamera = std::make_shared<UltCamera>();
 	m_LockOnCamera = std::make_shared<LockOnCamera>();
+	m_TitleCamera = std::make_shared<TitleCamera>();
 
 	EntryCamera(m_playerCamera);
 	EntryCamera(m_movieCamera);
 	EntryCamera(m_ultCamera);
 	EntryCamera(m_LockOnCamera);
+	EntryCamera(m_TitleCamera);
 	//weak_ptrが必要なカメラをまとめる
 	m_weakRefCameras.push_back(m_mainCamera);
 	m_weakRefCameras.push_back(m_playerCamera);
@@ -36,7 +39,6 @@ CameraManager::CameraManager()
 	//初期化
 	highestPriorityCamera = m_playerCamera;
 	
-
 	m_context = std::make_shared<CameraContext>();
 
 }
@@ -76,7 +78,19 @@ void CameraManager::Update(Vector3 pos, Vector3 pos2)
 	if (m_cameras.empty())return;
 	// DXライブラリのカメラとEffekseerのカメラを同期する。
 	Effekseer_Sync3DSetting();
+		
+	if (m_isTitle)
+	{
+		//タイトル画面では、他のカメラの優先度争い(LockOnCameraのPlayerCameraへの巻き戻しなど)を行わず、TitleCameraだけを使う
+		highestPriorityCamera = m_TitleCamera;
+		m_TitleCamera->Update(pos, pos2);
 
+		CameraData data;
+		data.pos = highestPriorityCamera->GetCameraPos();
+		data.target = highestPriorityCamera->GetCameraTarget();
+		m_mainCamera->Update(data);
+		return;
+	}
 
 	m_isPrevUltimating = m_isUltimating;
 	//ウルト演出かどうか

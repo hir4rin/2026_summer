@@ -33,7 +33,8 @@ public:
 		Movie1Camera = 1,
 		UltCamera = 2,
 		LockOnCamera = 3,
-		
+		TitleCamera = 4,
+
 		//他のカメラもここに追加していく
 	};
 public:

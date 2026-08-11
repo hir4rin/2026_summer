@@ -138,6 +138,9 @@ public:
 	void Draw();
 	void EffectDraw();
 
+	void SetPos(Vector3 pos) { m_pos = pos; };//座標のセット
+	void SetIsTitleMode(bool isTitleMode) { m_isTitleMode = isTitleMode; }//タイトル画面かどうかのセット//trueの場合、移動方向をカメラ基準ではなく固定軸にする
+
 	void OnCollision(Collider& other) override;
 	void OnDamage(Collider& other, AttackData& data) override;
 	ComboInfo& GetComboInfo() { return m_comboInfo; }//攻撃コンボの情報を取得する
@@ -196,6 +199,7 @@ private:
 	std::shared_ptr<PlayerState> m_prevState;//前の状態
 
 	bool m_isRaven = false;//鴉状態かどうか//攻撃が変化する
+	bool m_isTitleMode = false;//タイトル画面かどうか//trueの場合、移動方向をカメラ基準ではなく固定軸にする
 	const int kPlayerNeckBoneIndex = 25;//首のボーンのインデックス
 	int m_wingModelHandle = -1;//鴉の羽のモデルのハンドル//鴉状態の時に表示する
 	std::shared_ptr<Weapon> m_weapon;//武器

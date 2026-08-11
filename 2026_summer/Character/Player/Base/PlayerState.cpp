@@ -14,6 +14,17 @@ void PlayerState::HandlerInput()
 	//weak_ptrからshared_ptrを取得する
 	auto player = m_owner.lock();
 	if (!player) return;
+
+	//タイトル画面ではカメラが追従しない(固定カメラの)ため、カメラ基準ではなくワールド座標の固定軸を使う
+	if (player->m_isTitleMode)
+	{
+		player->forward = Vector3(0, 0, 1);
+		player->down = Vector3(0, 0, -1);
+		player->left = Vector3(-1, 0, 0);
+		player->right = Vector3(1, 0, 0);
+		return;
+	}
+
 	//移動方向の初期化//毎フレーム、カメラからプレイヤーへのベクトルを求めて、移動方向を決める
 	{
 		//前後移動を最初に決める

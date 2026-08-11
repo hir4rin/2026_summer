@@ -3,6 +3,7 @@
 #include <memory>
 
 class CameraManager;
+class Player;
 
 class TitleScene :
     public Scene
@@ -20,8 +21,11 @@ public:
 	void FadeInDraw() override;
 	void NormalDraw() override;
 	void FadeOutDraw() override;
+
+	void InputInitialize();
 private:
 	std::shared_ptr<CameraManager> m_cameraManager;
+	std::shared_ptr<Player> m_player;
 
 	int m_titleLogoHandle = -1;
 

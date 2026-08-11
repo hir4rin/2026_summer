@@ -25,21 +25,21 @@ void CharacterBase::OnTriggerEnter(Collider& other)
 
 void CharacterBase::OnTriggerExit(Collider& other)
 {
-	//areaから離れたら、内側にいさせる
-	if(other.GetTag() == Tags::WaveArea)
-	{
-		Vector3 otherPos = other.GetWorldCenter();
-		float otherRadius = other.GetRadius();
-		float dis = (m_pos - otherPos).Magnitude();
-		float overlap = dis - otherRadius;
-		if (overlap > 0.0f)
-		{
-			Vector3 dir = (m_pos - otherPos).Normalize();
-			m_pos = otherPos + dir * otherRadius;
-			m_vel = Vector3(0, 0, 0);//速度をリセット
-		}
+	////areaから離れたら、内側にいさせる
+	//if(other.GetTag() == Tags::WaveArea)
+	//{
+	//	Vector3 otherPos = other.GetWorldCenter();
+	//	float otherRadius = other.GetRadius();
+	//	float dis = (m_pos - otherPos).Magnitude();
+	//	float overlap = dis - otherRadius;
+	//	if (overlap > 0.0f)
+	//	{
+	//		Vector3 dir = (m_pos - otherPos).Normalize();
+	//		m_pos = otherPos + dir * otherRadius;
+	//		m_vel = Vector3(0, 0, 0);//速度をリセット
+	//	}
 
-	}
+	//}
 }
 
 void CharacterBase::UpdateAngleAndPos()

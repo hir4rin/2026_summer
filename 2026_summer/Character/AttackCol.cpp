@@ -5,6 +5,7 @@
 #include "../Camera/MainCamera.h"
 #include "../System.h"
 #include "Enemy/EnemyBase.h"
+#include "../Effect/EffectManager.h"
 #include "EffekseerForDXLib.h"
 
 namespace
@@ -177,13 +178,17 @@ void AttackCol::PlayerAttackOnCollision(Collider& other)
 					System::GetInstance().SetUltStart(120);//必殺技の演出をスタートする
 					System::GetInstance().SetTimeScaleForFrames(0.1f, 120);//時間を遅くする//60フレームで元に戻す
 				}
+				//必殺技の被ダメエフェクト
+				m_hitEfPlayingHandle = EffectManager::GetInstance().Play(AsyncData::EnemyHitEffectUlt,
+					Vector3(other.GetPos().x, other.GetPos().y + kEfOffset*1.7f, other.GetPos().z),0.0f,0.9f);
 			}
 			//もしプレイヤーの通常攻撃だったら
 			else
 			{
-				m_hitEfPlayingHandle = PlayEffekseer3DEffect(m_hitEfHandle);
-				SetPosPlayingEffekseer3DEffect(m_hitEfPlayingHandle, other.GetPos().x, other.GetPos().y+ kEfOffset, other.GetPos().z);
-
+				/*m_hitEfPlayingHandle = PlayEffekseer3DEffect(m_hitEfHandle);
+				SetPosPlayingEffekseer3DEffect(m_hitEfPlayingHandle, other.GetPos().x, other.GetPos().y+ kEfOffset, other.GetPos().z);*/
+				m_hitEfPlayingHandle = EffectManager::GetInstance().Play(AsyncData::EnemyHitEffect,
+					Vector3(other.GetPos().x, other.GetPos().y + kEfOffset, other.GetPos().z));
 			}
 			m_hitIds.push_back(otherId);//当たったidのリストにotherのidを追加する
 		}

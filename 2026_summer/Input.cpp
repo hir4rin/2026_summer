@@ -57,6 +57,9 @@ void Input::Init()
 	for (const auto& inputInfo : m_inputTable) {
 		m_inputData[inputInfo.first] = false;
 		m_lastInputData[inputInfo.first] = false;
+
+		m_rawInputData[inputInfo.first] = false;
+		m_lastRawInputData[inputInfo.first] = false;
 	}
 }
 
@@ -71,20 +74,46 @@ bool Input::IsLeftStickInput()
 	return false;
 }
 
+void Input::UpdateRecord()
+{
+
+	//最期まで再生終わったらリターン
+	if (m_recordIndex >= m_inputRecord.size())
+	{
+		m_isRecording = false;
+		return;
+	}
+
+	const auto& entry = m_inputRecord[m_recordIndex];
+	for(const auto& name : entry.pressedButtons)
+	{
+		m_inputData[name] = true;//このフレームだけ終われているとみなすボタンだけtrue
+	}
+
+	//Frameを増やす
+	if(++m_recordFrameInEntry >= entry.durationFrames)
+	{
+		m_recordFrameInEntry = 0;
+		++m_recordIndex;
+	}
+}
+
 void Input::Update()
 {
+	m_lastInputData = m_inputData;//直前のフレームを更新(前のフレーム情報をコピー)
+	m_lastRawInputData = m_rawInputData;
+
 	// まず現在の入力情報を取得
 	char keyState[256];
 	GetHitKeyStateAll(keyState);//生のキーボード情報//この関数が入力を全部とってくる(keyStateに入れてる)
 	int padState = GetJoypadInputState(DX_INPUT_PAD1);//生のPAD1情報
-	m_lastInputData = m_inputData;//直前のフレームを更新(前のフレーム情報をコピー)
 
 	// すべての入力イベントをチェックします
 	//ここでInputData_が更新される
 	//inputTable_を回して各イベントをチェックする
 	for (const auto& inputInfo : m_inputTable)
 	{
-		auto& input = m_inputData[inputInfo.first];//inputInfo.firstには"ok"等が入っている
+		auto& inputRaw = m_rawInputData[inputInfo.first];//inputInfo.firstには"ok"等が入っている
 		//inputを書き換えると、inputData_のそのイベントが押されているかどうかを
 		//書き換えることになる
 		//InputStateのベクタを回す
@@ -96,15 +125,15 @@ void Input::Update()
 			case PeripheralType::keyboard://キーボードだったら
 				//GethitKeyStateAllでとってきた配列の中身を見て
 				//入力されているかどうかをチェックします
-				input = keyState[state.id];
+				inputRaw = keyState[state.id];
 				break;
 			case PeripheralType::pad1:
 				//GethitKeyStateAllでとってきたビット情報を見て
 				//登録されているビット情報と&をとり、そのビットが立っているかどうかをチェック
-				input = (padState & state.id);
+				inputRaw = (padState & state.id);
 				break;
 			}
-			if (input) {//必須!
+			if (inputRaw) {//必須!
 				break;//ここでbreakしないと、最後のチェックで押されていないとfalseになる
 			}
 		}
@@ -112,6 +141,23 @@ void Input::Update()
 
 	//右スティックの入力を保存
 	InputRightStick();
+
+	//Record時
+	if (m_isRecording)
+	{
+		//レコード中は実入力を無視して、配列のみで決める
+		for(auto& [name,value] : m_inputData)
+		{
+			value = false;
+		}
+		UpdateRecord();
+	}
+	//通常時
+	else
+	{
+		//生の入力をそのまま保存する
+		m_inputData = m_rawInputData;
+	}
 
 }
 
@@ -157,6 +203,7 @@ bool Input::IsPressed(const char* name) const
 	//{
 	//    return false;//これで回避できます
 	//}
+
 	return m_inputData.at(name);//const関数内部なので[]ではなくatを使用している
 }
 
@@ -172,6 +219,28 @@ bool Input::IsTriggeredRightStickInputX() const
 		return true;
 	}
 
-
 	return false;
+}
+
+void Input::StartRecord(const InputRecord& record)
+{
+	m_inputRecord = record;
+	m_recordFrameInEntry = 0;
+	m_recordIndex = 0;
+	m_isRecording = true;
+}
+
+void Input::StopRecord()
+{
+	m_isRecording = false;
+}
+
+bool Input::IsRealPressed(const char* name) const
+{
+	return m_rawInputData.at(name);
+}
+
+bool Input::IsRealTriggered(const char* name) const
+{
+	return m_rawInputData.at(name) && !m_lastRawInputData.at(name);
 }

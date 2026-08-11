@@ -134,6 +134,17 @@ void Player::Update(Camera& camera)
 		m_damageInfo.damageTimer -= 1.0f * System::GetInstance().GetTimeScale();//被ダメ後の無敵時間を減らす
 	}
 
+#ifdef _DEBUG
+	{
+		if (input.IsTriggered("Start"))
+		{
+			AddSkillGauge(20);
+			AddUltGauge(20);
+		}
+		
+	}
+#endif
+
 
 	//押し戻しの処理が続かないように消す
 	m_vel = Vector3(0, m_vel.y, 0);

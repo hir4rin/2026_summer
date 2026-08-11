@@ -31,6 +31,10 @@ private:
 	/// </summary>
 	void FixNextPosSP(Collider& colA, Collider& colB);
 	/// <summary>
+	/// 球とBoxの衝突処理
+	/// </summary>
+	void FixNextPosSB(Collider& colA, Collider& colB);
+	/// <summary>
 	/// カプセルと球の衝突処理
 	/// </summary>
 	void FixNextPosCS(Collider& colA, Collider& colB);

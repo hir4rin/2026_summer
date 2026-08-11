@@ -60,7 +60,6 @@ void MainCamera::Update(const CameraData& data)
 			//デッドゾーンからフルラープまでの割合(0~1)で割合を変える
 			float t = std::clamp((dist - kDeadZoneRadius) / (kFullLerpRadius - kDeadZoneRadius), 0.0f, 1.0f);
 			m_target = Vector3::Lerp(m_pos, data.target, 0.3f * t);
-
 		}
 
 		//m_target = Vector3::Lerp(m_pos,data.target,0.3f);

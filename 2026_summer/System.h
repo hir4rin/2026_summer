@@ -10,10 +10,13 @@ enum class AsyncData : int
 	PlayerWeaponModel,
 	PlayerWingModel,
 	PlayerEffectSkill,
+	PlayerEffectSkill2 = 5,
+	PlayerEffectSkill3,
 	PlayerHitEffect,
 	//敵
 	EnemyModel,
 	EnemyHitEffect,
+	EnemyHitEffectUlt,
 	//ステージ
 	StageModel,
 	StageModelCollider,

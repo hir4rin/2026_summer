@@ -9,6 +9,7 @@
 #include "../../../Camera/MainCamera.h"
 #include "../../Enemy/EnemyBase.h"
 #include "../../Enemy/EnemyManager.h"
+#include "../Effect/EffectManager.h"
 #include "EffekseerForDXLib.h"
 
 namespace
@@ -19,6 +20,7 @@ namespace
 	constexpr float kPlayerCenter = 100.0f;//プレイヤーの当たり判定の中心点までのy軸の距離
 
 	constexpr float kEffectTriggerTime = 0.2f;//エフェクトを出すタイミング
+	constexpr float kEffect2TriggerTime = 0.4f;//エフェクトを出すタイミング
 
 	constexpr float kColStart = 0.2f;
 	constexpr float kColEnd = 0.6f;
@@ -774,18 +776,52 @@ void PlayerStateAttack::EffectCheck()
 	float rate = player->m_anim.GetAnimRate();//アニメーションの進行率を取得
 	if (currentComboIndex == ComboIndex::SkillAttack1)
 	{
-		if (rate >= kEffectTriggerTime && !m_isTriggerdEffec)
+		if (rate >= kEffectTriggerTime)
 		{
-			player->m_efPlayingHandle = PlayEffekseer3DEffect(player->m_efHandle);
+			/*player->m_efPlayingHandle = PlayEffekseer3DEffect(player->m_efHandle);
 			SetPosPlayingEffekseer3DEffect(player->m_efPlayingHandle, player->m_pos.x, player->m_pos.y+100, player->m_pos.z);
-			SetRotationPlayingEffekseer3DEffect(player->m_efPlayingHandle, 0.0f, player->m_rotAngleY + DX_PI_F, 0.0f);
+			SetRotationPlayingEffekseer3DEffect(player->m_efPlayingHandle, 0.0f, player->m_rotAngleY + DX_PI_F, 0.0f);*/
+			player->m_efPlayingHandle = EffectManager::GetInstance().Play(AsyncData::PlayerEffectSkill, 
+				player->m_pos + Vector3(0, 100, 0), player->m_rotAngleY + DX_PI_F);
 		}
 		//エフェクトが出ているとき
-		else if (m_isTriggerdEffec)
+		else
 		{
 			//座標の更新
-			SetPosPlayingEffekseer3DEffect(player->m_efPlayingHandle, player->m_pos.x, player->m_pos.y+100, player->m_pos.z);
-			SetRotationPlayingEffekseer3DEffect(player->m_efPlayingHandle, 0.0f, player->m_rotAngleY + DX_PI_F, 0.0f);
+			EffectManager::GetInstance().SetPos(player->m_efPlayingHandle, player->m_pos + Vector3(0, 100, 0));
+			EffectManager::GetInstance().SetRot(player->m_efPlayingHandle, player->m_rotAngleY + DX_PI_F);
+		}
+	}
+	if (currentComboIndex == ComboIndex::SkillAttack2)
+	{
+		if (rate >= kEffect2TriggerTime)
+		{
+		
+			player->m_efPlayingHandle = EffectManager::GetInstance().Play(AsyncData::PlayerEffectSkill2, 
+				player->m_pos + Vector3(0, 100, 0), player->m_rotAngleY + DX_PI_F);
+		}
+		//エフェクトが出ているとき
+		else
+		{
+			//座標の更新
+			EffectManager::GetInstance().SetPos(player->m_efPlayingHandle, player->m_pos + Vector3(0, 100, 0));
+			EffectManager::GetInstance().SetRot(player->m_efPlayingHandle, player->m_rotAngleY + DX_PI_F);
+		}
+	}
+	if (currentComboIndex == ComboIndex::SkillAttack3)
+	{
+		if (rate >= kEffect2TriggerTime)
+		{
+		
+			player->m_efPlayingHandle = EffectManager::GetInstance().Play(AsyncData::PlayerEffectSkill3, 
+				player->m_pos + Vector3(0, 100, 0), player->m_rotAngleY + DX_PI_F);
+		}
+		//エフェクトが出ているとき
+		else
+		{
+			//座標の更新
+			EffectManager::GetInstance().SetPos(player->m_efPlayingHandle, player->m_pos + Vector3(0, 100, 0));
+			EffectManager::GetInstance().SetRot(player->m_efPlayingHandle, player->m_rotAngleY + DX_PI_F);
 		}
 	}
 }

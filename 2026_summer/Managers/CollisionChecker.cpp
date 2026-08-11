@@ -1,6 +1,7 @@
 ﻿#include "CollisionChecker.h"
 #include "../Character/Collider.h"
 #include "../Stage/Stage.h"
+#include <algorithm>
 
 CollisionChecker::CollisionChecker()
 {
@@ -38,7 +39,7 @@ bool CollisionChecker::IsCollide(Collider& colA, Collider& colB)
 		}
 		else if(typeB == ColliderType::Box)
 		{
-			isHit = CheckColSB(ColA,ColB);
+			isHit = CheckColSB(colA,colB);
 		}
 	}
 	//カプセルと
@@ -100,6 +101,28 @@ bool CollisionChecker::CheckCollSS(Collider& colA, Collider& colB)
 	}
 
 	return true;
+}
+bool CollisionChecker::CheckColSB(Collider& colA, Collider& colB)
+{
+	//球とBOXの当たり判定
+	//球の中心座標
+	Vector3 sphereCenter = colA.GetNextPos();
+	//BOXの中心座標
+	Vector3 boxCenter = colB.GetNextPos();
+	//BOXの半分のサイズ
+	Vector3 boxHalfExtents = colB.GetBoxHalfExtents();
+	//球の中心座標をBOXのローカル座標に変換
+	Vector3 localSphereCenter = sphereCenter - boxCenter;
+	//球の中心座標をBOXの境界内に制限
+	Vector3 closestPoint;
+	closestPoint.x = (std::max)(-boxHalfExtents.x, (std::min)(localSphereCenter.x, boxHalfExtents.x));
+	closestPoint.y = (std::max)(-boxHalfExtents.y, (std::min)(localSphereCenter.y, boxHalfExtents.y));
+	closestPoint.z = (std::max)(-boxHalfExtents.z, (std::min)(localSphereCenter.z, boxHalfExtents.z));
+	//最も近い点と球の中心との距離を計算
+	Vector3 distanceVector = localSphereCenter - closestPoint;
+	float distanceSquared = distanceVector.sqMagnitude();
+	//距離が半径の2乗より小さい場合は当たっている
+	return distanceSquared < (colA.GetRadius() * colA.GetRadius());
 }
 
 bool CollisionChecker::CheckCollCS(Collider& colA, Collider& colB)

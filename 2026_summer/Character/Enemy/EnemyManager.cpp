@@ -19,10 +19,13 @@ namespace
 	constexpr float kSpawnWave1Distance = 500.0f;//wave1のスポーン座標からの距離
 
 	//wave半径
-	constexpr float kWave1Radius = 1000.0f;
+	constexpr float kWave1Radius = 200.0f;
 
 	//waveのBOXの半径
-	const Vector3 kWaveBoxHalfExtent = Vector3(1000, 1250, 1250);
+	const Vector3 kWaveBoxHalfExtent = Vector3(1000, 1250, 200);
+
+	//spawnWaveの座標から壁までの距離(Z軸方向、前後)
+	constexpr float kWaveWallDistance = 2000.0f;
 }
 
 
@@ -141,7 +144,14 @@ void EnemyManager::Update()
 			if (m_enemies.size() == 0)
 			{
 				m_isAllEnemiesDead[i] = true;
-				m_waveAreas[i]->SetIsActive(false);//当たり判定を無効化
+				if (!m_waveWalls.empty())//waveの壁を消す
+				{
+					for(auto& wall : m_waveWalls)
+					{
+						CollisionManager::GetInstance().ReleaseCollider(wall);
+					}
+					m_waveWalls.clear();
+				}
 			}
 		}
 	}
@@ -170,9 +180,9 @@ void EnemyManager::Draw()
 		enemy->Draw();
 		SetShaderConstantBuffer(-1, DX_SHADERTYPE_VERTEX, 4);
 	}
-	for(auto& area: m_waveAreas)
+	for (auto& wall : m_waveWalls)
 	{
-		area->Draw();
+		wall->Draw();
 	}
 }
 
@@ -233,25 +243,34 @@ void EnemyManager::SpawnEnemies(int waveNum)
 		m_enemies.push_back(enemy);
 	}
 	//当たり判定のエリアを生成
-	auto waveArea = std::make_shared<WaveAreaCol>();
+	Vector3 spawnPos = {};
 	switch (waveNum)
 	{
 	case 1:
-		waveArea->ColInit(kSpawnWave1, Vector3(), kWave1Radius, ColliderType::Box, Tags::WaveArea, true, true);
-		waveArea->SetBoxHalfExtents(kWaveBoxHalfExtent);
+		spawnPos = kSpawnWave1;
 		break;
 	case 2:
-		waveArea->ColInit(kSpawnWave2, Vector3(), kWave1Radius, ColliderType::Box, Tags::WaveArea, true, true);
-		waveArea->SetBoxHalfExtents(kWaveBoxHalfExtent);
+		spawnPos = kSpawnWave2;
 		break;
 	case 3:
-		waveArea->ColInit(kSpawnWave3, Vector3(), kWave1Radius, ColliderType::Box, Tags::WaveArea, true, true);
-		waveArea->SetBoxHalfExtents(kWaveBoxHalfExtent);
+		spawnPos = kSpawnWave3;
 		break;
 	default:
 		assert(false && "Invalid wave number!");
 		break;
 	}
-	waveArea->SetID();
-	m_waveAreas.push_back(waveArea);
+
+
+	//プレイヤーがエリアから出られないようにする壁(前後)//isTriggerはfalseにして押し戻しを効かせる
+	auto wallFront = std::make_shared<WaveAreaCol>();
+	wallFront->ColInit(spawnPos + Vector3(0, 0, kWaveWallDistance), Vector3(), kWave1Radius, ColliderType::Box, Tags::WaveArea, true, false);
+	wallFront->SetBoxHalfExtents(kWaveBoxHalfExtent);
+	wallFront->SetID();
+	m_waveWalls.push_back(wallFront);
+
+	auto wallBack = std::make_shared<WaveAreaCol>();
+	wallBack->ColInit(spawnPos - Vector3(0, 0, kWaveWallDistance), Vector3(), kWave1Radius, ColliderType::Box, Tags::WaveArea, true, false);
+	wallBack->SetBoxHalfExtents(kWaveBoxHalfExtent);
+	wallBack->SetID();
+	m_waveWalls.push_back(wallBack);
 }
