@@ -159,6 +159,9 @@
     <ClCompile Include="Character\Enemy\EnemyManager.cpp" />
     <ClCompile Include="Effect\EffectManager.cpp" />
     <ClCompile Include="Camera\TitleCamera.cpp" />
+    <ClCompile Include="Scene\ResultScene.cpp" />
+    <ClCompile Include="SpeedLine2D.cpp" />
+    <ClCompile Include="Character\Mascot\Titlemascot.cpp" />
     <ClCompile Include="UI\ComboHUD.cpp" />
     <ClCompile Include="UI\PlayerHUD.cpp" />
     <ClCompile Include="Scene\GameClearScene.cpp" />
@@ -220,6 +223,9 @@
     <ClInclude Include="Character\Enemy\EnemyManager.h" />
     <ClInclude Include="Effect\EffectManager.h" />
     <ClInclude Include="Camera\TitleCamera.h" />
+    <ClInclude Include="Scene\ResultScene.h" />
+    <ClInclude Include="SpeedLine2D.h" />
+    <ClInclude Include="Character\Mascot\Titlemascot.h" />
     <ClInclude Include="UI\ComboHUD.h" />
     <ClInclude Include="UI\PlayerHUD.h" />
     <ClInclude Include="Scene\GameClearScene.h" />

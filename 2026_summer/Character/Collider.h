@@ -28,7 +28,8 @@ enum class Tags
 	Enemy = 5,
 	EnemyHit,
 	EnemyAttack,
-	WaveArea
+	WaveArea,
+	Mascot
 };
 /// <summary>
 /// 位置補正の優先度

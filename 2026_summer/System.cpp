@@ -11,12 +11,19 @@ void System::SetTerminate()
 	MV1DeleteModel(m_asyncHandles[AsyncData::PlayerWeaponModel]);
 	MV1DeleteModel(m_asyncHandles[AsyncData::PlayerWingModel]);
 	DeleteEffekseerEffect(m_asyncHandles[AsyncData::PlayerEffectSkill]);
+	DeleteEffekseerEffect(m_asyncHandles[AsyncData::PlayerEffectSkill2]);
+	DeleteEffekseerEffect(m_asyncHandles[AsyncData::PlayerEffectSkill3]);
 	DeleteEffekseerEffect(m_asyncHandles[AsyncData::PlayerHitEffect]);
 
 	//enemy
 	MV1DeleteModel(m_asyncHandles[AsyncData::EnemyModel]);
 	DeleteEffekseerEffect(m_asyncHandles[AsyncData::EnemyHitEffect]);
+	DeleteEffekseerEffect(m_asyncHandles[AsyncData::EnemyHitEffectUlt]);
+	//mascot
+	MV1DeleteModel(m_asyncHandles[AsyncData::MascotModel]);
+
 	//stage
+	MV1DeleteModel(m_asyncHandles[AsyncData::TitleStageModel]);
 	MV1DeleteModel(m_asyncHandles[AsyncData::StageModel]);
 	MV1DeleteModel(m_asyncHandles[AsyncData::StageModelCollider]);
 	DeleteEffekseerEffect(m_asyncHandles[AsyncData::AreaWallEffect]);

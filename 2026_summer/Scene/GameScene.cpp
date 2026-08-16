@@ -44,6 +44,7 @@ GameScene::GameScene(SceneController& controller) :Scene(controller)
 	//ステージの初期化
 	m_stage = std::make_shared<Stage>();
 	m_stage->Init();
+	m_stage->GameInit();
 	//プレイヤーの初期化
 	m_player = std::make_shared<Player>();
 	m_player->Init();

@@ -6,6 +6,9 @@ public:
 	Stage();
 	~Stage();
 	void Init();
+	void TitleInit();
+	void GameInit();
+
 	void Update();
 	void Draw()const;
 	void OnCollision(Collider& other)override;

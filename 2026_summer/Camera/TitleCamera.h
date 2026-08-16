@@ -9,6 +9,9 @@ public:
 	{
 		Fixed,			//定点で映す
 		FollowPlayer,	//プレイヤーを追従し続ける
+		ZoomOut,
+		Opening,
+		Finish
 	};
 
 	TitleCamera();
@@ -23,5 +26,7 @@ public:
 	Shot GetShot()const { return m_shot;}
 private:
 	Shot m_shot = Shot::Fixed;
+	int m_count = 0;
+	int m_count_zoom = 0;
 };
 

@@ -11,11 +11,12 @@ Weapon::Weapon(std::weak_ptr<Player> owner)
 	auto player = m_owner.lock();
 	if (!player)return;
 
-	m_modelHandle = System::GetInstance().GetHandle(AsyncData::PlayerWeaponModel);
+	m_modelHandle = MV1DuplicateModel(System::GetInstance().GetHandle(AsyncData::PlayerWeaponModel));
 }
 
 Weapon::~Weapon()
 {
+	MV1DeleteModel(m_modelHandle);
 }
 
 void Weapon::Update()
@@ -66,17 +67,72 @@ void Weapon::Update()
 	//Vector3 zero = Vector3(0.0f, 0.0f, 0.0f);
 	//MV1SetPosition(m_modelHandle, zero.ToDxLibVector());
 
+}
 
+void Weapon::TitleUpdate()
+{
+
+	//剣が突き刺さっているだけ
+	auto player = m_owner.lock();
+	if (!player)return;
+	//MATRIX transmat = MGetTranslate(weaponPos.ToDxLibVector());
+	
+	MATRIX mat = MGetIdent();//単位行列を取得
+	//90度回転させる
+	MATRIX rotmat = MGetRotY(DX_PI_F / 2);//回転行列を作成する//90度回転させる
+	MATRIX rotXmat = MGetRotX(DX_PI_F);//回転行列を作成する//90度回転させる
+	MATRIX rotZmat = MGetRotZ(DX_PI_F / 2);//回転行列を作成する//90度回転させる
+	//回転の合成
+	rotmat = MMult(rotXmat, rotmat);//回転行列を掛ける//90度回転させる
+	rotmat = MMult(rotZmat, rotmat);//回転行列を掛ける//90度回転させる
+	//下方向に移動
+	MATRIX transmat = MGetTranslate(VGet(0.0f, 50.0f, -5000.0f));//移動行列を作成する//下方向に移動
+	rotmat = MMult(rotmat, transmat);//移動行列を掛ける//下方向に移動
+	mat = MMult(rotmat, mat);//回転行列を掛ける//90度回転させる
+
+
+	MATRIX scale = MGetScale(VGet(0.3f, 0.3f, 0.3f));//スケーリング行列を作成する//モデルの大きさを半分にする
+
+	mat = MMult(scale, mat);//スケーリング行列を掛ける//モデルの大きさを半分にする
+
+	//モデルにマトリクスをセット
+	MV1SetMatrix(m_modelHandle, mat);
 }
 
 
 
 void Weapon::Draw()
 {
+	auto player = m_owner.lock();
+	if (!player)return;
 	// 実際の位置を取得して表示
 	VECTOR pos = MV1GetPosition(m_modelHandle);
+	//タイトル時
+	if (player->m_isTitleMode)
+	{
+		if (player->GetPos().z <= -5000.0f)
+		{
+			MV1DrawModel(m_modelHandle);
+		}
+	}
+	//通常時
+	else
+	{
+		MV1DrawModel(m_modelHandle);
 
-	MV1DrawModel(m_modelHandle);
+	}
+	
 
 	
+}
+
+void Weapon::TitleDraw()
+{
+	auto player = m_owner.lock();
+	if (!player)return;
+
+	if (player->GetPos().z >= -5000.0f)
+	{
+		MV1DrawModel(m_modelHandle);
+	}
 }

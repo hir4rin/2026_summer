@@ -9,8 +9,9 @@ public:
 	virtual ~Weapon();
 
 	void Update();
+	void TitleUpdate();
 	void Draw();
-	
+	void TitleDraw();
 private:
 	std::weak_ptr<Player> m_owner;//持ち主のプレイヤー
 	int m_ownerHandle = -1;//持ち主のハンドル

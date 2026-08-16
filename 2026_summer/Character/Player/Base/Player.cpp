@@ -214,7 +214,7 @@ void Player::Draw()
 	{
 		m_currentState->DebugDraw();//デバッグ描画
 	}
-	DrawSphere3D(m_pos.ToDxLibVector(), kPlayerRockOnRange * 5, 16, GetColor(255, 0, 0), GetColor(255, 0, 0), false);
+	//DrawSphere3D(m_pos.ToDxLibVector(), kPlayerRockOnRange * 5, 16, GetColor(255, 0, 0), GetColor(255, 0, 0), false);
 #endif
 
 }

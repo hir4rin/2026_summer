@@ -17,7 +17,10 @@ enum class AsyncData : int
 	EnemyModel,
 	EnemyHitEffect,
 	EnemyHitEffectUlt,
+	//マスコット
+	MascotModel,
 	//ステージ
+	TitleStageModel,
 	StageModel,
 	StageModelCollider,
 	AreaWallEffect,

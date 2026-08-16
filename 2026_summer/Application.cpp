@@ -195,7 +195,11 @@ void Application::AsyncLoad()
 	handleData[AsyncData::EnemyModel] = MV1LoadModel("data/Enemy/sasakiPlayer.mv1");
 	handleData[AsyncData::EnemyHitEffect] = LoadEffekseerEffect("data/Effect/EnemyHit.efk", 1.0f);
 	handleData[AsyncData::EnemyHitEffectUlt] = LoadEffekseerEffect("data/Effect/EnemyHit_Ult.efk", 1.0f);
+	//mascot
+	handleData[AsyncData::MascotModel] = MV1LoadModel("data/TitleMascot/mascot.mv1");
+
 	//stage
+	handleData[AsyncData::TitleStageModel] = MV1LoadModel("data/Stage_Graphic/TitleStage_remake.mv1");
 	handleData[AsyncData::StageModel] = MV1LoadModel("data/Stage_Graphic/Stage.mv1");
 	handleData[AsyncData::StageModelCollider] = MV1LoadModel("data/Stage_Graphic/coll.mv1");
 	handleData[AsyncData::AreaWallEffect] = LoadEffekseerEffect("data/Effect/AreaWall.efk", 1.0f);
