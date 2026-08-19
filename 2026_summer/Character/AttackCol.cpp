@@ -109,10 +109,12 @@ void AttackCol::PlayerAttackOnCollision(Collider& other)
 		if (it == m_hitIds.end())
 		{
 			// 初めて当たった場合の処理
-			 
+
 			//プレイヤーのゲージ管理//今は複数の敵に当たったらその分ゲージが上がるようになっている
 			PlayerGaugeUp(other);
-			 
+			//リザルト集計用//与えたダメージ、コンボ数(総ヒット数)を加算する
+			player->AddAttackResult(m_attackData->attackPower);
+
 			//otherの被ダメ処理
 			
 			//hitColのOnDamageInterFaceを呼ぶ

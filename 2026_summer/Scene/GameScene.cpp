@@ -17,6 +17,8 @@
 #include "SceneController.h"
 #include "GameOverScene.h"
 #include "GameClearScene.h"
+#include "GameResult.h"
+
 namespace
 {
 	constexpr int kGridRange = 2400;//グリッドのサイズ
@@ -31,7 +33,7 @@ namespace
 
 
 	constexpr int kLockOnCheckNum = 10;//ロックオンの検索ループ回数
-
+	constexpr int kFps = 60;//fpsを60に固定して動かしているので、クリアタイムの算出に使う
 }
 
 
@@ -145,6 +147,8 @@ void GameScene::NormalUpdate()
 	System::GetInstance().Update();
 	m_uiManager->Update();
 
+	m_playFrameCount++;//リザルトのクリアタイム集計用
+
 	//playerが死んでいたらゲームオーバーシーンに遷移
 	if (m_player->GetIsDead())
 	{
@@ -154,7 +158,14 @@ void GameScene::NormalUpdate()
 	//すべての敵を倒したらゲームクリアシーンに遷移
 	if (m_enemyManager->IsGetAllEnemiesDead(static_cast<int>(WaveNum::WaveSize) -1))
 	{
-		m_controller.ChangeScene(std::make_shared<GameClearScene>(m_controller));
+		//リザルトの集計
+		GameResult result;
+		result.clearTime = static_cast<float>(m_playFrameCount) / kFps;
+		result.totalDamage = m_player->GetTotalDamageDealt();
+		result.comboCount = m_player->GetTotalHitCount();
+		result.damageTakenCount = m_player->GetDamageTakenCount();
+
+		m_controller.ChangeScene(std::make_shared<GameClearScene>(m_controller, result));
 		return;
 	}
 	//playerはそのwaveの敵を倒さないと次のwaveに進めない

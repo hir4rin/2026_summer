@@ -165,6 +165,12 @@ public:
 	//プレイヤーの移動制限
 	void SetLimitPlayerArea(int num,bool value) { m_isWaveArea[num] = value; }
 
+	//リザルト集計用//攻撃が敵に当たった時に呼ぶ(与えたダメージ、コンボ数(総ヒット数)を加算する)
+	void AddAttackResult(float damage) { m_totalDamageDealt += damage; m_totalHitCount++; }
+	int GetTotalDamageDealt()const { return static_cast<int>(m_totalDamageDealt); }//リザルト用//与えた合計ダメージ
+	int GetTotalHitCount()const { return m_totalHitCount; }//リザルト用//コンボ数(総ヒット数)
+	int GetDamageTakenCount()const { return m_damageTakenCount; }//リザルト用//被弾回数
+
 private:
 	/// <summary>
 	/// 状態を変更する関数
@@ -192,6 +198,11 @@ private:
 	ComboInfo m_comboInfo = {};//コンボの情報//現在のコンボの段数などを管理するためのもの
 	AvoidInfo m_avoidInfo = {};//回避の情報
 	DamageInfo m_damageInfo = {};//被ダメ後無敵時間の情報
+
+	//リザルト集計用
+	float m_totalDamageDealt = 0.0f;//与えた合計ダメージ
+	int m_totalHitCount = 0;//コンボ数(総ヒット数)
+	int m_damageTakenCount = 0;//被弾回数
 
 	bool m_isWaveArea[static_cast<int>(WaveNumForPlayer::WaveSize)] = {false};//ウェーブごとに敵がスポーンしたかどうかのフラグ//EnemyManagerのフラグと同じものを持つ
 

@@ -247,6 +247,8 @@ void Player::OnDamage(Collider& other, AttackData& data)
 		m_hp -= static_cast<int>(data.attackPower);
 		//無敵時間を設定する
 		m_damageInfo.damageTimer = m_damageInfo.kDamageTime;
+		//リザルト集計用//被弾回数を加算する
+		m_damageTakenCount++;
 		if (m_hp <= 0)
 		{
 			//死亡ステートにする

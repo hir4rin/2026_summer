@@ -77,6 +77,8 @@ private:
 	int m_enemyPSH = -1;
 	int m_enemyVSH = -1;
 
+	int m_playFrameCount = 0;//リザルトのクリアタイム集計用//プレイ開始からのフレーム数
+
 
 };
 

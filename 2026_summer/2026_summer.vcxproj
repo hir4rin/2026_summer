@@ -229,6 +229,7 @@
     <ClInclude Include="UI\ComboHUD.h" />
     <ClInclude Include="UI\PlayerHUD.h" />
     <ClInclude Include="Scene\GameClearScene.h" />
+    <ClInclude Include="Scene\GameResult.h" />
     <ClInclude Include="Scene\GameOverScene.h" />
     <ClInclude Include="Managers\FixNextPosition.h" />
     <ClInclude Include="Managers\CollisionChecker.h" />
