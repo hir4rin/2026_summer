@@ -196,9 +196,10 @@ void TitleScene::InputInitialize()
 	const int button = 20;
 	const int space = 10;
 	InputRecord record;
+	//外部読み込みを後でしとく
 	record = {
 		{kCameraSetUp,{"Down"}},
-		{4000,{}},
+		{8000,{}},
 		{2,{"Down"}},
 		{button,{"X"}},
 		{space,{}},

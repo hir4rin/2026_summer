@@ -144,6 +144,18 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Application.cpp" />
+    <ClCompile Include="Character\Enemy\Boss\BossEnemy.cpp" />
+    <ClCompile Include="Character\Enemy\Boss\BossState.cpp" />
+    <ClCompile Include="Character\Enemy\Boss\BossStateIdle.cpp" />
+    <ClCompile Include="Character\Enemy\Boss\BossStateCaution.cpp" />
+    <ClCompile Include="Character\Enemy\Boss\BossStateChase.cpp" />
+    <ClCompile Include="Character\Enemy\Boss\BossStateAttack.cpp" />
+    <ClCompile Include="Character\Enemy\Boss\BossStateBack.cpp" />
+    <ClCompile Include="Character\Enemy\Boss\BossStateHit.cpp" />
+    <ClCompile Include="Character\Enemy\Boss\BossStateAirStay.cpp" />
+    <ClCompile Include="Character\Enemy\Boss\BossStateFall.cpp" />
+    <ClCompile Include="Character\Enemy\Boss\BossStateDead.cpp" />
+    <ClCompile Include="Character\Enemy\Boss\BossStateKnockDown.cpp" />
     <ClCompile Include="Character\AttackCol.cpp" />
     <ClCompile Include="Camera\Camera.cpp" />
     <ClCompile Include="Camera\CameraManager.cpp" />
@@ -208,6 +220,18 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application.h" />
+    <ClInclude Include="Character\Enemy\Boss\BossEnemy.h" />
+    <ClInclude Include="Character\Enemy\Boss\BossState.h" />
+    <ClInclude Include="Character\Enemy\Boss\BossStateIdle.h" />
+    <ClInclude Include="Character\Enemy\Boss\BossStateCaution.h" />
+    <ClInclude Include="Character\Enemy\Boss\BossStateChase.h" />
+    <ClInclude Include="Character\Enemy\Boss\BossStateAttack.h" />
+    <ClInclude Include="Character\Enemy\Boss\BossStateBack.h" />
+    <ClInclude Include="Character\Enemy\Boss\BossStateHit.h" />
+    <ClInclude Include="Character\Enemy\Boss\BossStateAirStay.h" />
+    <ClInclude Include="Character\Enemy\Boss\BossStateFall.h" />
+    <ClInclude Include="Character\Enemy\Boss\BossStateDead.h" />
+    <ClInclude Include="Character\Enemy\Boss\BossStateKnockDown.h" />
     <ClInclude Include="Character\AttackCol.h" />
     <ClInclude Include="Camera\Camera.h" />
     <ClInclude Include="Camera\CameraManager.h" />
