@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "BossState.h"
 
 class BossStateAttack :
@@ -12,4 +12,11 @@ public:
 	void Exit() override;
 
 	void DebugDraw()override;
+
+private:
+	void DetermineAttackType();
+
+	void MeleeAttack();
+private:
+	bool isSpawned = false;
 };

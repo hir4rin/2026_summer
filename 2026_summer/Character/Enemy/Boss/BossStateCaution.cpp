@@ -1,4 +1,4 @@
-#include "BossStateCaution.h"
+﻿#include "BossStateCaution.h"
 #include "BossEnemy.h"
 #include "BossStateChase.h"
 #include "../../Player/Base/Player.h"
@@ -31,7 +31,7 @@ void BossStateCaution::Enter()
 	if (!player)return;
 
 	//右と左でアニメーションを変える
-	boss->m_anim.ChangeAnim(kStrafeRight, true, 0.4f);
+	boss->m_anim.ChangeAnim(boss->GetAnimName("WalkFront"), false, 0.9f);
 	boss->m_targetPos = player->GetPos();
 	//Playerを見る
 	boss->ToPlayerLook();

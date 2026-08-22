@@ -28,6 +28,7 @@ enum class Tags
 	Enemy = 5,
 	EnemyHit,
 	EnemyAttack,
+	Boss,
 	WaveArea,
 	Mascot
 };
@@ -131,7 +132,7 @@ public:
 	float GetRadius()const { return m_radius; }
 
 	//BOX
-	void SetBoxHalfExtents(Vector3 halfExtents) { m_boxInfo.halfExtents = halfExtents; }
+	void SetBoxHalfExtents(Vector3 halfExtents) { m_boxInfo.halfExtents = halfExtents; }//Boxの半径
 	Vector3 GetBoxHalfExtents() const { return m_boxInfo.halfExtents; }
 
 	//CAPSULE

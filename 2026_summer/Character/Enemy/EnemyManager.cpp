@@ -235,12 +235,7 @@ void EnemyManager::SpawnEnemies(int waveNum)
 	}
 	for (auto& data : dataEnemies)
 	{
-		int handle = MV1DuplicateModel(enemyModelHandle);
-		//生成、初期化
-		auto enemy = std::make_shared<EnemySwordman>(m_player, data.pos, handle);
-		enemy->Init();
-		enemy->Update();
-		m_enemies.push_back(enemy);
+		SpawnEnemy(data.pos);
 	}
 	//当たり判定のエリアを生成
 	Vector3 spawnPos = {};
@@ -273,4 +268,15 @@ void EnemyManager::SpawnEnemies(int waveNum)
 	wallBack->SetBoxHalfExtents(kWaveBoxHalfExtent);
 	wallBack->SetID();
 	m_waveWalls.push_back(wallBack);
+}
+
+std::shared_ptr<EnemyBase> EnemyManager::SpawnEnemy(Vector3 pos)
+{
+	int handle = MV1DuplicateModel(enemyModelHandle);
+	//生成、初期化
+	auto enemy = std::make_shared<EnemySwordman>(m_player, pos, handle);
+	enemy->Init();
+	enemy->Update();
+	m_enemies.push_back(enemy);
+	return enemy;
 }

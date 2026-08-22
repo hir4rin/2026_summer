@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include "PlayerAnimData.h"
+#include "BossAnimData.h"
 #include <vector>
 #include <string>
 
@@ -21,7 +22,8 @@ public:
 	void LoadAll();
 
 	const PlayerAnimData& GetPlayerAnimData() const { return m_playerAnimData;}
-	const std::vector<std::vector<std::string>>& GetComboRawData() const { return m_comboRawData;}	
+	const BossAnimData& GetBossAnimData() const { return m_bossAnimData;}
+	const std::vector<std::vector<std::string>>& GetComboRawData() const { return m_comboRawData;}
 	//今後追加する場合はここにgetterを追加する
 	const std::vector<std::vector<std::string>>& GetSpawnData() const { return m_spawnData; }//敵のスポーンデータを返す
 private:
@@ -32,11 +34,13 @@ private:
 	DataManager& operator=(const DataManager&) = delete;
 
 	void LoadPlayerAnimData(); //プレイヤーのアニメーションデータを読み込む関数
+	void LoadBossAnimData(); //ボスのアニメーションデータを読み込む関数
 	void LoadComboRawData(); //コンボの生データを読み込む関数
 	//今後追加する場合はここにLoad関数を追加する
 	void LoadSpawnData(); //敵のスポーンデータを読み込む関数
 
 	PlayerAnimData m_playerAnimData;//プレイヤーのアニメーションデータ
+	BossAnimData m_bossAnimData;//ボスのアニメーションデータ
 	std::vector<std::vector<std::string>> m_comboRawData;//コンボの生データ
 	//今後追加する場合はここにデータのメンバ変数を追加する
 	std::vector<std::vector<std::string>> m_spawnData;//敵のスポーンデータ

@@ -152,10 +152,7 @@
     <ClCompile Include="Character\Enemy\Boss\BossStateAttack.cpp" />
     <ClCompile Include="Character\Enemy\Boss\BossStateBack.cpp" />
     <ClCompile Include="Character\Enemy\Boss\BossStateHit.cpp" />
-    <ClCompile Include="Character\Enemy\Boss\BossStateAirStay.cpp" />
-    <ClCompile Include="Character\Enemy\Boss\BossStateFall.cpp" />
     <ClCompile Include="Character\Enemy\Boss\BossStateDead.cpp" />
-    <ClCompile Include="Character\Enemy\Boss\BossStateKnockDown.cpp" />
     <ClCompile Include="Character\AttackCol.cpp" />
     <ClCompile Include="Camera\Camera.cpp" />
     <ClCompile Include="Camera\CameraManager.cpp" />
@@ -171,6 +168,7 @@
     <ClCompile Include="Character\Enemy\EnemyManager.cpp" />
     <ClCompile Include="Effect\EffectManager.cpp" />
     <ClCompile Include="Camera\TitleCamera.cpp" />
+    <ClCompile Include="Character\FireToarch.cpp" />
     <ClCompile Include="Scene\ResultScene.cpp" />
     <ClCompile Include="SpeedLine2D.cpp" />
     <ClCompile Include="Character\Mascot\Titlemascot.cpp" />
@@ -228,10 +226,7 @@
     <ClInclude Include="Character\Enemy\Boss\BossStateAttack.h" />
     <ClInclude Include="Character\Enemy\Boss\BossStateBack.h" />
     <ClInclude Include="Character\Enemy\Boss\BossStateHit.h" />
-    <ClInclude Include="Character\Enemy\Boss\BossStateAirStay.h" />
-    <ClInclude Include="Character\Enemy\Boss\BossStateFall.h" />
     <ClInclude Include="Character\Enemy\Boss\BossStateDead.h" />
-    <ClInclude Include="Character\Enemy\Boss\BossStateKnockDown.h" />
     <ClInclude Include="Character\AttackCol.h" />
     <ClInclude Include="Camera\Camera.h" />
     <ClInclude Include="Camera\CameraManager.h" />
@@ -247,6 +242,7 @@
     <ClInclude Include="Character\Enemy\EnemyManager.h" />
     <ClInclude Include="Effect\EffectManager.h" />
     <ClInclude Include="Camera\TitleCamera.h" />
+    <ClInclude Include="Character\FireToarch.h" />
     <ClInclude Include="Scene\ResultScene.h" />
     <ClInclude Include="SpeedLine2D.h" />
     <ClInclude Include="Character\Mascot\Titlemascot.h" />
@@ -259,6 +255,7 @@
     <ClInclude Include="Managers\CollisionChecker.h" />
     <ClInclude Include="DataLoader\DataManager.h" />
     <ClInclude Include="DataLoader\PlayerAnimData.h" />
+    <ClInclude Include="DataLoader\BossAnimData.h" />
     <ClInclude Include="Character\Enemy\EnemyBase.h" />
     <ClInclude Include="Character\Enemy\Swordman\EnemySwordman.h" />
     <ClInclude Include="Game.h" />

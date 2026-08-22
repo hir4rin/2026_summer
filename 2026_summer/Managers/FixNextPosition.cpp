@@ -106,6 +106,24 @@ void FixNextPosition::FixNextPosSS(Collider& colA, Collider& colB)
 
 	//重なりの深さ　＝　（自分の半径＋相手の半径）－距離
 	float overlap = colA.GetRadius() + colB.GetRadius() - distance;
+
+	bool isABoss = colA.GetTag() == Tags::Boss;
+	bool isBBoss = colB.GetTag() == Tags::Boss;
+
+	//どちらかがボスなら、ボスは動かさず、相手側だけを重なった分すべて押し戻す
+	if (isABoss || isBBoss)
+	{
+		if (!isABoss)
+		{
+			colA.m_vel += AToBVec.Normalize() * overlap * -1.0f;
+		}
+		if (!isBBoss)
+		{
+			colB.m_vel += AToBVec.Normalize() * overlap;
+		}
+		return;
+	}
+
 	if (overlap > 0)
 	{
 		colA.m_vel += AToBVec.Normalize() * overlap * 0.5f * -1;// 重なった分だけ押し戻す（0.5倍にして両方が半分ずつ退く） 

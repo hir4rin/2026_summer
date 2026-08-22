@@ -12,6 +12,7 @@ class SkyBox;
 class Player;
 class EnemySwordman;
 class EnemyManager;
+class BossEnemy;
 
 //シェーダー
 struct UltParam
@@ -54,6 +55,7 @@ private:
 	std::shared_ptr<CameraManager> m_cameraManager;
 	std::shared_ptr<Player> m_player;
 	std::shared_ptr<EnemySwordman> m_enemySwordman;
+	std::shared_ptr<BossEnemy> m_boss;
 	std::shared_ptr<EnemyManager> m_enemyManager;
 	std::shared_ptr<Stage> m_stage;
 	std::shared_ptr<SkyBox> m_skyBox;

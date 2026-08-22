@@ -47,10 +47,13 @@ public:
 	void Draw();
 	std::shared_ptr<EnemyBase>& GetEnemy(int index) { return m_enemies[index];}
 	std::vector<std::shared_ptr<EnemyBase>>& GetEnemies(){ return m_enemies;}
+	std::weak_ptr<Player> GetPlayer() { return m_player; }
 
 	//敵をスポーンさせるかチェックし、スポーンさせる
 	void CheckSpawnWave();
 	void SpawnEnemies(int waveNum);
+	//spawnData/waveを経由せず、指定した座標に1体だけ敵を生成する(ボスの召喚攻撃など、任意タイミングでの生成用)
+	std::shared_ptr<EnemyBase> SpawnEnemy(Vector3 pos);
 
 	//すべての敵が死んだかどうか
 	bool IsGetAllEnemiesDead(int num)const { return m_isAllEnemiesDead[num]; }

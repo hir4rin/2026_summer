@@ -93,6 +93,10 @@ void AttackCol::ApplyPos()
 	//m_attackDataに基づいて、このkAttackColOffsetを変えるようにしないといけない
 	m_pos += owner->GetTargetVec() * kAttackColOffset;//攻撃判定を前に出す
 }
+void AttackCol::Update()
+{
+
+}
 
 void AttackCol::PlayerAttackOnCollision(Collider& other)
 {

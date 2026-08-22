@@ -13,13 +13,15 @@ public:
 	void OnCollision(Collider& other) override;
 	void ApplyPos() override;
 
+	virtual void Update();
+
 	void ClearHitIds() { m_hitIds.clear(); }//当たったIDのリストをクリアする//攻撃が終わったら呼ぶ
-private:
+protected:
 	void PlayerAttackOnCollision(Collider& other);//Playerの攻撃が当たった時の処理
 	void EnemyAttackOnCollision(Collider& other);//Enemyの攻撃が当たった時の処理
 
 	void PlayerGaugeUp(Collider& other);//Playerの攻撃が当たった時のゲージの上昇
-private:
+protected:
 	std::weak_ptr<CharacterBase> m_owner;//当たり判定を持つキャラクターへの弱参照
 	//当たったidのリスト
 	std::list<int> m_hitIds;//攻撃が当たったIDのリスト(重複ヒット防止)

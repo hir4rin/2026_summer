@@ -1,4 +1,4 @@
-#include "BossStateIdle.h"
+﻿#include "BossStateIdle.h"
 #include "BossEnemy.h"
 #include "BossStateAttack.h"
 #include "BossStateChase.h"
@@ -11,7 +11,7 @@ namespace
 {
 	const std::string kIdle = "Player|Player|Idle";
 
-	constexpr float kEnemyIdleMaxTime = 120.0f;//敵がIdle状態でいる時間の最大値
+	constexpr float kEnemyIdleMaxTime = 200.0f;//敵がIdle状態でいる時間の最大値
 	constexpr float kEnemyMeleeAttackRange = 400.0f;//敵の近接攻撃の距離
 
 	constexpr int kStateChangeRandomMax = 100;//Chase/Caution遷移の抽選範囲
@@ -32,7 +32,7 @@ void BossStateIdle::Enter()
 	auto boss = m_owner.lock();
 	if (!boss)return;
 
-	boss->m_anim.ChangeAnim(kIdle, true);
+	boss->m_anim.ChangeAnim(boss->GetAnimName("Idle"), false, 0.9f);
 	boss->m_idleTime = 0.0f;
 }
 

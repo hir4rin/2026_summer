@@ -1,4 +1,4 @@
-#include "BossStateChase.h"
+﻿#include "BossStateChase.h"
 #include "BossEnemy.h"
 #include "BossStateAttack.h"
 #include "../../Player/Base/Player.h"
@@ -29,7 +29,7 @@ void BossStateChase::Enter()
 	auto player = boss->m_player.lock();
 	if (!player)return;
 
-	boss->m_anim.ChangeAnim(kRunName, true, 0.8f);
+	boss->m_anim.ChangeAnim(boss->GetAnimName("WalkFront"), true, 0.9f);
 	boss->m_targetPos = player->GetPos();
 	//Playerを見る
 	boss->ToPlayerLook();

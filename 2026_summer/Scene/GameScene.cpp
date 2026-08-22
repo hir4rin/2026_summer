@@ -11,6 +11,7 @@
 #include "../Input.h"
 #include "EffekseerForDXLib.h"
 #include "../Character/Enemy/EnemyManager.h"
+#include "../Character/Enemy/Boss/BossEnemy.h"
 #include "../UI/UIManager.h"
 #include "../UI/PlayerHUD.h"
 #include "../SubWindow/SubWindow.h"
@@ -55,6 +56,12 @@ GameScene::GameScene(SceneController& controller) :Scene(controller)
 	m_enemySwordman->Init();*/
 	m_enemyManager = std::make_shared<EnemyManager>(std::weak_ptr<Player>(m_player));
 	m_enemyManager->Init();
+
+	int bossModelHandle = MV1DuplicateModel(System::GetInstance().GetHandle(AsyncData::BossModel));
+	m_boss = std::make_shared<BossEnemy>(std::weak_ptr<Player>(m_player), Vector3(0, 0, 0), bossModelHandle);
+	m_boss->Init();
+	//ボスにEnemyManagerの弱参照を渡す(雑魚敵召喚のため)
+	m_boss->SetEnemyManager(std::weak_ptr<EnemyManager>(m_enemyManager));
 
 	m_cameraManager = std::make_shared<CameraManager>();
 	//カメラの初期化
@@ -140,6 +147,7 @@ void GameScene::NormalUpdate()
 
 	m_player->Update(*m_cameraManager->GetHighestPriorityCamera());
 	m_enemyManager->Update();
+	m_boss->Update();
 	m_stage->Update();
 	m_skyBox->Update();
 	CollisionManager::GetInstance().Update();
@@ -264,8 +272,9 @@ void GameScene::NormalDraw()
 		DrawGraph(0, 0, m_RT1, true);
 	}
 	m_player->Draw();
+	m_boss->Draw();
 #ifdef _DEBUG
-	//CollisionManager::GetInstance().DebugDraw();
+	CollisionManager::GetInstance().DebugDraw();
 	//PlayerのHpのデバッグ表示
 
 	//ロックオンしている敵のデバッグ表示

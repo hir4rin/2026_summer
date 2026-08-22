@@ -1,10 +1,11 @@
-#include "BossEnemy.h"
+﻿#include "BossEnemy.h"
 #include "../../../Math/Matrix4x4.h"
 #include "../../Player/Base/Player.h"
 #include "../../AttackCol.h"
 #include "../../../Game.h"
 #include "../System.h"
 #include "EffekseerForDXLib.h"
+#include "../../../DataLoader/DataManager.h"
 
 namespace
 {
@@ -15,7 +16,7 @@ namespace
 
 	constexpr float kUltDamagePower = 500.0f;//必殺技の攻撃力
 
-	constexpr int kEnemyInitialHp = 500;//敵の初期HP
+	constexpr int kEnemyInitialHp = 5000;//敵の初期HP
 	constexpr float kEnemyColliderRadius = 80.0f;//本体コライダーの半径
 	constexpr float kEnemyHitColliderRadius = 120.0f;//やられ判定コライダーの半径
 
@@ -37,6 +38,10 @@ namespace
 
 BossEnemy::BossEnemy(std::weak_ptr<Player> player, Vector3 pos, int modelHandle) : EnemyBase(player)
 {
+	//アニメーションの名前のマップの初期化
+	const auto& animData = DataManager::GetInstance().GetBossAnimData();
+	m_animNames = animData.animNames;
+
 	m_pos = pos;//初期位置
 	m_hp = kEnemyInitialHp;//体力
 	//モデルのハンドルをセット
@@ -45,8 +50,10 @@ BossEnemy::BossEnemy(std::weak_ptr<Player> player, Vector3 pos, int modelHandle)
 	Matrix4x4 rotY = Matrix4x4::MakeRotationY(0);
 	MATRIX transmat = MGetTranslate(m_pos.ToDxLibVector());
 	Matrix4x4 trans = Matrix4x4::FromDxLibMatrix(transmat);
+	//MATRIX scale = MGetScale(VGet(2.0f, 2.0f, 2.0f));
 	Matrix4x4 mtx = trans * rotY;
 	MV1SetMatrix(m_modelHandle, Matrix4x4::ToDxLibMatrix(mtx));
+	MV1SetScale(m_modelHandle, VGet(2.0f, 2.0f, 2.0f));
 	m_anim.Init(m_modelHandle, kIdle, true);
 
 	m_hitEfHandle = System::GetInstance().GetHandle(AsyncData::EnemyHitEffect);
@@ -62,7 +69,7 @@ void BossEnemy::Init()
 	//IDの取得
 	SetID();
 	//当たり判定の初期化//中心点、半径、当たり判定のタイプ、タグ、当たり判定が有効かどうか
-	ColInit(m_pos, Vector3(0, kEnemyCenter, 0), kEnemyColliderRadius, ColliderType::Sphere, Tags::Enemy, true);
+	ColInit(m_pos, Vector3(0, kEnemyCenter, 0), kEnemyColliderRadius, ColliderType::Sphere, Tags::Boss, true);
 	//やられ判定の初期化
 	InitHitCol(GetWeakPtr());
 	m_hitCol->ColInit(m_pos, Vector3(0, kEnemyCenter, 0), kEnemyHitColliderRadius, ColliderType::Sphere, Tags::EnemyHit, true, true);
@@ -98,6 +105,13 @@ void BossEnemy::Update()
 
 		m_attackCoolTime -= 1.0f * timeScale * m_ownTimeScale;
 	}
+	//当たり判定の更新
+	for (auto& col : m_attackCols)
+	{
+		col->Update();
+	}
+
+
 	//Effectの位置の更新
 	if (m_hitEfPlayingHandle != -1)
 	{
@@ -141,28 +155,18 @@ void BossEnemy::Draw()
 		//まだエネミーマネージャーが管理していないので、ここで描画だけ消す//見た目用
 		MV1DrawModel(m_modelHandle);
 	}
+
+
+	for (auto& col : m_attackCols)
+	{
+		//col->DebugDraw();
+	}
+
 }
 
 void BossEnemy::Attack()
 {
-	float rate = m_anim.GetAnimRate();
-	Vector3 forward = m_targetPos - m_pos;
-	forward.y = 0.0f;
-	forward = forward.Normalize();
-	//移動距離
-	if (rate <= kAttackMoveStartRate)
-	{
-		m_vel = forward * kAttackMoveSpeed1;
-	}
-	else if (rate > kAttackMoveStartRate && rate <= kAttackColActivateRate)
-	{
-		m_vel = forward * kAttackMoveSpeed2;
-		m_attackCol->SetIsActive(true);
-	}
-	else
-	{
-		m_vel = Vector3(0, 0, 0);
-	}
+
 }
 
 void BossEnemy::OnCollision(Collider& other)
@@ -172,8 +176,21 @@ void BossEnemy::OnCollision(Collider& other)
 
 void BossEnemy::OnDamage(Collider& other, AttackData& data)
 {
+	//注意点
+	//bossはあまり、被弾モーションにならない
+	// その代わり、モーションが遅いのと、スタン時間がある
+	// 体力はめっちゃ多い
+	//　
+	//
+
+
+
+
+
+
 	auto player = m_player.lock();
 	if (!player)return;
+	return;
 
 	//データの保存
 	m_attackData = data;
@@ -280,17 +297,8 @@ void BossEnemy::ChangeState(EnemyState newState)
 	case EnemyState::Hit:
 		ChangeState(std::make_shared<BossStateHit>(GetWeakPtr()));
 		break;
-	case EnemyState::AirStay:
-		ChangeState(std::make_shared<BossStateAirStay>(GetWeakPtr()));
-		break;
-	case EnemyState::Fall:
-		ChangeState(std::make_shared<BossStateFall>(GetWeakPtr()));
-		break;
 	case EnemyState::Dead:
 		ChangeState(std::make_shared<BossStateDead>(GetWeakPtr()));
-		break;
-	case EnemyState::KnockDown:
-		ChangeState(std::make_shared<BossStateKnockDown>(GetWeakPtr()));
 		break;
 	default:
 		break;
@@ -330,4 +338,45 @@ bool BossEnemy::TickInterval(float& timer, float interval)
 		return true;
 	}
 	return false;
+}
+
+void BossEnemy::ApplyPos()
+{
+	//モデルの座標を更新する
+	//CharacterBase::ApplyPos();
+
+	m_pos += m_vel;
+
+	float targetAngle = 0.0f;//目標の角度
+	if (m_targetVec.Magnitude() > 0.0f)//最初の入力されないとき以外、ここを通り、モデルの向きを変える
+	{
+		//モデルの移動方向にモデルの方向を近づける
+		targetAngle = atan2f(m_targetVec.x, m_targetVec.z);//移動ベクトルのx成分とz成分から、プレイヤーの向きたい方向の角度を求める
+		// Y軸回転行列を作成する//この工程は毎フレーム、原点からモデルの位置に移動してから、回転する行列を作成している
+		//180度ずれてたので、回転角度を180度ずらす
+		/* m_rotAngle = targetAngle - DX_PI_F;*/
+		 //角度の差分を計算//回転角度を-90から90にするため(最短経路を選択)
+		float difference = targetAngle - m_rotAngleY - DX_PI_F;
+		while (difference > DX_PI_F) difference -= 2.0f * DX_PI_F;
+		while (difference < -DX_PI_F) difference += 2.0f * DX_PI_F;
+		//targetAngle + DX_PI_F
+		m_rotAngleY += difference * 0.1f;//回転角度を少しずつ目標の角度に近づける//ほぼlerp
+	}
+	//モデルは、座標の位置のcenter分下で表示
+
+	Matrix4x4 rotY = Matrix4x4::MakeRotationY(m_rotAngleY);
+	MATRIX transmat = MGetTranslate(m_pos.ToDxLibVector());
+	Matrix4x4 trans = Matrix4x4::FromDxLibMatrix(transmat);
+
+	MATRIX scale = MGetScale(Vector3(2.0f,2.0f,2.0f).ToDxLibVector());
+	Matrix4x4 scalemat = Matrix4x4::FromDxLibMatrix(scale);
+
+	Matrix4x4 mtx = trans * rotY * scalemat;
+	MV1SetMatrix(m_modelHandle, Matrix4x4::ToDxLibMatrix(mtx));
+	//MV1SetScale(m_modelHandle, VGet(2.0f, 2.0f, 2.0f));
+
+	if (IsFloor())
+	{
+		m_accumulatedGravity = 0.0f;
+	}
 }

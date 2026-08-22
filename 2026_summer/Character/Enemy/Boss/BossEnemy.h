@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "../EnemyBase.h"
 #include "../../../Math/Vector3.h"
 #include "BossStateIdle.h"
@@ -7,14 +7,22 @@
 #include "BossStateAttack.h"
 #include "BossStateBack.h"
 #include "BossStateHit.h"
-#include "BossStateAirStay.h"
-#include "BossStateFall.h"
 #include "BossStateDead.h"
-#include "BossStateKnockDown.h"
+#include <vector>
 
 class AttackCol;
+class EnemyManager;
 class BossEnemy : public EnemyBase
 {
+public:
+	enum class AttackType
+	{
+		None,
+		Melee,
+		Langed,
+		Summon
+	};
+
 public:
 	BossEnemy(std::weak_ptr<Player> player,Vector3 pos,int modelHandle);
 	virtual ~BossEnemy();
@@ -26,6 +34,8 @@ public:
 	void OnCollision(Collider& other) override;
 	void OnDamage(Collider& other, AttackData& data) override;
 	void Terminate();
+
+	void SetEnemyManager(std::weak_ptr<EnemyManager> enemyManager) { m_enemyManager = enemyManager; }//EnemyManagerのセット
 private:
 	void ChangeState(EnemyState newState) override;//EnemyBaseのインターフェース用//BossStateへの遷移に変換して呼ぶ
 	void ChangeState(std::shared_ptr<BossState> newState);//状態遷移の関数//現在の状態のExitを呼び、新しい状態に切り替えてEnterを呼ぶ
@@ -40,6 +50,7 @@ private:
 	/// <param name="interval"></param>
 	/// <returns></returns>
 	bool TickInterval(float& timer, float interval);//タイマーのインターバルをチェックする//trueならインターバルが経過した
+	void ApplyPos()override;//座標の適用//
 private:
 	std::shared_ptr<BossState> m_currentState;//ボスの状態//攻撃中、追跡中など//状態遷移の管理をするためのもの
 
@@ -47,6 +58,11 @@ private:
 	float m_cautionUpdateTimer = 0.0f;
 	int m_hitEfHandle = -1;//ヒットエフェクトのハンドル
 	int m_hitEfPlayingHandle = -1;//再生中のヒットエフェクトのハンドル
+
+	AttackType m_attackType = AttackType::None;
+	std::vector<std::shared_ptr<AttackCol>> m_attackCols;
+
+	std::weak_ptr<EnemyManager> m_enemyManager;//EnemyManagerの弱参照//雑魚敵の召喚に使う
 
 	//BossState
 	friend class BossState;//BossStateクラスから、BossEnemyクラスのprivateメンバにアクセスできるようにする
@@ -56,9 +72,6 @@ private:
 	friend class BossStateAttack;
 	friend class BossStateBack;
 	friend class BossStateHit;
-	friend class BossStateAirStay;
-	friend class BossStateFall;
 	friend class BossStateDead;
-	friend class BossStateKnockDown;
 
 };

@@ -1,4 +1,4 @@
-#include "BossStateBack.h"
+﻿#include "BossStateBack.h"
 #include "BossEnemy.h"
 #include "BossStateIdle.h"
 #include "../../Player/Base/Player.h"
@@ -27,7 +27,7 @@ void BossStateBack::Enter()
 	auto player = boss->m_player.lock();
 	if (!player)return;
 
-	boss->m_anim.ChangeAnim(kBack, false, 0.5f);
+	boss->m_anim.ChangeAnim(boss->GetAnimName("WalkBack"), false, 0.9f);
 	boss->m_targetPos = player->GetPos();
 	//Playerを見る
 	boss->ToPlayerLook();
