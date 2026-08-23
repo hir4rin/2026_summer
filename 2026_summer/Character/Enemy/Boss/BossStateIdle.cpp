@@ -64,7 +64,7 @@ void BossStateIdle::Update()
 	else if (rand() % kStateChangeRandomMax >= kStateChangeThreshold)
 	{
 		boss->ChangeState(std::make_shared<BossStateCaution>(m_owner));
-		return;
+		//return;
 	}
 }
 

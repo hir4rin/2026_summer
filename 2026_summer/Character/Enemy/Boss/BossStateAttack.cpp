@@ -7,6 +7,7 @@
 #include "../../FireToarch.h"
 #include "../Managers/CollisionManager.h"
 #include "../EnemyManager.h"
+#include "Player.h"
 #include <memory>
 
 namespace
@@ -90,6 +91,7 @@ void BossStateAttack::Enter()
 			.kAttackColOffset = 30.0f,
 			.isKirimomi = false
 		};
+		auto player = boss->m_enemyManager.lock()->GetPlayer().lock();
 
 		for (int i = 0; i < 10; i++)
 		{
@@ -98,7 +100,7 @@ void BossStateAttack::Enter()
 
 
 			auto fireToarchCol = std::make_shared<FireToarch>(m_owner, data);
-			fireToarchCol->ColInit(Vector3(boss->m_pos.x+x, 0, boss->m_pos.z +z), Vector3(), 25, ColliderType::Box, Tags::EnemyAttack, false, true, 250);
+			fireToarchCol->ColInit(Vector3(player->GetPos().x + x, 0, player->GetPos().z + z), Vector3(), 25, ColliderType::Box, Tags::EnemyAttack, false, true, 250);
 			fireToarchCol->SetBoxHalfExtents(Vector3(60,200,60));
 			fireToarchCol->SetID();
 			boss->m_attackCols.push_back(fireToarchCol);

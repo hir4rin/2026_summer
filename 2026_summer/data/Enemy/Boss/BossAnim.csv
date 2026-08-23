@@ -1,4 +1,6 @@
 #name,animname
+CautionLeft,Armature|CautionLeftWalk
+CautionRight,Armature|CautionRightWalk
 Death,Armature|Death
 Hadou,Armature|Hadou
 Hit,Armature|Hit

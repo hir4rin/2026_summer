@@ -59,10 +59,13 @@ private:
 	int m_hitEfHandle = -1;//ヒットエフェクトのハンドル
 	int m_hitEfPlayingHandle = -1;//再生中のヒットエフェクトのハンドル
 
+	float m_stunStack = 0.0f;//100たまったらスタンステートに移行
+
 	AttackType m_attackType = AttackType::None;
 	std::vector<std::shared_ptr<AttackCol>> m_attackCols;
 
 	std::weak_ptr<EnemyManager> m_enemyManager;//EnemyManagerの弱参照//雑魚敵の召喚に使う
+	
 
 	//BossState
 	friend class BossState;//BossStateクラスから、BossEnemyクラスのprivateメンバにアクセスできるようにする

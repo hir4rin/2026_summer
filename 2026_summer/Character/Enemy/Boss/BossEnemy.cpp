@@ -190,7 +190,6 @@ void BossEnemy::OnDamage(Collider& other, AttackData& data)
 
 	auto player = m_player.lock();
 	if (!player)return;
-	return;
 
 	//データの保存
 	m_attackData = data;
@@ -201,6 +200,11 @@ void BossEnemy::OnDamage(Collider& other, AttackData& data)
 	if (m_isDieOut)return;
 	//Playerの攻撃データをもとに被ダメ処理をする
 	m_hp -= static_cast<int>(data.attackPower);
+	m_stunStack += static_cast<int>(data.attackPower);
+	if (m_stunStack >= 100.0f)
+	{
+		//スタン状態に移行
+	}
 
 	//ダメージがあるなら、ヒットエフェクトを再生する//必殺技の時は、ヒットエフェクトをスローのものにする
 	if (static_cast<int>(data.attackPower) > 0)
