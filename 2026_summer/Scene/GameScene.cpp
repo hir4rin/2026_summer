@@ -1,5 +1,6 @@
 ﻿#include "GameScene.h"
 #include "../Camera/CameraManager.h"
+#include "../Camera/LockOnManager.h"
 #include "../Camera/PlayerCamera.h"
 #include "../Camera/MainCamera.h"
 #include "Player.h"
@@ -63,7 +64,13 @@ GameScene::GameScene(SceneController& controller) :Scene(controller)
 	//ボスにEnemyManagerの弱参照を渡す(雑魚敵召喚のため)
 	m_boss->SetEnemyManager(std::weak_ptr<EnemyManager>(m_enemyManager));
 
+	//カメラマネージャーの生成
 	m_cameraManager = std::make_shared<CameraManager>();
+
+	//ロックオンマネージャーを作る
+	m_lockOnManager = std::make_shared<LockOnManager>();
+	m_cameraManager->SetLockOnCamera(m_lockOnManager);
+	m_player->SetLockOnManager(m_lockOnManager);
 	//カメラの初期化
 	m_cameraManager->Init(std::weak_ptr<Player>(m_player), std::weak_ptr<Stage>(m_stage));
 	m_cameraManager->Update(m_player->GetPos());
@@ -76,6 +83,9 @@ GameScene::GameScene(SceneController& controller) :Scene(controller)
 	m_player->SetCameraManager(std::weak_ptr<CameraManager>(m_cameraManager));
 	//プレイヤーにEnemyManagerの弱参照を渡す
 	m_player->SetEnemyManager(std::weak_ptr<EnemyManager>(m_enemyManager));
+
+	
+
 
 	CollisionManager::GetInstance().Init();
 	CollisionManager::GetInstance().SetStage(std::weak_ptr(m_stage));
@@ -113,8 +123,6 @@ GameScene::GameScene(SceneController& controller) :Scene(controller)
 	m_gHandle1 = LoadGraph("data/UI/blood_UI.png");
 	m_gHandle2 = LoadGraph("data/UI/splash2_UI.png");
 	m_gHandle3 = LoadGraph("data/UI/satu_UI.png");
-
-
 }
 GameScene::~GameScene()
 {
@@ -416,6 +424,7 @@ void GameScene::CheckLockOnCamera()
 					//ロックオンする//敵をカメラに渡す
 					//ここでCameraManagerに渡して、いろいろに渡す
 					m_cameraManager->SetWeakRef(std::weak_ptr<Player>(m_player), std::weak_ptr<EnemyBase>(enemy));
+					m_lockOnManager->SetTargetEnemy(enemy);
 					mainCamera->SetLockOn(true);
 
 
@@ -427,7 +436,7 @@ void GameScene::CheckLockOnCamera()
 		{
 			//ロックオンを解除する
 			m_cameraManager->SetWeakRef(std::weak_ptr<Player>(m_player));
-
+			m_lockOnManager->SetTargetEnemy({});
 			mainCamera->SetLockOn(false);
 			//ラープを切る
 			mainCamera->SetLerp(false);
@@ -549,12 +558,14 @@ void GameScene::LockOnCameraInput()
 			{
 				minPositiveDot = dot;
 				m_cameraManager->SetWeakRef(std::weak_ptr<Player>(m_player), std::weak_ptr<EnemyBase>(enemy));
+				m_lockOnManager->SetTargetEnemy(std::weak_ptr<EnemyBase>(enemy));
 			}
 			//右スティックの入力が負のとき、内積が負で最も0に近い敵を選ぶ
 			else if (rightStick.x < 0 && dot < 0 && dot > minNegativeDot)
 			{
 				minNegativeDot = dot;
 				m_cameraManager->SetWeakRef(std::weak_ptr<Player>(m_player), std::weak_ptr<EnemyBase>(enemy));
+				m_lockOnManager->SetTargetEnemy(std::weak_ptr<EnemyBase>(enemy));
 			}
 		}
 
@@ -621,6 +632,7 @@ void GameScene::CheckLockOnCameraEnemyDead()
 		{
 			//ロックオンを解除する
 			m_cameraManager->SetWeakRef(std::weak_ptr<Player>(m_player));
+			m_lockOnManager->SetTargetEnemy({});
 			mainCamera->SetLockOn(false);
 			return;
 		}
@@ -645,6 +657,7 @@ void GameScene::CheckLockOnCameraEnemyDead()
 				maxCos = cos;
 				//敵をカメラに渡す
 				m_cameraManager->SetWeakRef(std::weak_ptr<Player>(m_player), std::weak_ptr<EnemyBase>(enemy));
+				m_lockOnManager->SetTargetEnemy(std::weak_ptr<EnemyBase>(enemy));
 			}
 
 			//誰もいなかったらロックオンを解除する
@@ -652,6 +665,7 @@ void GameScene::CheckLockOnCameraEnemyDead()
 			{
 				//ロックオンを解除する
 				m_cameraManager->SetWeakRef(std::weak_ptr<Player>(m_player));
+				m_lockOnManager->SetTargetEnemy({});
 				mainCamera->SetLockOn(false);
 			}
 		}

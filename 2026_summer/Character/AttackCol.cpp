@@ -2,6 +2,7 @@
 #include "CharacterBase.h"
 #include "Player.h"
 #include "../Camera/CameraManager.h"
+#include "../Camera/LockOnManager.h"
 #include "../Camera/MainCamera.h"
 #include "../System.h"
 #include "Enemy/EnemyBase.h"
@@ -126,6 +127,7 @@ void AttackCol::PlayerAttackOnCollision(Collider& other)
 			if (hitCol)
 			{
 				auto cameraManager = player->GetCameraManager().lock();
+				auto lockOnManager = player->GetLockOnManager().lock();
 				if (!cameraManager)
 				{
 					m_hitIds.push_back(otherId);//当たったidのリストにotherのidを追加する
@@ -137,6 +139,14 @@ void AttackCol::PlayerAttackOnCollision(Collider& other)
 					m_hitIds.push_back(otherId);//当たったidのリストにotherのidを追加する
 					return;
 				}
+
+				///---------
+				/// ここで、Playerの初めて当たった時という関数を呼び出して、
+				/// そこでカメラを揺らしたり、ターゲットを保存したりする
+				///---------
+
+
+
 
 				//attackDataの変更//現在経過時間を引いて、敵の移動距離、時間を決める
 				float nowAnimFrame = player->GetAnimation().GetNowAnimFrame();
@@ -169,7 +179,7 @@ void AttackCol::PlayerAttackOnCollision(Collider& other)
 				else
 				{
 					//内部ターゲットにセットする
-					cameraManager->SetWeakTargetEnemy(otherId);
+					lockOnManager->SetTargetEnemy(otherId);
 
 				}
 				

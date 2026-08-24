@@ -1,5 +1,6 @@
 ﻿#include "LockOnCamera.h"
 #include "CameraManager.h"
+#include "LockOnManager.h"
 #include "../Character/Enemy/EnemyBase.h"
 #include "Player.h"
 #include "MainCamera.h"
@@ -44,7 +45,7 @@ void LockOnCamera::Update(Vector3 pos, Vector3 pos2)
 
 
 
-	auto enemy = m_cameraContext->m_targetEnemy.lock();
+	auto enemy = m_cameraManager.lock()->GetLockOnManager()->GetTarget().lock();
 	auto player = m_cameraContext->m_player.lock();
 	auto cameraManager = m_cameraManager.lock();
 	auto mainCamera = cameraManager->GetMainCamera();
@@ -122,7 +123,7 @@ void LockOnCamera::Update(Vector3 pos, Vector3 pos2)
 
 void LockOnCamera::FixCameraPos()
 {
-	auto enemy = m_cameraContext->m_targetEnemy.lock();
+	auto enemy = m_cameraManager.lock()->GetLockOnManager()->GetTarget().lock();
 	auto player = m_cameraContext->m_player.lock();
 	if (!enemy)return;
 	if (!player)return;
@@ -201,7 +202,9 @@ void LockOnCamera::CameraSetting()
 void LockOnCamera::Draw()
 {
 	auto cameraManager = m_cameraManager.lock();
-	auto enemy = m_cameraContext->m_targetEnemy.lock();
+	if (!cameraManager)return;
+	auto lockOnManager = m_cameraManager.lock()->GetLockOnManager();
+	auto enemy = lockOnManager->GetTarget().lock();
 	auto player = m_cameraContext->m_player.lock();
 	if (!enemy)return;
 	if (!player)return;

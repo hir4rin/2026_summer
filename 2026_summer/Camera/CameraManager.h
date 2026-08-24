@@ -10,6 +10,7 @@ class Player;
 class EnemyBase;
 class MainCamera;
 class Stage;
+class LockOnManager;
 
 struct CameraContext
 {
@@ -31,6 +32,7 @@ public:
 
 	//Playerのweak_ptrを渡す
 	void Init(std::weak_ptr<Player> player, std::weak_ptr<Stage> stage = {});
+
 	/// <summary>
 	/// 
 	/// </summary>
@@ -59,7 +61,11 @@ public:
 	//mainCameraのゲット
 	std::shared_ptr<MainCamera> GetMainCamera() { return m_mainCamera; }
 	//ターゲットのEnemyを取得する
-	std::shared_ptr<EnemyBase> GetTargetEnemy()const { return m_context->m_targetEnemy.lock(); }
+	std::shared_ptr<EnemyBase> GetTargetEnemy()const;
+	//ロックオンカメラをゲットする
+	std::shared_ptr<LockOnManager> GetLockOnManager() { return m_lockOnManager; }
+	void SetLockOnCamera(std::shared_ptr<LockOnManager> lockonMgr) {  m_lockOnManager = lockonMgr;}
+
 
 	//PlayerCameraに角度をセットさせる関数
 	void SetPlayerCameraAngle(float angleH, float angleV);
@@ -83,6 +89,10 @@ private:
 	std::shared_ptr<Camera> m_TitleCamera;
 	//必要な情報
 	std::shared_ptr<CameraContext> m_context;
+
+	//ロックオンマネージャー
+	std::shared_ptr<LockOnManager> m_lockOnManager = {};
+
 	//不本意だがいまはとりあえずここにかく
 	bool m_isUltimating = false;
 	bool m_isPrevUltimating = false;

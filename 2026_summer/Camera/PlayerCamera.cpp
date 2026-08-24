@@ -3,6 +3,7 @@
 #include "../Input.h"
 #include "Player.h"
 #include "CameraManager.h"
+#include "LockOnManager.h"
 #include "../Character/Enemy/EnemyBase.h"
 #include "../SubWindow/SubWindow.h"
 #include "../Stage/Stage.h"
@@ -234,7 +235,7 @@ void PlayerCamera::InputRightStick()
 }
 void PlayerCamera::FixCameraPosLockOn()
 {
-	auto enemy = m_cameraContext->m_targetEnemy.lock();
+	auto enemy = m_cameraManager.lock()->GetLockOnManager()->GetTarget().lock();
 	auto player = m_cameraContext->m_player.lock();
 	if (!enemy)return;
 	if (!player)return;

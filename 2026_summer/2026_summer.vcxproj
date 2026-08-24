@@ -169,6 +169,7 @@
     <ClCompile Include="Effect\EffectManager.cpp" />
     <ClCompile Include="Camera\TitleCamera.cpp" />
     <ClCompile Include="Character\FireToarch.cpp" />
+    <ClCompile Include="Camera\LockOnManager.cpp" />
     <ClCompile Include="Scene\ResultScene.cpp" />
     <ClCompile Include="SpeedLine2D.cpp" />
     <ClCompile Include="Character\Mascot\Titlemascot.cpp" />
@@ -243,6 +244,7 @@
     <ClInclude Include="Effect\EffectManager.h" />
     <ClInclude Include="Camera\TitleCamera.h" />
     <ClInclude Include="Character\FireToarch.h" />
+    <ClInclude Include="Camera\LockOnManager.h" />
     <ClInclude Include="Scene\ResultScene.h" />
     <ClInclude Include="SpeedLine2D.h" />
     <ClInclude Include="Character\Mascot\Titlemascot.h" />

@@ -4,6 +4,7 @@
 #include "PlayerCamera.h"
 #include "Movie1Camera.h"
 #include "UltCamera.h"
+#include "LockOnManager.h"
 #include "TitleCamera.h"
 #include "LockOnCamera.h"
 #include "../Managers/CollisionManager.h"
@@ -239,7 +240,7 @@ void CameraManager::SetWeakRef(std::weak_ptr<Player> m_player, std::weak_ptr<Ene
 {
 	//カメラコンテキストにセット
 	m_context->m_player = m_player;
-	m_context->m_targetEnemy = m_enemy;
+	//m_context->m_targetEnemy = m_enemy;
 
 	for(auto& camera : m_weakRefCameras)
 	{
@@ -277,6 +278,13 @@ void CameraManager::SetWeakTargetEnemy(int id)
 
 
 }
+
+std::shared_ptr<EnemyBase> CameraManager::GetTargetEnemy()const
+{
+	return m_lockOnManager->GetTarget().lock();
+}
+
+
 void CameraManager::SetPlayerCameraAngle(float angleH, float angleV)
 {
 	for (auto& camera : m_cameras)

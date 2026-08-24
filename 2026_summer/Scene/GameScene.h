@@ -13,6 +13,7 @@ class Player;
 class EnemySwordman;
 class EnemyManager;
 class BossEnemy;
+class LockOnManager;
 
 //シェーダー
 struct UltParam
@@ -59,6 +60,7 @@ private:
 	std::shared_ptr<EnemyManager> m_enemyManager;
 	std::shared_ptr<Stage> m_stage;
 	std::shared_ptr<SkyBox> m_skyBox;
+	std::shared_ptr<LockOnManager> m_lockOnManager;
 
 	std::shared_ptr<UIManager> m_uiManager;
 

@@ -22,6 +22,7 @@ class Weapon;
 class CameraManager;
 class EnemyBase;
 class EnemyManager;
+class LockOnManager;
 
 struct ComboNode
 {
@@ -162,6 +163,10 @@ public:
 	std::weak_ptr<EnemyBase> GetTargetEnemy()const;
 	//内部ロックオンのために
 	std::weak_ptr<CameraManager> GetCameraManager()const { return m_cameraManager; }
+	//敵ターゲットを保存
+	std::weak_ptr<LockOnManager> GetLockOnManager()const { return m_lockOnManager; }
+	void SetLockOnManager(std::weak_ptr<LockOnManager> lockOnMgr) { m_lockOnManager = lockOnMgr; }
+
 	//プレイヤーの移動制限
 	void SetLimitPlayerArea(int num,bool value) { m_isWaveArea[num] = value; }
 
@@ -233,6 +238,7 @@ private:
 
 	std::weak_ptr<CameraManager> m_cameraManager;//カメラマネージャ-の弱参照
 	std::weak_ptr<EnemyManager> m_enemyManager;//EnemyManagerの弱参照
+	std::weak_ptr<LockOnManager> m_lockOnManager;
 	
 
 	//PlayerState

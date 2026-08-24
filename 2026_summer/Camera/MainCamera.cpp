@@ -1,5 +1,6 @@
 ﻿#include "MainCamera.h"
 #include "CameraManager.h"
+#include "LockOnManager.h"
 #include "Player.h"
 #include "../Character/Enemy/EnemyBase.h"
 #include "../SubWindow/SubWindow.h"
@@ -49,7 +50,9 @@ void MainCamera::Update(const CameraData& data)
 	//m_cameraData = data;
 	auto player = m_cameraContext->m_player.lock();
 	if (!player)return;
-	auto enemy = m_cameraContext->m_targetEnemy.lock();
+	auto cameraManager = m_cameraManager.lock();
+	if (!cameraManager)return;
+	auto enemy = cameraManager->GetLockOnManager()->GetTarget().lock();
 
 	//ターゲットのラープをする
 	if (m_isLerp[0])
@@ -190,9 +193,11 @@ void MainCamera::SetSlerp(bool isSlerp)
 
 	auto player = m_cameraContext->m_player.lock();
 	if (!player)return;
-	auto enemy = m_cameraContext->m_targetEnemy.lock();
+	auto cameraManager = m_cameraManager.lock();
+	if (!cameraManager)return;
+	auto enemy = cameraManager->GetLockOnManager()->GetTarget().lock();
 	if (!enemy)return;
-	
+
 	//lerpするかをセット
 	m_isSlerp[0] = isSlerp;
 	m_isSlerp[1] = isSlerp;

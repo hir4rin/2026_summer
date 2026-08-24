@@ -4,6 +4,7 @@
 #include "../System.h"
 #include "../Character/Enemy/EnemyBase.h"
 #include "../Camera/CameraManager.h"
+#include "../Camera/LockOnManager.h"
 #include "../SubWindow/SubWindow.h"
 #include "MainCamera.h"
 #include <algorithm>
@@ -58,7 +59,7 @@ void UltCamera::Update(Vector3 pos, Vector3 pos2)
 	//そもそもEnemyとPlayerのポインタを受け取っていなかった
 	
 
-	auto enemy = m_cameraContext->m_targetEnemy.lock();
+	auto enemy = m_cameraManager.lock()->GetLockOnManager()->GetTarget().lock();
 	auto player = m_cameraContext->m_player.lock();
 	if (!enemy)
 	{
@@ -144,7 +145,7 @@ void UltCamera::Update(Vector3 pos, Vector3 pos2)
 
 void UltCamera::FixCameraPos()
 {
-	auto enemy = m_cameraContext->m_targetEnemy.lock();
+	auto enemy = m_cameraManager.lock()->GetLockOnManager()->GetTarget().lock();
 	auto player = m_cameraContext->m_player.lock();
 	auto mainCamera = m_cameraManager.lock()->GetMainCamera();
 	if (!enemy)return;

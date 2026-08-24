@@ -4,6 +4,7 @@
 #include "PlayerStateMove.h"
 #include "../Weapon.h"
 #include "../../../Camera/CameraManager.h"
+#include "../../../Camera/LockOnManager.h"
 #include "../../../DataLoader/DataManager.h"
 #include "../../../System.h"
 #include "../../../Math/Matrix4x4.h"
@@ -664,6 +665,6 @@ bool Player::CanUltAttack()
 
 std::weak_ptr<EnemyBase> Player::GetTargetEnemy() const
 {
-	auto cameraManager = m_cameraManager.lock();
-	return std::weak_ptr<EnemyBase>(cameraManager->GetTargetEnemy());
+	auto lockOnMgr = m_lockOnManager.lock();
+	return std::weak_ptr<EnemyBase>(lockOnMgr->GetTarget());
 }
