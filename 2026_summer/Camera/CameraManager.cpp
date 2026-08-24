@@ -63,9 +63,11 @@ void CameraManager::Init(std::weak_ptr<Player> player,std::weak_ptr<Stage> stage
 	SetWeakRef(player);
 	//playerCamera->PlayerSet(player);
 	//ultCamera->
+	//m_mainCameraはm_camerasに含まれないため、個別にCameraManagerの参照を渡す
+	m_mainCamera->SetCameraManager(shared_from_this());
 	//MainCameraに情報を渡す
 	SetUpMainCamera();
-	
+
 	for(auto& camera : m_cameras)
 	{
 		camera->SetCameraManager(shared_from_this());
@@ -253,35 +255,37 @@ void CameraManager::SetWeakRef(std::weak_ptr<Player> m_player, std::weak_ptr<Ene
 }
 void CameraManager::SetWeakTargetEnemy(int id)
 {
-	//idで指定したEnemyをターゲットにする
-	auto enemy = CollisionManager::GetInstance().GetColliderById(id);
-	if (!enemy)
-	{
-		assert(false && "指定したidのEnemyが存在しません");
-		return;
-	}
-	//EnemyBaseのshared_ptrを取得
-	auto enemyBase = std::dynamic_pointer_cast<EnemyBase>(enemy);
-	if (!enemyBase)
-	{
-		assert(false && "指定したidのEnemyはEnemyBaseではありません");
-		return;
-	}
+	////idで指定したEnemyをターゲットにする
+	//auto enemy = CollisionManager::GetInstance().GetColliderById(id);
+	//if (!enemy)
+	//{
+	//	assert(false && "指定したidのEnemyが存在しません");
+	//	return;
+	//}
+	////EnemyBaseのshared_ptrを取得
+	//auto enemyBase = std::dynamic_pointer_cast<EnemyBase>(enemy);
+	//if (!enemyBase)
+	//{
+	//	assert(false && "指定したidのEnemyはEnemyBaseではありません");
+	//	return;
+	//}
 
-	m_context->m_targetEnemy = enemyBase;
-	for (auto& camera : m_weakRefCameras)
-	{
-		camera->SetCameraContext(m_context);
-	}
-	//mainCameraにもセット
-	m_mainCamera->SetCameraContext(m_context);
+	//m_context->m_targetEnemy = enemyBase;
+	//for (auto& camera : m_weakRefCameras)
+	//{
+	//	camera->SetCameraContext(m_context);
+	//}
+	////mainCameraにもセット
+	//m_mainCamera->SetCameraContext(m_context);
 
 
 }
 
 std::shared_ptr<EnemyBase> CameraManager::GetTargetEnemy()const
 {
-	return m_lockOnManager->GetTarget().lock();
+	auto lockOnManager = m_lockOnManager.lock();
+	if (!lockOnManager)return nullptr;
+	return lockOnManager->GetTarget().lock();
 }
 
 

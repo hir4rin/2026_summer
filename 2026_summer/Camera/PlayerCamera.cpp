@@ -235,7 +235,11 @@ void PlayerCamera::InputRightStick()
 }
 void PlayerCamera::FixCameraPosLockOn()
 {
-	auto enemy = m_cameraManager.lock()->GetLockOnManager()->GetTarget().lock();
+	auto cameraManager = m_cameraManager.lock();
+	if (!cameraManager)return;
+	auto lockOnManager = cameraManager->GetLockOnManager().lock();
+	std::shared_ptr<EnemyBase> enemy;
+	if (lockOnManager) enemy = lockOnManager->GetTarget().lock();
 	auto player = m_cameraContext->m_player.lock();
 	if (!enemy)return;
 	if (!player)return;

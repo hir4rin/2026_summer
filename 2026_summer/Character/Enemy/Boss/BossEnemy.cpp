@@ -183,11 +183,6 @@ void BossEnemy::OnDamage(Collider& other, AttackData& data)
 	//　
 	//
 
-
-
-
-
-
 	auto player = m_player.lock();
 	if (!player)return;
 

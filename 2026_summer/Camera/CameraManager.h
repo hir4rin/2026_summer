@@ -15,7 +15,6 @@ class LockOnManager;
 struct CameraContext
 {
 	std::weak_ptr<Player> m_player;
-	std::weak_ptr<EnemyBase> m_targetEnemy;
 	//std::weak_ptr<EnemyBase> m_targetEnemyNoLockOn;
 	bool m_isUltimate = false;
 };
@@ -63,8 +62,8 @@ public:
 	//ターゲットのEnemyを取得する
 	std::shared_ptr<EnemyBase> GetTargetEnemy()const;
 	//ロックオンカメラをゲットする
-	std::shared_ptr<LockOnManager> GetLockOnManager() { return m_lockOnManager; }
-	void SetLockOnCamera(std::shared_ptr<LockOnManager> lockonMgr) {  m_lockOnManager = lockonMgr;}
+	std::weak_ptr<LockOnManager> GetLockOnManager() { return m_lockOnManager; }
+	void SetLockOnCamera(std::weak_ptr<LockOnManager> lockonMgr) {  m_lockOnManager = lockonMgr;}
 
 
 	//PlayerCameraに角度をセットさせる関数
@@ -90,8 +89,8 @@ private:
 	//必要な情報
 	std::shared_ptr<CameraContext> m_context;
 
-	//ロックオンマネージャー
-	std::shared_ptr<LockOnManager> m_lockOnManager = {};
+	//ロックオンマネージャー//実体はGameScene(またはシーン側)が持つため、弱参照で持つ
+	std::weak_ptr<LockOnManager> m_lockOnManager;
 
 	//不本意だがいまはとりあえずここにかく
 	bool m_isUltimating = false;

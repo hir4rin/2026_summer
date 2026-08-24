@@ -52,7 +52,9 @@ void MainCamera::Update(const CameraData& data)
 	if (!player)return;
 	auto cameraManager = m_cameraManager.lock();
 	if (!cameraManager)return;
-	auto enemy = cameraManager->GetLockOnManager()->GetTarget().lock();
+	auto lockOnManager = cameraManager->GetLockOnManager().lock();
+	std::shared_ptr<EnemyBase> enemy;
+	if (lockOnManager) enemy = lockOnManager->GetTarget().lock();
 
 	//ターゲットのラープをする
 	if (m_isLerp[0])
@@ -71,6 +73,7 @@ void MainCamera::Update(const CameraData& data)
 		{
 			m_isLerp[0] = false;
 		}*/
+
 	}
 	//Slerpだが、注視点はLerpする
 	else if (m_isSlerp[0])
@@ -195,7 +198,9 @@ void MainCamera::SetSlerp(bool isSlerp)
 	if (!player)return;
 	auto cameraManager = m_cameraManager.lock();
 	if (!cameraManager)return;
-	auto enemy = cameraManager->GetLockOnManager()->GetTarget().lock();
+	auto lockOnManager = cameraManager->GetLockOnManager().lock();
+	if (!lockOnManager)return;
+	auto enemy = lockOnManager->GetTarget().lock();
 	if (!enemy)return;
 
 	//lerpするかをセット

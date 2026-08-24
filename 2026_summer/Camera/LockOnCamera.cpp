@@ -45,9 +45,12 @@ void LockOnCamera::Update(Vector3 pos, Vector3 pos2)
 
 
 
-	auto enemy = m_cameraManager.lock()->GetLockOnManager()->GetTarget().lock();
-	auto player = m_cameraContext->m_player.lock();
 	auto cameraManager = m_cameraManager.lock();
+	if (!cameraManager)return;
+	auto lockOnManager = cameraManager->GetLockOnManager().lock();
+	std::shared_ptr<EnemyBase> enemy;
+	if (lockOnManager) enemy = lockOnManager->GetTarget().lock();
+	auto player = m_cameraContext->m_player.lock();
 	auto mainCamera = cameraManager->GetMainCamera();
 	if (!player)return;
 	if (!mainCamera)return;
@@ -80,10 +83,7 @@ void LockOnCamera::Update(Vector3 pos, Vector3 pos2)
 		//解放
 		//m_lockOnEnemy.reset();
 
-
 		//PlayerCameraに切り替える
-		auto cameraManager = m_cameraManager.lock();
-		if (!cameraManager)return;
 		cameraManager->SetNextCameraPriority(Camera::Type::PlayerCamera, false, false);
 	}
 	Vector3 targetPos = (playerPos + enemyPos) / 2;
@@ -123,11 +123,15 @@ void LockOnCamera::Update(Vector3 pos, Vector3 pos2)
 
 void LockOnCamera::FixCameraPos()
 {
-	auto enemy = m_cameraManager.lock()->GetLockOnManager()->GetTarget().lock();
+	auto cameraManager = m_cameraManager.lock();
+	if (!cameraManager)return;
+	auto lockOnManager = cameraManager->GetLockOnManager().lock();
+	std::shared_ptr<EnemyBase> enemy;
+	if (lockOnManager) enemy = lockOnManager->GetTarget().lock();
 	auto player = m_cameraContext->m_player.lock();
 	if (!enemy)return;
 	if (!player)return;
-	auto mainCamera = m_cameraManager.lock()->GetMainCamera();
+	auto mainCamera = cameraManager->GetMainCamera();
 
 	//水平方向の回転//敵との距離によってこの角度を帰る
 	//現在のカメラtoプレイヤーの向きとプレイヤーto敵の向きに応じて角度を反転？
@@ -203,7 +207,8 @@ void LockOnCamera::Draw()
 {
 	auto cameraManager = m_cameraManager.lock();
 	if (!cameraManager)return;
-	auto lockOnManager = m_cameraManager.lock()->GetLockOnManager();
+	auto lockOnManager = cameraManager->GetLockOnManager().lock();
+	if (!lockOnManager)return;
 	auto enemy = lockOnManager->GetTarget().lock();
 	auto player = m_cameraContext->m_player.lock();
 	if (!enemy)return;

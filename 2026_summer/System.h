@@ -1,5 +1,7 @@
 ﻿#pragma once
 #include <unordered_map>
+#include "Sound/SoundManager.h"
+
 
 //非同期ロードリストの種類
 enum class AsyncData : int
@@ -79,6 +81,9 @@ private:
 	int m_ultCount = -1;//必殺技の演出時間カウント
 
 	std::unordered_map<AsyncData, int> m_asyncHandles; //非同期ロードのハンドルを保持するマップ
+
+
+	SoundManager m_soundManager;//サウンドマネージャー//のちにゲット関数を作って、ここからplayを流したりする
 
 };
 

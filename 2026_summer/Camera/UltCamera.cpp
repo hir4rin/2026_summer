@@ -59,20 +59,20 @@ void UltCamera::Update(Vector3 pos, Vector3 pos2)
 	//そもそもEnemyとPlayerのポインタを受け取っていなかった
 	
 
-	auto enemy = m_cameraManager.lock()->GetLockOnManager()->GetTarget().lock();
+	auto cameraManager = m_cameraManager.lock();
+	if (!cameraManager)return;
+	auto lockOnManager = cameraManager->GetLockOnManager().lock();
+	std::shared_ptr<EnemyBase> enemy;
+	if (lockOnManager) enemy = lockOnManager->GetTarget().lock();
 	auto player = m_cameraContext->m_player.lock();
 	if (!enemy)
 	{
 		//敵がいない場合は、PlayerCameraに切り替える//このカメラが一番優先度高いとき
-		auto cameraManager = m_cameraManager.lock();
-		if (!cameraManager)return;
 		if (cameraManager->GetHighestPriorityCamera()->GetCameraType() != Camera::Type::UltCamera)return;
 		cameraManager->SetNextCameraPriority(Camera::Type::PlayerCamera, true, false);
 		return;
 	}
 	if (!player)return;
-	auto cameraManager = m_cameraManager.lock();
-	if (!cameraManager)return;
 	//ウルトカメラ時、常にPlayerCameraにアングルを渡し続ける
 	if (cameraManager->GetHighestPriorityCamera()->GetCameraType() == Camera::Type::UltCamera)
 	{
@@ -145,9 +145,13 @@ void UltCamera::Update(Vector3 pos, Vector3 pos2)
 
 void UltCamera::FixCameraPos()
 {
-	auto enemy = m_cameraManager.lock()->GetLockOnManager()->GetTarget().lock();
+	auto cameraManager = m_cameraManager.lock();
+	if (!cameraManager)return;
+	auto lockOnManager = cameraManager->GetLockOnManager().lock();
+	std::shared_ptr<EnemyBase> enemy;
+	if (lockOnManager) enemy = lockOnManager->GetTarget().lock();
 	auto player = m_cameraContext->m_player.lock();
-	auto mainCamera = m_cameraManager.lock()->GetMainCamera();
+	auto mainCamera = cameraManager->GetMainCamera();
 	if (!enemy)return;
 	if (!player)return;
 

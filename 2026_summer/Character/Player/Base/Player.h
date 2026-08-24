@@ -26,6 +26,7 @@ class LockOnManager;
 
 struct ComboNode
 {
+
 	std::string animName;//アニメーションの名
 	int  modelType = 0;//モデルの種類//0:通常モデル、1:攻撃モデル
 	AttackType type = AttackType::None;//攻撃するタイプ
@@ -41,9 +42,11 @@ struct ComboNode
 	bool isKirimomi = false;//吹っ飛ぶかどうか//吹っ飛ばない攻撃は、相手を引き寄せるような攻撃にする<-かなりあり！！！！！！！！
 	float seFrameRate = -1;//攻撃のSEを鳴らすフレームの割合//アニメーションの再生時間に対する割合で指定
 	std::string seName;//攻撃のSEの名前
+
 };
 struct ComboInfo
 {
+
 	int currentComboIndex = -1;//現在のコンボの段数//攻撃の段数を管理するための変数
 	bool isHit = false;//攻撃が当たったかどうか//当たっていたら動きを止める
 	bool isAirAttack = false;//空中で攻撃をしたかどうか
@@ -51,6 +54,7 @@ struct ComboInfo
 	int SkillGauge = 0;//スキルゲージ
 	int UltGauge = 0;//必殺技ゲージ
 	//int nextComboIndex = -1;//次のコンボの段数
+
 };
 
 //いずれ行と列のなまえにしたさがある
@@ -73,6 +77,7 @@ enum ComboNodeType : int
 	SeFrameRate = 14,
 	SeName = 15,
 	Size = 16,
+
 };
 namespace ComboIndex
 {
@@ -99,6 +104,7 @@ namespace ComboIndex
 	constexpr int SkillAttack1 = 14;
 	constexpr int SkillAttack2 = 15;
 	constexpr int SkillAttack3 = 16;
+
 };
 
 struct AvoidInfo

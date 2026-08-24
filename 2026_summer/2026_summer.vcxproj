@@ -171,6 +171,7 @@
     <ClCompile Include="Character\FireToarch.cpp" />
     <ClCompile Include="Camera\LockOnManager.cpp" />
     <ClCompile Include="Scene\ResultScene.cpp" />
+    <ClCompile Include="Sound\SoundManager.cpp" />
     <ClCompile Include="SpeedLine2D.cpp" />
     <ClCompile Include="Character\Mascot\Titlemascot.cpp" />
     <ClCompile Include="UI\ComboHUD.cpp" />
@@ -246,6 +247,7 @@
     <ClInclude Include="Character\FireToarch.h" />
     <ClInclude Include="Camera\LockOnManager.h" />
     <ClInclude Include="Scene\ResultScene.h" />
+    <ClInclude Include="Sound\SoundManager.h" />
     <ClInclude Include="SpeedLine2D.h" />
     <ClInclude Include="Character\Mascot\Titlemascot.h" />
     <ClInclude Include="UI\ComboHUD.h" />
