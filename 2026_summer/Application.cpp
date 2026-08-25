@@ -93,7 +93,7 @@ void Application::Run()
 	AsyncLoad();
 
 #ifdef _DEBUG
-	controller.ChangeScene(std::make_shared<TitleScene>(controller));
+	controller.ChangeScene(std::make_shared<GameScene>(controller));
 #else
 	controller.ChangeScene(std::make_shared<TitleScene>(controller));
 #endif 

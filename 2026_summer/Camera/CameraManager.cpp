@@ -6,6 +6,8 @@
 #include "UltCamera.h"
 #include "LockOnManager.h"
 #include "TitleCamera.h"
+#include "CameraState/CameraStateBase.h"
+#include "CameraState/PlayerFollowCamera.h"
 #include "LockOnCamera.h"
 #include "../Managers/CollisionManager.h"
 #include "../System.h"
@@ -73,6 +75,8 @@ void CameraManager::Init(std::weak_ptr<Player> player,std::weak_ptr<Stage> stage
 		camera->SetCameraManager(shared_from_this());
 		camera->SetStage(stage);
 	}
+	////PlayerCameraでスタート
+	//ChangeState(std::make_shared<PlayerFollowCamera>(shared_from_this()));
 }
 
 void CameraManager::Update(Vector3 pos, Vector3 pos2)
@@ -81,6 +85,10 @@ void CameraManager::Update(Vector3 pos, Vector3 pos2)
 	if (m_cameras.empty())return;
 	// DXライブラリのカメラとEffekseerのカメラを同期する。
 	Effekseer_Sync3DSetting();
+
+	//m_currentState->Update();
+	//SetCameraPositionAndTarget_UpVecY(m_currentState->GetPos().ToDxLibVector(), m_currentState->GetTarget().ToDxLibVector());
+	//return;
 		
 	if (m_isTitle)
 	{
@@ -175,6 +183,7 @@ void CameraManager::Draw()
 void CameraManager::ApplyCameraSettings()
 {
 	m_mainCamera->CameraSetting();
+	//SetCameraPositionAndTarget_UpVecY(m_currentState->GetPos().ToDxLibVector(), m_currentState->GetTarget().ToDxLibVector());
 	//カメラ変更を反映させる
 	Effekseer_Sync3DSetting();
 }
@@ -253,32 +262,6 @@ void CameraManager::SetWeakRef(std::weak_ptr<Player> m_player, std::weak_ptr<Ene
 
 
 }
-void CameraManager::SetWeakTargetEnemy(int id)
-{
-
-	////idで指定したEnemyをターゲットにする
-	//auto enemy = CollisionManager::GetInstance().GetColliderById(id);
-	//if (!enemy)
-	//{
-	//	assert(false && "指定したidのEnemyが存在しません");
-	//	return;
-	//}
-	////EnemyBaseのshared_ptrを取得
-	//auto enemyBase = std::dynamic_pointer_cast<EnemyBase>(enemy);
-	//if (!enemyBase)
-	//{
-	//	assert(false && "指定したidのEnemyはEnemyBaseではありません");
-	//	return;
-	//}
-
-	//m_context->m_targetEnemy = enemyBase;
-	//for (auto& camera : m_weakRefCameras)
-	//{
-	//	camera->SetCameraContext(m_context);
-	//}
-	////mainCameraにもセット
-	//m_mainCamera->SetCameraContext(m_context);
-}
 
 std::shared_ptr<EnemyBase> CameraManager::GetTargetEnemy()const
 {
@@ -307,6 +290,51 @@ void CameraManager::SetUpMainCamera()
 	data.target = highestPriorityCamera->GetCameraTarget();
 	//MainCameraに情報を渡す
 	m_mainCamera->Update(data);	
+}
+void CameraManager::ChangeState(std::shared_ptr<CameraStateBase> newState)
+{
+	// 保持
+	//prevcamera
+	if (m_currentState)
+	{
+		m_currentState->Exit();
+	}
+
+	CameraStateBase::CameraData data;
+
+
+	if (m_currentState)
+	{
+		data.pos = m_currentState->GetPos();
+		data.target = m_currentState->GetTarget();	m_currentState->Exit();
+	}
+
+	m_currentState = newState;
+
+	if (m_currentState)
+	{
+		m_currentState->Enter(data);
+	}
+
+}
+
+void CameraManager::InitState(std::shared_ptr<CameraStateBase> newState)
+{
+	m_currentState = newState;
+
+	CameraStateBase::CameraData data;
+
+	if (m_currentState)
+	{
+		m_currentState->Enter(data);
+	}
+}
+
+void CameraManager::ChangeStateFromScene()
+{
+
+
+	//ChangeScene(std::make_shared<)
 }
 
 

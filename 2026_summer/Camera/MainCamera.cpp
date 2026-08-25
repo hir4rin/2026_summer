@@ -1,5 +1,6 @@
 ﻿#include "MainCamera.h"
 #include "CameraManager.h"
+#include "CameraState/CameraStateBase.h"
 #include "LockOnManager.h"
 #include "Player.h"
 #include "../Character/Enemy/EnemyBase.h"
@@ -222,3 +223,4 @@ void MainCamera::SetSlerp(bool isSlerp)
 	m_distance = (m_pos - m_rotateAxis).Magnitude();
 
 }
+

@@ -11,6 +11,7 @@ class EnemyBase;
 class MainCamera;
 class Stage;
 class LockOnManager;
+class CameraStateBase;
 
 struct CameraContext
 {
@@ -56,7 +57,6 @@ public:
 
 	//RefWeakptr用
 	void SetWeakRef(std::weak_ptr<Player> m_player, std::weak_ptr<EnemyBase> m_enemy = {});
-	void SetWeakTargetEnemy(int id);//idで指定したEnemyをターゲットにする
 	//mainCameraのゲット
 	std::shared_ptr<MainCamera> GetMainCamera() { return m_mainCamera; }
 	//ターゲットのEnemyを取得する
@@ -65,6 +65,9 @@ public:
 	std::weak_ptr<LockOnManager> GetLockOnManager() { return m_lockOnManager; }
 	void SetLockOnCamera(std::weak_ptr<LockOnManager> lockonMgr) {  m_lockOnManager = lockonMgr;}
 
+	//CameraContextのゲット
+	std::shared_ptr<CameraContext> GetContext() { return m_context; }
+
 
 	//PlayerCameraに角度をセットさせる関数
 	void SetPlayerCameraAngle(float angleH, float angleV);
@@ -72,8 +75,13 @@ public:
 	//タイトル画面かどうかをセットする//trueの場合、TitleCamera以外の更新・優先度争いを行わない
 	void SetIsTitle(bool isTitle) { m_isTitle = isTitle; }
 
-private:
+public:
 	void SetUpMainCamera();//priorityが最も高いカメラの情報をMainCameraに反映させる
+	void ChangeState(std::shared_ptr<CameraStateBase> newState);
+	void InitState(std::shared_ptr<CameraStateBase> newState);
+	//外部からステートを変えるとき
+	void ChangeStateFromScene();
+
 
 private:
 	std::list<std::shared_ptr<Camera>> m_cameras;//カメラのリスト
@@ -91,6 +99,9 @@ private:
 
 	//ロックオンマネージャー//実体はGameScene(またはシーン側)が持つため、弱参照で持つ
 	std::weak_ptr<LockOnManager> m_lockOnManager;
+
+	//カメラのステート
+	std::shared_ptr<CameraStateBase> m_currentState;
 
 	//不本意だがいまはとりあえずここにかく
 	bool m_isUltimating = false;

@@ -163,11 +163,7 @@ void TitleScene::NormalDraw()
 	m_cameraManager->ApplyCameraSettings();
 	m_skyBox->Draw();
 	m_stage->Draw();
-	if (m_count >= kCameraSetUp)
-	{
-		DrawRectRotaGraph(Game::kScreenWidth / 2, Game::kScreenHeight / 4, 0, 0, kTitleLogoX, kTitleLogoY,
-		1.0, 0.0, m_titleLogoHandle, TRUE);
-	}
+	
 	
 	{
 		std::shared_ptr<TitleCamera>  titleCamera = std::dynamic_pointer_cast<TitleCamera>(m_cameraManager->GetHighestPriorityCamera());
@@ -184,6 +180,11 @@ void TitleScene::NormalDraw()
 #ifdef _DEBUG
 	m_cameraManager->Draw();
 #endif
+	if (m_count >= kCameraSetUp)
+	{
+		DrawRectRotaGraph(Game::kScreenWidth / 2, Game::kScreenHeight / 4, 0, 0, kTitleLogoX, kTitleLogoY,
+		1.0, 0.0, m_titleLogoHandle, TRUE);
+	}
 }
 
 void TitleScene::FadeOutDraw()

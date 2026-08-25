@@ -144,6 +144,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Application.cpp" />
+    <ClCompile Include="Camera\CameraState\CameraStateBase.cpp" />
     <ClCompile Include="Character\Enemy\Boss\BossEnemy.cpp" />
     <ClCompile Include="Character\Enemy\Boss\BossState.cpp" />
     <ClCompile Include="Character\Enemy\Boss\BossStateIdle.cpp" />
@@ -170,6 +171,8 @@
     <ClCompile Include="Camera\TitleCamera.cpp" />
     <ClCompile Include="Character\FireToarch.cpp" />
     <ClCompile Include="Camera\LockOnManager.cpp" />
+    <ClCompile Include="Camera\CameraState\PlayerFollowCamera.cpp" />
+    <ClCompile Include="Camera\CameraState\LockOnCameraState.cpp" />
     <ClCompile Include="Scene\ResultScene.cpp" />
     <ClCompile Include="Sound\SoundManager.cpp" />
     <ClCompile Include="SpeedLine2D.cpp" />
@@ -220,6 +223,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application.h" />
+    <ClInclude Include="Camera\CameraState\CameraStateBase.h" />
     <ClInclude Include="Character\Enemy\Boss\BossEnemy.h" />
     <ClInclude Include="Character\Enemy\Boss\BossState.h" />
     <ClInclude Include="Character\Enemy\Boss\BossStateIdle.h" />
@@ -246,6 +250,8 @@
     <ClInclude Include="Camera\TitleCamera.h" />
     <ClInclude Include="Character\FireToarch.h" />
     <ClInclude Include="Camera\LockOnManager.h" />
+    <ClInclude Include="Camera\CameraState\PlayerFollowCamera.h" />
+    <ClInclude Include="Camera\CameraState\LockOnCameraState.h" />
     <ClInclude Include="Scene\ResultScene.h" />
     <ClInclude Include="Sound\SoundManager.h" />
     <ClInclude Include="SpeedLine2D.h" />

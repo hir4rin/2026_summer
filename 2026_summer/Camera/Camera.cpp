@@ -32,15 +32,6 @@ Camera::~Camera()
 	}
 }
 
-void Camera::TitleInit()
-{
-	//m_pos = Vector3(300.0f, 120.0f, 0.0f);//カメラの位置をタイトル画面用に設定する
-	//m_target = Vector3(0.0f, 150.0f, 0.0f);//注視点をタイトル画面用に設定する
-	//// カメラの設定
-	//SetCameraPositionAndTarget_UpVecY(m_pos.ToDxLibVector(), m_target.ToDxLibVector());
-	//SetupCamera_Perspective(DX_PI_F / 3.0f);
-	//SetCameraNearFar(10.0f, 1500.0f);
-}
 
 void Camera::Init()
 {

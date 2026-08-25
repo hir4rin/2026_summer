@@ -4,6 +4,14 @@
 
 struct CameraContext;
 
+class CameraStateBase;
+//→今までのから変更
+//Stateパターンでの実装
+//このクラスで遷移させる
+
+
+
+
 /// <summary>
 //・抽象化が適切ではない
 //・コンポーネント思考も勉強したほうがいい
@@ -33,6 +41,8 @@ public:
 	//ロックオン
 	void SetLockOn(bool isLockOn) { m_isLockOn = isLockOn; }
 	bool GetIsLockOn()const { return m_isLockOn; }
+private:
+
 
 private:
 	bool m_isLerp[2] = { false ,false};//注視点と座標
