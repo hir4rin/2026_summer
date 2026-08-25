@@ -121,6 +121,79 @@ void LockOnCameraState::Exit()
 
 void LockOnCameraState::FixCameraPos()
 {
+	auto cameraManager = m_owner.lock();
+	if (!cameraManager)return;
+	auto lockOnManager = cameraManager->GetLockOnManager().lock();
+	std::shared_ptr<EnemyBase> enemy;
+	if (lockOnManager) enemy = lockOnManager->GetTarget().lock();
+	auto player = cameraManager->GetContext()->m_player.lock();
+	if (!enemy)return;
+	if (!player)return;
+
+	//水平方向の回転//敵との距離によってこの角度を帰る
+	//現在のカメラtoプレイヤーの向きとプレイヤーto敵の向きに応じて角度を反転？
+	Matrix4x4 rotY;
+
+	//auto rotX = Matrix4x4::MakeRotationX(0.16f);//固定
+
+	//ここも敵との距離に寄って変える
+	float cameraToPlayerLength = kToPlayerLength;
+
+	//カメラの座標を算出
+	//PtoEVecの逆ベクトルを15度程度ずらす、playerの座標から足す
+	Vector3 playerPos = player->GetPos();
+	Vector3 enemyPos = enemy->GetPos();
+	//y座標を0にする
+	playerPos.y = enemyPos.y = 0.0f;
+
+	Vector3 EtoPVec = (playerPos - enemyPos).Normalize();
+	EtoPVec *= cameraToPlayerLength;
+
+	//EtoPVecを90度回転させたベクトルとMainCtoPVecの内積が正か負かでどちらに回転させるかを決める
+	Vector3 upVec = Vector3(0.0f, 1.0f, 0.0f);
+	Vector3 rotateBase = EtoPVec.Cross(upVec).Normalize();//EtoPVecを90度回転させたベクトル
+	Vector3 PtoMainCVec = (m_pos - playerPos).Normalize();//プレイヤーからメインカメラへのベクトル
+	float dot = rotateBase.Dot(PtoMainCVec);
+	if (dot >= 0.0f)
+	{
+		//正の時、rotateBaseの方向に回転させる
+		rotY = Matrix4x4::MakeRotationY(-DX_PI_F / 6);
+	}
+	else
+	{
+		//負の時、rotateBaseの逆方向に回転させる
+		rotY = Matrix4x4::MakeRotationY(DX_PI_F / 6);
+	}
+	//やり方がわからないので、一旦これで
+	rotY = Matrix4x4::MakeRotationY(DX_PI_F / 6);
+
+	//auto CtoP = Vector3(0.0f, 0.0f, -cameraToPlayerLength);//プレイヤーからカメラへのベクトル
+
+	//カメラの揺れを加える
+	//EtoPVec = EtoPVec + CameraShakeUpdate();
+	//DxLibに変換
+	auto EtoPVecDx = EtoPVec.ToDxLibVector();
+	auto rotYMat = Matrix4x4::ToDxLibMatrix(rotY);//回転行列を転置する
+	//auto rotXMat = Matrix4x4::ToDxLibMatrix(rotX);//回転行列を転置する
+
+	//カメラからプレイヤーVec
+	auto RotPtoC = VTransform(EtoPVecDx, rotYMat);//回転させる
+	//RotPtoC = VTransform(RotPtoC, rotXMat);//回転させる
+	RotPtoC = VAdd(RotPtoC, VGet(0.0f, 160.0f, 0.0f));
+
+	//水平方向はその向き、垂直は初期化で角度を更新し、プレイヤーカメラに渡す
+	//atan2f(cross,dot)で二つのベクトルの角度が出る//理解済み
+	//Vector3 BaseVec = Vector3(0.0f, 0.0f, 1.0f);//Z軸の正方向//これを基準にする
+	//float dot = BaseVec.Dot(RotPtoC);
+	// float cross = BaseVec.Cross2DXZ(Vector3::FromDxLibVector(RotPtoC));
+	//m_angleH = atan2f(cross, dot);
+	//m_angleH += DX_PI_F;
+	m_angleH = atan2f(RotPtoC.x, RotPtoC.z) + DX_PI_F;
+
+
+	auto pos = VAdd(RotPtoC, player->GetPos().ToDxLibVector());//プレイヤーの座標に足す
+
+	m_pos = Vector3::FromDxLibVector(pos);
 }
 
 void LockOnCameraState::CameraSetting()

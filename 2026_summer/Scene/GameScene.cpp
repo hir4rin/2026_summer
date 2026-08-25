@@ -424,6 +424,7 @@ void GameScene::CheckLockOnCamera()
 					//ロックオンする//敵をカメラに渡す
 					//ここでCameraManagerに渡して、いろいろに渡す
 					m_cameraManager->SetWeakRef(std::weak_ptr<Player>(m_player), std::weak_ptr<EnemyBase>(enemy));
+					m_cameraManager->ChangeStateFromScene(CameraManager::CameraStateName::LockOnCamera);
 					m_lockOnManager->SetTargetEnemy(enemy);
 					mainCamera->SetLockOn(true);
 
@@ -437,6 +438,7 @@ void GameScene::CheckLockOnCamera()
 			//ロックオンを解除する
 			m_cameraManager->SetWeakRef(std::weak_ptr<Player>(m_player));
 			m_lockOnManager->SetTargetEnemy(std::weak_ptr<EnemyBase> {});
+			m_cameraManager->ChangeStateFromScene(CameraManager::CameraStateName::PlayerCaemra);
 			mainCamera->SetLockOn(false);
 			//ラープを切る
 			mainCamera->SetLerp(false);
@@ -634,6 +636,7 @@ void GameScene::CheckLockOnCameraEnemyDead()
 			m_cameraManager->SetWeakRef(std::weak_ptr<Player>(m_player));
 			m_lockOnManager->SetTargetEnemy({});
 			mainCamera->SetLockOn(false);
+			m_cameraManager->ChangeStateFromScene(CameraManager::CameraStateName::PlayerCaemra);
 			return;
 		}
 		//ターゲットエネミーとカメラのベクトルと、他の敵たちとのカメラベクトルのcosの値で決める
@@ -658,6 +661,7 @@ void GameScene::CheckLockOnCameraEnemyDead()
 				//敵をカメラに渡す
 				m_cameraManager->SetWeakRef(std::weak_ptr<Player>(m_player), std::weak_ptr<EnemyBase>(enemy));
 				m_lockOnManager->SetTargetEnemy(std::weak_ptr<EnemyBase>(enemy));
+
 			}
 
 			//誰もいなかったらロックオンを解除する
@@ -667,6 +671,7 @@ void GameScene::CheckLockOnCameraEnemyDead()
 				m_cameraManager->SetWeakRef(std::weak_ptr<Player>(m_player));
 				m_lockOnManager->SetTargetEnemy({});
 				mainCamera->SetLockOn(false);
+				m_cameraManager->ChangeStateFromScene(CameraManager::CameraStateName::PlayerCaemra);
 			}
 		}
 	}

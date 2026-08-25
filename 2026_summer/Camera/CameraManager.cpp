@@ -8,6 +8,7 @@
 #include "TitleCamera.h"
 #include "CameraState/CameraStateBase.h"
 #include "CameraState/PlayerFollowCamera.h"
+#include "CameraState/LockOnCameraState.h"
 #include "LockOnCamera.h"
 #include "../Managers/CollisionManager.h"
 #include "../System.h"
@@ -76,7 +77,7 @@ void CameraManager::Init(std::weak_ptr<Player> player,std::weak_ptr<Stage> stage
 		camera->SetStage(stage);
 	}
 	////PlayerCameraでスタート
-	//ChangeState(std::make_shared<PlayerFollowCamera>(shared_from_this()));
+	ChangeState(std::make_shared<PlayerFollowCamera>(shared_from_this()));
 }
 
 void CameraManager::Update(Vector3 pos, Vector3 pos2)
@@ -86,9 +87,9 @@ void CameraManager::Update(Vector3 pos, Vector3 pos2)
 	// DXライブラリのカメラとEffekseerのカメラを同期する。
 	Effekseer_Sync3DSetting();
 
-	//m_currentState->Update();
-	//SetCameraPositionAndTarget_UpVecY(m_currentState->GetPos().ToDxLibVector(), m_currentState->GetTarget().ToDxLibVector());
-	//return;
+	m_currentState->Update();
+	SetCameraPositionAndTarget_UpVecY(m_currentState->GetPos().ToDxLibVector(), m_currentState->GetTarget().ToDxLibVector());
+	return;
 		
 	if (m_isTitle)
 	{
@@ -183,7 +184,7 @@ void CameraManager::Draw()
 void CameraManager::ApplyCameraSettings()
 {
 	m_mainCamera->CameraSetting();
-	//SetCameraPositionAndTarget_UpVecY(m_currentState->GetPos().ToDxLibVector(), m_currentState->GetTarget().ToDxLibVector());
+	SetCameraPositionAndTarget_UpVecY(m_currentState->GetPos().ToDxLibVector(), m_currentState->GetTarget().ToDxLibVector());
 	//カメラ変更を反映させる
 	Effekseer_Sync3DSetting();
 }
@@ -330,11 +331,24 @@ void CameraManager::InitState(std::shared_ptr<CameraStateBase> newState)
 	}
 }
 
-void CameraManager::ChangeStateFromScene()
+void CameraManager::ChangeStateFromScene(CameraStateName stateName)
 {
+	std::shared_ptr<CameraStateBase> newState;
+	switch (stateName)
+	{
+	case CameraStateName::PlayerCaemra:
+		newState = std::make_shared<PlayerFollowCamera>(shared_from_this());
+		break;
+	case CameraStateName::LockOnCamera:
+		newState = std::make_shared<LockOnCameraState>(shared_from_this());
+		break;
+	case CameraStateName::UltCamera:
+		//newState = std::make_shared<UltCamera>(shared_from_this());
+		break;
 
+	}
 
-	//ChangeScene(std::make_shared<)
+	ChangeState(newState);
 }
 
 

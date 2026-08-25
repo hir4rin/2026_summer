@@ -23,6 +23,15 @@ struct CameraContext
 class CameraManager : public std::enable_shared_from_this<CameraManager>
 {
 public:
+	enum class CameraStateName
+	{
+		PlayerCaemra,
+		LockOnCamera,
+		UltCamera
+
+	};
+
+public:
 	CameraManager();
 	virtual ~CameraManager();
 	//カメラを登録
@@ -80,7 +89,7 @@ public:
 	void ChangeState(std::shared_ptr<CameraStateBase> newState);
 	void InitState(std::shared_ptr<CameraStateBase> newState);
 	//外部からステートを変えるとき
-	void ChangeStateFromScene();
+	void ChangeStateFromScene(CameraStateName stateName);
 
 
 private:
