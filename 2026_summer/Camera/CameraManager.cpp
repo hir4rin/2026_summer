@@ -255,6 +255,7 @@ void CameraManager::SetWeakRef(std::weak_ptr<Player> m_player, std::weak_ptr<Ene
 }
 void CameraManager::SetWeakTargetEnemy(int id)
 {
+
 	////idで指定したEnemyをターゲットにする
 	//auto enemy = CollisionManager::GetInstance().GetColliderById(id);
 	//if (!enemy)
@@ -277,8 +278,6 @@ void CameraManager::SetWeakTargetEnemy(int id)
 	//}
 	////mainCameraにもセット
 	//m_mainCamera->SetCameraContext(m_context);
-
-
 }
 
 std::shared_ptr<EnemyBase> CameraManager::GetTargetEnemy()const

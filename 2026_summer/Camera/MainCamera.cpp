@@ -153,11 +153,18 @@ void MainCamera::Update(const CameraData& data)
 	//データを受け取ってそれをもとにみるだけ
 	if(m_isShaking)
 	{
-		m_pos += CameraShakeUpdate();
+		Vector3 shakeOffset = CameraShakeUpdate();
+		Vector3 renderNowPos = m_pos + shakeOffset;
+		renderPos = renderNowPos;
+		
+	}
+	else
+	{
+		renderPos = m_pos;
 	}
 	
 	//カメラの位置と注視点を反映する
-	SetCameraPositionAndTarget_UpVecY(m_pos.ToDxLibVector(), m_target.ToDxLibVector());
+	SetCameraPositionAndTarget_UpVecY(renderPos.ToDxLibVector(), m_target.ToDxLibVector());
 	
 }
 
@@ -168,7 +175,7 @@ void MainCamera::FixCameraPos()
 void MainCamera::CameraSetting()
 {
 	//カメラの位置と注視点を反映する
-	SetCameraPositionAndTarget_UpVecY(m_pos.ToDxLibVector(), m_target.ToDxLibVector());
+	SetCameraPositionAndTarget_UpVecY(renderPos.ToDxLibVector(), m_target.ToDxLibVector());
 }
 void MainCamera::SetLerp(bool isLerp)
 {

@@ -436,7 +436,7 @@ void GameScene::CheckLockOnCamera()
 		{
 			//ロックオンを解除する
 			m_cameraManager->SetWeakRef(std::weak_ptr<Player>(m_player));
-			m_lockOnManager->SetTargetEnemy({});
+			m_lockOnManager->SetTargetEnemy(std::weak_ptr<EnemyBase> {});
 			mainCamera->SetLockOn(false);
 			//ラープを切る
 			mainCamera->SetLerp(false);

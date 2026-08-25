@@ -18,7 +18,7 @@ void LockOnManager::SetTargetEnemy(int id)
 	auto enemy = CollisionManager::GetInstance().GetColliderById(id);
 	if (!enemy)
 	{
-		assert(false && "指定したidのEnemyが存在しません");
+		//assert(false && "指定したidのEnemyが存在しません");
 		return;
 	}
 	//EnemyBaseのshared_ptrを取得

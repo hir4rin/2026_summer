@@ -150,6 +150,10 @@ public:
 
 	void OnCollision(Collider& other) override;
 	void OnDamage(Collider& other, AttackData& data) override;
+
+	void OnAttackHit(int otherId);//攻撃が当たった時の処理
+
+
 	ComboInfo& GetComboInfo() { return m_comboInfo; }//攻撃コンボの情報を取得する
 
 	float GetCameraRockOnRange()const { return kPlayerRockOnRange; }//ロックオンする範囲を返す

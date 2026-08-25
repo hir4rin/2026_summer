@@ -4,8 +4,10 @@
 #include "PlayerStateMove.h"
 #include "../Weapon.h"
 #include "../../../Camera/CameraManager.h"
+#include "../../../Camera/MainCamera.h"
 #include "../../../Camera/LockOnManager.h"
 #include "../../../DataLoader/DataManager.h"
+#include "Enemy/EnemyBase.h"
 #include "../../../System.h"
 #include "../../../Math/Matrix4x4.h"
 #include "../../../Camera/Camera.h"
@@ -30,6 +32,9 @@ namespace
 
 	constexpr float kRadius = 80.0f;
 	constexpr float kRadiusHit = 50.0f;
+
+	constexpr float kCameraShakePower = 2.5f;//カメラの揺れの強さ
+	constexpr float kCameraShakeTime = 5.0f;//カメラの揺れの時間
 }
 
 
@@ -279,6 +284,42 @@ void Player::OnDamage(Collider& other, AttackData& data)
 
 
 
+}
+
+void Player::OnAttackHit(int otherId)
+{
+
+	auto cameraManager = GetCameraManager().lock();
+	auto lockOnManager = GetLockOnManager().lock();
+	auto mainCamera = cameraManager->GetMainCamera();
+
+	
+
+	////ownerに当たったことを連絡->AttackMoveを止める
+	//bool isLockOn = mainCamera->GetIsLockOn();
+	//if (isLockOn)
+	//{
+	//	//ロックオンしている敵がいて、そいつに当たったら攻撃の移動を止める
+	//	auto playerTarget = GetTargetEnemy();
+	//	auto targetEnemy = playerTarget.lock();
+	//	if (!targetEnemy)
+	//	{
+	//		assert(false && "PlayerAttackOnCollision:ターゲットしている敵がいません");
+	//	}
+	//	if (otherId == targetEnemy->GetId())
+	//	{
+	//		//攻撃の移動を止める
+	//		auto& comboInfo = GetComboInfo();
+	//		comboInfo.isHit = true;//攻撃が当たったことを通知する//これで、攻撃の移動を止める
+	//	}
+	//}
+	////ロックオンしていない場合
+	//else
+	//{
+	//	//内部ターゲットにセットする
+	//	lockOnManager->SetTargetEnemy(otherId);
+
+	//}
 }
 
 void Player::ChangeState(std::shared_ptr<PlayerState> newState)

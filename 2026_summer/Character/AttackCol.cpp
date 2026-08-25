@@ -113,7 +113,7 @@ void AttackCol::PlayerAttackOnCollision(Collider& other)
 		auto it = std::find(m_hitIds.begin(), m_hitIds.end(), otherId);
 		if (it == m_hitIds.end())
 		{
-			// 初めて当たった場合の処理
+			// 初めての敵と当たった場合の処理
 
 			//プレイヤーのゲージ管理//今は複数の敵に当たったらその分ゲージが上がるようになっている
 			PlayerGaugeUp(other);
@@ -145,8 +145,8 @@ void AttackCol::PlayerAttackOnCollision(Collider& other)
 				/// そこでカメラを揺らしたり、ターゲットを保存したりする
 				///---------
 
-
-
+				//最初にあたった攻撃だったらカメラを揺らす
+				if(m_hitIds.empty())mainCamera->StartCameraShake(kCameraShakePower, kCameraShakeTime);//カメラを揺らす
 
 				//attackDataの変更//現在経過時間を引いて、敵の移動距離、時間を決める
 				float nowAnimFrame = player->GetAnimation().GetNowAnimFrame();
@@ -155,7 +155,10 @@ void AttackCol::PlayerAttackOnCollision(Collider& other)
 				hitCol->OnDamageInterFace(*this, *m_attackData);
 				//ヒットストップの受け渡し
 				//hitCol->SetTimeScaleInterFace(0.3f, 10.0f);
-				mainCamera->StartCameraShake(kCameraShakePower, kCameraShakeTime);//カメラを揺らす
+
+				//プレイヤーの攻撃が当たった時の処理//カメラシェイクや、内部ターゲットのセット
+				player->OnAttackHit(otherId);
+
 
 				//ownerに当たったことを連絡->AttackMoveを止める
 				bool isLockOn = mainCamera->GetIsLockOn();
@@ -178,8 +181,8 @@ void AttackCol::PlayerAttackOnCollision(Collider& other)
 				//ロックオンしていない場合
 				else
 				{
-					//内部ターゲットにセットする
-					lockOnManager->SetTargetEnemy(otherId);
+					//内部ターゲットにセットする//最初の敵だったら
+					if (m_hitIds.empty())lockOnManager->SetTargetEnemy(otherId);
 
 				}
 				

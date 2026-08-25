@@ -44,6 +44,8 @@ private:
 	Vector3 m_targetPos;
 	Vector3 m_rotateAxis;//Slerpの回転軸//Y軸ではあるので、実質座標
 
+	Vector3 renderPos;//カメラシェイク時の保存ように描画用の座標を増やす
+
 
 
 	
