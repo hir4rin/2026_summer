@@ -9,12 +9,25 @@
 #include "CameraState/CameraStateBase.h"
 #include "CameraState/PlayerFollowCamera.h"
 #include "CameraState/LockOnCameraState.h"
+#include "CameraState/UltCameraState.h"
+#include "CameraState/TitleCameraState.h"
 #include "LockOnCamera.h"
 #include "../Managers/CollisionManager.h"
 #include "../System.h"
 #include "../Character/Enemy/EnemyBase.h"
 #include "EffekseerForDXLib.h"
 #include "../SubWindow/SubWindow.h"
+#include "../Input.h"
+#include "../Math/Matrix4x4.h"
+#include <algorithm>
+#include <cmath>
+
+namespace
+{
+	constexpr float kPhotoCamSpeed = 20.0f;//フォトモード中のカメラ移動速度
+	constexpr float kPhotoAngleSpeed = 0.03f;//フォトモード中のカメラ回転速度
+	//constexpr float kPhotoLookDistance = 500.0f;//注視点までの距離
+}
 
 CameraManager::CameraManager()
 {
@@ -88,7 +101,12 @@ void CameraManager::Update(Vector3 pos, Vector3 pos2)
 	Effekseer_Sync3DSetting();
 
 	m_currentState->Update();
-	SetCameraPositionAndTarget_UpVecY(m_currentState->GetPos().ToDxLibVector(), m_currentState->GetTarget().ToDxLibVector());
+	//カメラに反映
+	Vector3 renderPos = m_currentState->GetPos();
+	renderPos += CameraShakeUpdate();
+	m_renderPos = renderPos;
+
+	SetCameraPositionAndTarget_UpVecY(m_renderPos.ToDxLibVector(), m_currentState->GetTarget().ToDxLibVector());
 	return;
 		
 	if (m_isTitle)
@@ -183,10 +201,85 @@ void CameraManager::Draw()
 }
 void CameraManager::ApplyCameraSettings()
 {
+	//フォトモード中は、Stateが計算した値ではなく、フリーカメラの座標をそのままDxLibに渡す
+	if (System::GetInstance().GetPhotoMode())
+	{
+		SetCameraPositionAndTarget_UpVecY(m_photoCamPos.ToDxLibVector(), m_photoCamTarget.ToDxLibVector());
+		Effekseer_Sync3DSetting();
+		return;
+	}
+
 	m_mainCamera->CameraSetting();
-	SetCameraPositionAndTarget_UpVecY(m_currentState->GetPos().ToDxLibVector(), m_currentState->GetTarget().ToDxLibVector());
+	SetCameraPositionAndTarget_UpVecY(m_renderPos.ToDxLibVector(), m_currentState->GetTarget().ToDxLibVector());
 	//カメラ変更を反映させる
 	Effekseer_Sync3DSetting();
+}
+
+void CameraManager::UpdatePhotoCamera()
+{
+	auto& input = Input::GetInstance();
+
+	//右スティックで向きを変える
+	auto rightStick = input.GetRightStickInput();
+	m_photoAngleH += rightStick.x * kPhotoAngleSpeed;
+	m_photoAngleV -= rightStick.y * kPhotoAngleSpeed;
+	m_photoAngleV = std::clamp(m_photoAngleV, -DX_PI_F * 0.49f, DX_PI_F * 0.49f);
+
+	//向きから前方向・右方向のベクトルを作る(atan2f(x,z)の対応の逆)
+	Vector3 forward = Vector3(sinf(m_photoAngleH), 0.0f, cosf(m_photoAngleH));
+	Vector3 right = Vector3(cosf(m_photoAngleH), 0.0f, -sinf(m_photoAngleH));
+
+	//十字キーで水平移動する
+	Vector3 moveDir = Vector3();
+	if (input.IsPressed("Up"))    moveDir = moveDir + forward;
+	if (input.IsPressed("Down"))  moveDir = moveDir + forward * -1.0f;
+	if (input.IsPressed("Right")) moveDir = moveDir + right;
+	if (input.IsPressed("Left"))  moveDir = moveDir + right * -1.0f;
+	if (moveDir.Magnitude() > 0.0f)
+	{
+		m_photoCamPos = m_photoCamPos + moveDir.Normalize() * kPhotoCamSpeed;
+	}
+
+	//RB/LBで上下移動する
+	if (input.IsPressed("RB")) m_photoCamPos.y += kPhotoCamSpeed;
+	if (input.IsPressed("LB")) m_photoCamPos.y -= kPhotoCamSpeed;
+
+	//注視点は、固定の前方ベクトルをm_photoAngleH,m_photoAngleVで回転させる
+	Vector3 baseDir = Vector3(0.0f, 0.0f, m_kToTargetDistance);//常に同じ、前フレームの結果を使わない
+	auto rotY = Matrix4x4::MakeRotationY(m_photoAngleH);
+	auto rotX = Matrix4x4::MakeRotationX(m_photoAngleV);
+
+	auto baseDirDx = baseDir.ToDxLibVector();
+	auto rotYMat = Matrix4x4::ToDxLibMatrix(rotY);
+	auto rotXMat = Matrix4x4::ToDxLibMatrix(rotX);
+
+	auto rotated = VTransform(baseDirDx, rotXMat);
+	rotated = VTransform(rotated, rotYMat);
+
+	auto pos = VAdd(rotated, m_photoCamPos.ToDxLibVector());
+	m_photoCamTarget = Vector3::FromDxLibVector(pos);
+
+
+
+	//Vector3 lookDir = Vector3(
+	//	sinf(m_photoAngleH) * cosf(m_photoAngleV),
+	//	sinf(m_photoAngleV),
+	//	cosf(m_photoAngleH) * cosf(m_photoAngleV));
+	//m_photoCamTarget = m_photoCamPos + lookDir * kPhotoLookDistance;
+}
+
+void CameraManager::SetPhotoCamera()
+{
+	//angleや座標を保存
+	m_photoCamPos = GetActiveCamera()->GetPos();
+	m_photoCamTarget = GetActiveCamera()->GetTarget();
+
+	m_photoAngleH = GetActiveCamera()->GetCameraAngleH();
+	m_photoAngleV = GetActiveCamera()->GetCameraAngleV();
+
+	//注視点までの距離を計算
+	m_kToTargetDistance = (m_photoCamPos - m_photoCamTarget).Magnitude();
+
 }
 
 void CameraManager::SetNextCameraPriority(Camera::Type type,bool isLerp,bool isSlerp)
@@ -270,6 +363,34 @@ std::shared_ptr<EnemyBase> CameraManager::GetTargetEnemy()const
 	if (!lockOnManager)return nullptr;
 	return lockOnManager->GetTarget().lock();
 }
+void CameraManager::StartCameraShake(float power, float time)
+{
+	m_shakePower = power;
+	m_shakeTimer = time;
+	m_shakeTimerMax = time;
+	m_isShaking = true;
+}
+
+Vector3 CameraManager::CameraShakeUpdate()
+{
+	if (m_shakeTimer <= 0.0f)
+	{
+		m_isShaking = false;
+		return Vector3();
+	}
+	m_shakeTimer -= 1.0;//
+
+	float progress = m_shakeTimer / m_shakeTimerMax;//揺れの進行度合いを0から1の範囲で表す
+	float currentPower = m_shakePower * progress;//現在の揺れの強さを計算する
+
+	float magX = (GetRand(200) / 100.0f - 1.0f) * currentPower;
+	float magY = (GetRand(200) / 100.0f - 1.0f) * currentPower;
+	Vector3 mag = Vector3(magX, magY, 0.0f);
+
+	return mag;
+
+
+}
 
 
 void CameraManager::SetPlayerCameraAngle(float angleH, float angleV)
@@ -294,6 +415,13 @@ void CameraManager::SetUpMainCamera()
 }
 void CameraManager::ChangeState(std::shared_ptr<CameraStateBase> newState)
 {
+	//同じStateなら遷移しない
+	if (m_currentState&&
+		m_currentState->GetCameraType() == newState->GetCameraType())
+	{
+		return;
+	}
+
 	// 保持
 	//prevcamera
 	if (m_currentState)
@@ -301,13 +429,15 @@ void CameraManager::ChangeState(std::shared_ptr<CameraStateBase> newState)
 		m_currentState->Exit();
 	}
 
-	CameraStateBase::CameraData data;
+	CameraStateBase::CameraData data = { };
 
 
 	if (m_currentState)
 	{
 		data.pos = m_currentState->GetPos();
-		data.target = m_currentState->GetTarget();	m_currentState->Exit();
+		data.target = m_currentState->GetTarget();
+		data.angleH = m_currentState->GetCameraAngleH();
+		data.angleV = m_currentState->GetCameraAngleV();
 	}
 
 	m_currentState = newState;
@@ -343,8 +473,13 @@ void CameraManager::ChangeStateFromScene(CameraStateName stateName)
 		newState = std::make_shared<LockOnCameraState>(shared_from_this());
 		break;
 	case CameraStateName::UltCamera:
-		//newState = std::make_shared<UltCamera>(shared_from_this());
+		newState = std::make_shared<UltCameraState>(shared_from_this());
 		break;
+	case CameraStateName::TitleCamera:
+		newState = std::make_shared<TitleCameraState>(shared_from_this());
+		break;
+	default:
+		return;
 
 	}
 

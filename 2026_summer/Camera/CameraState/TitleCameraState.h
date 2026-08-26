@@ -1,0 +1,46 @@
+﻿#pragma once
+#include "CameraStateBase.h"
+
+class TitleCameraState : public CameraStateBase
+{
+public:
+	//タイトル演出のカット
+	enum class Shot
+	{
+		Fixed,			//定点で映す
+		FollowPlayer,	//プレイヤーを追従し続ける
+		ZoomOut,
+		Opening,
+		Finish
+	};
+
+	TitleCameraState(std::weak_ptr<CameraManager> owner);
+	virtual ~TitleCameraState();
+
+	virtual void Enter(CameraData data)override;
+	virtual void Update()override;
+	virtual void Exit()override;
+
+	void Draw() override;
+	void CameraSetting() override;
+
+	Type GetCameraType()const override { return Type::TitleCamera; }
+	virtual BlendSetting GetBlendSetting()const override
+	{
+		return BlendSetting{
+			.mode = BlendSetting::Mode::Lerp,
+			.duration = 5.0f,
+			.easingPower = 1.0f,
+			.pivot = Vector3()
+		};
+	}
+
+
+	void SetShot(Shot shot) { m_shot = shot; }
+	Shot GetShot()const { return m_shot; }
+private:
+	Shot m_shot = Shot::Fixed;
+	int m_count = 0;
+	int m_count_zoom = 0;
+};
+

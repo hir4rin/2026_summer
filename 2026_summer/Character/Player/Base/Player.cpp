@@ -129,11 +129,6 @@ void Player::Update(Camera& camera)
 	m_camera->UpdateLight();
 	auto& input = Input::GetInstance();
 
-	//回避のクールタイムの更新
-	if (m_avoidInfo.avoidCoolTimeCount > 0.0f)
-	{
-		m_avoidInfo.avoidCoolTimeCount -= 1.0f * System::GetInstance().GetTimeScale();//回避のクールタイムを減らす
-	}
 	//被ダメ後の無敵時間の更新
 	if (m_damageInfo.damageTimer > 0.0f)
 	{
@@ -267,13 +262,6 @@ void Player::OnDamage(Collider& other, AttackData& data)
 	{
 		return;
 	}
-	//StateがAvoidで回避中かつ、時間内だったらジャスト回避
-	//auto nowState = std::dynamic_pointer_cast<PlayerStateAvoid>(m_currentState);
-	//if(m_currentState == nowState)
-	//{
-
-	//}
-
 	//被ダメdataを更新する
 	m_attackData = data;
 	//stateをhitStateにする
@@ -437,16 +425,6 @@ void Player::UpdateAngle()
 
 	//	Matrix4x4 mtx = trans * rotY;
 	//	MV1SetMatrix(m_modelHandle, Matrix4x4::ToDxLibMatrix(mtx));
-}
-
-bool Player::IsAvoidable() const
-{
-	if (m_avoidInfo.avoidCoolTimeCount > 0.0f)
-	{
-		return false;//クールタイム中は回避できない
-	}
-
-	return true;
 }
 
 void Player::WingUpdate()

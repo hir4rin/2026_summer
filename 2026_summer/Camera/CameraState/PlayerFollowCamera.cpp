@@ -41,10 +41,19 @@ void PlayerFollowCamera::Enter(CameraData data)
 
 	Vector3 playerPos = Vector3(player->GetPos().x, 0.0f, player->GetPos().z);
 
-	m_target = playerPos + kCameraHeight;
-	m_pos = data.pos;
 	//カメラの位置を調整する
 	FixCameraPos();
+
+	m_target = playerPos + kCameraHeight;
+	//座標をセット
+	//m_target = data.target;
+	m_angleH = data.angleH;
+	m_angleV = data.angleV;
+
+
+	ResetBlend(data.pos, data.target);
+
+
 	//カメラの位置と注視点を反映する
 	SetCameraPositionAndTarget_UpVecY(m_pos.ToDxLibVector(), m_target.ToDxLibVector());
 }
@@ -90,22 +99,34 @@ void PlayerFollowCamera::Update()
 
 
 	//playerPos.y = 0.0f;//プレイヤーのy座標は0にする
-	m_focusGoal = playerPos + kCameraHeight;
-	m_target = Vector3::Lerp(m_target, m_focusGoal, 0.5f);
+	m_goalTarget = playerPos + kCameraHeight;
+	m_target = Vector3::Lerp(m_target, m_goalTarget, 0.5f);
 
 	//カメラの位置を調整する
 	FixCameraPos();
 
 	//大きさによって、ラープかどうかを変える
-	//Vector3 dis = m_targetPos - m_pos;
+	//Vector3 dis = m_goalPos - m_pos;
 	//if (dis.Magnitude() < 0.15f)
 	//{
-	//	m_pos = m_targetPos;
+	//	m_pos = m_goalPos;
 	//}
 
-	//Lerpの割合を上下差がある攻撃で変えたりす
-	// るとよい
-	m_pos = Vector3::Lerp(m_pos, m_targetPos, 0.5f);
+	//Lerpの割合を上下差がある攻撃で変えたりするとよい
+
+	//Blend中はBlendのほうのlerp
+	if (IsBlending())
+	{
+		//他のカメラから遷移してきた直後:durationで指定した、ゆっくりしたLerp
+		UpdateBlend(m_goalPos, m_goalTarget);
+	}
+	//Blend中ではない
+	else
+	{
+		//通常時:今まで通りの追従Lerp(ジャンプなどの滑らかな追従はここで維持)
+		m_pos = Vector3::Lerp(m_pos, m_goalPos, 0.5f);
+		m_target = Vector3::Lerp(m_target, m_goalTarget, 0.5f);
+	}
 
 
 	//カメラの位置と注視点を反映する
@@ -115,6 +136,11 @@ void PlayerFollowCamera::Update()
 
 void PlayerFollowCamera::Exit()
 {
+	//m_angleH/m_angleVを、カメラ→注視点のベクトルから計算し直す(次のStateに正しい向きを渡すため)
+	Vector3 toTarget = m_target - m_pos;
+	float horizontalDist = Vector3(toTarget.x, 0.0f, toTarget.z).Magnitude();
+	m_angleH = atan2f(toTarget.x, toTarget.z);
+	m_angleV = atan2f(toTarget.y, horizontalDist);
 }
 
 void PlayerFollowCamera::FixCameraPos()
@@ -128,8 +154,6 @@ void PlayerFollowCamera::FixCameraPos()
 
 	//カメラの座標を算出
 	auto CtoP = Vector3(0.0f, 0.0f, -cameraToPlayerLength);//プレイヤーからカメラへのベクトル
-	//カメラの揺れを加える
-	CtoP = CtoP + CameraShakeUpdate();
 	//DxLibに変換
 	auto CtoPVec = CtoP.ToDxLibVector();
 	auto rotYMat = rotY.ToDxLibMatrix(rotY);//回転行列を転置する
@@ -138,9 +162,9 @@ void PlayerFollowCamera::FixCameraPos()
 	auto RotCtoP = VTransform(CtoPVec, rotXMat);//回転させる
 	RotCtoP = VTransform(RotCtoP, rotYMat);//回転させる
 
-	auto pos = VAdd(RotCtoP, m_focusGoal.ToDxLibVector());//プレイヤーの座標に足す
+	auto pos = VAdd(RotCtoP, m_goalTarget.ToDxLibVector());//プレイヤーの座標に足す
 
-	m_targetPos = Vector3::FromDxLibVector(pos);
+	m_goalPos = Vector3::FromDxLibVector(pos);
 }
 
 void PlayerFollowCamera::CameraSetting()
@@ -149,6 +173,9 @@ void PlayerFollowCamera::CameraSetting()
 	//カメラの位置と注視点を反映する
 	SetCameraPositionAndTarget_UpVecY(m_pos.ToDxLibVector(), m_target.ToDxLibVector());
 }
+
+
+
 
 void PlayerFollowCamera::InputRightStick()
 {

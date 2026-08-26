@@ -12,15 +12,23 @@ public:
 	void FixCameraPos() override;
 	void CameraSetting() override;
 
+	Type GetCameraType()const override { return Type::PlayerCamera; }
+	virtual BlendSetting GetBlendSetting()const override
+	{
+		return BlendSetting{
+			.mode = BlendSetting::Mode::Lerp,
+			.duration = 5.0f,
+			.easingPower = 1.0f,
+			.pivot = Vector3()
+		};
+	}
+
 private:
 	void InputRightStick();//右スティックの入力を処理する
 	void FixCameraPosLockOn();//ロックオン時のカメラの位置を調整する
 private:
 	XINPUT_STATE  xi;
-	Vector3 m_rayVec = Vector3(0, 0, 0);//カメラの前方向のベクトル//カメラの注視点を決めるために使う　
-	//lerp用
-	Vector3 m_targetPos;//カメラの目標座標
-	Vector3 m_focusGoal;//カメラの目標注視点座標
+	Vector3 m_rayVec = Vector3(0, 0, 0);//カメラの前方向のベクトル//カメラの注視点を決めるために使う
 
 	Vector3 m_testPos = Vector3(0, 0, 0);
 	Vector3 m_testPos2 = Vector3(0, 0, 0);

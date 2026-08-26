@@ -103,6 +103,9 @@ void GameClearScene::NormalUpdate()
 		}
 		break;
 	}
+
+	// Effekseerにより再生中のエフェクトを更新する。
+	UpdateEffekseer3D();
 }
 
 void GameClearScene::FadeOutUpdate()

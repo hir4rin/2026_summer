@@ -2,6 +2,8 @@
 #include "Player.h"
 #include "../../../Math/Vector3.h"
 #include "../../../Camera/Camera.h"
+#include "../../../Camera/CameraManager.h"
+#include "../../../Camera/CameraState/CameraStateBase.h"
 #include "../../../Game.h"
 
 PlayerState::PlayerState(std::weak_ptr<Player> owner) :
@@ -28,7 +30,8 @@ void PlayerState::HandlerInput()
 	//移動方向の初期化//毎フレーム、カメラからプレイヤーへのベクトルを求めて、移動方向を決める
 	{
 		//前後移動を最初に決める
-		Vector3 CameraToPlayer = player->m_pos - (player->m_camera->GetCameraPos());//カメラからプレイヤーへのベクトル
+		Vector3 CameraToPlayer = player->m_pos - (player->m_cameraManager.lock()->GetActiveCamera()->GetPos());//カメラからプレイヤーへのベクトル
+		//Vector3 CameraToPlayer = player->m_pos - (player->m_camera->GetCameraPos());//カメラからプレイヤーへのベクトル
 		//初期化
 		Vector3 VelSize = CameraToPlayer.Normalize();//カメラからプレイヤーへのベクトルを正規化して、移動速度を5にする
 		VelSize.y = 0.0f;//y成分は移動に関係ないので、0にする

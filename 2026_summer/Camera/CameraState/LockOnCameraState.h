@@ -14,5 +14,17 @@ public:
 
 	void FixCameraPos() override;
 	void CameraSetting() override;
+
+	Type GetCameraType()const override { return Type::LockOnCamera; }
+	virtual BlendSetting GetBlendSetting()const override
+	{
+		return BlendSetting{
+			.mode = BlendSetting::Mode::Lerp,
+			.duration = 25.0f,
+			.easingPower = 0.3f,
+			.pivot = Vector3()
+		};
+	}
+
 };
 

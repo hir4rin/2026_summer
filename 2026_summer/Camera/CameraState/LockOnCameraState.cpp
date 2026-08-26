@@ -31,7 +31,9 @@ LockOnCameraState::~LockOnCameraState()
 
 void LockOnCameraState::Enter(CameraData data)
 {
-	auto player = m_owner.lock()->GetContext()->m_player.lock();
+	m_angleH = data.angleH;
+	m_angleV = data.angleV;
+	ResetBlend(data.pos, data.target);
 	Update();
 }
 
@@ -75,6 +77,7 @@ void LockOnCameraState::Update()
 	if (distance > kLockOnMaxDistance)
 	{
 		mainCamera->SetLockOn(false);
+		cameraManager->SetLockOn(false);
 		//解放
 		//m_lockOnEnemy.reset();
 
@@ -109,14 +112,30 @@ void LockOnCameraState::Update()
 
 
 	//ターゲットの位置を更新
-	m_target = targetPos + kCameraHeight;
-	//カメラの位置を調整する
-	//FixCameraPos();
-	//カメラの位置と注視点を反映する
+	m_goalTarget = targetPos + kCameraHeight;
+
+	//Blend中はBlendのほうのlerp
+	if (IsBlending())
+	{
+		//他のカメラから遷移してきた直後:durationで指定した、ゆっくりしたLerp
+		UpdateBlend(m_goalPos, m_goalTarget);
+	}
+	//Blend中ではない
+	else
+	{
+		//通常時:今まで通り、生の計算値をそのまま使う
+		m_pos = m_goalPos;
+		m_target = m_goalTarget;
+	}
 }
 
 void LockOnCameraState::Exit()
 {
+	//m_angleH/m_angleVを、カメラ→注視点のベクトルから計算し直す(次のStateに正しい向きを渡すため)
+	Vector3 toTarget = m_target - m_pos;
+	float horizontalDist = Vector3(toTarget.x, 0.0f, toTarget.z).Magnitude();
+	m_angleH = atan2f(toTarget.x, toTarget.z);
+	m_angleV = atan2f(toTarget.y, horizontalDist);
 }
 
 void LockOnCameraState::FixCameraPos()
@@ -193,7 +212,7 @@ void LockOnCameraState::FixCameraPos()
 
 	auto pos = VAdd(RotPtoC, player->GetPos().ToDxLibVector());//プレイヤーの座標に足す
 
-	m_pos = Vector3::FromDxLibVector(pos);
+	m_goalPos = Vector3::FromDxLibVector(pos);
 }
 
 void LockOnCameraState::CameraSetting()

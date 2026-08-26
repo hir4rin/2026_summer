@@ -60,7 +60,7 @@ public:
 
 	//lerp
 	static Vector3 Lerp(const Vector3& start, const Vector3& end, float t);
-	//Slerp//球面線形補間//ベクトルの補完
+	//Slerp//球面線形補間//ベクトルの補完//大きさが1のものを入れる
 	static Vector3 Slerp(const Vector3& start, const Vector3& end, float t);
 
 	//演算子オーバーロード

@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include "DxLib.h"
+#include "EffekseerForDXLib.h"
 class SceneController; // シーンコントローラーのプロトタイプ宣言
 
 

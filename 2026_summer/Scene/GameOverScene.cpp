@@ -32,6 +32,8 @@ void GameOverScene::NormalUpdate()
 		//タイトルシーンに遷移する
 		m_controller.ChangeScene(std::make_shared<TitleScene>(m_controller));
 	}
+	// Effekseerにより再生中のエフェクトを更新する。
+	UpdateEffekseer3D();
 }
 
 void GameOverScene::FadeOutUpdate()

@@ -13,12 +13,24 @@ class Stage;
 class CameraStateBase
 {
 public:
+
+
+	//受け渡し用
 	struct CameraData
 	{
 		Vector3 pos;
 		Vector3 target;
 		float angleH;
 		float angleV;
+	};
+	//自分で設定するもの
+	struct BlendSetting
+	{
+		enum class Mode { None, Lerp, Slerp,Chase };
+		Mode mode = Mode::None;
+		float duration = 0.0f;   //何フレームでtargetに到達させるか
+		float easingPower = 1.0f;
+		Vector3 pivot = Vector3();//Slerp時の基軸(回転の中心)
 	};
 	
 	enum class Type
@@ -47,7 +59,10 @@ public:
 	Vector3 GetPos()const { return m_pos; }
 	Vector3 GetTarget()const { return m_target; }
 
-	Type GetCameraType()const { return m_type; }
+	virtual Type GetCameraType()const = 0;//各Stateが自分の種類を返す(実装を強制する)
+
+	virtual BlendSetting GetBlendSetting()const = 0;//カメラのブレンドセット
+	//BlendModeによって、posとかを変更したりする
 
 
 
@@ -69,9 +84,16 @@ public:
 	void StartCameraShake(float power, float time);
 	Vector3 CameraShakeUpdate();
 
+
+
 	virtual void CameraSetting();
 
 	void SetStage(std::weak_ptr<Stage> stage) { m_stage = stage; }
+protected:
+	void UpdateBlend(const Vector3& rawPos, const Vector3& rawTarget);//毎フレーム呼ぶ
+	void ResetBlend(const Vector3& startPos, const Vector3& startTarget);//Enterの最初に呼ぶ
+	// 現在blend中かどうか
+	bool IsBlending()const { return m_blendElapsed < m_activeBlend.duration; }
 protected:
 	//ステートの親
 	std::weak_ptr<CameraManager> m_owner;
@@ -79,19 +101,28 @@ protected:
 	bool m_isChangeCamera = false;//カメラを切り変えるかどうかのフラグ
 
 	Vector3 m_target;//注視点//ターゲット座標
+	Vector3 m_startTarget;////注視点//初期ターゲット座標
+	Vector3 m_goalTarget;//注視点//目的ターゲット座標
 	Vector3 m_pos;//カメラの位置//現座標
 	Vector3 m_startPos;//カメラの位置//初期座標
-	Type m_type = Type::None;//カメラの種類
+	Vector3 m_goalPos;//カメラの位置//目的座標
 
 	float m_angleH = 0.0f;// 水平方向の回転角度
 	float m_angleV = 0.0f;// 垂直方向の回転角度
 	CameraData m_cameraData;
+
+	float m_blendElapsed = 0.0f;//経過フレーム数
+	BlendSetting m_activeBlend;//Enter時に確定させた、この遷移用のブレンド設定
 
 	//カメラ揺れ用
 	float m_shakePower = 0.0f;
 	float m_shakeTimer = 0.0f;
 	float m_shakeTimerMax = 0.0f;//減衰用のコピー
 	bool m_isShaking = false;//今カメラが揺れているかどうか
+
+	//blend設定
+	//BlendSetting m_blendSetting;
+
 	//ライト
 	int m_lightHandle = -1;//ライトのハンドル
 

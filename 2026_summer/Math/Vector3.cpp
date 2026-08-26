@@ -92,8 +92,11 @@ Vector3 Vector3::Lerp(const Vector3& start, const Vector3& end, float t)
 
 Vector3 Vector3::Slerp(const Vector3& start, const Vector3& end, float t)
 {
+	
+
+
 	Vector3 ans;
-	//Θをacos(内積)で求める
+	//Θをacos(内積)で求める//ベクトルを正規化する
 	Vector3 startNorm = start.Normalize();
 	Vector3 endNorm = end.Normalize();
 	float dot = startNorm.Dot(endNorm);
@@ -110,7 +113,7 @@ Vector3 Vector3::Slerp(const Vector3& start, const Vector3& end, float t)
 		return start;
 	}
 
-	ans = start * (sin((1 - t) * rad) / sin(rad)) + end * (sin(t * rad) / sin(rad));
+	ans = startNorm * (sin((1 - t) * rad) / sin(rad)) + endNorm * (sin(t * rad) / sin(rad));
 
 	return ans;
 }

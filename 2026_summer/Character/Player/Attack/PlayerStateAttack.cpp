@@ -112,17 +112,6 @@ void PlayerStateAttack::Update()
 
 	//コンボ予約の入力を取る//予約を取ったらもうここは通らないようにする
 	AttackInputCheck();
-	//回避
-	if (input.IsTriggered("B") && player->IsAvoidable())
-	{
-		if (player->IsFloor())
-		{
-			AttackFinishProcess();//攻撃の段数を初期化するなどの処理
-			player->ChangeState(std::make_shared<PlayerStateAvoid>(m_owner));
-			return;
-		}
-	}
-
 	//攻撃の進行率によってジャンプの入力を受け付けるかどうかを決める
 	//ジャンプ
 	if (input.IsTriggered("A"))
@@ -464,7 +453,7 @@ void PlayerStateAttack::CheckNoLockOnTargetEnemy()
 	//入力方向にベクトルを飛ばし、そこと、cosΘで比較
 	//30度以内の敵がいたら、そいつをターゲットにする
 	Vector3 inputDir = Vector3(0, 0, 0);
-	float cosTheta = cosf(DX_PI_F / 4);//角度以内の敵をターゲットにする//cosでの判定に使う
+	float cosTheta = cosf(DX_PI_F / 3);//角度以内の敵をターゲットにする//cosでの判定に使う
 
 	if (input.IsPressed("Up")) inputDir += player->forward;
 	if (input.IsPressed("Down")) inputDir += player->down;

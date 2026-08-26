@@ -93,7 +93,8 @@ void Application::Run()
 	AsyncLoad();
 
 #ifdef _DEBUG
-	controller.ChangeScene(std::make_shared<GameScene>(controller));
+	//controller.ChangeScene(std::make_shared<GameScene>(controller));
+	controller.ChangeScene(std::make_shared<TitleScene>(controller));
 #else
 	controller.ChangeScene(std::make_shared<TitleScene>(controller));
 #endif 
@@ -126,8 +127,7 @@ void Application::Run()
 
 		Input::GetInstance().Update();
 		controller.Update();
-		// Effekseerにより再生中のエフェクトを更新する。
-		UpdateEffekseer3D();
+	
 		controller.Draw();
 		SubWindow::Draw();//サブウィンドウの描画
 		//裏画面と表画面を入れ替える

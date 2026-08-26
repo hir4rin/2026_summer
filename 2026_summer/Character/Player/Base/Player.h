@@ -3,10 +3,8 @@
 #include "PlayerEnums.h"
 #include "PlayerStateIdle.h"//他のStateから他のStateに遷移するため(便利)
 #include "PlayerStateMove.h"//以下同文
-#include "PlayerStateRun.h"//以下同文
 #include "PlayerStateJump.h"//以下同文
 #include "PlayerStateFall.h"//以下同文
-#include "PlayerStateAvoid.h"//以下同文
 #include "PlayerStateHit.h"//以下同文
 #include "PlayerStateAttack.h"//以下同文
 #include "PlayerStateSkillAttack.h"//以下同文
@@ -107,16 +105,6 @@ namespace ComboIndex
 
 };
 
-struct AvoidInfo
-{
-	bool isAvoiding = false;//回避中かどうかのフラグ
-	bool isAvoidReserved = false;//回避の予約
-	Vector3 BaseVel = Vector3();//基準とするベクトルをセット
-	float avoidCount = 0.0f;//回避のカウント//回避の時間を管理するためのカウント
-	float avoidCoolTimeCount = 0.0f;//回避のクールタイムのカウント//回避のクールタイムを管理するためのカウント
-	bool isAvoidBack = false;//後ろに回避するかどうかのフラグ	
-	bool isJustAvoid = false;//ジャスト回避かどうかのフラグ
-};
 struct DamageInfo
 {
 	float damageTimer = 0.0f;//被ダメ後無敵時間
@@ -195,7 +183,6 @@ private:
 
 	void InitializeComboChain();//CSVからコンボデータの読み込みをする
 	void UpdateAngle();//回転処理
-	bool IsAvoidable()const;//回避入力を受け付けるかどうか
 	void WingUpdate();//鴉状態の羽の更新
 	void ApplyPos()override;//座標の適用//Playerクラスでは、座標に加えて、首のボーンの回転も適用する
 	void ApplyPosWithAttackModel();//アタックモデルにも適用
@@ -211,7 +198,6 @@ private:
 	//コンボチェーン
 	std::vector<ComboNode> m_comboChain = {};//コンボのデータ
 	ComboInfo m_comboInfo = {};//コンボの情報//現在のコンボの段数などを管理するためのもの
-	AvoidInfo m_avoidInfo = {};//回避の情報
 	DamageInfo m_damageInfo = {};//被ダメ後無敵時間の情報
 
 	//リザルト集計用
@@ -255,10 +241,8 @@ private:
 	friend class PlayerState;//PlayerStateクラスから、Playerクラスのprivateメンバにアクセスできるようにする
 	friend class PlayerStateIdle;
 	friend class PlayerStateMove;
-	friend class PlayerStateRun;
 	friend class PlayerStateJump;
 	friend class PlayerStateFall;
-	friend class PlayerStateAvoid;
 	friend class PlayerStateHit;
 	friend class PlayerStateAttack;
 	friend class PlayerStateSkillAttack;

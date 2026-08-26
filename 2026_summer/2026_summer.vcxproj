@@ -181,6 +181,7 @@
     <ClCompile Include="UI\PlayerHUD.cpp" />
     <ClCompile Include="Scene\GameClearScene.cpp" />
     <ClCompile Include="Scene\GameOverScene.cpp" />
+    <ClCompile Include="Scene\PauseScene.cpp" />
     <ClCompile Include="Managers\FixNextPosition.cpp" />
     <ClCompile Include="Managers\CollisionChecker.cpp" />
     <ClCompile Include="DataLoader\DataManager.cpp" />
@@ -193,9 +194,7 @@
     <ClCompile Include="Character\Player\Base\PlayerState.cpp" />
     <ClCompile Include="Character\Player\Locomotion\PlayerStateIdle.cpp" />
     <ClCompile Include="Character\Player\Locomotion\PlayerStateMove.cpp" />
-    <ClCompile Include="Character\Player\Defence\PlayerStateAvoid.cpp" />
     <ClCompile Include="Character\Player\Attack\PlayerStateAttack.cpp" />
-    <ClCompile Include="Character\Player\Locomotion\PlayerStateRun.cpp" />
     <ClCompile Include="Character\Player\Attack\PlayerStateDashAttack.cpp" />
     <ClCompile Include="Character\Player\Locomotion\PlayerStateJump.cpp" />
     <ClCompile Include="Character\Player\Locomotion\PlayerStateFall.cpp" />
@@ -220,6 +219,8 @@
     <ClCompile Include="UI\UIBase.cpp" />
     <ClCompile Include="UI\UIManager.cpp" />
     <ClCompile Include="Character\WaveAreaCol.cpp" />
+    <ClCompile Include="Camera\CameraState\UltCameraState.cpp" />
+    <ClCompile Include="Camera\CameraState\TitleCameraState.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application.h" />
@@ -261,6 +262,7 @@
     <ClInclude Include="Scene\GameClearScene.h" />
     <ClInclude Include="Scene\GameResult.h" />
     <ClInclude Include="Scene\GameOverScene.h" />
+    <ClInclude Include="Scene\PauseScene.h" />
     <ClInclude Include="Managers\FixNextPosition.h" />
     <ClInclude Include="Managers\CollisionChecker.h" />
     <ClInclude Include="DataLoader\DataManager.h" />
@@ -276,10 +278,8 @@
     <ClInclude Include="Character\Player\Base\PlayerState.h" />
     <ClInclude Include="Character\Player\Locomotion\PlayerStateIdle.h" />
     <ClInclude Include="Character\Player\Locomotion\PlayerStateMove.h" />
-    <ClInclude Include="Character\Player\Defence\PlayerStateAvoid.h" />
     <ClInclude Include="Character\Player\Attack\PlayerStateAttack.h" />
     <ClInclude Include="Character\Player\Base\PlayerEnums.h" />
-    <ClInclude Include="Character\Player\Locomotion\PlayerStateRun.h" />
     <ClInclude Include="Character\Player\Attack\PlayerStateDashAttack.h" />
     <ClInclude Include="Character\Player\Locomotion\PlayerStateJump.h" />
     <ClInclude Include="Character\Player\Locomotion\PlayerStateFall.h" />
@@ -303,6 +303,8 @@
     <ClInclude Include="UI\UIBase.h" />
     <ClInclude Include="UI\UIManager.h" />
     <ClInclude Include="Character\WaveAreaCol.h" />
+    <ClInclude Include="Camera\CameraState\UltCameraState.h" />
+    <ClInclude Include="Camera\CameraState\TitleCameraState.h" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="EnemyBlack.hlsl">

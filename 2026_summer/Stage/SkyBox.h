@@ -3,7 +3,7 @@
 #include "../Math/Vector3.h"
 #include <memory>
 
-class Camera;
+class CameraManager;
 class SkyBox
 {
 public:
@@ -19,7 +19,7 @@ public:
 	};
 	SkyBox();
 	virtual ~SkyBox();
-	void Init(std::weak_ptr<Camera> camera);
+	void Init(std::weak_ptr<CameraManager> cameraMgr);
 	void Update();
 	void Draw();
 private:
@@ -28,7 +28,7 @@ private:
 
 	VERTEX3D m_vertex[kFaceNum][kVertexPerFace];//各面の頂点データ
 	int m_textureHandle[kFaceNum];//各面のテクスチャハンドル
-	std::weak_ptr<Camera> m_camera;//カメラの弱参照
+	std::weak_ptr<CameraManager> m_cameraManager;//カメラの弱参照
 
 	/// <summary>
 	/// 1面分（クワッド）の頂点を設定

@@ -146,7 +146,7 @@ void AttackCol::PlayerAttackOnCollision(Collider& other)
 				///---------
 
 				//最初にあたった攻撃だったらカメラを揺らす
-				if(m_hitIds.empty())mainCamera->StartCameraShake(kCameraShakePower, kCameraShakeTime);//カメラを揺らす
+				if(m_hitIds.empty())cameraManager->StartCameraShake(kCameraShakePower, kCameraShakeTime);//カメラを揺らす
 
 				//attackDataの変更//現在経過時間を引いて、敵の移動距離、時間を決める
 				float nowAnimFrame = player->GetAnimation().GetNowAnimFrame();
@@ -190,12 +190,16 @@ void AttackCol::PlayerAttackOnCollision(Collider& other)
 			//もしプレイヤーの必殺技攻撃だったら
 			if (GetTag() == Tags::PlayerUltAttack)
 			{
+				auto cameraManager = player->GetCameraManager().lock();
+
 				//演出が始まっていなかったら
 				bool isUltStart = System::GetInstance().GetIsUltimating();
 				if (!isUltStart)
 				{
 					System::GetInstance().SetUltStart(120);//必殺技の演出をスタートする
 					System::GetInstance().SetTimeScaleForFrames(0.1f, 120);//時間を遅くする//60フレームで元に戻す
+					//カメラを移行
+					cameraManager->ChangeStateFromScene(CameraManager::CameraStateName::UltCamera);
 				}
 				//必殺技の被ダメエフェクト
 				m_hitEfPlayingHandle = EffectManager::GetInstance().Play(AsyncData::EnemyHitEffectUlt,

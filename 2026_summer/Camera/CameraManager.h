@@ -27,7 +27,8 @@ public:
 	{
 		PlayerCaemra,
 		LockOnCamera,
-		UltCamera
+		UltCamera,
+		TitleCamera
 
 	};
 
@@ -76,6 +77,16 @@ public:
 
 	//CameraContextのゲット
 	std::shared_ptr<CameraContext> GetContext() { return m_context; }
+	//現在アクティブステートのカメラをゲット
+	std::shared_ptr<CameraStateBase> GetActiveCamera() { return m_currentState; }
+	//カメラシェイク
+	void StartCameraShake(float power, float time);
+	//カメラシェイクのUpdate
+	Vector3 CameraShakeUpdate();
+
+	//ロックオン
+	void SetLockOn(bool isLockOn) { m_isLockOn = isLockOn; }
+	bool GetIsLockOn()const { return m_isLockOn; }
 
 
 	//PlayerCameraに角度をセットさせる関数
@@ -83,6 +94,10 @@ public:
 
 	//タイトル画面かどうかをセットする//trueの場合、TitleCamera以外の更新・優先度争いを行わない
 	void SetIsTitle(bool isTitle) { m_isTitle = isTitle; }
+
+	//フォトモード中、入力からカメラを動かす
+	void UpdatePhotoCamera();
+	void SetPhotoCamera();
 
 public:
 	void SetUpMainCamera();//priorityが最も高いカメラの情報をMainCameraに反映させる
@@ -111,6 +126,22 @@ private:
 
 	//カメラのステート
 	std::shared_ptr<CameraStateBase> m_currentState;
+
+	//カメラ揺れ用
+	float m_shakePower = 0.0f;
+	float m_shakeTimer = 0.0f;
+	float m_shakeTimerMax = 0.0f;//減衰用のコピー
+	bool m_isShaking = false;//今カメラが揺れているかどうか
+	Vector3 m_renderPos = Vector3();//カメラ描画用の座標
+
+	bool m_isLockOn = false;//ロックオンしているかどうか
+
+	//フォトモード用のフリーカメラ
+	Vector3 m_photoCamPos = Vector3();
+	Vector3 m_photoCamTarget = Vector3();
+	float m_photoAngleH = 0.0f;
+	float m_photoAngleV = 0.0f;
+	float m_kToTargetDistance = 500.0f;
 
 	//不本意だがいまはとりあえずここにかく
 	bool m_isUltimating = false;

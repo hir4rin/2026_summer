@@ -80,6 +80,7 @@ void LockOnCamera::Update(Vector3 pos, Vector3 pos2)
 	if (distance > kLockOnMaxDistance)
 	{
 		mainCamera->SetLockOn(false);
+		cameraManager->SetLockOn(false);
 		//解放
 		//m_lockOnEnemy.reset();
 

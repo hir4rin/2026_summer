@@ -70,6 +70,9 @@ public:
 
 	void SetUltStart(int frames) { m_ultCount = frames; m_isUltimating = true; };
 	bool GetIsUltimating() { return m_isUltimating; };
+
+	void SetPhotoMode(bool ans) { m_isPhotoMode = ans; }
+	bool GetPhotoMode() { return m_isPhotoMode; }
 private:
 	//時間の管理
 	float timeScale = 1.0f;//時間のスケール//1.0fなら通常の時間の流れ//0.5fなら半分の速さ//2.0fなら2倍の速さ
@@ -79,6 +82,9 @@ private:
 
 	bool m_isUltimating = false;//必殺技の演出中かどうか
 	int m_ultCount = -1;//必殺技の演出時間カウント
+
+	bool m_isPhotoMode = false;
+
 
 	std::unordered_map<AsyncData, int> m_asyncHandles; //非同期ロードのハンドルを保持するマップ
 

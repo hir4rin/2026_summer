@@ -27,6 +27,8 @@ void PlayerStateRun::Enter()
 	if (!player) return;
 	//animationの初期化
 	player->m_anim.ChangeAnimWithModelHandle(player->m_modelHandle, player->GetAnimName("Run"), true,1.0f);
+
+
 }
 
 void PlayerStateRun::Update()

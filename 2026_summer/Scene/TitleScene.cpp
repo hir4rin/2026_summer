@@ -5,7 +5,7 @@
 #include"SceneController.h"
 #include "GameScene.h"
 #include "../Camera/CameraManager.h"
-#include "../Camera/TitleCamera.h"
+#include "../Camera/CameraState/TitleCameraState.h"
 #include "../Camera/Camera.h"
 #include "../Camera/MainCamera.h"
 #include "../Managers/CollisionManager.h"
@@ -59,16 +59,17 @@ TitleScene::TitleScene(SceneController& controller) :Scene(controller)
 	m_cameraManager->SetIsTitle(true);//タイトル画面ではTitleCameraのみを使う
 	//カメラの初期化
 	m_cameraManager->Init(std::weak_ptr<Player>(m_player));
+	m_cameraManager->ChangeStateFromScene(CameraManager::CameraStateName::TitleCamera);
 	m_cameraManager->Update(m_player->GetPos());
 	//タイトルカメラの初期設定
-	std::shared_ptr<TitleCamera>  titleCamera = std::dynamic_pointer_cast<TitleCamera>(m_cameraManager->GetHighestPriorityCamera());
-	TitleCamera::Shot shot = TitleCamera::Shot::FollowPlayer;
+	std::shared_ptr<TitleCameraState>  titleCamera = std::dynamic_pointer_cast<TitleCameraState>(m_cameraManager->GetActiveCamera());
+	TitleCameraState::Shot shot = TitleCameraState::Shot::FollowPlayer;
 	titleCamera->SetShot(shot);
 	//プレイヤーにカメラマネージャーの弱参照を渡す
 	m_player->SetCameraManager(std::weak_ptr<CameraManager>(m_cameraManager));
 
 	m_skyBox = std::make_shared<SkyBox>();
-	m_skyBox->Init(std::weak_ptr<Camera>(m_cameraManager->GetMainCamera()));
+	m_skyBox->Init(std::weak_ptr<CameraManager>(m_cameraManager));
 	//タイムスケールを掛ける
 	//System::GetInstance().SetTimeScale(1.15f);
 }
@@ -128,20 +129,21 @@ void TitleScene::NormalUpdate()
 	}
 	if (input.IsRealTriggered("B"))
 	{
-		std::shared_ptr<TitleCamera>  titleCamera = std::dynamic_pointer_cast<TitleCamera>(m_cameraManager->GetHighestPriorityCamera());
-		TitleCamera::Shot shot = TitleCamera::Shot::FollowPlayer;
+		std::shared_ptr<TitleCameraState>  titleCamera = std::dynamic_pointer_cast<TitleCameraState>(m_cameraManager->GetActiveCamera());
+		TitleCameraState::Shot shot = TitleCameraState::Shot::FollowPlayer;
 		titleCamera->SetShot(shot);
 		return;
 	}
 	if (input.IsRealTriggered("Y"))
 	{
-		std::shared_ptr<TitleCamera>  titleCamera = std::dynamic_pointer_cast<TitleCamera>(m_cameraManager->GetHighestPriorityCamera());
-		TitleCamera::Shot shot = TitleCamera::Shot::Fixed;
+		std::shared_ptr<TitleCameraState>  titleCamera = std::dynamic_pointer_cast<TitleCameraState>(m_cameraManager->GetActiveCamera());
+		TitleCameraState::Shot shot = TitleCameraState::Shot::Fixed;
 		titleCamera->SetShot(shot);
 		return;
 	}
 
-
+	// Effekseerにより再生中のエフェクトを更新する。
+	UpdateEffekseer3D();
 }
 
 void TitleScene::FadeOutUpdate()
@@ -166,9 +168,9 @@ void TitleScene::NormalDraw()
 	
 	
 	{
-		std::shared_ptr<TitleCamera>  titleCamera = std::dynamic_pointer_cast<TitleCamera>(m_cameraManager->GetHighestPriorityCamera());
-		TitleCamera::Shot shot = TitleCamera::Shot::FollowPlayer;
-		if (titleCamera->GetShot() != TitleCamera::Shot::Fixed && titleCamera->GetShot() != TitleCamera::Shot::Finish)
+		std::shared_ptr<TitleCameraState>  titleCamera = std::dynamic_pointer_cast<TitleCameraState>(m_cameraManager->GetActiveCamera());
+		TitleCameraState::Shot shot = TitleCameraState::Shot::FollowPlayer;
+		if (titleCamera->GetShot() != TitleCameraState::Shot::Fixed && titleCamera->GetShot() != TitleCameraState::Shot::Finish)
 		{
 			m_speedLine->Draw();
 		}
@@ -226,33 +228,33 @@ void TitleScene::CameraSetUpdate()
 	//カウントの進み具合によってカメラのステートを更新する
 	if (m_count == 100)
 	{
-		std::shared_ptr<TitleCamera>  titleCamera = std::dynamic_pointer_cast<TitleCamera>(m_cameraManager->GetHighestPriorityCamera());
-		TitleCamera::Shot shot = TitleCamera::Shot::Fixed;
+		std::shared_ptr<TitleCameraState>  titleCamera = std::dynamic_pointer_cast<TitleCameraState>(m_cameraManager->GetActiveCamera());
+		TitleCameraState::Shot shot = TitleCameraState::Shot::Fixed;
 		titleCamera->SetShot(shot);
 	}
 	if (m_count == 300)
 	{
-		std::shared_ptr<TitleCamera>  titleCamera = std::dynamic_pointer_cast<TitleCamera>(m_cameraManager->GetHighestPriorityCamera());
-		TitleCamera::Shot shot = TitleCamera::Shot::FollowPlayer;
+		std::shared_ptr<TitleCameraState>  titleCamera = std::dynamic_pointer_cast<TitleCameraState>(m_cameraManager->GetActiveCamera());
+		TitleCameraState::Shot shot = TitleCameraState::Shot::FollowPlayer;
 		titleCamera->SetShot(shot);
 	}
 	if (m_count == 400)
 	{
-		std::shared_ptr<TitleCamera>  titleCamera = std::dynamic_pointer_cast<TitleCamera>(m_cameraManager->GetHighestPriorityCamera());
-		TitleCamera::Shot shot = TitleCamera::Shot::Fixed;
+		std::shared_ptr<TitleCameraState>  titleCamera = std::dynamic_pointer_cast<TitleCameraState>(m_cameraManager->GetActiveCamera());
+		TitleCameraState::Shot shot = TitleCameraState::Shot::Fixed;
 		titleCamera->SetShot(shot);
 	}
 	if (m_count == 600)
 	{
-		std::shared_ptr<TitleCamera>  titleCamera = std::dynamic_pointer_cast<TitleCamera>(m_cameraManager->GetHighestPriorityCamera());
-		TitleCamera::Shot shot = TitleCamera::Shot::ZoomOut;
+		std::shared_ptr<TitleCameraState>  titleCamera = std::dynamic_pointer_cast<TitleCameraState>(m_cameraManager->GetActiveCamera());
+		TitleCameraState::Shot shot = TitleCameraState::Shot::ZoomOut;
 		titleCamera->SetShot(shot);
 	}
 
 	if (m_count == kCameraSetUp)
 	{
-		std::shared_ptr<TitleCamera>  titleCamera = std::dynamic_pointer_cast<TitleCamera>(m_cameraManager->GetHighestPriorityCamera());
-		TitleCamera::Shot shot = TitleCamera::Shot::Opening;
+		std::shared_ptr<TitleCameraState>  titleCamera = std::dynamic_pointer_cast<TitleCameraState>(m_cameraManager->GetActiveCamera());
+		TitleCameraState::Shot shot = TitleCameraState::Shot::Opening;
 		titleCamera->SetShot(shot);
 	}
 

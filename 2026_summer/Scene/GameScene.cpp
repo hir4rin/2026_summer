@@ -1,5 +1,6 @@
 ﻿#include "GameScene.h"
 #include "../Camera/CameraManager.h"
+#include "../Camera/CameraState/CameraStateBase.h"
 #include "../Camera/LockOnManager.h"
 #include "../Camera/PlayerCamera.h"
 #include "../Camera/MainCamera.h"
@@ -20,6 +21,7 @@
 #include "GameOverScene.h"
 #include "GameClearScene.h"
 #include "GameResult.h"
+#include "PauseScene.h"
 
 namespace
 {
@@ -77,7 +79,7 @@ GameScene::GameScene(SceneController& controller) :Scene(controller)
 
 	//スカイボックスの初期化
 	m_skyBox = std::make_shared<SkyBox>();
-	m_skyBox->Init(std::weak_ptr<Camera>(m_cameraManager->GetMainCamera()));
+	m_skyBox->Init(std::weak_ptr<CameraManager>(m_cameraManager));
 
 	//プレイヤーにカメラマネージャーの弱参照を渡す
 	m_player->SetCameraManager(std::weak_ptr<CameraManager>(m_cameraManager));
@@ -146,6 +148,34 @@ void GameScene::FadeInUpdate()
 
 void GameScene::NormalUpdate()
 {
+	auto& input = Input::GetInstance();
+	if (input.IsTriggered("Start"))
+	{
+		//ポーズシーンを積む
+		//角度を計算させて保存
+		m_cameraManager->GetActiveCamera()->Exit();
+		m_cameraManager->SetPhotoCamera();
+		m_controller.PushScene(std::make_shared<PauseScene>(m_controller));
+		return;
+	}
+
+	//フォトモードだったら、カメラのみを動かせるようにする
+	if (System::GetInstance().GetPhotoMode())
+	{
+		
+		m_cameraManager->UpdatePhotoCamera();
+
+		//もう一度スタートを押したらpushSceneに行く
+		if (input.IsTriggered("Start"))
+		{
+			//ポーズシーンを積む
+			m_controller.PushScene(std::make_shared<PauseScene>(m_controller));
+			return;
+		}
+		return;
+	}
+
+
 	//ロックオンするか
 	CheckLockOnCamera();
 	//ロックオンカメラの敵の切り替え処理
@@ -201,7 +231,8 @@ void GameScene::NormalUpdate()
 			m_player->SetLimitPlayerArea(i,false);
 		}
 	}
-
+	// Effekseerにより再生中のエフェクトを更新する。
+	UpdateEffekseer3D();
 }
 
 void GameScene::FadeOutUpdate()
@@ -347,12 +378,10 @@ void GameScene::CheckLockOnCamera()
 
 
 
-	const auto& camera = m_cameraManager->GetHighestPriorityCamera();
-
 	auto& input = Input::GetInstance();
 
 	//ウルトカメラ中だったらreturn;
-	if (camera->GetCameraType() == Camera::Type::UltCamera)return;
+	if (m_cameraManager->GetActiveCamera()->GetCameraType() == CameraStateBase::Type::UltCamera)return;
 
 	auto mainCamera = m_cameraManager->GetMainCamera();
 
@@ -427,6 +456,7 @@ void GameScene::CheckLockOnCamera()
 					m_cameraManager->ChangeStateFromScene(CameraManager::CameraStateName::LockOnCamera);
 					m_lockOnManager->SetTargetEnemy(enemy);
 					mainCamera->SetLockOn(true);
+					m_cameraManager->SetLockOn(true);
 
 
 				}
@@ -440,6 +470,7 @@ void GameScene::CheckLockOnCamera()
 			m_lockOnManager->SetTargetEnemy(std::weak_ptr<EnemyBase> {});
 			m_cameraManager->ChangeStateFromScene(CameraManager::CameraStateName::PlayerCaemra);
 			mainCamera->SetLockOn(false);
+			m_cameraManager->SetLockOn(false);
 			//ラープを切る
 			mainCamera->SetLerp(false);
 			mainCamera->SetSlerp(false);
@@ -453,12 +484,10 @@ void GameScene::LockOnCameraInput()
 {
 	//左右の入力があったときにそれを切り替える処理をする
 
-	const auto& camera = m_cameraManager->GetHighestPriorityCamera();
-
 	auto& input = Input::GetInstance();
 
 	//ウルトカメラ中だったらreturn;
-	if (camera->GetCameraType() == Camera::Type::UltCamera)return;
+	if (m_cameraManager->GetActiveCamera()->GetCameraType() == CameraStateBase::Type::UltCamera)return;
 
 	auto mainCamera = m_cameraManager->GetMainCamera();
 
@@ -582,10 +611,8 @@ void GameScene::CheckLockOnCameraEnemyDead()
 	//ロックオンしている敵が死んだら、次の敵に切り替える処理をする
 	//最も近くの敵
 
-	const auto& camera = m_cameraManager->GetHighestPriorityCamera();
-
 	//ウルトカメラ中だったらreturn;
-	if (camera->GetCameraType() == Camera::Type::UltCamera)return;
+	if (m_cameraManager->GetActiveCamera()->GetCameraType() == CameraStateBase::Type::UltCamera)return;
 
 	auto mainCamera = m_cameraManager->GetMainCamera();
 
@@ -634,8 +661,9 @@ void GameScene::CheckLockOnCameraEnemyDead()
 		{
 			//ロックオンを解除する
 			m_cameraManager->SetWeakRef(std::weak_ptr<Player>(m_player));
-			m_lockOnManager->SetTargetEnemy({});
+			m_lockOnManager->SetTargetEnemy(std::weak_ptr<EnemyBase>{});
 			mainCamera->SetLockOn(false);
+			m_cameraManager->SetLockOn(false);
 			m_cameraManager->ChangeStateFromScene(CameraManager::CameraStateName::PlayerCaemra);
 			return;
 		}
@@ -669,8 +697,9 @@ void GameScene::CheckLockOnCameraEnemyDead()
 			{
 				//ロックオンを解除する
 				m_cameraManager->SetWeakRef(std::weak_ptr<Player>(m_player));
-				m_lockOnManager->SetTargetEnemy({});
+				m_lockOnManager->SetTargetEnemy(std::weak_ptr<EnemyBase>{});
 				mainCamera->SetLockOn(false);
+				m_cameraManager->SetLockOn(false);
 				m_cameraManager->ChangeStateFromScene(CameraManager::CameraStateName::PlayerCaemra);
 			}
 		}

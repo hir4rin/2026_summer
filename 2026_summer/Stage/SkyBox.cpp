@@ -1,5 +1,6 @@
 ﻿#include "SkyBox.h"
-#include "../Camera/MainCamera.h"
+#include "../Camera/CameraManager.h"
+#include "../Camera/CameraState/CameraStateBase.h"
 namespace
 {
 	VERTEX3D MakeV(Vector3 pos, float u, float v)
@@ -34,7 +35,7 @@ SkyBox::~SkyBox()
 	}
 }
 
-void SkyBox::Init(std::weak_ptr<Camera> camera)
+void SkyBox::Init(std::weak_ptr<CameraManager> cameraMgr)
 {
 	m_textureHandle[kFront] = LoadGraph("data/SkyBox/front.png");
 	m_textureHandle[kBack] = LoadGraph("data/SkyBox/back.png");
@@ -50,16 +51,16 @@ void SkyBox::Init(std::weak_ptr<Camera> camera)
 			printfDx("SkyBox texture %d の読み込みに失敗しました\n", i);
 		}
 	}
-	m_camera = camera;
+	m_cameraManager = cameraMgr;
 	Update();
 }
 
 void SkyBox::Update()
 {
-	auto camera = m_camera.lock();
+	auto camera = m_cameraManager.lock()->GetActiveCamera();
 	if (!camera)return;
 
-	Vector3 cameraPos = camera->GetCameraPos();
+	Vector3 cameraPos = camera->GetPos();
 	const float size = kSize;
 	const float x = cameraPos.x;
 	const float y = cameraPos.y;
