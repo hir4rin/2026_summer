@@ -77,6 +77,13 @@ public:
 	//イベント演出中(カメラ演出+その戻りのBlend中)はプレイヤー/敵の入力・行動を止めるためのフラグ
 	void SetIsEventPlaying(bool ans) { m_isEventPlaying = ans; }
 	bool GetIsEventPlaying() { return m_isEventPlaying; }
+
+	//ラストヒットのイベント中かどうか
+	void SetIsLastHitEventPlaying(bool ans) { m_isLastHitEventPlaying = ans;}
+	bool GetIsLastHitEventPlaying(){return m_isLastHitEventPlaying;}
+	//falseから初めてtrueになった瞬間だけ、内部でtrueにする(多重呼び出し防止)
+	void SetIsLastHitEventPlayingTrigger(bool ans);
+
 private:
 	//時間の管理
 	float timeScale = 1.0f;//時間のスケール//1.0fなら通常の時間の流れ//0.5fなら半分の速さ//2.0fなら2倍の速さ
@@ -90,6 +97,8 @@ private:
 	bool m_isPhotoMode = false;
 
 	bool m_isEventPlaying = false;//イベント演出中かどうか
+
+	bool m_isLastHitEventPlaying = false;//ラストヒットのイベント中かどうか
 
 
 	std::unordered_map<AsyncData, int> m_asyncHandles; //非同期ロードのハンドルを保持するマップ

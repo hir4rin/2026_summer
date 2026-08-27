@@ -55,6 +55,8 @@ public:
 	std::shared_ptr<BossEnemy> GetBoss() { return m_boss; }
 	//フェーズ演出でカメラを切り替えるために必要
 	void SetCameraManager(std::weak_ptr<CameraManager> cameraManager) { m_cameraManager = cameraManager; }
+	//ラストヒットイベント演出用:ボスをもう一度Deadステートに入り直させる
+	void RestartBossDeadState();
 
 	//敵をスポーンさせるかチェックし、スポーンさせる
 	void CheckSpawnWave();

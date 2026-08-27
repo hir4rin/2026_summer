@@ -245,6 +245,29 @@ void GameScene::NormalUpdate()
 	}
 	// Effekseerにより再生中のエフェクトを更新する。
 	UpdateEffekseer3D();
+	if (System::GetInstance().GetIsLastHitEventPlaying() && !m_isLastHitPlayingTrigger)
+	{
+		//いずれコルーチンみたいな感じで30F後に起動みたいにする(今のところそんな難しくないイメージのやつ)
+		m_lasthitEventDuration = 0.0f;
+
+		
+
+		m_isLastHitPlayingTrigger = true;
+	}
+	if (System::GetInstance().GetIsLastHitEventPlaying())
+	{
+		m_lasthitEventDuration++;
+		if (m_lasthitEventDuration == 60)
+		{
+			//もとに戻す
+			System::GetInstance().SetTimeScale(1.0f);
+			//playerをセット
+		// Record セット、animation開始
+		//ボスをセット、アニメーション開始
+
+		}
+
+	}
 }
 
 void GameScene::FadeOutUpdate()

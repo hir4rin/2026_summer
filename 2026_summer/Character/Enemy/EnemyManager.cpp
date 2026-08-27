@@ -333,6 +333,12 @@ std::shared_ptr<EnemyBase> EnemyManager::SpawnEnemy(Vector3 pos)
 	return enemy;
 }
 
+void EnemyManager::RestartBossDeadState()
+{
+	if (!m_boss)return;
+	m_boss->RestartDeadState();
+}
+
 void EnemyManager::SpawnBoss()
 {
 	int bossModelHandle = MV1DuplicateModel(System::GetInstance().GetHandle(AsyncData::BossModel));

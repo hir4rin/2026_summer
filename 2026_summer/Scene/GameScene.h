@@ -85,6 +85,9 @@ private:
 
 	float m_flashTimer = 0.0f;//スクリーンショット後の白フラッシュを実装
 
+	bool m_isLastHitPlayingTrigger = false;//ラストヒットイベントが今フレームで初めて始まったかどうかのフラグ
+	float m_lasthitEventDuration = 0.0f;//ラストヒットイベント開始からの経過フレーム
+
 
 };
 

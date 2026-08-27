@@ -1,7 +1,7 @@
 ﻿#include "BossStateDead.h"
 #include "BossEnemy.h"
 #include "../../../Game.h"
-
+#include "../../../System.h"
 namespace
 {
 	const std::string kDie = "Player|Die";
@@ -23,12 +23,26 @@ void BossStateDead::Enter()
 
 	//死亡アニメーションを流す
 	boss->m_anim.ChangeAnim(boss->GetAnimName("Death"), false, 0.9f);
+	
 }
 
 void BossStateDead::Update()
 {
 	auto boss = m_owner.lock();
 	if (!boss)return;
+
+
+	//イベント中ではないならイベント発火
+	if (!System::GetInstance().GetIsLastHitEventPlaying())
+	{
+		if (boss->m_anim.GetAnimRate() > 0.4f)
+		{
+			//イベントを発火させる
+			System::GetInstance().SetIsLastHitEventPlaying(true);
+
+		}
+	}
+	
 
 	if (boss->m_anim.GetAnimEndFlag())
 	{

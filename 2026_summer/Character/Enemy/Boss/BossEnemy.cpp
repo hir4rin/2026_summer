@@ -273,6 +273,13 @@ void BossEnemy::Terminate()
 	}
 }
 
+void BossEnemy::RestartDeadState()
+{
+	//ChangeState自体は同じState同士でもExit→Enterをやり直す作りなので、
+	//すでにDead中でもこれで死亡アニメーションを最初から再生し直せる
+	ChangeState(std::make_shared<BossStateDead>(GetWeakPtr()));
+}
+
 void BossEnemy::ChangeState(EnemyState newState)
 {
 	//EnemyBaseのインターフェース用//外部からenumで状態を指定された場合にBossStateへ変換する

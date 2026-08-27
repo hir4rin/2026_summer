@@ -38,6 +38,9 @@ public:
 	void Terminate();
 
 	void SetEnemyManager(std::weak_ptr<EnemyManager> enemyManager) { m_enemyManager = enemyManager; }//EnemyManagerのセット
+
+	//ラストヒットイベント演出用:外部からもう一度Deadステートに入り直させるだけの専用関数(汎用化はしない)
+	void RestartDeadState();
 private:
 	void ChangeState(EnemyState newState) override;//EnemyBaseのインターフェース用//BossStateへの遷移に変換して呼ぶ
 	void ChangeState(std::shared_ptr<BossState> newState);//状態遷移の関数//現在の状態のExitを呼び、新しい状態に切り替えてEnterを呼ぶ
