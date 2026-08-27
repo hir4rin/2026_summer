@@ -148,6 +148,9 @@ void GameScene::FadeInUpdate()
 
 void GameScene::NormalUpdate()
 {
+	//System::GetInstance().SetTimeScale(0.1f);
+
+
 	auto& input = Input::GetInstance();
 	if (input.IsTriggered("Start"))
 	{
@@ -254,6 +257,7 @@ void GameScene::NormalUpdate()
 
 		m_isLastHitPlayingTrigger = true;
 	}
+
 	if (System::GetInstance().GetIsLastHitEventPlaying())
 	{
 		m_lasthitEventDuration++;
@@ -264,7 +268,7 @@ void GameScene::NormalUpdate()
 			//playerをセット
 		// Record セット、animation開始
 		//ボスをセット、アニメーション開始
-
+			m_enemyManager->GetBoss()->RestartDeadState();
 		}
 
 	}

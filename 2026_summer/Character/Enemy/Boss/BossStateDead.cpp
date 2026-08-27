@@ -39,7 +39,7 @@ void BossStateDead::Update()
 		{
 			//イベントを発火させる
 			System::GetInstance().SetIsLastHitEventPlaying(true);
-
+			
 		}
 	}
 	

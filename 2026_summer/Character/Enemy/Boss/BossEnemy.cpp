@@ -16,7 +16,7 @@ namespace
 
 	constexpr float kUltDamagePower = 500.0f;//必殺技の攻撃力
 
-	constexpr int kEnemyInitialHp = 5000;//敵の初期HP
+	constexpr int kEnemyInitialHp = 2000;//敵の初期HP
 	constexpr float kEnemyColliderRadius = 80.0f;//本体コライダーの半径
 	constexpr float kEnemyHitColliderRadius = 120.0f;//やられ判定コライダーの半径
 
@@ -239,6 +239,7 @@ void BossEnemy::OnDamage(Collider& other, AttackData& data)
 			//死亡アニメーションに移行
 			else
 			{
+				System::GetInstance().SetTimeScale(0.02f);
 				ChangeState(std::make_shared<BossStateDead>(GetWeakPtr()));
 				return;
 			}
