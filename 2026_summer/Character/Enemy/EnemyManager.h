@@ -7,6 +7,7 @@ class EnemySwordman;
 class BossEnemy;
 class EnemyBase;
 class Camera;
+class CameraManager;
 class Collider;
 class Player;
 class WaveAreaCol;
@@ -52,6 +53,8 @@ public:
 	std::weak_ptr<Player> GetPlayer() { return m_player; }
 	//ボスのゲット(最終フェーズが始まるまではnullptr)
 	std::shared_ptr<BossEnemy> GetBoss() { return m_boss; }
+	//フェーズ演出でカメラを切り替えるために必要
+	void SetCameraManager(std::weak_ptr<CameraManager> cameraManager) { m_cameraManager = cameraManager; }
 
 	//敵をスポーンさせるかチェックし、スポーンさせる
 	void CheckSpawnWave();
@@ -70,6 +73,7 @@ private:
 	Vector3 m_startPos;//敵の座標
 
 	std::weak_ptr<Player> m_player;//プレイヤーの弱参照
+	std::weak_ptr<CameraManager> m_cameraManager;//カメラマネージャーの弱参照(フェーズ演出でのカメラ切り替えに使う)
 	std::vector<std::shared_ptr<EnemyBase>> m_enemies;//敵の配列
 	std::shared_ptr<BossEnemy> m_boss;//ボス(最終フェーズになるまではnullptr)
 	std::vector<std::shared_ptr<WaveAreaCol>> m_waveWalls;//ウェーブのエリア前後の壁(押し戻し用)の配列

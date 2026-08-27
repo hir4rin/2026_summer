@@ -14,6 +14,15 @@ class CameraStateBase
 {
 public:
 
+	//自分で設定するもの
+	struct BlendSetting
+	{
+		enum class Mode { None, Lerp, Slerp, Chase };
+		Mode mode = Mode::None;
+		float duration = 0.0f;   //何フレームでtargetに到達させるか
+		float easingPower = 1.0f;
+		Vector3 pivot = Vector3();//Slerp時の基軸(回転の中心)
+	};
 
 	//受け渡し用
 	struct CameraData
@@ -22,16 +31,10 @@ public:
 		Vector3 target;
 		float angleH;
 		float angleV;
+
+		BlendSetting overrideSetting = {};
 	};
-	//自分で設定するもの
-	struct BlendSetting
-	{
-		enum class Mode { None, Lerp, Slerp,Chase };
-		Mode mode = Mode::None;
-		float duration = 0.0f;   //何フレームでtargetに到達させるか
-		float easingPower = 1.0f;
-		Vector3 pivot = Vector3();//Slerp時の基軸(回転の中心)
-	};
+	
 	
 	enum class Type
 	{
@@ -41,6 +44,9 @@ public:
 		UltCamera = 2,
 		LockOnCamera = 3,
 		TitleCamera = 4,
+		Stage1FazeCamera = 5,
+		BossAppearCamera = 6,
+		Stage2FazeCamera = 7,
 
 		//他のカメラもここに追加していく
 	};
@@ -63,6 +69,7 @@ public:
 
 	virtual BlendSetting GetBlendSetting()const = 0;//カメラのブレンドセット
 	//BlendModeによって、posとかを変更したりする
+	virtual BlendSetting GetOverrideBlendSetting()const { return {}; }//上書き用のブレンドデータ//何もないならいらない
 
 
 

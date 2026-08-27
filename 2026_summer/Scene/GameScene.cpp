@@ -83,6 +83,8 @@ GameScene::GameScene(SceneController& controller) :Scene(controller)
 	m_player->SetCameraManager(std::weak_ptr<CameraManager>(m_cameraManager));
 	//プレイヤーにEnemyManagerの弱参照を渡す
 	m_player->SetEnemyManager(std::weak_ptr<EnemyManager>(m_enemyManager));
+	//EnemyManagerにカメラマネージャーの弱参照を渡す(フェーズ演出でのカメラ切り替えに使う)
+	m_enemyManager->SetCameraManager(std::weak_ptr<CameraManager>(m_cameraManager));
 
 
 
@@ -357,8 +359,8 @@ void GameScene::NormalDraw()
 		//現在のMainCamera(実際に画面に反映されているカメラ)の座標・注視点を渡している
 		//(ウィンドウ内の"Current Pos/Target"表示や、"Sync From Current"ボタンで使われる)
 		imguiApp::GetInstance().DrawCameraDebugWindow(
-			m_cameraManager->GetActiveCamera()->GetPos(),
-			m_cameraManager->GetActiveCamera()->GetTarget());
+			m_cameraManager->GetPhotoCameraPos(),
+			m_cameraManager->GetPhotoCameraTarget());
 	}
 
 #endif

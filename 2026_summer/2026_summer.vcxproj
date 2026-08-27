@@ -228,6 +228,9 @@
     <ClCompile Include="Character\WaveAreaCol.cpp" />
     <ClCompile Include="Camera\CameraState\UltCameraState.cpp" />
     <ClCompile Include="Camera\CameraState\TitleCameraState.cpp" />
+    <ClCompile Include="Camera\CameraState\Stage1FazeCamera.cpp" />
+    <ClCompile Include="Camera\CameraState\BossAppearCamera.cpp" />
+    <ClCompile Include="Camera\CameraState\Stage2FazeCamera.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application.h" />
@@ -321,6 +324,9 @@
     <ClInclude Include="Character\WaveAreaCol.h" />
     <ClInclude Include="Camera\CameraState\UltCameraState.h" />
     <ClInclude Include="Camera\CameraState\TitleCameraState.h" />
+    <ClInclude Include="Camera\CameraState\Stage1FazeCamera.h" />
+    <ClInclude Include="Camera\CameraState\BossAppearCamera.h" />
+    <ClInclude Include="Camera\CameraState\Stage2FazeCamera.h" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="EnemyBlack.hlsl">

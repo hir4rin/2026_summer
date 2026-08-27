@@ -454,6 +454,7 @@ void CameraManager::ChangeState(std::shared_ptr<CameraStateBase> newState)
 		data.target = m_currentState->GetTarget();
 		data.angleH = m_currentState->GetCameraAngleH();
 		data.angleV = m_currentState->GetCameraAngleV();
+		data.overrideSetting = m_currentState->GetOverrideBlendSetting();
 	}
 
 	m_currentState = newState;

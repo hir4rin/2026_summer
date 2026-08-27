@@ -73,6 +73,10 @@ public:
 
 	void SetPhotoMode(bool ans) { m_isPhotoMode = ans; }
 	bool GetPhotoMode() { return m_isPhotoMode; }
+
+	//イベント演出中(カメラ演出+その戻りのBlend中)はプレイヤー/敵の入力・行動を止めるためのフラグ
+	void SetIsEventPlaying(bool ans) { m_isEventPlaying = ans; }
+	bool GetIsEventPlaying() { return m_isEventPlaying; }
 private:
 	//時間の管理
 	float timeScale = 1.0f;//時間のスケール//1.0fなら通常の時間の流れ//0.5fなら半分の速さ//2.0fなら2倍の速さ
@@ -84,6 +88,8 @@ private:
 	int m_ultCount = -1;//必殺技の演出時間カウント
 
 	bool m_isPhotoMode = false;
+
+	bool m_isEventPlaying = false;//イベント演出中かどうか
 
 
 	std::unordered_map<AsyncData, int> m_asyncHandles; //非同期ロードのハンドルを保持するマップ

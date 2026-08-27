@@ -1,5 +1,6 @@
 ﻿#include "Input.h"
 #include "Dxlib.h"
+#include "System.h"
 #include <algorithm>
 
 Input::Input()
@@ -152,12 +153,22 @@ void Input::Update()
 		}
 		UpdateRecord();
 	}
+	//イベント時
+	else if (System::GetInstance().GetIsEventPlaying())
+	{
+		//入力を受け付けない
+		for (auto& [name, value] : m_inputData)
+		{
+			value = false;
+		}
+	}
 	//通常時
 	else
 	{
 		//生の入力をそのまま保存する
 		m_inputData = m_rawInputData;
 	}
+
 
 }
 

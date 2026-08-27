@@ -8,6 +8,9 @@
 #include "Collider.h"
 #include "../WaveAreaCol.h"
 #include "../System.h"
+#include "../Camera/CameraManager.h"
+#include "../Camera/CameraState/Stage1FazeCamera.h"
+#include "../Camera/CameraState/Stage2FazeCamera.h"
 #include <cstdlib>
 #include <ctime>
 
@@ -156,7 +159,32 @@ void EnemyManager::Update()
 			if (m_enemies.size() == 0)
 			{
 				//最後のフェーズはボスを倒したらのため、やらない
-				if(i != static_cast<int>(WaveNum::WaveSize) -1)m_isAllEnemiesDead[i] = true;
+				if (i != static_cast<int>(WaveNum::WaveSize) - 1)
+				{
+					bool wasAlreadyDead = m_isAllEnemiesDead[i];//今フレームで初めてtrueになったかどうかを見るため、上書き前の値を控えておく
+					m_isAllEnemiesDead[i] = true;
+
+					//Wave1(index 0)が今フレームで初めてtrueになった瞬間だけ、フェーズ演出カメラに切り替える
+					if (i == 0 && !wasAlreadyDead)
+					{
+						auto cameraManager = m_cameraManager.lock();
+						if (cameraManager)
+						{
+							System::GetInstance().SetIsEventPlaying(true);
+							cameraManager->ChangeState(std::make_shared<Stage1FazeCamera>(m_cameraManager));
+						}
+					}
+					//Wave2(index 1)が今フレームで初めてtrueになった瞬間だけ、フェーズ演出カメラに切り替える
+					if (i == 1 && !wasAlreadyDead)
+					{
+						auto cameraManager = m_cameraManager.lock();
+						if (cameraManager)
+						{
+							System::GetInstance().SetIsEventPlaying(true);
+							cameraManager->ChangeState(std::make_shared<Stage2FazeCamera>(m_cameraManager));
+						}
+					}
+				}
 				if (!m_waveWalls.empty())//waveの壁を消す
 				{
 					for(auto& wall : m_waveWalls)

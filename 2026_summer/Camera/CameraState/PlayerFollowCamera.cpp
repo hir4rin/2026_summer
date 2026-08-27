@@ -9,6 +9,7 @@
 #include "../Character/Enemy/EnemyBase.h"
 #include "../SubWindow/SubWindow.h"
 #include "../Stage/Stage.h"
+#include "../System.h"
 #include <algorithm>
 
 
@@ -47,11 +48,26 @@ void PlayerFollowCamera::Enter(CameraData data)
 	m_target = playerPos + kCameraHeight;
 	//座標をセット
 	//m_target = data.target;
-	m_angleH = data.angleH;
-	m_angleV = data.angleV;
+	if (data.overrideSetting.mode == BlendSetting::Mode::None)
+	{
+		//上書きではない遷移なら書き換える
+		m_angleH = data.angleH;
+		m_angleV = data.angleV;
+	}
+	//指定がある遷移
+	else
+	{
+		//指定があるときは変えない
+	}
+	
 
 
 	ResetBlend(data.pos, data.target);
+	//もしあるなら上書きする
+	if (data.overrideSetting.mode != BlendSetting::Mode::None)
+	{
+		m_activeBlend = data.overrideSetting;
+	}
 
 
 	//カメラの位置と注視点を反映する
@@ -123,6 +139,9 @@ void PlayerFollowCamera::Update()
 	//Blend中ではない
 	else
 	{
+		//イベント発火中なら元に戻す
+		if(System::GetInstance().GetIsEventPlaying())System::GetInstance().SetIsEventPlaying(false);
+
 		//通常時:今まで通りの追従Lerp(ジャンプなどの滑らかな追従はここで維持)
 		m_pos = Vector3::Lerp(m_pos, m_goalPos, 0.5f);
 		m_target = Vector3::Lerp(m_target, m_goalTarget, 0.5f);

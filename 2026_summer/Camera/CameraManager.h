@@ -98,6 +98,8 @@ public:
 	//フォトモード中、入力からカメラを動かす
 	void UpdatePhotoCamera();
 	void SetPhotoCamera();
+	Vector3 GetPhotoCameraPos() { return m_photoCamPos; }
+	Vector3 GetPhotoCameraTarget() { return m_photoCamTarget; }
 
 public:
 	void SetUpMainCamera();//priorityが最も高いカメラの情報をMainCameraに反映させる
