@@ -22,7 +22,7 @@ void BossStateDead::Enter()
 	if (!boss)return;
 
 	//死亡アニメーションを流す
-	boss->m_anim.ChangeAnim(boss->GetAnimName("Dead"), false, 0.9f);
+	boss->m_anim.ChangeAnim(boss->GetAnimName("Death"), false, 0.9f);
 }
 
 void BossStateDead::Update()

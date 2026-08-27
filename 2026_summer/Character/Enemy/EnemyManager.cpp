@@ -1,5 +1,6 @@
 ﻿#include "EnemyManager.h"
 #include "../Character/Enemy/Swordman/EnemySwordman.h"
+#include "../Character/Enemy/Boss/BossEnemy.h"
 #include "../Character/CharacterBase.h"
 #include "../Character/Player/Base/Player.h"
 #include "../Game.h"
@@ -34,6 +35,7 @@ EnemyManager::EnemyManager(std::weak_ptr<Player> player)
 	//参照を保存
 	m_player = player;
 	enemyModelHandle = MV1DuplicateModel(System::GetInstance().GetHandle(AsyncData::EnemyModel));
+
 	srand(static_cast<unsigned int>(time(nullptr)));//乱数の初期化//これを入れないと、毎回同じ位置に敵が出る
 	//5体の敵を出す
 	//for (int i = 0; i < 5; i++)
@@ -53,6 +55,16 @@ EnemyManager::EnemyManager(std::weak_ptr<Player> player)
 EnemyManager::~EnemyManager()
 {
 	MV1DeleteModel(enemyModelHandle);
+}
+
+std::vector<std::shared_ptr<EnemyBase>> EnemyManager::GetEnemies()
+{
+	auto enemies = m_enemies;//コピーして返す(m_enemies本体やUpdate/Draw側のループには影響させない)
+	if (m_boss)
+	{
+		enemies.push_back(m_boss);//ボスもロックオン/近接ターゲット検索の対象に含める
+	}
+	return enemies;
 }
 
 void EnemyManager::Init()
@@ -143,7 +155,8 @@ void EnemyManager::Update()
 		{
 			if (m_enemies.size() == 0)
 			{
-				m_isAllEnemiesDead[i] = true;
+				//最後のフェーズはボスを倒したらのため、やらない
+				if(i != static_cast<int>(WaveNum::WaveSize) -1)m_isAllEnemiesDead[i] = true;
 				if (!m_waveWalls.empty())//waveの壁を消す
 				{
 					for(auto& wall : m_waveWalls)
@@ -154,6 +167,12 @@ void EnemyManager::Update()
 				}
 			}
 		}
+	}
+
+	//最後のフェーズは雑魚全滅ではなく、ボスを倒したかどうかで判定する
+	if (m_boss && m_boss->GetIsDead())
+	{
+		m_isAllEnemiesDead[static_cast<int>(WaveNum::WaveSize) - 1] = true;
 	}
 
 	for (auto& enemy : m_enemies)
@@ -218,6 +237,11 @@ void EnemyManager::CheckSpawnWave()
 			// Wave 1の敵をスポーンさせる処理
 			SpawnEnemies(i + 1);
 			m_isSpawnedWave[i] = true;
+			//ラストフェーズだったらボスを出現させる
+			if (i == static_cast<int>(WaveNum::WaveSize) - 1)
+			{
+				SpawnBoss();
+			}
 		}
 	}
 }
@@ -279,4 +303,14 @@ std::shared_ptr<EnemyBase> EnemyManager::SpawnEnemy(Vector3 pos)
 	enemy->Update();
 	m_enemies.push_back(enemy);
 	return enemy;
+}
+
+void EnemyManager::SpawnBoss()
+{
+	int bossModelHandle = MV1DuplicateModel(System::GetInstance().GetHandle(AsyncData::BossModel));
+	m_boss = std::make_shared<BossEnemy>(m_player, Vector3(0, 0, 0), bossModelHandle);
+	m_boss->Init();
+	m_boss->SetPos(kSpawnWave3 + Vector3());
+	//ボスにEnemyManagerの弱参照を渡す(雑魚敵召喚のため)
+	m_boss->SetEnemyManager(weak_from_this());
 }

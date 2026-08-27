@@ -12,7 +12,6 @@ class SkyBox;
 class Player;
 class EnemySwordman;
 class EnemyManager;
-class BossEnemy;
 class LockOnManager;
 
 //シェーダー
@@ -56,7 +55,6 @@ private:
 	std::shared_ptr<CameraManager> m_cameraManager;
 	std::shared_ptr<Player> m_player;
 	std::shared_ptr<EnemySwordman> m_enemySwordman;
-	std::shared_ptr<BossEnemy> m_boss;
 	std::shared_ptr<EnemyManager> m_enemyManager;
 	std::shared_ptr<Stage> m_stage;
 	std::shared_ptr<SkyBox> m_skyBox;
@@ -82,6 +80,10 @@ private:
 	int m_enemyVSH = -1;
 
 	int m_playFrameCount = 0;//リザルトのクリアタイム集計用//プレイ開始からのフレーム数
+
+	bool m_requestScreenshot = false;//次のDrawの最後でスクリーンショットを保存するか
+
+	float m_flashTimer = 0.0f;//スクリーンショット後の白フラッシュを実装
 
 
 };

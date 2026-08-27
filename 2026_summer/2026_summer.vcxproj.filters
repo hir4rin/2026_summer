@@ -13,6 +13,12 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="imgui">
+      <UniqueIdentifier>{9d3d2b7a-9c1e-4d3a-9a4a-7a6b6a2b3c11}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="imgui\backends">
+      <UniqueIdentifier>{9d3d2b7a-9c1e-4d3a-9a4a-7a6b6a2b3c12}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -245,6 +251,30 @@
     </ClCompile>
     <ClCompile Include="Camera\CameraState\TitleCameraState.cpp">
       <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="Camera\CameraState\UltCameraState.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="imguiApp.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="imgui\imgui.cpp">
+      <Filter>imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="imgui\imgui_draw.cpp">
+      <Filter>imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="imgui\imgui_tables.cpp">
+      <Filter>imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="imgui\imgui_widgets.cpp">
+      <Filter>imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="imgui\backends\imgui_impl_win32.cpp">
+      <Filter>imgui\backends</Filter>
+    </ClCompile>
+    <ClCompile Include="imgui\backends\imgui_impl_dx11.cpp">
+      <Filter>imgui\backends</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -490,6 +520,36 @@
     </ClInclude>
     <ClInclude Include="Camera\CameraState\TitleCameraState.h">
       <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="Camera\CameraState\UltCameraState.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="imguiApp.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="imgui\imgui.h">
+      <Filter>imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="imgui\imgui_internal.h">
+      <Filter>imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="imgui\imconfig.h">
+      <Filter>imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="imgui\imstb_rectpack.h">
+      <Filter>imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="imgui\imstb_textedit.h">
+      <Filter>imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="imgui\imstb_truetype.h">
+      <Filter>imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="imgui\backends\imgui_impl_win32.h">
+      <Filter>imgui\backends</Filter>
+    </ClInclude>
+    <ClInclude Include="imgui\backends\imgui_impl_dx11.h">
+      <Filter>imgui\backends</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

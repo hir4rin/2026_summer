@@ -12,6 +12,7 @@
 #include "Input.h"
 #include "SubWindow/SubWindow.h"
 #include "System.h"
+#include "imguiApp.h"
 
 constexpr int kWindowSizeW = 1920;	// デフォルトウィンドウ幅
 constexpr int kWindowSizeH = 1080;	// デフォルトウィンドウ高
@@ -82,6 +83,18 @@ bool Application::Init()
 	// Zバッファを有効にする。
 	// Effekseerを使用する場合、2DゲームでもZバッファを使用する。
 	SetUseZBuffer3D(TRUE);
+
+#ifdef _DEBUG
+	//ImGuiの初期化(DEBUGビルドの時だけ動かす)
+	//DxLibが内部で作っているウィンドウ・DirectX11デバイスをそのまま借りて、ImGuiにも使わせる
+	imguiApp::GetInstance().Init(
+		GetMainWindowHandle(), //DxLibが作ったゲームウィンドウのハンドル(識別子)
+		//GetUseDirect3D11Device()はconst void*で返ってくるので、
+		//static_cast でID3D11Device*として使えるように型を教え直し、const_cast でconstを外している
+		//(ImGui_ImplDX11_Initがconstなしのポインタを要求するため)
+		const_cast<ID3D11Device*>(static_cast<const ID3D11Device*>(GetUseDirect3D11Device())),
+		const_cast<ID3D11DeviceContext*>(static_cast<const ID3D11DeviceContext*>(GetUseDirect3D11DeviceContext())));
+#endif
 	return true;
 }
 
@@ -113,6 +126,12 @@ void Application::Run()
 		//サブウィンドウのテキストをクリア
 		SubWindow::ClearText();
 
+#ifdef _DEBUG
+		//ImGuiの新しいフレームを開始する合図。これを呼んだ後でないとImGui::Beginなどは使えない
+		//(controller.Update()/Draw()の中でDrawCameraDebugWindow()がImGui::Beginを呼んでいる)
+		imguiApp::GetInstance().NewFrame();
+#endif
+
 		if (CheckHitKey(KEY_INPUT_R))
 		{
 			//Rキーでシーンリセット
@@ -130,6 +149,12 @@ void Application::Run()
 	
 		controller.Draw();
 		SubWindow::Draw();//サブウィンドウの描画
+
+#ifdef _DEBUG
+		//NewFrame()〜ここまでの間に組み立てられたImGuiのウィンドウを、実際に画面に描画する
+		//画面を切り替えるScreenFlip()より前に呼ぶ必要がある(切り替えた後だと描いても表示されない)
+		imguiApp::GetInstance().Render();
+#endif
 		//裏画面と表画面を入れ替える
 		ScreenFlip();
 
@@ -150,6 +175,11 @@ void Application::Terminate()
 {
 	//非同期ロードのハンドルを削除する
 	System::GetInstance().SetTerminate();
+
+#ifdef _DEBUG
+	//Init()で確保したImGuiのリソースを解放する(DxLib_End()より前に呼ぶ)
+	imguiApp::GetInstance().Uninit();
+#endif
 
 	// Effekseerを終了する。
 	Effkseer_End();

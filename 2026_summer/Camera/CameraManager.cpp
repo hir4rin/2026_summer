@@ -19,6 +19,7 @@
 #include "../SubWindow/SubWindow.h"
 #include "../Input.h"
 #include "../Math/Matrix4x4.h"
+#include "../imguiApp.h"
 #include <algorithm>
 #include <cmath>
 
@@ -201,6 +202,21 @@ void CameraManager::Draw()
 }
 void CameraManager::ApplyCameraSettings()
 {
+#ifdef _DEBUG
+	//ImGuiのカメラデバッグウィンドウで"Override Camera"がONになっているなら、
+	//下にある通常のカメラ計算(フォトモード判定やStateの計算結果)をすべて無視して、
+	//ImGui側で編集した座標・注視点をそのままDxLibに渡す
+	if (imguiApp::GetInstance().IsCameraOverrideEnabled())
+	{
+		SetCameraPositionAndTarget_UpVecY(
+			imguiApp::GetInstance().GetOverrideCameraPos().ToDxLibVector(),
+			imguiApp::GetInstance().GetOverrideCameraTarget().ToDxLibVector());
+		//DxLib側のカメラ情報が変わったので、Effekseer(エフェクト)側のカメラ情報も合わせて更新する
+		//(これをしないとエフェクトの見た目・位置がカメラとズレる)
+		Effekseer_Sync3DSetting();
+		return;//ここで抜けるので、この下の通常カメラ処理(フォトモード判定など)は実行されない
+	}
+#endif
 	//フォトモード中は、Stateが計算した値ではなく、フリーカメラの座標をそのままDxLibに渡す
 	if (System::GetInstance().GetPhotoMode())
 	{

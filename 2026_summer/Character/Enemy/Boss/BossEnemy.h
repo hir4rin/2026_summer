@@ -30,6 +30,8 @@ public:
 	void Update() override;
 	void Draw() override;
 	void Attack();
+	//出現位置
+	void SetPos(Vector3 pos) { m_pos = pos; }
 
 	void OnCollision(Collider& other) override;
 	void OnDamage(Collider& other, AttackData& data) override;

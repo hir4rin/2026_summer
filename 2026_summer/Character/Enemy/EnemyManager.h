@@ -4,6 +4,7 @@
 #include <memory>
 #include <string>
 class EnemySwordman;
+class BossEnemy;
 class EnemyBase;
 class Camera;
 class Collider;
@@ -37,7 +38,7 @@ struct Matrices
 	float various[4] = {};
 };
 
-class EnemyManager
+class EnemyManager : public std::enable_shared_from_this<EnemyManager>
 {
 public:
 	EnemyManager(std::weak_ptr<Player> player);
@@ -46,8 +47,11 @@ public:
 	void Update();
 	void Draw();
 	std::shared_ptr<EnemyBase>& GetEnemy(int index) { return m_enemies[index];}
-	std::vector<std::shared_ptr<EnemyBase>>& GetEnemies(){ return m_enemies;}
+	//雑魚敵一覧+ボス(いれば)をまとめて返す(ロックオン/近接ターゲット検索用)。呼ぶたびにコピーが発生する点に注意
+	std::vector<std::shared_ptr<EnemyBase>> GetEnemies();
 	std::weak_ptr<Player> GetPlayer() { return m_player; }
+	//ボスのゲット(最終フェーズが始まるまではnullptr)
+	std::shared_ptr<BossEnemy> GetBoss() { return m_boss; }
 
 	//敵をスポーンさせるかチェックし、スポーンさせる
 	void CheckSpawnWave();
@@ -60,10 +64,14 @@ public:
 	//そのスポーンWaveがスポーンしたかどうか
 	bool isSpawnedWave(int num)const { return m_isSpawnedWave[num];}
 private:
+	//ボスを生成する(CSVのspawnDataは経由せず、直接m_bossに持たせる)
+	void SpawnBoss();
+private:
 	Vector3 m_startPos;//敵の座標
 
 	std::weak_ptr<Player> m_player;//プレイヤーの弱参照
 	std::vector<std::shared_ptr<EnemyBase>> m_enemies;//敵の配列
+	std::shared_ptr<BossEnemy> m_boss;//ボス(最終フェーズになるまではnullptr)
 	std::vector<std::shared_ptr<WaveAreaCol>> m_waveWalls;//ウェーブのエリア前後の壁(押し戻し用)の配列
 	int enemyModelHandle = -1;//敵のモデルのハンドル//EnemySwordManのモデル
 	std::vector<SpawnData> m_spawnData;//敵のスポーンデータ

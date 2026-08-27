@@ -76,7 +76,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions);_DEBUG</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>../EffekseerForDXLib;$(ProjectDir)Character/Player/Attack;$(ProjectDir)Character/Player/Base;$(ProjectDir)Character/Player/Defence;$(ProjectDir)Character/Player/Locomotion;$(ProjectDir)Character</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../EffekseerForDXLib;$(ProjectDir)Character/Player/Attack;$(ProjectDir)Character/Player/Base;$(ProjectDir)Character/Player/Defence;$(ProjectDir)Character/Player/Locomotion;$(ProjectDir)Character;$(ProjectDir)imgui;$(ProjectDir)imgui/backends</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
@@ -95,7 +95,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>../EffekseerForDXLib;$(ProjectDir)Character/Player/Attack;$(ProjectDir)Character/Player/Base;$(ProjectDir)Character/Player/Defence;$(ProjectDir)Character/Player/Locomotion;$(ProjectDir)Character</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../EffekseerForDXLib;$(ProjectDir)Character/Player/Attack;$(ProjectDir)Character/Player/Base;$(ProjectDir)Character/Player/Defence;$(ProjectDir)Character/Player/Locomotion;$(ProjectDir)Character;$(ProjectDir)imgui;$(ProjectDir)imgui/backends</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
@@ -112,7 +112,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_WINDOWS;%(PreprocessorDefinitions);_DEBUG</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>../EffekseerForDXLib;$(ProjectDir)Character/Player/Attack;$(ProjectDir)Character/Player/Base;$(ProjectDir)Character/Player/Defence;$(ProjectDir)Character/Player/Locomotion;$(ProjectDir)Character</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../EffekseerForDXLib;$(ProjectDir)Character/Player/Attack;$(ProjectDir)Character/Player/Base;$(ProjectDir)Character/Player/Defence;$(ProjectDir)Character/Player/Locomotion;$(ProjectDir)Character;$(ProjectDir)imgui;$(ProjectDir)imgui/backends</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
@@ -131,7 +131,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>../EffekseerForDXLib;$(ProjectDir)Character/Player/Attack;$(ProjectDir)Character/Player/Base;$(ProjectDir)Character/Player/Defence;$(ProjectDir)Character/Player/Locomotion;$(ProjectDir)Character</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../EffekseerForDXLib;$(ProjectDir)Character/Player/Attack;$(ProjectDir)Character/Player/Base;$(ProjectDir)Character/Player/Defence;$(ProjectDir)Character/Player/Locomotion;$(ProjectDir)Character;$(ProjectDir)imgui;$(ProjectDir)imgui/backends</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
@@ -173,6 +173,13 @@
     <ClCompile Include="Camera\LockOnManager.cpp" />
     <ClCompile Include="Camera\CameraState\PlayerFollowCamera.cpp" />
     <ClCompile Include="Camera\CameraState\LockOnCameraState.cpp" />
+    <ClCompile Include="imguiApp.cpp" />
+    <ClCompile Include="imgui\imgui.cpp" />
+    <ClCompile Include="imgui\imgui_draw.cpp" />
+    <ClCompile Include="imgui\imgui_tables.cpp" />
+    <ClCompile Include="imgui\imgui_widgets.cpp" />
+    <ClCompile Include="imgui\backends\imgui_impl_win32.cpp" />
+    <ClCompile Include="imgui\backends\imgui_impl_dx11.cpp" />
     <ClCompile Include="Scene\ResultScene.cpp" />
     <ClCompile Include="Sound\SoundManager.cpp" />
     <ClCompile Include="SpeedLine2D.cpp" />
@@ -253,6 +260,15 @@
     <ClInclude Include="Camera\LockOnManager.h" />
     <ClInclude Include="Camera\CameraState\PlayerFollowCamera.h" />
     <ClInclude Include="Camera\CameraState\LockOnCameraState.h" />
+    <ClInclude Include="imguiApp.h" />
+    <ClInclude Include="imgui\imgui.h" />
+    <ClInclude Include="imgui\imgui_internal.h" />
+    <ClInclude Include="imgui\imconfig.h" />
+    <ClInclude Include="imgui\imstb_rectpack.h" />
+    <ClInclude Include="imgui\imstb_textedit.h" />
+    <ClInclude Include="imgui\imstb_truetype.h" />
+    <ClInclude Include="imgui\backends\imgui_impl_win32.h" />
+    <ClInclude Include="imgui\backends\imgui_impl_dx11.h" />
     <ClInclude Include="Scene\ResultScene.h" />
     <ClInclude Include="Sound\SoundManager.h" />
     <ClInclude Include="SpeedLine2D.h" />

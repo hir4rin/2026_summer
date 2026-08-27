@@ -22,6 +22,7 @@
 #include "GameClearScene.h"
 #include "GameResult.h"
 #include "PauseScene.h"
+#include "../imguiApp.h"
 
 namespace
 {
@@ -38,6 +39,8 @@ namespace
 
 	constexpr int kLockOnCheckNum = 10;//ロックオンの検索ループ回数
 	constexpr int kFps = 60;//fpsを60に固定して動かしているので、クリアタイムの算出に使う
+
+	constexpr float kFlashDuration = 12.0f;
 }
 
 
@@ -59,12 +62,7 @@ GameScene::GameScene(SceneController& controller) :Scene(controller)
 	m_enemySwordman->Init();*/
 	m_enemyManager = std::make_shared<EnemyManager>(std::weak_ptr<Player>(m_player));
 	m_enemyManager->Init();
-
-	int bossModelHandle = MV1DuplicateModel(System::GetInstance().GetHandle(AsyncData::BossModel));
-	m_boss = std::make_shared<BossEnemy>(std::weak_ptr<Player>(m_player), Vector3(0, 0, 0), bossModelHandle);
-	m_boss->Init();
-	//ボスにEnemyManagerの弱参照を渡す(雑魚敵召喚のため)
-	m_boss->SetEnemyManager(std::weak_ptr<EnemyManager>(m_enemyManager));
+	//ボスはEnemyManagerが最終フェーズ到達時に生成する(EnemyManager::SpawnBoss参照)
 
 	//カメラマネージャーの生成
 	m_cameraManager = std::make_shared<CameraManager>();
@@ -86,7 +84,7 @@ GameScene::GameScene(SceneController& controller) :Scene(controller)
 	//プレイヤーにEnemyManagerの弱参照を渡す
 	m_player->SetEnemyManager(std::weak_ptr<EnemyManager>(m_enemyManager));
 
-	
+
 
 
 	CollisionManager::GetInstance().Init();
@@ -98,11 +96,11 @@ GameScene::GameScene(SceneController& controller) :Scene(controller)
 	//シェーダーの作成
 	m_ultShaderHandle = CreateShaderConstantBuffer(sizeof(UltParam));
 	m_ultCBuff = static_cast<UltParam*>(GetBufferShaderConstantBuffer(m_ultShaderHandle));
-	
+
 	m_enemyPSH = LoadPixelShader("EnemyBlackPS.pso");
 
 	//bone確かめ用
-	int triangleType = MV1GetTriangleListVertexType(System::GetInstance().GetHandle(AsyncData::EnemyModel),0);
+	int triangleType = MV1GetTriangleListVertexType(System::GetInstance().GetHandle(AsyncData::EnemyModel), 0);
 
 
 	std::vector<D3D_SHADER_MACRO> macros = {
@@ -162,8 +160,16 @@ void GameScene::NormalUpdate()
 	//フォトモードだったら、カメラのみを動かせるようにする
 	if (System::GetInstance().GetPhotoMode())
 	{
-		
+
 		m_cameraManager->UpdatePhotoCamera();
+
+
+		if (input.IsTriggered("Y"))
+		{
+			//このタイミングではまだ今フレームの描画が終わっていないため、
+			//フラグだけ立てて実際の保存はDrawの最後で行う
+			m_requestScreenshot = true;
+		}
 
 		//もう一度スタートを押したらpushSceneに行く
 		if (input.IsTriggered("Start"))
@@ -185,7 +191,11 @@ void GameScene::NormalUpdate()
 
 	m_player->Update(*m_cameraManager->GetHighestPriorityCamera());
 	m_enemyManager->Update();
-	m_boss->Update();
+	//ボスは最終フェーズに到達するまで存在しないのでnullチェックする
+	if (auto boss = m_enemyManager->GetBoss())
+	{
+		boss->Update();
+	}
 	m_stage->Update();
 	m_skyBox->Update();
 	CollisionManager::GetInstance().Update();
@@ -202,7 +212,7 @@ void GameScene::NormalUpdate()
 		return;
 	}
 	//すべての敵を倒したらゲームクリアシーンに遷移
-	if (m_enemyManager->IsGetAllEnemiesDead(static_cast<int>(WaveNum::WaveSize) -1))
+	if (m_enemyManager->IsGetAllEnemiesDead(static_cast<int>(WaveNum::WaveSize) - 1))
 	{
 		//リザルトの集計
 		GameResult result;
@@ -216,19 +226,19 @@ void GameScene::NormalUpdate()
 	}
 	//playerはそのwaveの敵を倒さないと次のwaveに進めない
 	//spawnwaveがtrueでそのwaveのenemyAllDeadがfalseならそのwaveを進めない
-	for(int i = 0; i < static_cast<int>(WaveNum::WaveSize); i++)
+	for (int i = 0; i < static_cast<int>(WaveNum::WaveSize); i++)
 	{
 		//spawnwaveがtrueでそのwaveのenemyAllDeadがfalseならそのwaveを進めない
 		if (m_enemyManager->isSpawnedWave(i) && !m_enemyManager->IsGetAllEnemiesDead(i))
 		{
 			//プレイヤーの条件にセット
-			m_player->SetLimitPlayerArea(i,true);
+			m_player->SetLimitPlayerArea(i, true);
 		}
 		////もしどちらもtrueならplayerの条件をセットする
 		if (m_enemyManager->isSpawnedWave(i) && m_enemyManager->IsGetAllEnemiesDead(i))
 		{
 			//プレイヤーの条件にセット
-			m_player->SetLimitPlayerArea(i,false);
+			m_player->SetLimitPlayerArea(i, false);
 		}
 	}
 	// Effekseerにより再生中のエフェクトを更新する。
@@ -311,7 +321,11 @@ void GameScene::NormalDraw()
 		DrawGraph(0, 0, m_RT1, true);
 	}
 	m_player->Draw();
-	m_boss->Draw();
+	//ボスは最終フェーズに到達するまで存在しないのでnullチェックする
+	if (auto boss = m_enemyManager->GetBoss())
+	{
+		boss->Draw();
+	}
 #ifdef _DEBUG
 	CollisionManager::GetInstance().DebugDraw();
 	//PlayerのHpのデバッグ表示
@@ -337,12 +351,42 @@ void GameScene::NormalDraw()
 
 
 	m_cameraManager->Draw();
+	if (System::GetInstance().GetPhotoMode())
+	{
+		//カメラ座標・角度・注視点までの距離をいじれるデバッグウィンドウを表示する
+		//現在のMainCamera(実際に画面に反映されているカメラ)の座標・注視点を渡している
+		//(ウィンドウ内の"Current Pos/Target"表示や、"Sync From Current"ボタンで使われる)
+		imguiApp::GetInstance().DrawCameraDebugWindow(
+			m_cameraManager->GetActiveCamera()->GetPos(),
+			m_cameraManager->GetActiveCamera()->GetTarget());
+	}
+
 #endif
-	m_uiManager->Draw();
+	if (!System::GetInstance().GetPhotoMode())
+	{
+		m_uiManager->Draw();
+	}
 	//エフェクトの描画
 	DrawEffekseer3D();
 
+	//フォトモードでスクリーンショットが要求されていたら、全描画完了後に保存する
+	if (m_requestScreenshot)
+	{
+		SaveDrawScreenToPNG(0, 0, Game::kScreenWidth, Game::kScreenHeight, "data/SaveData/screenShot.png");
+		m_requestScreenshot = false;
+		m_flashTimer = kFlashDuration;
+	}
 
+	if (m_flashTimer > 0)
+	{
+		int alpha = 255 * m_flashTimer / kFlashDuration; //残り時間に比例して薄くなる
+		SetDrawBlendMode(DX_BLENDMODE_ALPHA, alpha);
+		DrawBox(0, 0, Game::kScreenWidth, Game::kScreenHeight, GetColor(255, 255, 255), TRUE);
+		SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
+		m_flashTimer--;
+
+
+	}
 }
 
 void GameScene::FadeOutDraw()
