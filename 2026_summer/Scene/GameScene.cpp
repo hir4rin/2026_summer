@@ -21,7 +21,9 @@
 #include "GameOverScene.h"
 #include "GameClearScene.h"
 #include "GameResult.h"
+#include "StageClearPoPScene.h"
 #include "PauseScene.h"
+#include "StageClearPopScene.h"
 #include "../imguiApp.h"
 
 namespace
@@ -128,13 +130,8 @@ GameScene::GameScene(SceneController& controller) :Scene(controller)
 }
 GameScene::~GameScene()
 {
-	//Collisionをすべてクリア
-	CollisionManager::GetInstance().Terminate();
-
-
-	DeleteGraph(m_gHandle1);
-	DeleteGraph(m_gHandle2);
-	DeleteGraph(m_gHandle3);
+	Terminate();
+	
 }
 
 void GameScene::Update()
@@ -253,7 +250,8 @@ void GameScene::NormalUpdate()
 		//いずれコルーチンみたいな感じで30F後に起動みたいにする(今のところそんな難しくないイメージのやつ)
 		m_lasthitEventDuration = 0.0f;
 
-		
+		//血殺(必殺技ゲージ)を演出用に満タンにする
+		m_player->MaxUltGauge();
 
 		m_isLastHitPlayingTrigger = true;
 	}
@@ -261,14 +259,46 @@ void GameScene::NormalUpdate()
 	if (System::GetInstance().GetIsLastHitEventPlaying())
 	{
 		m_lasthitEventDuration++;
-		if (m_lasthitEventDuration == 60)
+		if (m_lasthitEventDuration == 300)
 		{
 			//もとに戻す
 			System::GetInstance().SetTimeScale(1.0f);
+
 			//playerをセット
-		// Record セット、animation開始
-		//ボスをセット、アニメーション開始
+			m_player->SetPos(Vector3(328.66f, 0.0f, 6903.45f));
+			m_player->ForceIdleState();
+			m_player->SetRotY(0.0f);//TODO: 演出に合わせて向きを調整する
+
+			// Record セット、animation開始
+			Input::GetInstance().StartRecord(CreateLastHitEventInputRecord());
+
+			//ボスをセット、アニメーション開始
 			m_enemyManager->GetBoss()->RestartDeadState();
+			//ボスをスポーンした地点にセット
+			m_enemyManager->ResetBossToSpawnPos();
+			//カメラをセット
+			m_cameraManager->ChangeStateFromScene(CameraManager::CameraStateName::FinishingFirstCamera);
+		}
+
+		//最後のカメラかつ
+		//if (m_cameraManager->GetActiveCamera()->GetCameraType() == CameraStateBase::Type::FinishingSecondCamera)
+		{
+			//playerの血殺のアニメーションが終わるタイミング
+			if (m_lasthitEventDuration == 640)
+			{
+				input.StopRecord();
+				System::GetInstance().SetIsLastHitEventPlaying(false);
+				//リザルトの集計
+				GameResult result;
+				result.clearTime = static_cast<float>(m_playFrameCount) / kFps;
+				result.totalDamage = m_player->GetTotalDamageDealt();
+				result.comboCount = m_player->GetTotalHitCount();
+				result.damageTakenCount = m_player->GetDamageTakenCount();
+
+				//ポーズシーンを積む
+				m_controller.PushScene(std::make_shared<StageClearPoPScene>(m_controller, result));
+				return;
+			}
 		}
 
 	}
@@ -339,16 +369,19 @@ void GameScene::NormalDraw()
 	//必殺技UIの表示//レンダーターゲット
 	if (isUlt)
 	{
-		SetDrawScreen(m_RT1); ClearDrawScreen();
-		m_cameraManager->ApplyCameraSettings();
-		DrawRectRotaGraph(Game::kScreenWidth - 200, Game::kScreenHeight / 4, 0, 0, kGHX, kGHY, 0.8f, -DX_PI_F / 12, m_gHandle1, TRUE);
-		DrawRectRotaGraph(Game::kScreenWidth / 15, Game::kScreenHeight - 150, 0, 0, kGH2X, kGH2Y, 1.0f, DX_PI_F / 4, m_gHandle2, TRUE);
-		DrawRectRotaGraph(Game::kScreenWidth * 3 / 5, Game::kScreenHeight - 200, 0, 0, kGH3X, kGH3Y, 0.5f, 0.0f, m_gHandle3, TRUE);
-
-		SetDrawScreen(DX_SCREEN_BACK);
-		m_cameraManager->ApplyCameraSettings();
-		DrawGraph(0, 0, m_RT1, true);
+		//ラストヒットイベント中は、配置違いの血殺UIを表示する
+		if (m_cameraManager->GetActiveCamera()->GetCameraType() == CameraStateBase::Type::FinishingFirstCamera
+			|| m_cameraManager->GetActiveCamera()->GetCameraType() == CameraStateBase::Type::FinishingSecondCamera)
+		{
+			DrawLastHitKessatsuUI();
+		}
+		//通常時
+		else
+		{
+			DrawUltKessatsuUI();
+		}
 	}
+	
 	m_player->Draw();
 	//ボスは最終フェーズに到達するまで存在しないのでnullチェックする
 	if (auto boss = m_enemyManager->GetBoss())
@@ -391,7 +424,7 @@ void GameScene::NormalDraw()
 	}
 
 #endif
-	if (!System::GetInstance().GetPhotoMode())
+	if (!System::GetInstance().GetPhotoMode() && !System::GetInstance().GetIsLastHitEventPlaying())
 	{
 		m_uiManager->Draw();
 	}
@@ -455,6 +488,7 @@ void GameScene::CheckLockOnCamera()
 
 	//ウルトカメラ中だったらreturn;
 	if (m_cameraManager->GetActiveCamera()->GetCameraType() == CameraStateBase::Type::UltCamera)return;
+	if (System::GetInstance().GetIsLastHitEventPlaying())return;
 
 	auto mainCamera = m_cameraManager->GetMainCamera();
 
@@ -561,6 +595,7 @@ void GameScene::LockOnCameraInput()
 
 	//ウルトカメラ中だったらreturn;
 	if (m_cameraManager->GetActiveCamera()->GetCameraType() == CameraStateBase::Type::UltCamera)return;
+	if (System::GetInstance().GetIsLastHitEventPlaying())return;
 
 	auto mainCamera = m_cameraManager->GetMainCamera();
 
@@ -686,6 +721,7 @@ void GameScene::CheckLockOnCameraEnemyDead()
 
 	//ウルトカメラ中だったらreturn;
 	if (m_cameraManager->GetActiveCamera()->GetCameraType() == CameraStateBase::Type::UltCamera)return;
+	if (System::GetInstance().GetIsLastHitEventPlaying())return;
 
 	auto mainCamera = m_cameraManager->GetMainCamera();
 
@@ -820,4 +856,69 @@ int GameScene::LoadVertexShaderWithMacro(const std::string& filePath, std::vecto
 	}
 
 	return vsH;
+}
+
+InputRecord GameScene::CreateLastHitEventInputRecord()
+{
+	//ラストヒットイベント中、プレイヤーを仮想操作するための入力データ
+	//中の数値(durationFramesやpressedButtons)は仮なので、あとで調整する
+	InputRecord record;
+	record.push_back({ 10,{} });
+	record.push_back({ 1, {"X"} });//1F目だけXボタンを押したことにする
+	record.push_back({ 190, {} });//そのあとは空入力(何も押していない)にする
+	record.push_back({ 1, {"LB","Y"}});
+	record.push_back({ 999,{} });
+	return record;
+}
+
+void GameScene::DrawUltKessatsuUI()
+{
+	//必殺技UIの表示//レンダーターゲット
+	SetDrawScreen(m_RT1); ClearDrawScreen();
+	m_cameraManager->ApplyCameraSettings();
+	DrawRectRotaGraph(Game::kScreenWidth - 200, Game::kScreenHeight / 4, 0, 0, kGHX, kGHY, 0.8f, -DX_PI_F / 12, m_gHandle1, TRUE);
+	DrawRectRotaGraph(Game::kScreenWidth / 15, Game::kScreenHeight - 150, 0, 0, kGH2X, kGH2Y, 1.0f, DX_PI_F / 4, m_gHandle2, TRUE);
+	DrawRectRotaGraph(Game::kScreenWidth * 3 / 5, Game::kScreenHeight - 200, 0, 0, kGH3X, kGH3Y, 0.5f, 0.0f, m_gHandle3, TRUE);
+
+	SetDrawScreen(DX_SCREEN_BACK);
+	m_cameraManager->ApplyCameraSettings();
+	DrawGraph(0, 0, m_RT1, true);
+}
+
+void GameScene::DrawLastHitKessatsuUI()
+{
+	//ラストヒットイベント用の血殺UI//血:左上、殺:血の少し右下、血の液体:右下寄り
+	constexpr int kChiX = 220;//血のX座標
+	constexpr int kChiY = 220;//血のY座標
+
+	SetDrawScreen(m_RT1); ClearDrawScreen();
+	m_cameraManager->ApplyCameraSettings();
+	//血:左上
+	DrawRectRotaGraph(kChiX, kChiY, 0, 0, kGHX, kGHY, 0.8f, -DX_PI_F / 12, m_gHandle1, TRUE);
+	//殺:血の少し右下
+	DrawRectRotaGraph(kChiX + 200, kChiY + 170, 0, 0, kGH3X, kGH3Y, 0.5f, 0.0f, m_gHandle3, TRUE);
+	//血の液体:右下寄り
+	DrawRectRotaGraph(Game::kScreenWidth - Game::kScreenWidth / 15, Game::kScreenHeight - 150, 0, 0, kGH2X, kGH2Y, 1.0f, DX_PI_F / 4, m_gHandle2, TRUE);
+
+	SetDrawScreen(DX_SCREEN_BACK);
+	m_cameraManager->ApplyCameraSettings();
+	DrawGraph(0, 0, m_RT1, true);
+}
+void GameScene::Terminate()
+{
+	//Collisionをすべてクリア
+	CollisionManager::GetInstance().Terminate();
+
+
+	DeleteGraph(m_gHandle1);
+	DeleteGraph(m_gHandle2);
+	DeleteGraph(m_gHandle3);
+
+	//ResetSceneで何度もGameSceneを作り直せるようになったため、
+	//ここで解放しないとDxLibのハンドルがリークし続ける
+	DeleteGraph(m_RT1);
+	DeleteGraph(m_RT2);
+	DeleteShaderConstantBuffer(m_ultShaderHandle);
+	DeleteShader(m_enemyPSH);
+	DeleteShader(m_enemyVSH);
 }

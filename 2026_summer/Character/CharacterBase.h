@@ -52,6 +52,9 @@ public:
 	bool GetIsDead()const { return m_isDead; }//死んでいるかどうかのフラグを返す
 	std::shared_ptr<HitCol> GetHitCol() { return m_hitCol; }//やられ判定の取得
 
+	//向き(Y軸回転)を直接セットする//演出などで座標と一緒に向きも固定したいときに使う
+	void SetRotY(float angleY) { m_rotAngleY = angleY; }
+
 	int GetHp()const { return m_hp; }//体力の取得
 
 	void OnTriggerEnter(Collider& other)override;

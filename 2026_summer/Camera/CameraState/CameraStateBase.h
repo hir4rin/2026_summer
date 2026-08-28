@@ -47,6 +47,8 @@ public:
 		Stage1FazeCamera = 5,
 		BossAppearCamera = 6,
 		Stage2FazeCamera = 7,
+		FinishingFirstCamera = 8,
+		FinishingSecondCamera = 9,
 
 		//他のカメラもここに追加していく
 	};

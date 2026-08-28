@@ -28,7 +28,9 @@ public:
 		PlayerCaemra,
 		LockOnCamera,
 		UltCamera,
-		TitleCamera
+		TitleCamera,
+		FinishingFirstCamera,
+		FinishingSecondCamera
 
 	};
 

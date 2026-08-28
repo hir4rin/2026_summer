@@ -68,7 +68,7 @@ public:
 
 	void Update();
 
-	void SetUltStart(int frames) { m_ultCount = frames; m_isUltimating = true; };
+	void SetUltStart(int frames = -1) { m_ultCount = frames; m_isUltimating = true; };
 	bool GetIsUltimating() { return m_isUltimating; };
 
 	void SetPhotoMode(bool ans) { m_isPhotoMode = ans; }

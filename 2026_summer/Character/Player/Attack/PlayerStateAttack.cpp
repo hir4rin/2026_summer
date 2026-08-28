@@ -224,6 +224,13 @@ void PlayerStateAttack::AttackMoveMent()
 	auto player = m_owner.lock();
 	if (!player) return;
 
+	//ラストヒットの演出用//当たり判定を消す//動きもしない
+	if (System::GetInstance().GetIsLastHitEventPlaying())
+	{
+		m_attackCol->SetIsActive(false);
+		return;
+	}
+
 
 	int currentComboIndex = player->m_comboInfo.currentComboIndex;
 	const ComboNode& node = player->m_comboChain[currentComboIndex];
@@ -242,6 +249,11 @@ void PlayerStateAttack::AttackMoveMent()
 			m_attackCol->SetIsActive(false);//攻撃の当たり判定を無効にする
 		}
 
+		//ラストヒットの演出用//当たり判定を消す(下のisHitのreturnより前で必ず通しておく)
+		if (System::GetInstance().GetIsLastHitEventPlaying())
+		{
+			m_attackCol->SetIsActive(false);
+		}
 
 		//攻撃が当たったときは、動きを止める
 		if (player->m_comboInfo.isHit)
@@ -295,6 +307,8 @@ void PlayerStateAttack::AttackMoveMent()
 
 
 	}
+
+	
 
 }
 

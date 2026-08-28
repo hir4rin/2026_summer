@@ -57,6 +57,8 @@ public:
 	void SetCameraManager(std::weak_ptr<CameraManager> cameraManager) { m_cameraManager = cameraManager; }
 	//ラストヒットイベント演出用:ボスをもう一度Deadステートに入り直させる
 	void RestartBossDeadState();
+	//ラストヒットイベント演出用:ボスをスポーンした地点に座標だけ戻す
+	void ResetBossToSpawnPos();
 
 	//敵をスポーンさせるかチェックし、スポーンさせる
 	void CheckSpawnWave();

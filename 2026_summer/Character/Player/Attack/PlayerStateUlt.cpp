@@ -117,6 +117,9 @@ void PlayerStateUlt::Exit()
 		m_attackCol->SetLifeTimeLimited();
 		m_attackCol.reset();
 	}
+#ifdef _DEBUG
+	player->AddUltGauge(100);
+#endif
 }
 
 void PlayerStateUlt::DebugDraw()

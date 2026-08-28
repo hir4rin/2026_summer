@@ -197,9 +197,12 @@ void AttackCol::PlayerAttackOnCollision(Collider& other)
 				if (!isUltStart)
 				{
 					System::GetInstance().SetUltStart(120);//必殺技の演出をスタートする
-					System::GetInstance().SetTimeScaleForFrames(0.1f, 120);//時間を遅くする//60フレームで元に戻す
-					//カメラを移行
-					cameraManager->ChangeStateFromScene(CameraManager::CameraStateName::UltCamera);
+					if (!System::GetInstance().GetIsLastHitEventPlaying())
+					{
+						System::GetInstance().SetTimeScaleForFrames(0.1f, 120);//時間を遅くする//60フレームで元に戻す
+						//カメラを移行
+						cameraManager->ChangeStateFromScene(CameraManager::CameraStateName::UltCamera);
+					}
 				}
 				//必殺技の被ダメエフェクト
 				m_hitEfPlayingHandle = EffectManager::GetInstance().Play(AsyncData::EnemyHitEffectUlt,

@@ -9,13 +9,6 @@ SceneController::SceneController()
 
 
 
-void SceneController::ResetScene(std::shared_ptr<Scene> scene)
-{
-	// シーンを一つだけにしたいので、いったんシーンをすべてクリアします
-	scenes_.clear();
-	scenes_.push_back(scene);
-}
-
 void SceneController::ChangeScene(std::shared_ptr<Scene> scene)
 {
 	// もし、リストが空の場合、普通に代入でChangeSceneしようとすると、当然emptyの箱に対してChangeしようとするので、クラッシュします。

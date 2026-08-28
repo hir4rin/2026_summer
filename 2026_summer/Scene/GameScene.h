@@ -2,6 +2,7 @@
 #include <memory>
 #include "Scene.h"
 #include "../UI/UIManager.h"
+#include "../Input.h"
 #include <d3dcompiler.h>
 #include <string>
 
@@ -48,8 +49,16 @@ private:
 	void CheckLockOnCameraEnemyDead();
 
 	int LoadVertexShaderWithMacro(const std::string& filePath, std::vector<D3D_SHADER_MACRO>& macros);
+
+	//ラストヒットイベント中、プレイヤーを仮想操作するためのInputRecordを作る(中の数値は仮)
+	InputRecord CreateLastHitEventInputRecord();
+
+	//必殺技演出時の血殺UI描画(血:右上寄り、殺:右下寄り、液体:左下寄り)
+	void DrawUltKessatsuUI();
+	//ラストヒットイベント演出時の血殺UI描画(血:左上、殺:血の少し右下、液体:右下寄り)
+	void DrawLastHitKessatsuUI();
 private:
-	
+	void Terminate();
 
 private:
 	std::shared_ptr<CameraManager> m_cameraManager;

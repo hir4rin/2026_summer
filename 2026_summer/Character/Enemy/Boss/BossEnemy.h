@@ -37,6 +37,9 @@ public:
 	void OnDamage(Collider& other, AttackData& data) override;
 	void Terminate();
 
+	//ラストヒットイベント演出用:モデルの全テクスチャを黒一色に差し替える
+	void SetTextureBlack();
+
 	void SetEnemyManager(std::weak_ptr<EnemyManager> enemyManager) { m_enemyManager = enemyManager; }//EnemyManagerのセット
 
 	//ラストヒットイベント演出用:外部からもう一度Deadステートに入り直させるだけの専用関数(汎用化はしない)
@@ -65,6 +68,8 @@ private:
 	int m_hitEfPlayingHandle = -1;//再生中のヒットエフェクトのハンドル
 
 	float m_stunStack = 0.0f;//100たまったらスタンステートに移行
+
+	int m_blackTexHandle = -1;//ラストヒットイベント用、黒一色のテクスチャのハンドル
 
 	AttackType m_attackType = AttackType::None;
 	std::vector<std::shared_ptr<AttackCol>> m_attackCols;

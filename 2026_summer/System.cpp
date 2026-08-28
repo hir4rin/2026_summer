@@ -32,21 +32,27 @@ void System::SetTerminate()
 
 void System::Update()
 {
-	//if (m_frameCount < 0)return;
-
-	m_frameCount--;
-
-	m_ultCount -= 1.0f * timeScale;
-
-	if (m_frameCount <= 0)
+	//m_frameCountが-1(カウントダウンしていない)なら、timeScaleの自動リセットは行わない
+	//これをしないと、SetTimeScaleで直接セットしたtimeScaleが次フレームで1.0fに戻されてしまう
+	if (m_frameCount >= 0)
 	{
-		timeScale = 1.0f;//時間のスケールを元に戻す
-		m_frameCount = -1;//フレームカウントを0にする
+		m_frameCount--;
+
+		if (m_frameCount <= 0)
+		{
+			timeScale = 1.0f;//時間のスケールを元に戻す
+			m_frameCount = -1;//フレームカウントを0にする
+		}
 	}
-	if(m_ultCount <= 0)
-	{
-		m_ultCount = -1;
-		m_isUltimating = false;
-	}
+
+	
+		m_ultCount -= 1.0f * timeScale;
+
+		if (m_ultCount <= 0)
+		{
+			m_ultCount = -1;
+			m_isUltimating = false;
+		}
+	
 
 }

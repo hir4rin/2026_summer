@@ -8,7 +8,9 @@ Collider::Collider():
 	m_tag(Tags::None),
 	m_center(0.0f),
 	m_radius(1.0f),
-	m_isActive(true)
+	m_isActive(true),
+	m_isFloor(true),
+	m_isWall(false)
 {
 }
 

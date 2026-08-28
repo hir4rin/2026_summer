@@ -57,11 +57,21 @@ BossEnemy::BossEnemy(std::weak_ptr<Player> player, Vector3 pos, int modelHandle)
 	m_anim.Init(m_modelHandle, kIdle, true);
 
 	m_hitEfHandle = System::GetInstance().GetHandle(AsyncData::EnemyHitEffect);
+
+	//白いテクスチャを読み込んで、黒く塗りつぶす(専用の黒画像を用意しなくていいようにするため)
+	m_blackTexHandle = LoadGraph("data/UI/white01.png");
+	int blackTexW = 0, blackTexH = 0;
+	GetGraphSize(m_blackTexHandle, &blackTexW, &blackTexH);
+	SetDrawScreen(m_blackTexHandle);
+	DrawBox(0, 0, blackTexW, blackTexH, GetColor(0, 0, 0), TRUE);
+	SetDrawScreen(DX_SCREEN_BACK);//描画先を裏画面に戻す
 }
 
 BossEnemy::~BossEnemy()
 {
 	MV1DeleteModel(m_modelHandle);
+	DeleteGraph(m_blackTexHandle);
+	
 }
 
 void BossEnemy::Init()
@@ -191,8 +201,7 @@ void BossEnemy::OnDamage(Collider& other, AttackData& data)
 
 	//死亡していたら処理しない
 	if (m_isDead)return;
-	//死亡吹っ飛び中は処理しない
-	if (m_isDieOut)return;
+
 	//Playerの攻撃データをもとに被ダメ処理をする
 	m_hp -= static_cast<int>(data.attackPower);
 	m_stunStack += static_cast<int>(data.attackPower);
@@ -219,47 +228,67 @@ void BossEnemy::OnDamage(Collider& other, AttackData& data)
 
 	if (m_hp <= 0)
 	{
-		//空中じゃ死なない
-		if (!IsFloor())
-		{
-			m_hp = 1;
-		}
-		else
-		{
 			m_hp = 0;
 			m_isLifeZero = true;
 			//当たり判定を解除する
 			Terminate();
 
-			//キリモミ吹っ飛びの時は、途中で死ぬ
-			if (m_attackData.isKirimomi)
-			{
-				m_isDieOut = true;
-			}
 			//死亡アニメーションに移行
-			else
-			{
-				System::GetInstance().SetTimeScale(0.02f);
-				ChangeState(std::make_shared<BossStateDead>(GetWeakPtr()));
-				return;
-			}
-		}
+			
+				if (!System::GetInstance().GetIsLastHitEventPlaying())
+				{
+					System::GetInstance().SetTimeScale(0.05f);
+				
+					//イベントを発火させる
+					System::GetInstance().SetIsLastHitEventPlaying(true);
+					ChangeState(std::make_shared<BossStateDead>(GetWeakPtr()));
+					return;
+				}
+				//実行中の時
+				else
+				{
+					System::GetInstance().SetTimeScaleForFrames(0.1f, 120);//時間を遅くする//60フレームで元に戻す
+					//モデルのテクスチャを黒一色にする
+					SetTextureBlack();
+				}
 	}
 	//Enemy->Playerのベクトルに吹き飛ばす力を加える//プレイヤーの正面に行くようにknockBackする//いずれkirimomi吹っ飛びの時の処理と分ける
-	Vector3 front = player->GetTargetVec();
-	Vector3 pos = player->GetPos() + player->GetVel();
-	Vector3 TargetPos = pos + front * kEnemyDistance;
-	Vector3 toTarget = (TargetPos - m_pos).Normalize() * kToTargetPower;//プレイヤーの正面に行くようにknockBackする力//吸着
+	//Vector3 front = player->GetTargetVec();
+	//Vector3 pos = player->GetPos() + player->GetVel();
+	//Vector3 TargetPos = pos + front * kEnemyDistance;
+	//Vector3 toTarget = (TargetPos - m_pos).Normalize() * kToTargetPower;//プレイヤーの正面に行くようにknockBackする力//吸着
 
-	Vector3 pushBackVec = (m_pos - other.GetPos()).Normalize() * data.knockBackPower.x;
-	pushBackVec += toTarget;
+	//Vector3 pushBackVec = (m_pos - other.GetPos()).Normalize() * data.knockBackPower.x;
+	//pushBackVec += toTarget;
 
-	//ここをknockBackVelにして、knockBackVelをだんだん減衰させる処理をする
-	m_knockBackVel = pushBackVec;
-	m_knockBackVel.y = data.knockBackPower.y;//Y軸の吹き飛ばしの力を加える
-	DrawFormatString(500, 0, GetColor(255, 0, 0), "BossEnemy: OnDamage");
-	//stateをHItにする
-	ChangeState(std::make_shared<BossStateHit>(GetWeakPtr()));
+	////ここをknockBackVelにして、knockBackVelをだんだん減衰させる処理をする
+	//m_knockBackVel = pushBackVec;
+	//m_knockBackVel.y = data.knockBackPower.y;//Y軸の吹き飛ばしの力を加える
+	//DrawFormatString(500, 0, GetColor(255, 0, 0), "BossEnemy: OnDamage");
+	////stateをHItにする
+	//ChangeState(std::make_shared<BossStateHit>(GetWeakPtr()));
+}
+
+void BossEnemy::SetTextureBlack()
+{
+	//モデルが持っている全テクスチャを、黒一色のテクスチャに差し替える
+	int texNum = MV1GetTextureNum(m_modelHandle);
+	for (int i = 0; i < texNum; i++)
+	{
+		MV1SetTextureGraphHandle(m_modelHandle, i, m_blackTexHandle, FALSE);
+	}
+
+	//テクスチャだけでなく、マテリアルの色も全部黒にする
+	//(スペキュラ・エミッシブが残っていると、反射や発光で白っぽく見えてしまうため)
+	COLOR_F black = GetColorF(0.0f, 0.0f, 0.0f, 1.0f);
+	int matNum = MV1GetMaterialNum(m_modelHandle);
+	for (int i = 0; i < matNum; i++)
+	{
+		MV1SetMaterialDifColor(m_modelHandle, i, black);
+		MV1SetMaterialAmbColor(m_modelHandle, i, black);
+		MV1SetMaterialSpcColor(m_modelHandle, i, black);
+		MV1SetMaterialEmiColor(m_modelHandle, i, black);
+	}
 }
 
 void BossEnemy::Terminate()
@@ -270,7 +299,7 @@ void BossEnemy::Terminate()
 	}
 	if (m_hitCol)
 	{
-		CollisionManager::GetInstance().ReleaseCollider(m_hitCol);
+		//CollisionManager::GetInstance().ReleaseCollider(m_hitCol);
 	}
 }
 

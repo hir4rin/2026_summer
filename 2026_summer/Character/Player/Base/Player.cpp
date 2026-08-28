@@ -237,7 +237,7 @@ void Player::OnDamage(Collider& other, AttackData& data)
 #ifdef _DEBUG
 	return;
 #endif
-
+	return;
 	//ダメージを受けたときの処理
 	//敵の攻撃データをもらい、ダメージを減らし、体力を減らす、場合によってはプレイヤーを吹き飛ばす
 	//DrawFormatString(0, 0, GetColor(255, 0, 0), "Player: OnDamage");
@@ -266,6 +266,11 @@ void Player::OnDamage(Collider& other, AttackData& data)
 	m_attackData = data;
 	//stateをhitStateにする
 	ChangeState(std::make_shared<PlayerStateHit>(GetWeakPtr(), data));
+}
+
+void Player::ForceIdleState()
+{
+	ChangeState(std::make_shared<PlayerStateIdle>(GetWeakPtr()));
 
 
 	//IsHitStateに変える//後でする

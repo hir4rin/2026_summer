@@ -11,6 +11,8 @@
 #include "CameraState/LockOnCameraState.h"
 #include "CameraState/UltCameraState.h"
 #include "CameraState/TitleCameraState.h"
+#include "CameraState/FinishingFirstCamera.h"
+#include "CameraState/FinishingSecondCamera.h"
 #include "LockOnCamera.h"
 #include "../Managers/CollisionManager.h"
 #include "../System.h"
@@ -494,6 +496,12 @@ void CameraManager::ChangeStateFromScene(CameraStateName stateName)
 		break;
 	case CameraStateName::TitleCamera:
 		newState = std::make_shared<TitleCameraState>(shared_from_this());
+		break;
+	case CameraStateName::FinishingFirstCamera:
+		newState = std::make_shared<FinishingFirstCamera>(shared_from_this());
+		break;
+	case CameraStateName::FinishingSecondCamera:
+		newState = std::make_shared<FinishingSecondCamera>(shared_from_this());
 		break;
 	default:
 		return;

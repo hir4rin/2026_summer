@@ -153,6 +153,8 @@ public:
 	//ゲージの取得
 	int GetSkillGauge()const { return m_comboInfo.SkillGauge; }//スキルゲージの取得
 	int GetUltGauge()const { return m_comboInfo.UltGauge; }//必殺技ゲージの取得
+	//血殺(必殺技ゲージ)を最大にする//ラストヒットイベント演出用
+	void MaxUltGauge() { m_comboInfo.UltGauge = 100; }
 
 	//鴉状態かどうか
 	bool GetIsRaven()const { return m_isRaven; }
@@ -174,6 +176,8 @@ public:
 	int GetTotalHitCount()const { return m_totalHitCount; }//リザルト用//コンボ数(総ヒット数)
 	int GetDamageTakenCount()const { return m_damageTakenCount; }//リザルト用//被弾回数
 
+	//ラストヒットイベント演出用:外部からIdleステートに遷移させるだけの専用関数(汎用化はしない)
+	void ForceIdleState();
 private:
 	/// <summary>
 	/// 状態を変更する関数

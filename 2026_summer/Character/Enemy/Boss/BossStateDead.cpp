@@ -22,7 +22,7 @@ void BossStateDead::Enter()
 	if (!boss)return;
 
 	//死亡アニメーションを流す
-	boss->m_anim.ChangeAnim(boss->GetAnimName("Death"), false, 0.9f);
+	boss->m_anim.ChangeAnim(boss->GetAnimName("Death"), false, 0.8f);
 	
 }
 
@@ -37,16 +37,16 @@ void BossStateDead::Update()
 	{
 		if (boss->m_anim.GetAnimRate() > 0.4f)
 		{
-			//イベントを発火させる
-			System::GetInstance().SetIsLastHitEventPlaying(true);
+		
 			
 		}
 	}
 	
 
+	//血殺をかっこよく見せたら立てる
 	if (boss->m_anim.GetAnimEndFlag())
 	{
-		boss->m_isDead = true;
+		//boss->m_isDead = true;
 	}
 }
 

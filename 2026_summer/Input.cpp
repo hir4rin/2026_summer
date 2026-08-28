@@ -109,6 +109,7 @@ void Input::Update()
 	GetHitKeyStateAll(keyState);//生のキーボード情報//この関数が入力を全部とってくる(keyStateに入れてる)
 	int padState = GetJoypadInputState(DX_INPUT_PAD1);//生のPAD1情報
 
+
 	// すべての入力イベントをチェックします
 	//ここでInputData_が更新される
 	//inputTable_を回して各イベントをチェックする
@@ -136,6 +137,8 @@ void Input::Update()
 			}
 			if (inputRaw) {//必須!
 				break;//ここでbreakしないと、最後のチェックで押されていないとfalseになる
+
+
 			}
 		}
 	}

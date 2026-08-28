@@ -150,6 +150,20 @@ void EnemyManager::Update()
 	}
 	);
 
+	//ラストヒットイベント中は、残っている雑魚敵の当たり判定を解放してすべて消去する
+	if (System::GetInstance().GetIsLastHitEventPlaying())
+	{
+		for (auto& enemy : m_enemies)
+		{
+			auto col = enemy->GetCollider();
+			if (col)
+			{
+				CollisionManager::GetInstance().ReleaseCollider(col);
+			}
+		}
+		m_enemies.clear();
+	}
+
 	//すべてのwaveが出ていて、敵がいなくなったら、ゲームクリア//enumは暗黙的にintに変換できないので、キャストする
 	//そのwaveの敵がすべて死んでいるかどうかをチェックする
 	for(int i = 0; i < static_cast<int>(WaveNum::WaveSize); i++)
@@ -337,6 +351,13 @@ void EnemyManager::RestartBossDeadState()
 {
 	if (!m_boss)return;
 	m_boss->RestartDeadState();
+}
+
+void EnemyManager::ResetBossToSpawnPos()
+{
+	if (!m_boss)return;
+	m_boss->SetPos(kSpawnWave3);
+	m_boss->SetRotY(0.0f);//TODO: 演出に合わせて向きを調整する
 }
 
 void EnemyManager::SpawnBoss()
