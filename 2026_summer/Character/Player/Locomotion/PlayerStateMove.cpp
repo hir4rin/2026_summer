@@ -3,6 +3,7 @@
 #include "../../../Input.h"
 #include "../../../Camera/Camera.h"
 #include "../../../Game.h"
+#include "../../../System.h"
 
 
 
@@ -30,6 +31,7 @@ void PlayerStateMove::Enter()
 	{
 		player->m_anim.ChangeAnimWithModelHandle(player->m_modelHandle, player->GetAnimName("Walk"), true, 1.0f);
 	}
+	System::GetInstance().GetSoundManager().PlaySELoop("WalkSE");
 }
 
 void PlayerStateMove::Update()
@@ -103,6 +105,7 @@ void PlayerStateMove::Update()
 
 void PlayerStateMove::Exit()
 {
+	System::GetInstance().GetSoundManager().StopSE("WalkSE");
 }
 
 void PlayerStateMove::DebugDraw()

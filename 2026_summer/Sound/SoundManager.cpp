@@ -16,17 +16,22 @@ namespace
     constexpr float kGameOverBGMVolumeRate = 1.0f;
 
     //SE音量倍率(マスター音量に対する倍率。バランス調整はここを変更する)
-    constexpr float kAttackSwordSEVolumeRate = 1.0f;
-    constexpr float kAttackSwordAirSEVolumeRate = 1.0f;
-    constexpr float kAttackSwordHitSEVolumeRate = 1.0f;
-    constexpr float kSkillSEVolumeRate = 1.0f;
-    constexpr float kSkillAirSEVolumeRate = 1.0f;
-    constexpr float kSkillHitSEVolumeRate = 1.0f;
-    constexpr float kUltAttackSEVolumeRate = 1.0f;
-    constexpr float kUltAttackHitSEVolumeRate = 1.0f;
-    constexpr float kJumpUpAndDownVolumeRate = 1.0f;
-    constexpr float kKickSEVolumeRate = 1.0f;
-    constexpr float kWalkSEVolumeRate = 1.0f;
+    constexpr float kAttackSwordSEVolumeRate = 1.5f;
+    constexpr float kAttackSwordAirSEVolumeRate = 1.5f;
+    constexpr float kAttackSwordHitSEVolumeRate = 1.5f;
+    constexpr float kSkillSEVolumeRate = 1.5f;
+    constexpr float kSkillAirSEVolumeRate = 1.5f;
+    constexpr float kSkillHitSEVolumeRate = 1.5f;
+    constexpr float kUltAttackSEVolumeRate = 1.5f;
+    constexpr float kUltAttackHitSEVolumeRate = 1.5f;
+    constexpr float kJumpUpAndDownVolumeRate = 1.5f;
+    constexpr float kKickSEVolumeRate = 1.5f;
+    constexpr float kKickAirSEVolumeRate = 1.5f;
+    constexpr float kWalkSEVolumeRate = 1.5f;
+    constexpr float kCameraSyatterSEVolumeRate = 1.5f;
+    constexpr float kMascotHitSEVolumeRate = 1.5f;
+    constexpr float kAwayMascotSEVolumeRate = 1.5f;
+    constexpr float kWallBreakSEVolumeRate = 1.5f;
 }
 
 void SoundManager::Init()
@@ -55,7 +60,14 @@ void SoundManager::Init()
 	m_sounds["UltAttackHitSE"] = LoadSoundMem("data/Sound/SE/Player/UltAttackHitSE.mp3");
 	m_sounds["JumpUpAndDown"] = LoadSoundMem("data/Sound/SE/Player/JumpUpAndDown.mp3");
 	m_sounds["KickSE"] = LoadSoundMem("data/Sound/SE/Player/KickSE.mp3");
+	m_sounds["KickAirSE"] = LoadSoundMem("data/Sound/SE/Player/KickAirSE.mp3");
 	m_sounds["WalkSE"] = LoadSoundMem("data/Sound/SE/Player/WalkSE.mp3");
+
+	//SEの読み込み(システム)
+	m_sounds["CameraSyatterSE"] = LoadSoundMem("data/Sound/SE/System/CameraSyatterSE.mp3");
+	m_sounds["MascotHitSE"] = LoadSoundMem("data/Sound/SE/System/MascotHitSE.mp3");
+	m_sounds["AwayMascotSE"] = LoadSoundMem("data/Sound/SE/System/AwayMascotSE.mp3");
+	m_sounds["WallBreakSE"] = LoadSoundMem("data/Sound/SE/System/WallBreakSE.mp3");
 	//音量の設定
 	m_seVolumes["AttackSwordSE"] = m_masterVolume2 * kAttackSwordSEVolumeRate;
 	m_seVolumes["AttackSwordAirSE"] = m_masterVolume2 * kAttackSwordAirSEVolumeRate;
@@ -67,7 +79,12 @@ void SoundManager::Init()
 	m_seVolumes["UltAttackHitSE"] = m_masterVolume2 * kUltAttackHitSEVolumeRate;
 	m_seVolumes["JumpUpAndDown"] = m_masterVolume2 * kJumpUpAndDownVolumeRate;
 	m_seVolumes["KickSE"] = m_masterVolume2 * kKickSEVolumeRate;
+	m_seVolumes["KickAirSE"] = m_masterVolume2 * kKickAirSEVolumeRate;
 	m_seVolumes["WalkSE"] = m_masterVolume2 * kWalkSEVolumeRate;
+	m_seVolumes["CameraSyatterSE"] = m_masterVolume2 * kCameraSyatterSEVolumeRate;
+	m_seVolumes["MascotHitSE"] = m_masterVolume2 * kMascotHitSEVolumeRate;
+	m_seVolumes["AwayMascotSE"] = m_masterVolume2 * kAwayMascotSEVolumeRate;
+	m_seVolumes["WallBreakSE"] = m_masterVolume2 * kWallBreakSEVolumeRate;
 
 	// サウンド名のリスト
 	const std::vector<std::string> soundNames = {
@@ -88,7 +105,12 @@ void SoundManager::Init()
 		"UltAttackHitSE",
 		"JumpUpAndDown",
 		"KickSE",
-		"WalkSE"
+		"KickAirSE",
+		"WalkSE",
+		"CameraSyatterSE",
+		"MascotHitSE",
+		"AwayMascotSE",
+		"WallBreakSE"
 	};
 
 	//BGMの音量設定

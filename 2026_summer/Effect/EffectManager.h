@@ -18,7 +18,7 @@ public:
 		return instance;
 	}
 	//エフェクトの再生
-	int Play(AsyncData type, const Vector3& pos,float rot = 0.0f, float scale = 1.0f);
+	int Play(AsyncData type, const Vector3& pos,float rot = 0.0f, float scale = 1.0f, float rotX = 0.0f);
 
 	void SetPos(int playingHandle, const Vector3& pos);
 	void SetRot(int playingHandle, float rot);

@@ -4,6 +4,7 @@
 #include "Player.h"
 #include "../../../SubWindow/SubWindow.h"
 #include "EffekseerForDXLib.h"
+#include "../../../System.h"
 
 namespace
 {
@@ -41,6 +42,7 @@ void PlayerStateUlt::Enter()
 	DetermineAttackDirection();	
 	//アニメーションを流す
 	player->m_anim.ChangeAnimWithModelHandle(player->m_attackModelHandle, player->GetAnimName("UltAttack"), false, 1.0f);
+	System::GetInstance().GetSoundManager().PlaySE("UltAttackSE");
 
 	//攻撃の当たり判定を生成する
 	//データ作成//後ほどデータ化する

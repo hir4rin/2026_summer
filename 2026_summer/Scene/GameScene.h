@@ -3,6 +3,7 @@
 #include "Scene.h"
 #include "../UI/UIManager.h"
 #include "../Input.h"
+#include "GameResult.h"
 #include <d3dcompiler.h>
 #include <string>
 
@@ -57,6 +58,15 @@ private:
 	void DrawUltKessatsuUI();
 	//ラストヒットイベント演出時の血殺UI描画(血:左上、殺:血の少し右下、液体:右下寄り)
 	void DrawLastHitKessatsuUI();
+	//フォトモード中、画面中央に十字(構図確認用)を描画する
+	void DrawPhotoModeCrosshair();
+	//フェード完了後に遷移する先
+	enum class FadeOutDestination
+	{
+		None,
+		GameOver,
+		GameClear,
+	};
 private:
 	void Terminate();
 
@@ -97,6 +107,9 @@ private:
 	bool m_isLastHitPlayingTrigger = false;//ラストヒットイベントが今フレームで初めて始まったかどうかのフラグ
 	float m_lasthitEventDuration = 0.0f;//ラストヒットイベント開始からの経過フレーム
 
+	int m_fadeCount = 0;//フェードイン・フェードアウトの経過フレーム
+	FadeOutDestination m_fadeOutDestination = FadeOutDestination::None;//フェードアウト完了後に遷移する先
+	GameResult m_pendingResult;//フェードアウト完了後、GameClearSceneに渡すリザルト
 
 };
 

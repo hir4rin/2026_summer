@@ -37,10 +37,11 @@ GameClearScene::GameClearScene(SceneController& controller, const GameResult& re
 	m_player->Init();
 	m_player->SetPos(Vector3(0, 0, 300));
 
-	//カメラの初期化(リザルト画面では定点でPlayerを映すResultCameraのみを使う)
+	//カメラの初期化(リザルト画面では定点でPlayerを映すResultCameraStateのみを使う)
 	m_cameraManager = std::make_shared<CameraManager>();
 	m_cameraManager->SetIsResult(true);
 	m_cameraManager->Init(std::weak_ptr<Player>(m_player));
+	m_cameraManager->ChangeStateFromScene(CameraManager::CameraStateName::ResultCamera);
 	m_cameraManager->Update(m_player->GetPos());
 	m_player->SetCameraManager(std::weak_ptr<CameraManager>(m_cameraManager));
 	m_player->SetResultUp();

@@ -57,4 +57,6 @@ private:
 	int m_rankFrame = 0;//ランク表示開始からのフレーム数
 	char m_rank = 'C';//算出されたランク
 
+	int m_fadeCount = 0;//フェードイン・フェードアウトの経過フレーム
+
 };

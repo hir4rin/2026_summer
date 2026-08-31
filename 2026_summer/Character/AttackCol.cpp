@@ -204,6 +204,12 @@ void AttackCol::PlayerAttackOnCollision(Collider& other)
 						cameraManager->ChangeStateFromScene(CameraManager::CameraStateName::UltCamera);
 					}
 				}
+				if (m_hitIds.empty())
+				{
+					System::GetInstance().GetSoundManager().PlaySE("UltAttackHitSE");
+				}
+
+
 				//必殺技の被ダメエフェクト
 				m_hitEfPlayingHandle = EffectManager::GetInstance().Play(AsyncData::EnemyHitEffectUlt,
 					Vector3(other.GetPos().x, other.GetPos().y + kEfOffset*1.2f, other.GetPos().z),0.0f,0.9f);
@@ -224,9 +230,19 @@ void AttackCol::PlayerAttackOnCollision(Collider& other)
 			//もしプレイヤーの通常攻撃だったら
 			else
 			{
+				//現在のコンボインデックスをもとに、蹴り/スキル/剣のヒット音を鳴らし分ける
+				if (m_hitIds.empty())
+				{
+					System::GetInstance().GetSoundManager().PlaySE(GetHitSeName(*player));
+				}
 				/*m_hitEfPlayingHandle = PlayEffekseer3DEffect(m_hitEfHandle);
 				SetPosPlayingEffekseer3DEffect(m_hitEfPlayingHandle, other.GetPos().x, other.GetPos().y+ kEfOffset, other.GetPos().z);*/
 				m_hitEfPlayingHandle = EffectManager::GetInstance().Play(AsyncData::EnemyHitEffect,
+					Vector3(other.GetPos().x, other.GetPos().y + kEfOffset, other.GetPos().z));
+				//新しく追加したプレイヤーのヒットエフェクトを2つとも同時に出す
+				EffectManager::GetInstance().Play(AsyncData::PlayerSwordHitEffect,
+					Vector3(other.GetPos().x, other.GetPos().y + kEfOffset, other.GetPos().z));
+				EffectManager::GetInstance().Play(AsyncData::PlayerSwordHitEffect2,
 					Vector3(other.GetPos().x, other.GetPos().y + kEfOffset, other.GetPos().z));
 			}
 			m_hitIds.push_back(otherId);//当たったidのリストにotherのidを追加する
@@ -293,5 +309,17 @@ void AttackCol::PlayerGaugeUp(Collider& other)
 
 	}
 
-	
+
+}
+
+std::string AttackCol::GetHitSeName(Player& player)const
+{
+	int comboIndex = player.GetComboInfo().currentComboIndex;
+	if (comboIndex < 0)return "AttackSwordSE";//コンボ中でなければ剣攻撃のヒット音をデフォルトにする
+
+	//現在のコンボの振りSE名(seName)から、蹴り/スキル/剣のどれかを判定する
+	const std::string& swingSeName = player.GetComboNode(comboIndex).seName;
+	if (swingSeName.find("Kick") != std::string::npos)return "KickSE";
+	if (swingSeName.find("Skill") != std::string::npos)return "SkillSE";
+	return "AttackSwordSE";
 }

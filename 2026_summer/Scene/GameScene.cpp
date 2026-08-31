@@ -43,14 +43,16 @@ namespace
 	constexpr int kFps = 60;//fpsを60に固定して動かしているので、クリアタイムの算出に使う
 
 	constexpr float kFlashDuration = 12.0f;
+
+	constexpr int kFadeFrame = 20;//フェードイン・フェードアウトにかけるフレーム数
 }
 
 
 GameScene::GameScene(SceneController& controller) :Scene(controller)
 {
-	//基底クラスに継承先のポインタをキャストして代入する
-	m_updateFunc = static_cast<UpdateFunc_t>(&GameScene::NormalUpdate);
-	m_drawFunc = static_cast<DrawFunc_t>(&GameScene::NormalDraw);
+	//基底クラスに継承先のポインタをキャストして代入する//黒画面からフェードインしてスタートする
+	m_updateFunc = static_cast<UpdateFunc_t>(&GameScene::FadeInUpdate);
+	m_drawFunc = static_cast<DrawFunc_t>(&GameScene::FadeInDraw);
 
 	//ステージの初期化
 	m_stage = std::make_shared<Stage>();
@@ -144,6 +146,17 @@ void GameScene::Update()
 
 void GameScene::FadeInUpdate()
 {
+	// Effekseerにより再生中のエフェクトを更新する。
+	UpdateEffekseer3D();
+
+	m_fadeCount++;
+	if (m_fadeCount >= kFadeFrame)
+	{
+		//フェードインが終わったので、通常のゲーム動作に戻す
+		m_fadeCount = 0;
+		m_updateFunc = static_cast<UpdateFunc_t>(&GameScene::NormalUpdate);
+		m_drawFunc = static_cast<DrawFunc_t>(&GameScene::NormalDraw);
+	}
 }
 
 void GameScene::NormalUpdate()
@@ -210,23 +223,28 @@ void GameScene::NormalUpdate()
 
 	m_playFrameCount++;//リザルトのクリアタイム集計用
 
-	//playerが死んでいたらゲームオーバーシーンに遷移
+	//playerが死んでいたら、フェードアウトしてからゲームオーバーシーンに遷移
 	if (m_player->GetIsDead())
 	{
-		m_controller.ChangeScene(std::make_shared<GameOverScene>(m_controller));
+		m_fadeCount = 0;
+		m_fadeOutDestination = FadeOutDestination::GameOver;
+		m_updateFunc = static_cast<UpdateFunc_t>(&GameScene::FadeOutUpdate);
+		m_drawFunc = static_cast<DrawFunc_t>(&GameScene::FadeOutDraw);
 		return;
 	}
-	//すべての敵を倒したらゲームクリアシーンに遷移
+	//すべての敵を倒したら、フェードアウトしてからゲームクリアシーンに遷移
 	if (m_enemyManager->IsGetAllEnemiesDead(static_cast<int>(WaveNum::WaveSize) - 1))
 	{
 		//リザルトの集計
-		GameResult result;
-		result.clearTime = static_cast<float>(m_playFrameCount) / kFps;
-		result.totalDamage = m_player->GetTotalDamageDealt();
-		result.comboCount = m_player->GetTotalHitCount();
-		result.damageTakenCount = m_player->GetDamageTakenCount();
+		m_pendingResult.clearTime = static_cast<float>(m_playFrameCount) / kFps;
+		m_pendingResult.totalDamage = m_player->GetTotalDamageDealt();
+		m_pendingResult.comboCount = m_player->GetTotalHitCount();
+		m_pendingResult.damageTakenCount = m_player->GetDamageTakenCount();
 
-		m_controller.ChangeScene(std::make_shared<GameClearScene>(m_controller, result));
+		m_fadeCount = 0;
+		m_fadeOutDestination = FadeOutDestination::GameClear;
+		m_updateFunc = static_cast<UpdateFunc_t>(&GameScene::FadeOutUpdate);
+		m_drawFunc = static_cast<DrawFunc_t>(&GameScene::FadeOutDraw);
 		return;
 	}
 	//playerはそのwaveの敵を倒さないと次のwaveに進めない
@@ -309,6 +327,24 @@ void GameScene::NormalUpdate()
 
 void GameScene::FadeOutUpdate()
 {
+	// Effekseerにより再生中のエフェクトを更新する。
+	UpdateEffekseer3D();
+
+	m_fadeCount++;
+	if (m_fadeCount >= kFadeFrame)
+	{
+		switch (m_fadeOutDestination)
+		{
+		case FadeOutDestination::GameOver:
+			m_controller.ChangeScene(std::make_shared<GameOverScene>(m_controller));
+			return;
+		case FadeOutDestination::GameClear:
+			m_controller.ChangeScene(std::make_shared<GameClearScene>(m_controller, m_pendingResult));
+			return;
+		default:
+			break;
+		}
+	}
 }
 
 void GameScene::Draw()
@@ -318,6 +354,13 @@ void GameScene::Draw()
 
 void GameScene::FadeInDraw()
 {
+	NormalDraw();
+
+	//だんだん透明にしていく
+	int alpha = 255 * (kFadeFrame - m_fadeCount) / kFadeFrame;
+	SetDrawBlendMode(DX_BLENDMODE_ALPHA, alpha);
+	DrawBox(0, 0, Game::kScreenWidth, Game::kScreenHeight, GetColor(0, 0, 0), TRUE);
+	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 }
 
 void GameScene::NormalDraw()
@@ -440,6 +483,7 @@ void GameScene::NormalDraw()
 		SaveDrawScreenToPNG(0, 0, Game::kScreenWidth, Game::kScreenHeight, "data/SaveData/screenShot.png");
 		m_requestScreenshot = false;
 		m_flashTimer = kFlashDuration;
+		System::GetInstance().GetSoundManager().PlaySE("CameraSyatterSE");
 	}
 
 	if (m_flashTimer > 0)
@@ -452,11 +496,23 @@ void GameScene::NormalDraw()
 
 
 	}
+
+	//フォトモード中は十字を表示する//保存画像に写り込まないよう、スクリーンショット保存より後に描画する
+	if (System::GetInstance().GetPhotoMode())
+	{
+		DrawPhotoModeCrosshair();
+	}
 }
 
 void GameScene::FadeOutDraw()
 {
+	NormalDraw();
 
+	//だんだん暗くしていく
+	int alpha = 255 * m_fadeCount / kFadeFrame;
+	SetDrawBlendMode(DX_BLENDMODE_ALPHA, alpha);
+	DrawBox(0, 0, Game::kScreenWidth, Game::kScreenHeight, GetColor(0, 0, 0), TRUE);
+	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 }
 
 void GameScene::DrawGrid()
@@ -886,6 +942,22 @@ void GameScene::DrawUltKessatsuUI()
 	SetDrawScreen(DX_SCREEN_BACK);
 	m_cameraManager->ApplyCameraSettings();
 	DrawGraph(0, 0, m_RT1, true);
+}
+
+void GameScene::DrawPhotoModeCrosshair()
+{
+	constexpr int kCrosshairLength = 12;//十字1本あたりの長さ
+	constexpr int kCrosshairGap = 4;//中心のすきま
+	int color = GetColor(255, 255, 255);
+	int centerX = Game::kScreenWidth / 2;
+	int centerY = Game::kScreenHeight / 2;
+
+	//横線(中心にすきまをあけて2本)
+	DrawLine(centerX - kCrosshairGap - kCrosshairLength, centerY, centerX - kCrosshairGap, centerY, color);
+	DrawLine(centerX + kCrosshairGap, centerY, centerX + kCrosshairGap + kCrosshairLength, centerY, color);
+	//縦線(中心にすきまをあけて2本)
+	DrawLine(centerX, centerY - kCrosshairGap - kCrosshairLength, centerX, centerY - kCrosshairGap, color);
+	DrawLine(centerX, centerY + kCrosshairGap, centerX, centerY + kCrosshairGap + kCrosshairLength, color);
 }
 
 void GameScene::DrawLastHitKessatsuUI()

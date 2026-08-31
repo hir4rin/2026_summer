@@ -1,7 +1,9 @@
 ﻿#pragma once
 #include "Collider.h"
 #include <memory>
+#include <string>
 class CharacterBase;
+class Player;
 struct AttackData;//前方宣言は値渡しができないので、参照で渡す
 
 class AttackCol :
@@ -21,6 +23,7 @@ protected:
 	void EnemyAttackOnCollision(Collider& other);//Enemyの攻撃が当たった時の処理
 
 	void PlayerGaugeUp(Collider& other);//Playerの攻撃が当たった時のゲージの上昇
+	std::string GetHitSeName(Player& player)const;//現在のコンボインデックスから、蹴り/スキル/剣のヒットSE名を判定する
 protected:
 	std::weak_ptr<CharacterBase> m_owner;//当たり判定を持つキャラクターへの弱参照
 	//当たったidのリスト

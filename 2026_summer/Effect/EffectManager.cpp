@@ -2,12 +2,12 @@
 #include "DxLib.h"
 #include "EffekseerForDXLib.h"
 
-int EffectManager::Play(AsyncData type, const Vector3& pos, float rot, float scale)
+int EffectManager::Play(AsyncData type, const Vector3& pos, float rot, float scale, float rotX)
 {
 	int resourcehandle = System::GetInstance().GetHandle(type);
 	int playingHandle = PlayEffekseer3DEffect(resourcehandle);
 	SetPosPlayingEffekseer3DEffect(playingHandle, pos.x,pos.y,pos.z);
-	SetRotationPlayingEffekseer3DEffect(playingHandle, 0.0f, rot, 0.0f);
+	SetRotationPlayingEffekseer3DEffect(playingHandle, rotX, rot, 0.0f);
 
 	if (scale != 1.0f)
 	{

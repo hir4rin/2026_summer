@@ -24,12 +24,15 @@ namespace
 	constexpr float kRankTimeA = 180.0f;
 	constexpr float kRankTimeB = 240.0f;
 	//これを超えたらランクC
+
+	constexpr int kFadeFrame = 20;//フェードイン・フェードアウトにかけるフレーム数
 }
 
 StageClearPoPScene::StageClearPoPScene(SceneController& controller, const GameResult& result) :Scene(controller), m_result(result)
 {
-	m_updateFunc = static_cast<UpdateFunc_t>(&StageClearPoPScene::NormalUpdate);
-	m_drawFunc = static_cast<DrawFunc_t>(&StageClearPoPScene::NormalDraw);
+	//黒画面からフェードインしてスタートする
+	m_updateFunc = static_cast<UpdateFunc_t>(&StageClearPoPScene::FadeInUpdate);
+	m_drawFunc = static_cast<DrawFunc_t>(&StageClearPoPScene::FadeInDraw);
 
 	//BGMを流す
 	System::GetInstance().GetSoundManager().PlayBgm("ResultBGM");
@@ -46,6 +49,17 @@ void StageClearPoPScene::Update()
 
 void StageClearPoPScene::FadeInUpdate()
 {
+	// Effekseerにより再生中のエフェクトを更新する。
+	UpdateEffekseer3D();
+
+	m_fadeCount++;
+	if (m_fadeCount >= kFadeFrame)
+	{
+		//フェードインが終わったので、通常動作に戻す
+		m_fadeCount = 0;
+		m_updateFunc = static_cast<UpdateFunc_t>(&StageClearPoPScene::NormalUpdate);
+		m_drawFunc = static_cast<DrawFunc_t>(&StageClearPoPScene::NormalDraw);
+	}
 }
 
 void StageClearPoPScene::NormalUpdate()
@@ -101,9 +115,10 @@ void StageClearPoPScene::NormalUpdate()
 	case Phase::Done:
 		if (input.IsTriggered("A"))
 		{
-
-			//ゲームシーンに初期化する(今積まれているシーンを全部破棄してから、新しいGameSceneを1つだけ作る)
-			m_controller.ResetScene<GameScene>();
+			//フェードアウトしてからゲームシーンに初期化する
+			m_fadeCount = 0;
+			m_updateFunc = static_cast<UpdateFunc_t>(&StageClearPoPScene::FadeOutUpdate);
+			m_drawFunc = static_cast<DrawFunc_t>(&StageClearPoPScene::FadeOutDraw);
 			return;
 		}
 		break;
@@ -115,6 +130,16 @@ void StageClearPoPScene::NormalUpdate()
 
 void StageClearPoPScene::FadeOutUpdate()
 {
+	// Effekseerにより再生中のエフェクトを更新する。
+	UpdateEffekseer3D();
+
+	m_fadeCount++;
+	if (m_fadeCount >= kFadeFrame)
+	{
+		//画面が真っ暗になったタイミングで、ゲームシーンに初期化する(今積まれているシーンを全部破棄してから、新しいGameSceneを1つだけ作る)
+		m_controller.ResetScene<GameScene>();
+		return;
+	}
 }
 
 void StageClearPoPScene::Draw()
@@ -124,6 +149,13 @@ void StageClearPoPScene::Draw()
 
 void StageClearPoPScene::FadeInDraw()
 {
+	NormalDraw();
+
+	//だんだん透明にしていく
+	int alpha = 255 * (kFadeFrame - m_fadeCount) / kFadeFrame;
+	SetDrawBlendMode(DX_BLENDMODE_ALPHA, alpha);
+	DrawBox(0, 0, Game::kScreenWidth, Game::kScreenHeight, GetColor(0, 0, 0), TRUE);
+	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 }
 
 void StageClearPoPScene::NormalDraw()
@@ -156,7 +188,13 @@ void StageClearPoPScene::NormalDraw()
 
 void StageClearPoPScene::FadeOutDraw()
 {
+	NormalDraw();
 
+	//だんだん暗くしていく
+	int alpha = 255 * m_fadeCount / kFadeFrame;
+	SetDrawBlendMode(DX_BLENDMODE_ALPHA, alpha);
+	DrawBox(0, 0, Game::kScreenWidth, Game::kScreenHeight, GetColor(0, 0, 0), TRUE);
+	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 }
 
 float StageClearPoPScene::GetItemTarget(ResultItem item) const

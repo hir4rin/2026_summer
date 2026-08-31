@@ -38,6 +38,7 @@ void PlayerStateJump::Enter()
 	m_baseVel = player->m_vel;
 	m_baseVel.y = 0.0f;//y成分は移動に関係ないので、0にする
 	player->m_anim.ChangeAnimWithModelHandle(player->m_modelHandle, player->GetAnimName("JumpUp"), false, 1.0f);
+	System::GetInstance().GetSoundManager().PlaySE("JumpUpAndDown");
 }
 
 void PlayerStateJump::Update()

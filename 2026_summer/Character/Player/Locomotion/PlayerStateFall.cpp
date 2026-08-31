@@ -2,6 +2,7 @@
 #include "Player.h"
 #include "../../../Game.h"
 #include "../../../Input.h"
+#include "../../../System.h"
 
 PlayerStateFall::PlayerStateFall(std::weak_ptr<Player> player) : PlayerState(player)
 {
@@ -39,6 +40,7 @@ void PlayerStateFall::Update()
 		player->m_vel.y = 0.0f;//y軸の速度を0にする
 		//ジャンプ状態を解除
 		player->m_isGround = true;//地面にいる状態にする
+		System::GetInstance().GetSoundManager().PlaySE("JumpUpAndDown");//着地音
 		if (input.IsLeftStickInput())
 		{
 			//入力があればWalk状態に遷移する

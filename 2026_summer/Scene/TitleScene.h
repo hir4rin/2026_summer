@@ -45,6 +45,8 @@ private:
 	int m_count = 0;
 	int m_fadeCount = 0;//スキップ演出用フェードのカウント
 	bool m_hasStartedBgm = false;//タイトルBGMを流したかどうか(最後の画面になってから流す)
+	bool m_hasPlayedMascotHitSE = false;//マスコットが吹き飛ばされたときのSEを再生したかどうか
+	bool m_isExitingToGame = false;//フェードアウトの目的がゲームシーンへの遷移かどうか(falseならスキップ演出用)
 
 };
 

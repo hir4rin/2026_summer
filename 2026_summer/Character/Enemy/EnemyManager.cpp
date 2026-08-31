@@ -8,6 +8,7 @@
 #include "Collider.h"
 #include "../WaveAreaCol.h"
 #include "../System.h"
+#include "../Effect/EffectManager.h"
 #include "../Camera/CameraManager.h"
 #include "../Camera/CameraState/Stage1FazeCamera.h"
 #include "../Camera/CameraState/Stage2FazeCamera.h"
@@ -207,9 +208,23 @@ void EnemyManager::Update()
 	}
 
 	//敵が全滅してから数十フレーム経ってから、waveの壁を消す
-	if (m_enemies.size() == 0 && !m_waveWalls.empty())
+	if (m_enemies.empty() && !m_waveWalls.empty())
 	{
 		m_waveWallRemoveTimer++;
+		//壁を消す半分の秒数のタイミングで、壁が壊れるエフェクトを出す
+		if (m_waveWallRemoveTimer == kWaveWallRemoveDelayFrame / 2)
+		{
+			for (auto& wall : m_waveWalls)
+			{
+				//X軸を90度回転させて出す
+				EffectManager::GetInstance().Play(AsyncData::WallBreakEffect, wall->GetWorldCenter(), 0.0f, 1.0f, DX_PI_F / 2);
+			}
+			//エフェクトと同時にSEを鳴らす(最後のフェーズクリア時は鳴らさない)
+			if (m_currentWaveNum != static_cast<int>(WaveNum::WaveSize))
+			{
+				System::GetInstance().GetSoundManager().PlaySE("WallBreakSE");
+			}
+		}
 		if (m_waveWallRemoveTimer >= kWaveWallRemoveDelayFrame)
 		{
 			for (auto& wall : m_waveWalls)
@@ -300,6 +315,7 @@ void EnemyManager::CheckSpawnWave()
 
 void EnemyManager::SpawnEnemies(int waveNum)
 {
+	m_currentWaveNum = waveNum;//今アクティブなウェーブ番号を控えておく(壁を消す音を最終フェーズだけ鳴らさないようにするため)
 	//waveNumの敵を入れる
 	std::vector<SpawnData>dataEnemies;
 	for (auto& data : m_spawnData)

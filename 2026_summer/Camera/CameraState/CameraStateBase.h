@@ -49,6 +49,7 @@ public:
 		Stage2FazeCamera = 7,
 		FinishingFirstCamera = 8,
 		FinishingSecondCamera = 9,
+		ResultCamera = 10,
 
 		//他のカメラもここに追加していく
 	};

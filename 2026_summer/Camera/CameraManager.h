@@ -30,7 +30,8 @@ public:
 		UltCamera,
 		TitleCamera,
 		FinishingFirstCamera,
-		FinishingSecondCamera
+		FinishingSecondCamera,
+		ResultCamera
 
 	};
 

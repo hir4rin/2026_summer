@@ -236,6 +236,7 @@
     <ClCompile Include="Camera\CameraState\Stage2FazeCamera.cpp" />
     <ClCompile Include="Camera\CameraState\FinishingFirstCamera.cpp" />
     <ClCompile Include="Camera\CameraState\FinishingSecondCamera.cpp" />
+    <ClCompile Include="Camera\CameraState\ResultCameraState.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application.h" />
@@ -337,6 +338,7 @@
     <ClInclude Include="Camera\CameraState\Stage2FazeCamera.h" />
     <ClInclude Include="Camera\CameraState\FinishingFirstCamera.h" />
     <ClInclude Include="Camera\CameraState\FinishingSecondCamera.h" />
+    <ClInclude Include="Camera\CameraState\ResultCameraState.h" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="EnemyBlack.hlsl">

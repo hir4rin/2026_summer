@@ -112,6 +112,8 @@ void Application::Run()
 #ifdef _DEBUG
 	//controller.ChangeScene(std::make_shared<GameScene>(controller));
 	controller.ChangeScene(std::make_shared<TitleScene>(controller));
+	GameResult result;
+	//controller.ChangeScene(std::make_shared<GameClearScene>(controller,result));
 #else
 	controller.ChangeScene(std::make_shared<TitleScene>(controller));
 #endif 
@@ -225,6 +227,9 @@ void Application::AsyncLoad()
 	handleData[AsyncData::PlayerEffectSkill2] = LoadEffekseerEffect("data/Effect/Slash2.efk", 1.0f);
 	handleData[AsyncData::PlayerEffectSkill3] = LoadEffekseerEffect("data/Effect/Slash3.efk", 1.0f);
 	handleData[AsyncData::PlayerHitEffect] = LoadEffekseerEffect("data/Effect/HitEffect.efk", 1.0f);
+	handleData[AsyncData::PlayerSwordHitEffect] = LoadEffekseerEffect("data/Effect/Player/SwordHit.efk", 1.0f);
+	handleData[AsyncData::PlayerSwordHitEffect2] = LoadEffekseerEffect("data/Effect/Player/SwordHit2.efk", 1.0f);
+	handleData[AsyncData::JumpAttackFootEffect] = LoadEffekseerEffect("data/Effect/Texture/JumpAttackFootEffect.efk", 1.0f);
 	//enemy
 	handleData[AsyncData::EnemyModel] = MV1LoadModel("data/Enemy/sasakiPlayer.mv1");
 	handleData[AsyncData::EnemyHitEffect] = LoadEffekseerEffect("data/Effect/EnemyHit.efk", 1.0f);
@@ -239,6 +244,7 @@ void Application::AsyncLoad()
 	handleData[AsyncData::StageModel] = MV1LoadModel("data/Stage_Graphic/Stage.mv1");
 	handleData[AsyncData::StageModelCollider] = MV1LoadModel("data/Stage_Graphic/coll.mv1");
 	handleData[AsyncData::AreaWallEffect] = LoadEffekseerEffect("data/Effect/System/AreaWall.efk", 1.0f);
+	handleData[AsyncData::WallBreakEffect] = LoadEffekseerEffect("data/Effect/System/WallBreak.efk", 1.0f);
 
 
 	int totalNum = handleData.size();

@@ -148,6 +148,7 @@ public:
 
 
 	ComboInfo& GetComboInfo() { return m_comboInfo; }//攻撃コンボの情報を取得する
+	const ComboNode& GetComboNode(int comboIndex)const { return m_comboChain[comboIndex]; }//コンボの段数からComboNodeを取得する
 
 	float GetCameraRockOnRange()const { return kPlayerRockOnRange; }//ロックオンする範囲を返す
 

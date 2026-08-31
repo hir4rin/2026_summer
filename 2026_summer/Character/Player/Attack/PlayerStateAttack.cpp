@@ -58,6 +58,12 @@ void PlayerStateAttack::Enter()
 	int modelHandle = (node.modelType == 0) ? player->m_modelHandle : player->m_attackModelHandle;
 	player->m_anim.ChangeAnimWithModelHandle(modelHandle, node.animName, false, 1.0f);
 
+	//切り上げ攻撃の時は、足元にエフェクトを出す(座標更新は不要、出すだけでいい)
+	if (node.index == ComboIndex::upAttack)
+	{
+		EffectManager::GetInstance().Play(AsyncData::JumpAttackFootEffect, player->m_pos);
+	}
+
 	//上下差がある攻撃の時はここで初速を与える
 	if (node.moveSpeedY != 0)
 	{
@@ -93,6 +99,7 @@ void PlayerStateAttack::Enter()
 	m_attackCol->ResetID(player->GetId());
 	m_attackCol->SetIsActive(false);//最初は当たり判定を無効にしておく
 
+	m_isSwingSePlayed = false;//振りのSEをまだ再生していない状態にする
 }
 
 void PlayerStateAttack::Update()
@@ -105,6 +112,8 @@ void PlayerStateAttack::Update()
 	AttackMoveMent();
 	//エフェクトを出す
 	EffectCheck();
+	//振りのSEを出す
+	SwingSeCheck();
 
 
 	//コンボ予約の入力を取る//予約を取ったらもうここは通らないようにする
@@ -855,4 +864,22 @@ void PlayerStateAttack::EffectCheck()
 			EffectManager::GetInstance().SetRot(player->m_efPlayingHandle, player->m_rotAngleY + DX_PI_F);
 		}
 	}
+}
+
+void PlayerStateAttack::SwingSeCheck()
+{
+	auto player = m_owner.lock();
+	if (!player)return;
+	if (m_isSwingSePlayed)return;//既に再生済みなら何もしない
+
+	int currentComboIndex = player->m_comboInfo.currentComboIndex;
+	const ComboNode& node = player->m_comboChain[currentComboIndex];
+	//ComboChain.csvでSE名が指定されていない場合は何もしない
+	if (node.seFrameRate < 0.0f || node.seName.empty())return;
+
+	float rate = player->m_anim.GetAnimRate();//アニメーションの進行率を取得
+	if (rate < node.seFrameRate)return;
+
+	System::GetInstance().GetSoundManager().PlaySE(node.seName);
+	m_isSwingSePlayed = true;
 }

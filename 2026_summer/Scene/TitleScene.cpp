@@ -39,8 +39,9 @@ namespace
 
 TitleScene::TitleScene(SceneController& controller) :Scene(controller)
 {
-	m_updateFunc = static_cast<UpdateFunc_t>(&TitleScene::NormalUpdate);
-	m_drawFunc = static_cast<DrawFunc_t>(&TitleScene::NormalDraw);
+	//黒画面からフェードインしてスタートする
+	m_updateFunc = static_cast<UpdateFunc_t>(&TitleScene::FadeInUpdate);
+	m_drawFunc = static_cast<DrawFunc_t>(&TitleScene::FadeInDraw);
 
 	//dataの読み込み
 	m_titleLogoHandle = LoadGraph("data/UI/TitleLogo.png");
@@ -119,15 +120,17 @@ void TitleScene::NormalUpdate()
 		if (m_count < kCameraSetUp)
 		{
 			m_fadeCount = 0;
+			m_isExitingToGame = false;
 			m_updateFunc = static_cast<UpdateFunc_t>(&TitleScene::FadeOutUpdate);
 			m_drawFunc = static_cast<DrawFunc_t>(&TitleScene::FadeOutDraw);
 			return;
 		}
 
-		Input::GetInstance().StopRecord();
-
-		//ゲームシーンに遷移する
-		m_controller.ChangeScene(std::make_shared<GameScene>(m_controller));
+		//最後の演出まで終わっていたら、フェードアウトしてからゲームシーンに遷移する
+		m_fadeCount = 0;
+		m_isExitingToGame = true;
+		m_updateFunc = static_cast<UpdateFunc_t>(&TitleScene::FadeOutUpdate);
+		m_drawFunc = static_cast<DrawFunc_t>(&TitleScene::FadeOutDraw);
 		return;
 	}
 	if (input.IsRealTriggered("B"))
@@ -156,6 +159,14 @@ void TitleScene::FadeOutUpdate()
 	m_fadeCount++;
 	if (m_fadeCount >= kSkipFadeFrame)
 	{
+		//画面が真っ暗になったタイミングで、ゲームシーンに遷移する
+		if (m_isExitingToGame)
+		{
+			Input::GetInstance().StopRecord();
+			m_controller.ChangeScene(std::make_shared<GameScene>(m_controller));
+			return;
+		}
+
 		//画面が真っ暗になったタイミングで、前振り演出の最後の状態まで一気に進める
 		SkipToFinalState();
 
@@ -304,6 +315,14 @@ void TitleScene::UpdateWorld()
 	{
 		Titlemascot::State state = Titlemascot::State::Kirimomi;
 		m_mascot->SetState(state);
+
+		//マスコットが吹き飛ばされた瞬間に一度だけSEを鳴らす
+		if (!m_hasPlayedMascotHitSE)
+		{
+			System::GetInstance().GetSoundManager().PlaySE("MascotHitSE");
+			System::GetInstance().GetSoundManager().PlaySE("AwayMascotSE");
+			m_hasPlayedMascotHitSE = true;
+		}
 	}
 
 	m_weapon->TitleUpdate();
@@ -314,7 +333,7 @@ void TitleScene::UpdateWorld()
 	m_skyBox->Update();
 
 	//最後の画面(ロゴが出る状態)になったタイミングでBGMを流す
-	if (!m_hasStartedBgm && m_count >= kCameraSetUp)
+	if (!m_hasStartedBgm && m_count >= 600)
 	{
 		System::GetInstance().GetSoundManager().PlayBgm("TitleBGM");
 		m_hasStartedBgm = true;
