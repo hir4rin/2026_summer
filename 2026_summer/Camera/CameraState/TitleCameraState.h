@@ -38,6 +38,13 @@ public:
 
 	void SetShot(Shot shot) { m_shot = shot; }
 	Shot GetShot()const { return m_shot; }
+
+	/// <summary>
+	/// 前振り演出をスキップして最後のOpeningショットまで一気に進める
+	/// (ZoomOutが完了した直後の状態を再現してからOpeningに入る)
+	/// </summary>
+	/// <param name="playerPos">スキップ後のプレイヤー座標</param>
+	void SkipToOpening(const Vector3& playerPos);
 private:
 	Shot m_shot = Shot::Fixed;
 	int m_count = 0;

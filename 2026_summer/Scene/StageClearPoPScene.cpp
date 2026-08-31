@@ -3,6 +3,7 @@
 #include "GameScene.h"
 #include "SceneController.h"
 #include "../Game.h"
+#include "../System.h"
 
 namespace
 {
@@ -29,6 +30,9 @@ StageClearPoPScene::StageClearPoPScene(SceneController& controller, const GameRe
 {
 	m_updateFunc = static_cast<UpdateFunc_t>(&StageClearPoPScene::NormalUpdate);
 	m_drawFunc = static_cast<DrawFunc_t>(&StageClearPoPScene::NormalDraw);
+
+	//BGMを流す
+	System::GetInstance().GetSoundManager().PlayBgm("ResultBGM");
 }
 
 StageClearPoPScene::~StageClearPoPScene()

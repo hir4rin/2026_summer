@@ -210,7 +210,7 @@ void AttackCol::PlayerAttackOnCollision(Collider& other)
 
 				//カメラの水平角度をY軸回転に加え、Z軸の傾き(45度)がカメラから見て常に一定になるようにする
 				float camAngleH = 0.0f;
-				auto cameraManager = player->GetCameraManager().lock();
+			//	auto cameraManager = player->GetCameraManager().lock();
 				if (cameraManager)
 				{
 					auto camera = cameraManager->GetHighestPriorityCamera();

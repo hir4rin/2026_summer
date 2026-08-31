@@ -22,9 +22,6 @@ namespace
 
 	constexpr float kEffectTriggerTime = 0.2f;//エフェクトを出すタイミング
 	constexpr float kEffect2TriggerTime = 0.4f;//エフェクトを出すタイミング
-
-	constexpr float kColStart = 0.2f;
-	constexpr float kColEnd = 0.6f;
 }
 
 
@@ -240,7 +237,7 @@ void PlayerStateAttack::AttackMoveMent()
 	if (node.moveSpeedY == 0.0f)
 	{
 		//攻撃判定//いったん
-		if (rate > kColStart && rate < kColEnd)
+		if (rate > node.attackColStartRate && rate < node.attackColEndRate)
 		{
 			m_attackCol->SetIsActive(true);//攻撃の当たり判定を有効にする
 		}

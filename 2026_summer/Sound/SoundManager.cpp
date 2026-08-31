@@ -9,110 +9,105 @@ namespace
     constexpr int kVolumeMax = 255;
     constexpr int kDisplayMax = 100;
 
+    //BGM音量倍率(マスター音量に対する倍率。バランス調整はここを変更する)
+    constexpr float kTitleBGMVolumeRate = 1.0f;
+    constexpr float kBattleBGMVolumeRate = 1.0f;
+    constexpr float kResultBGMVolumeRate = 1.0f;
+    constexpr float kGameOverBGMVolumeRate = 1.0f;
+
+    //SE音量倍率(マスター音量に対する倍率。バランス調整はここを変更する)
+    constexpr float kAttackSwordSEVolumeRate = 1.0f;
+    constexpr float kAttackSwordAirSEVolumeRate = 1.0f;
+    constexpr float kAttackSwordHitSEVolumeRate = 1.0f;
+    constexpr float kSkillSEVolumeRate = 1.0f;
+    constexpr float kSkillAirSEVolumeRate = 1.0f;
+    constexpr float kSkillHitSEVolumeRate = 1.0f;
+    constexpr float kUltAttackSEVolumeRate = 1.0f;
+    constexpr float kUltAttackHitSEVolumeRate = 1.0f;
+    constexpr float kJumpUpAndDownVolumeRate = 1.0f;
+    constexpr float kKickSEVolumeRate = 1.0f;
+    constexpr float kWalkSEVolumeRate = 1.0f;
 }
 
 void SoundManager::Init()
 {
-	//BGmの読み込み
-    m_sounds["bgm"] = LoadSoundMem("data/Sound/new/TitleBGM.mp3");
-    m_sounds["GameEnding"] = LoadSoundMem("data/Sound/new/GameEnding.mp3");
-    m_sounds["GameBGM"] = LoadSoundMem("data/Sound/new/GamePlay.ogg");
-    m_sounds["ResultBGM"] = LoadSoundMem("data/Sound/new/ResultBGM.ogg");
-    
-	assert(m_sounds["bgm"] >= 0);
+	//BGMの読み込み
+	m_sounds["TitleBGM"] = LoadSoundMem("data/Sound/BGM/TitleBGM.mp3");
+	m_sounds["BattleBGM"] = LoadSoundMem("data/Sound/BGM/BattleBGM.mp3");
+	m_sounds["ResultBGM"] = LoadSoundMem("data/Sound/BGM/ResultBGM.mp3");
+	m_sounds["GameOverBGM"] = LoadSoundMem("data/Sound/BGM/GameOverBGM.mp3");
+
+	assert(m_sounds["TitleBGM"] >= 0);
 	//音量の設定
-    m_soundVolumes["bgm"] = m_masterVolume*0.9f;
-    m_soundVolumes["GameEnding"] = m_masterVolume * 1.2f;
-    m_soundVolumes["GameBGM"] = m_masterVolume *0.8f;
-    m_soundVolumes["ResultBGM"] = m_masterVolume;
+	m_soundVolumes["TitleBGM"] = m_masterVolume * kTitleBGMVolumeRate;
+	m_soundVolumes["BattleBGM"] = m_masterVolume * kBattleBGMVolumeRate;
+	m_soundVolumes["ResultBGM"] = m_masterVolume * kResultBGMVolumeRate;
+	m_soundVolumes["GameOverBGM"] = m_masterVolume * kGameOverBGMVolumeRate;
 
+	//SEの読み込み(プレイヤー)
+	m_sounds["AttackSwordSE"] = LoadSoundMem("data/Sound/SE/Player/AttackSwordSE.mp3");
+	m_sounds["AttackSwordAirSE"] = LoadSoundMem("data/Sound/SE/Player/AttackSwordAirSE.mp3");
+	m_sounds["AttackSwordHitSE"] = LoadSoundMem("data/Sound/SE/Player/AttackSwordHitSE.mp3");
+	m_sounds["SkillSE"] = LoadSoundMem("data/Sound/SE/Player/SkillSE.mp3");
+	m_sounds["SkillAirSE"] = LoadSoundMem("data/Sound/SE/Player/SkillAirSE.mp3");
+	m_sounds["SkillHitSE"] = LoadSoundMem("data/Sound/SE/Player/SkillHitSE.mp3");
+	m_sounds["UltAttackSE"] = LoadSoundMem("data/Sound/SE/Player/UltAttackSE.mp3");
+	m_sounds["UltAttackHitSE"] = LoadSoundMem("data/Sound/SE/Player/UltAttackHitSE.mp3");
+	m_sounds["JumpUpAndDown"] = LoadSoundMem("data/Sound/SE/Player/JumpUpAndDown.mp3");
+	m_sounds["KickSE"] = LoadSoundMem("data/Sound/SE/Player/KickSE.mp3");
+	m_sounds["WalkSE"] = LoadSoundMem("data/Sound/SE/Player/WalkSE.mp3");
+	//音量の設定
+	m_seVolumes["AttackSwordSE"] = m_masterVolume2 * kAttackSwordSEVolumeRate;
+	m_seVolumes["AttackSwordAirSE"] = m_masterVolume2 * kAttackSwordAirSEVolumeRate;
+	m_seVolumes["AttackSwordHitSE"] = m_masterVolume2 * kAttackSwordHitSEVolumeRate;
+	m_seVolumes["SkillSE"] = m_masterVolume2 * kSkillSEVolumeRate;
+	m_seVolumes["SkillAirSE"] = m_masterVolume2 * kSkillAirSEVolumeRate;
+	m_seVolumes["SkillHitSE"] = m_masterVolume2 * kSkillHitSEVolumeRate;
+	m_seVolumes["UltAttackSE"] = m_masterVolume2 * kUltAttackSEVolumeRate;
+	m_seVolumes["UltAttackHitSE"] = m_masterVolume2 * kUltAttackHitSEVolumeRate;
+	m_seVolumes["JumpUpAndDown"] = m_masterVolume2 * kJumpUpAndDownVolumeRate;
+	m_seVolumes["KickSE"] = m_masterVolume2 * kKickSEVolumeRate;
+	m_seVolumes["WalkSE"] = m_masterVolume2 * kWalkSEVolumeRate;
 
-
-	//SEの読み込み
-	//環境音
-
-	//攻撃音
-	m_sounds["airSlash"] = LoadSoundMem("data/Sound/SE/airSlash.mp3");
-	m_sounds["LightAttackSE"] = LoadSoundMem("data/Sound/SE/LightAttackSE.mp3");
-	m_sounds["HeavyAttackSE"] = LoadSoundMem("data/Sound/SE/HeavyAttackSE.mp3");
-	m_sounds["shotArrow"] = LoadSoundMem("data/Sound/SE/shotArrow.mp3");
-	m_sounds["hitArrow"] = LoadSoundMem("data/Sound/SE/hitArrow.mp3");
-	m_sounds["hitOut"] = LoadSoundMem("data/Sound/SE/hitOut.mp3");
-	m_sounds["hitSE"] = LoadSoundMem("data/Sound/SE/hitSE.mp3");
-    //playerからでる音
-	m_sounds["walkSE"] = LoadSoundMem("data/Sound/new/walkSE.mp3");
-	m_sounds["gameWalkSE"] = LoadSoundMem("data/Sound/new/GameWalkSE.mp3");
-	m_sounds["avoidSE"] = LoadSoundMem("data/Sound/new/avoidSE.mp3");
-	//環境音
-	m_sounds["rulet"] = LoadSoundMem("data/Sound/new/rulet.mp3");
-	m_sounds["ruletSlow"] = LoadSoundMem("data/Sound/new/ruletSlow.mp3");
-	m_sounds["rank"] = LoadSoundMem("data/Sound/new/rank.mp3");
-	m_sounds["countDown"] = LoadSoundMem("data/Sound/new/CountDown.mp3");
-	m_sounds["select"] = LoadSoundMem("data/Sound/SE/ok.mp3");
-    //音量の設定
-	m_seVolumes["airSlash"] = m_masterVolume2 * 1.0f;
-	m_seVolumes["LightAttackSE"] = m_masterVolume2 * 1.0f;
-	m_seVolumes["HeavyAttackSE"] = m_masterVolume2 * 1.0f;
-	m_seVolumes["shotArrow"] = m_masterVolume2 * 1.0f;
-	m_seVolumes["hitArrow"] = m_masterVolume2 * 1.0f;
-    m_seVolumes["hitOut"] = m_masterVolume2 * 1.0f;
-  	m_seVolumes["hitSE"] = m_masterVolume2 * 1.0f;
-	m_seVolumes["walkSE"] = m_masterVolume2 * 2.2f;
-	m_seVolumes["gameWalkSE"] = m_masterVolume2 * 1.5f;
-	m_seVolumes["avoidSE"] = m_masterVolume2 * 1.0f;
-	m_seVolumes["rulet"] = m_masterVolume2 * 1.5f;
-	m_seVolumes["ruletSlow"] = m_masterVolume2 * 1.5f;
-	m_seVolumes["rank"] = m_masterVolume2 * 1.5f;
-	m_seVolumes["countDown"] = m_masterVolume2 * 1.0f;
-	m_seVolumes["select"] = m_masterVolume2 * 1.0f;
-
-    //敵の音
 	// サウンド名のリスト
-    const std::vector<std::string> soundNames = {
-        "bgm",
-		"GameEnding",
-        "bgmStageScene",
-        "bgmClearScene",
-        "ResultBGM"
-    };
-	//SEのリスト
-    const std::vector<std::string> seNames = {
-     
-        "airSlash",
-		"LightAttackSE",
-		"HeavyAttackSE",
-        "shotArrow",
-        "hitArrow",
-        "hitOut",
-        "hitSE",
-		"walkSE",
-		"gameWalkSE",
-		"avoidSE",
-        "rulet",
-		"ruletSlow",
-		"rank",
-		"countDown",
-		"select"
+	const std::vector<std::string> soundNames = {
+		"TitleBGM",
+		"BattleBGM",
+		"ResultBGM",
+		"GameOverBGM"
 	};
-	
-	//BGmの音量設定
-  // BGM音量
-    for (const auto& key : soundNames)
-    {
-        ChangeVolumeSoundMem(m_soundVolumes[key], m_sounds[key]);
-    }
+	//SEのリスト
+	const std::vector<std::string> seNames = {
+		"AttackSwordSE",
+		"AttackSwordAirSE",
+		"AttackSwordHitSE",
+		"SkillSE",
+		"SkillAirSE",
+		"SkillHitSE",
+		"UltAttackSE",
+		"UltAttackHitSE",
+		"JumpUpAndDown",
+		"KickSE",
+		"WalkSE"
+	};
+
+	//BGMの音量設定
+	for (const auto& key : soundNames)
+	{
+		ChangeVolumeSoundMem(m_soundVolumes[key], m_sounds[key]);
+	}
 	//SEの音量設定
-    for (const auto& key : seNames)
-    {
-        ChangeVolumeSoundMem(m_seVolumes[key], m_sounds[key]);
-    }
-	//3重再生用スロットの初期化
-    for (int i = 0; i < 3; ++i)
-    {
-        int h = LoadSoundMem("data/Sound/SE/shotArrow.mp3");
-        m_seSlots.push_back({ h });
-    }
-    
+	for (const auto& key : seNames)
+	{
+		ChangeVolumeSoundMem(m_seVolumes[key], m_sounds[key]);
+	}
+	//3重再生用スロットの初期化(連打されやすい攻撃音を割り当てる)
+	for (int i = 0; i < 3; ++i)
+	{
+		int h = LoadSoundMem("data/Sound/SE/Player/AttackSwordSE.mp3");
+		m_seSlots.push_back({ h });
+	}
+
 }
 
 void SoundManager::PlaySE(const std::string& name)
@@ -120,7 +115,7 @@ void SoundManager::PlaySE(const std::string& name)
     auto it = m_sounds.find(name);
     if (it == m_sounds.end()) return;
 
-    if(name == "shotArrow")
+    if(name == "AttackSwordSE")
     {
         // 3重再生用スロットを探す
         for (auto& slot : m_seSlots)

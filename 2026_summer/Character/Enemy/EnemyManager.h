@@ -81,6 +81,7 @@ private:
 	std::vector<std::shared_ptr<EnemyBase>> m_enemies;//敵の配列
 	std::shared_ptr<BossEnemy> m_boss;//ボス(最終フェーズになるまではnullptr)
 	std::vector<std::shared_ptr<WaveAreaCol>> m_waveWalls;//ウェーブのエリア前後の壁(押し戻し用)の配列
+	int m_waveWallRemoveTimer = 0;//敵が全滅してから壁を消すまでのカウント
 	int enemyModelHandle = -1;//敵のモデルのハンドル//EnemySwordManのモデル
 	std::vector<SpawnData> m_spawnData;//敵のスポーンデータ
 	bool m_isSpawnedWave[3] = {};//ウェーブごとに敵がスポーンしたかどうかのフラグ

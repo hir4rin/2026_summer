@@ -35,8 +35,8 @@ private:
 	std::unordered_map<std::string, int>m_seVolumes;//名前と音量を紐づける
 	//内部的なもの
 #ifdef _DEBUG
-	int m_masterVolume = 32;//255が最大
-	int m_masterVolume2 = 32;//255が最大
+	int m_masterVolume = 128;//255が最大
+	int m_masterVolume2 = 128;//255が最大
 #else
 	int m_masterVolume = 128;//255が最大
 	int m_masterVolume2 = 128;//255が最大

@@ -127,6 +127,9 @@ GameScene::GameScene(SceneController& controller) :Scene(controller)
 	m_gHandle1 = LoadGraph("data/UI/blood_UI.png");
 	m_gHandle2 = LoadGraph("data/UI/splash2_UI.png");
 	m_gHandle3 = LoadGraph("data/UI/satu_UI.png");
+
+	//BGMを流す
+	System::GetInstance().GetSoundManager().PlayBgm("BattleBGM");
 }
 GameScene::~GameScene()
 {

@@ -84,6 +84,8 @@ public:
 	//falseから初めてtrueになった瞬間だけ、内部でtrueにする(多重呼び出し防止)
 	void SetIsLastHitEventPlayingTrigger(bool ans);
 
+	SoundManager& GetSoundManager() { return m_soundManager; }
+
 private:
 	//時間の管理
 	float timeScale = 1.0f;//時間のスケール//1.0fなら通常の時間の流れ//0.5fなら半分の速さ//2.0fなら2倍の速さ
@@ -104,7 +106,7 @@ private:
 	std::unordered_map<AsyncData, int> m_asyncHandles; //非同期ロードのハンドルを保持するマップ
 
 
-	SoundManager m_soundManager;//サウンドマネージャー//のちにゲット関数を作って、ここからplayを流したりする
+	SoundManager m_soundManager;//サウンドマネージャー//GetSoundManager()経由でPlayBgm等を呼ぶ
 
 };
 

@@ -439,6 +439,8 @@ void Player::InitializeComboChain()
 		node.isKirimomi = tokens[ComboNodeType::IsKirimomi] == "1" ? true : false;//CSVの値が1ならtrue、0ならfalse
 		node.seFrameRate = std::stof(tokens[ComboNodeType::SeFrameRate]);
 		node.seName = tokens[ComboNodeType::SeName];
+		node.attackColStartRate = std::stof(tokens[ComboNodeType::AttackColStartRate]);
+		node.attackColEndRate = std::stof(tokens[ComboNodeType::AttackColEndRate]);
 		m_comboChain.push_back(node);
 	}
 

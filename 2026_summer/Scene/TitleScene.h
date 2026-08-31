@@ -30,6 +30,9 @@ public:
 	void InputInitialize();
 	void CameraSetUpdate();
 private:
+	void UpdateWorld();//毎フレームの共通更新(カメラ・プレイヤー・マスコット等)
+	void SkipToFinalState();//前振り演出を最後の状態までスキップする
+
 	std::shared_ptr<CameraManager> m_cameraManager;
 	std::shared_ptr<Player> m_player;
 	std::shared_ptr< Weapon> m_weapon;
@@ -40,6 +43,8 @@ private:
 
 	int m_titleLogoHandle = -1;
 	int m_count = 0;
+	int m_fadeCount = 0;//スキップ演出用フェードのカウント
+	bool m_hasStartedBgm = false;//タイトルBGMを流したかどうか(最後の画面になってから流す)
 
 };
 

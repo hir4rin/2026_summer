@@ -119,6 +119,16 @@ void TitleCameraState::Exit()
 {
 }
 
+void TitleCameraState::SkipToOpening(const Vector3& playerPos)
+{
+	//ZoomOutが完了した直後の状態(オフセットが終了値になった状態)を再現する
+	m_pos = playerPos + kZoomOutCameraOffsetEnd;
+	m_target = playerPos + kZoomOutTargetOffsetEnd;
+
+	m_count = 0;
+	m_shot = Shot::Opening;
+}
+
 void TitleCameraState::Draw()
 {
 	const std::string posText = "TitleCameraPos:(" + std::to_string(m_pos.x) + "," + std::to_string(m_pos.y) + "," + std::to_string(m_pos.z) + ")";

@@ -41,6 +41,8 @@ struct ComboNode
 	bool isKirimomi = false;//吹っ飛ぶかどうか//吹っ飛ばない攻撃は、相手を引き寄せるような攻撃にする<-かなりあり！！！！！！！！
 	float seFrameRate = -1;//攻撃のSEを鳴らすフレームの割合//アニメーションの再生時間に対する割合で指定
 	std::string seName;//攻撃のSEの名前
+	float attackColStartRate = 0.0f;//攻撃の当たり判定を有効にするアニメーション進行率
+	float attackColEndRate = 0.0f;//攻撃の当たり判定を無効にするアニメーション進行率
 
 };
 struct ComboInfo
@@ -75,7 +77,9 @@ enum ComboNodeType : int
 	IsKirimomi = 13,
 	SeFrameRate = 14,
 	SeName = 15,
-	Size = 16,
+	AttackColStartRate = 16,
+	AttackColEndRate = 17,
+	Size = 18,
 
 };
 namespace ComboIndex

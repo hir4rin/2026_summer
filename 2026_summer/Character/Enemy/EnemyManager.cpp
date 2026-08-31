@@ -30,6 +30,9 @@ namespace
 
 	//spawnWaveの座標から壁までの距離(Z軸方向、前後)
 	constexpr float kWaveWallDistance = 2000.0f;
+
+	//敵が全滅してからwaveの壁を消すまでの遅延フレーム数
+	constexpr int kWaveWallRemoveDelayFrame = 40;
 }
 
 
@@ -199,15 +202,22 @@ void EnemyManager::Update()
 						}
 					}
 				}
-				if (!m_waveWalls.empty())//waveの壁を消す
-				{
-					for(auto& wall : m_waveWalls)
-					{
-						CollisionManager::GetInstance().ReleaseCollider(wall);
-					}
-					m_waveWalls.clear();
-				}
 			}
+		}
+	}
+
+	//敵が全滅してから数十フレーム経ってから、waveの壁を消す
+	if (m_enemies.size() == 0 && !m_waveWalls.empty())
+	{
+		m_waveWallRemoveTimer++;
+		if (m_waveWallRemoveTimer >= kWaveWallRemoveDelayFrame)
+		{
+			for (auto& wall : m_waveWalls)
+			{
+				CollisionManager::GetInstance().ReleaseCollider(wall);
+			}
+			m_waveWalls.clear();
+			m_waveWallRemoveTimer = 0;
 		}
 	}
 
@@ -324,13 +334,13 @@ void EnemyManager::SpawnEnemies(int waveNum)
 
 	//プレイヤーがエリアから出られないようにする壁(前後)//isTriggerはfalseにして押し戻しを効かせる
 	auto wallFront = std::make_shared<WaveAreaCol>();
-	wallFront->ColInit(spawnPos + Vector3(0, 0, kWaveWallDistance), Vector3(), kWave1Radius, ColliderType::Box, Tags::WaveArea, true, false);
+	wallFront->Init(spawnPos + Vector3(0, 0, kWaveWallDistance), Vector3(), kWave1Radius, ColliderType::Box, Tags::WaveArea, true, false);
 	wallFront->SetBoxHalfExtents(kWaveBoxHalfExtent);
 	wallFront->SetID();
 	m_waveWalls.push_back(wallFront);
 
 	auto wallBack = std::make_shared<WaveAreaCol>();
-	wallBack->ColInit(spawnPos - Vector3(0, 0, kWaveWallDistance), Vector3(), kWave1Radius, ColliderType::Box, Tags::WaveArea, true, false);
+	wallBack->Init(spawnPos - Vector3(0, 0, kWaveWallDistance), Vector3(), kWave1Radius, ColliderType::Box, Tags::WaveArea, true, false);
 	wallBack->SetBoxHalfExtents(kWaveBoxHalfExtent);
 	wallBack->SetID();
 	m_waveWalls.push_back(wallBack);

@@ -26,6 +26,14 @@ namespace
 
 	//剣の座標(Weapon::TitleUpdateで刺さっている位置と合わせる)から見て右側(TitleCameraのFixedショットで画面右)の座標
 	const Vector3 kMascotPos = Vector3(-10.0f, 0.0f, -5050.0f);
+
+	constexpr int kSkipFadeFrame = 20;//スキップ時のフェードにかけるフレーム数
+
+	//プレイヤーの初期座標(コンストラクタでのSetPosと合わせる)
+	const Vector3 kPlayerStartPos = Vector3(0.0f, 0.0f, 300.0f);
+	//スキップ後のプレイヤー座標
+	//InputRecordの最初の入力(kCameraSetUpフレーム分のDown=ワールド-Z方向移動)で実際に進む距離と合わせる
+	const Vector3 kSkipPlayerPos = kPlayerStartPos + Vector3(0.0f, 0.0f, -1.0f) * Game::kMoveSpeed * kCameraSetUp;
 }
 
 
@@ -40,7 +48,7 @@ TitleScene::TitleScene(SceneController& controller) :Scene(controller)
 	//プレイヤーの初期化
 	m_player = std::make_shared<Player>();
 	m_player->Init();
-	m_player->SetPos(Vector3(0,0,300));
+	m_player->SetPos(kPlayerStartPos);
 	m_player->SetIsTitleMode(true);//タイトル画面では移動方向をワールド座標の固定軸にする
 	InputInitialize();
 
@@ -87,6 +95,15 @@ void TitleScene::Update()
 
 void TitleScene::FadeInUpdate()
 {
+	UpdateWorld();
+
+	m_fadeCount++;
+	if (m_fadeCount >= kSkipFadeFrame)
+	{
+		//フェードインが終わったので、通常のタイトル動作に戻す
+		m_updateFunc = static_cast<UpdateFunc_t>(&TitleScene::NormalUpdate);
+		m_drawFunc = static_cast<DrawFunc_t>(&TitleScene::NormalDraw);
+	}
 }
 
 void TitleScene::NormalUpdate()
@@ -94,33 +111,19 @@ void TitleScene::NormalUpdate()
 
 	auto& input = Input::GetInstance();
 
-	m_cameraManager->Update(m_player->GetPos());
-
-	m_count++;
-	CameraSetUpdate();
-
-	m_speedLine->TryGenerate(true);
-	m_speedLine->Update();
-	
-
-	m_player->Update(*m_cameraManager->GetHighestPriorityCamera());
-
-	if (m_player->GetPos().z <= -5050.0f)
-	{
-		Titlemascot::State state = Titlemascot::State::Kirimomi;
-		m_mascot->SetState(state);
-	}
-
-
-	m_weapon->TitleUpdate();
-	m_mascot->Update();
-
-	CollisionManager::GetInstance().Update();
-
-	m_skyBox->Update();
+	UpdateWorld();
 
 	if(input.IsRealTriggered("A"))
 	{
+		//前振り演出が終わっていなければ、フェードアウトしてから最後の演出(Opening)までスキップする
+		if (m_count < kCameraSetUp)
+		{
+			m_fadeCount = 0;
+			m_updateFunc = static_cast<UpdateFunc_t>(&TitleScene::FadeOutUpdate);
+			m_drawFunc = static_cast<DrawFunc_t>(&TitleScene::FadeOutDraw);
+			return;
+		}
+
 		Input::GetInstance().StopRecord();
 
 		//ゲームシーンに遷移する
@@ -148,6 +151,18 @@ void TitleScene::NormalUpdate()
 
 void TitleScene::FadeOutUpdate()
 {
+	UpdateWorld();
+
+	m_fadeCount++;
+	if (m_fadeCount >= kSkipFadeFrame)
+	{
+		//画面が真っ暗になったタイミングで、前振り演出の最後の状態まで一気に進める
+		SkipToFinalState();
+
+		m_fadeCount = 0;
+		m_updateFunc = static_cast<UpdateFunc_t>(&TitleScene::FadeInUpdate);
+		m_drawFunc = static_cast<DrawFunc_t>(&TitleScene::FadeInDraw);
+	}
 }
 
 void TitleScene::Draw()
@@ -157,6 +172,13 @@ void TitleScene::Draw()
 
 void TitleScene::FadeInDraw()
 {
+	NormalDraw();
+
+	//だんだん透明にしていく
+	int alpha = 255 * (kSkipFadeFrame - m_fadeCount) / kSkipFadeFrame;
+	SetDrawBlendMode(DX_BLENDMODE_ALPHA, alpha);
+	DrawBox(0, 0, Game::kScreenWidth, Game::kScreenHeight, GetColor(0, 0, 0), TRUE);
+	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 }
 
 void TitleScene::NormalDraw()
@@ -191,7 +213,13 @@ void TitleScene::NormalDraw()
 
 void TitleScene::FadeOutDraw()
 {
+	NormalDraw();
 
+	//だんだん暗くしていく
+	int alpha = 255 * m_fadeCount / kSkipFadeFrame;
+	SetDrawBlendMode(DX_BLENDMODE_ALPHA, alpha);
+	DrawBox(0, 0, Game::kScreenWidth, Game::kScreenHeight, GetColor(0, 0, 0), TRUE);
+	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 }
 
 void TitleScene::InputInitialize()
@@ -258,4 +286,51 @@ void TitleScene::CameraSetUpdate()
 		titleCamera->SetShot(shot);
 	}
 
+}
+
+void TitleScene::UpdateWorld()
+{
+	m_cameraManager->Update(m_player->GetPos());
+
+	m_count++;
+	CameraSetUpdate();
+
+	m_speedLine->TryGenerate(true);
+	m_speedLine->Update();
+
+	m_player->Update(*m_cameraManager->GetHighestPriorityCamera());
+
+	if (m_player->GetPos().z <= -5050.0f)
+	{
+		Titlemascot::State state = Titlemascot::State::Kirimomi;
+		m_mascot->SetState(state);
+	}
+
+	m_weapon->TitleUpdate();
+	m_mascot->Update();
+
+	CollisionManager::GetInstance().Update();
+
+	m_skyBox->Update();
+
+	//最後の画面(ロゴが出る状態)になったタイミングでBGMを流す
+	if (!m_hasStartedBgm && m_count >= kCameraSetUp)
+	{
+		System::GetInstance().GetSoundManager().PlayBgm("TitleBGM");
+		m_hasStartedBgm = true;
+	}
+}
+
+void TitleScene::SkipToFinalState()
+{
+	//前振り演出用に再生していた入力レコードを止める(スキップ後にプレイヤーが勝手に動き出さないように)
+	Input::GetInstance().StopRecord();
+
+	//プレイヤーを剣・マスコットの位置まで進めておく
+	m_player->SetPos(kSkipPlayerPos);
+
+	m_count = kCameraSetUp;
+	std::shared_ptr<TitleCameraState>  titleCamera = std::dynamic_pointer_cast<TitleCameraState>(m_cameraManager->GetActiveCamera());
+	//スキップしなかった場合にZoomOut完了時点で映っているはずのカメラ位置・注視点を再現してからOpeningに入る
+	titleCamera->SkipToOpening(m_player->GetPos());
 }

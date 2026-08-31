@@ -72,6 +72,8 @@ bool Application::Init()
 	DataManager::GetInstance().LoadAll();
 	//入力の初期化
 	Input::GetInstance().Init();
+	//サウンドの読み込み
+	System::GetInstance().GetSoundManager().Init();
 	//描画先を裏画面に変更する。
 	SetDrawScreen(DX_SCREEN_BACK);
 	// カリングの設定
@@ -236,7 +238,7 @@ void Application::AsyncLoad()
 	handleData[AsyncData::TitleStageModel] = MV1LoadModel("data/Stage_Graphic/TitleStage_remake.mv1");
 	handleData[AsyncData::StageModel] = MV1LoadModel("data/Stage_Graphic/Stage.mv1");
 	handleData[AsyncData::StageModelCollider] = MV1LoadModel("data/Stage_Graphic/coll.mv1");
-	handleData[AsyncData::AreaWallEffect] = LoadEffekseerEffect("data/Effect/AreaWall.efk", 1.0f);
+	handleData[AsyncData::AreaWallEffect] = LoadEffekseerEffect("data/Effect/System/AreaWall.efk", 1.0f);
 
 
 	int totalNum = handleData.size();
