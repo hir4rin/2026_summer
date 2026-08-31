@@ -34,6 +34,7 @@ public:
 		UltCamera = 2,
 		LockOnCamera = 3,
 		TitleCamera = 4,
+		ResultCamera = 5,
 
 		//他のカメラもここに追加していく
 	};

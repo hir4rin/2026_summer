@@ -4,6 +4,7 @@
 #include <memory>
 
 class CameraManager;
+class Player;
 
 class GameClearScene :
     public Scene
@@ -45,6 +46,8 @@ private:
 
 private:
 	std::shared_ptr<CameraManager> m_cameraManager;
+
+	std::shared_ptr<Player> m_player;
 
 	GameResult m_result;//集計されたリザルト
 

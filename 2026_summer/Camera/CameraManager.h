@@ -103,6 +103,9 @@ public:
 	Vector3 GetPhotoCameraPos() { return m_photoCamPos; }
 	Vector3 GetPhotoCameraTarget() { return m_photoCamTarget; }
 
+	//リザルト画面かどうかをセットする//trueの場合、ResultCamera以外の更新・優先度争いを行わない
+	void SetIsResult(bool isResult) { m_isResult = isResult; }
+
 public:
 	void SetUpMainCamera();//priorityが最も高いカメラの情報をMainCameraに反映させる
 	void ChangeState(std::shared_ptr<CameraStateBase> newState);
@@ -122,6 +125,7 @@ private:
 	std::shared_ptr<Camera> m_ultCamera;
 	std::shared_ptr<Camera> m_LockOnCamera;
 	std::shared_ptr<Camera> m_TitleCamera;
+	std::shared_ptr<Camera> m_resultCamera;
 	//必要な情報
 	std::shared_ptr<CameraContext> m_context;
 
@@ -151,6 +155,7 @@ private:
 	bool m_isUltimating = false;
 	bool m_isPrevUltimating = false;
 	bool m_isTitle = false;//タイトル画面かどうか//trueの場合、TitleCamera以外の更新・優先度争いを行わない
+	bool m_isResult = false;//リザルト画面かどうか//trueの場合、ResultCamera以外の更新・優先度争いを行わない
 
 };
 

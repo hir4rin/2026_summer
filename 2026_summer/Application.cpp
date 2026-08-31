@@ -7,6 +7,7 @@
 #include "Game.h"
 #include "Scene/SceneController.h"
 #include "Scene/GameScene.h"
+#include "Scene/GameClearScene.h"
 #include "Scene/TitleScene.h"
 #include "DataLoader/DataManager.h"
 #include "Input.h"
@@ -104,6 +105,7 @@ void Application::Run()
 	SceneController controller;
 	//非同期ロード
 	AsyncLoad();
+
 
 #ifdef _DEBUG
 	//controller.ChangeScene(std::make_shared<GameScene>(controller));

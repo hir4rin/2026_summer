@@ -11,6 +11,7 @@
 #include "PlayerStateUlt.h"//以下同文
 #include "PlayerStateDie.h"//以下同文
 #include "PlayerStateDashAttack.h"//以下同文
+#include "PlayerStateResultMove.h"//以下同文
 #include "../../../DataLoader/PlayerAnimData.h"
 #include <memory>
 
@@ -178,6 +179,11 @@ public:
 
 	//ラストヒットイベント演出用:外部からIdleステートに遷移させるだけの専用関数(汎用化はしない)
 	void ForceIdleState();
+
+	//色変え
+	void SetResultUp();
+	void ChangeResultMove();
+
 private:
 	/// <summary>
 	/// 状態を変更する関数
@@ -221,6 +227,7 @@ private:
 	std::shared_ptr<Weapon> m_weapon;//武器
 
 	int m_attackModelHandle = -1;//攻撃のモデルのハンドル
+	int m_whiteHandle;
 
 
 	//エフェクトマネージャー作るからいったん表示させる
@@ -253,6 +260,7 @@ private:
 	friend class PlayerStateUlt;
 	friend class PlayerStateDie;
 	friend class PlayerStateDashAttack;
+	friend class PlayerStateResultMove;
 	//武器
 	friend class Weapon;
 

@@ -50,7 +50,7 @@ Player::Player()
 
 	//攻撃のモデルの読み込み
 	m_attackModelHandle = MV1DuplicateModel(System::GetInstance().GetHandle(AsyncData::PlayerAttackModel));
-
+	m_whiteHandle = LoadGraph("data/UI/white.png");
 
 	m_pos = Vector3(0, 0, 0);
 
@@ -81,6 +81,7 @@ Player::~Player()
 	MV1DeleteModel(m_modelHandle);
 	MV1DeleteModel(m_attackModelHandle);
 	MV1DeleteModel(m_wingModelHandle);
+	DeleteGraph(m_whiteHandle);
 }
 
 void Player::Init()
@@ -313,6 +314,43 @@ void Player::OnAttackHit(int otherId)
 	//	lockOnManager->SetTargetEnemy(otherId);
 
 	//}
+}
+
+void Player::SetResultUp()
+{
+
+	int texNum = MV1GetTextureNum(m_modelHandle);
+	for (int i = 0; i < texNum; i++) {
+		MV1SetTextureGraphHandle(m_modelHandle, i, m_whiteHandle, FALSE);
+	}
+
+	int matNum = MV1GetMaterialNum(m_modelHandle);
+	for (int i = 0; i < matNum; i++) {
+		MV1SetMaterialDifColor(m_modelHandle, i, GetColorF(0.0f, 0.0f, 0.0f, 1.0f)); // 拡散反射は消す
+		MV1SetMaterialSpcColor(m_modelHandle, i, GetColorF(0.0f, 0.0f, 0.0f, 1.0f)); // 鏡面ハイライトも消す
+		MV1SetMaterialAmbColor(m_modelHandle, i, GetColorF(0.0f, 0.0f, 0.0f, 1.0f)); // 環境光も消す
+		MV1SetMaterialEmiColor(m_modelHandle, i, GetColorF(1.0f, 0.0f, 0.0f, 1.0f)); // 発光色だけ赤に
+	}
+}
+
+void Player::ChangeResultMove()
+{
+	//現在の状態から抜ける
+	if (m_currentState)
+	{
+		m_currentState->Exit();
+	}
+
+	//newStateに更新
+	m_prevState = m_currentState;
+	std::shared_ptr<PlayerState> state = std::make_shared<PlayerStateResultMove>(GetWeakPtr());
+	m_currentState = state;
+	//newStateの初期化
+	if (m_currentState)
+	{
+		m_currentState->Enter();
+	}
+
 }
 
 void Player::ChangeState(std::shared_ptr<PlayerState> newState)

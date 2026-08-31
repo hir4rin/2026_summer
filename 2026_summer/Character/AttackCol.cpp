@@ -206,7 +206,20 @@ void AttackCol::PlayerAttackOnCollision(Collider& other)
 				}
 				//必殺技の被ダメエフェクト
 				m_hitEfPlayingHandle = EffectManager::GetInstance().Play(AsyncData::EnemyHitEffectUlt,
-					Vector3(other.GetPos().x, other.GetPos().y + kEfOffset*1.7f, other.GetPos().z),0.0f,0.9f);
+					Vector3(other.GetPos().x, other.GetPos().y + kEfOffset*1.2f, other.GetPos().z),0.0f,0.9f);
+
+				//カメラの水平角度をY軸回転に加え、Z軸の傾き(45度)がカメラから見て常に一定になるようにする
+				float camAngleH = 0.0f;
+				auto cameraManager = player->GetCameraManager().lock();
+				if (cameraManager)
+				{
+					auto camera = cameraManager->GetHighestPriorityCamera();
+					if (camera)
+					{
+						camAngleH = camera->GetCameraAngleH();
+					}
+				}
+				SetRotationPlayingEffekseer3DEffect(m_hitEfPlayingHandle, 0.0f, camAngleH - DX_PI_F * 0.5f, 0.0f);
 			}
 			//もしプレイヤーの通常攻撃だったら
 			else

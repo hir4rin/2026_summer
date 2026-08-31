@@ -28,6 +28,8 @@ public:
 	void ChangeAnimWithModelHandle(int modelHandle,std::string name,bool isRoop,float timescale = 1.0f);
 	//モデルハンドルの取得//確認用
 	int GetModelHandleForCheck() { return m_modelHandle; }
+	//アニメーションを再生するのを止める
+	void StopAnim();
 
 
 
@@ -54,6 +56,7 @@ private:
 	bool m_isRoop;//アニメーションをループさせるかどうかのフラグ
 	bool m_prevRoop;//前のアニメーションがループしているかどうかのフラグ
 	bool m_isEndAnim;//アニメーションが終わったかどうかのフラグ
+	bool m_isStop;
 
 	float m_animtimeScale = 1.0f;//アニメーションの再生速度を管理するための変数//1.0fが通常の速度で、0.5fなら半分の速度、2.0fなら倍の速度になる
 	float m_prevAnimTimeScale = 1.0f;//前のアニメーションの再生速度を管理するための変数

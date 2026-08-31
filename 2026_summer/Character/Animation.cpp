@@ -199,6 +199,10 @@ void Animation::ChangeAnimWithModelHandle(int modelHandle, std::string name, boo
 	}
 }
 
+void Animation::StopAnim()
+{
+}
+
 float Animation::GetAnimRate()
 {
 	float totalAnimCount = MV1GetAttachAnimTotalTime(m_modelHandle, m_currentAnimHandle);//アタッチしているアニメーションの総フレーム数を取得する

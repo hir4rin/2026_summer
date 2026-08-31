@@ -13,6 +13,7 @@
 #include "CameraState/TitleCameraState.h"
 #include "CameraState/FinishingFirstCamera.h"
 #include "CameraState/FinishingSecondCamera.h"
+#include "ResultCamera.h"
 #include "LockOnCamera.h"
 #include "../Managers/CollisionManager.h"
 #include "../System.h"
@@ -44,12 +45,14 @@ CameraManager::CameraManager()
 	m_ultCamera = std::make_shared<UltCamera>();
 	m_LockOnCamera = std::make_shared<LockOnCamera>();
 	m_TitleCamera = std::make_shared<TitleCamera>();
+	m_resultCamera = std::make_shared<ResultCamera>();
 
 	EntryCamera(m_playerCamera);
 	EntryCamera(m_movieCamera);
 	EntryCamera(m_ultCamera);
 	EntryCamera(m_LockOnCamera);
 	EntryCamera(m_TitleCamera);
+	EntryCamera(m_resultCamera);
 	//weak_ptrが必要なカメラをまとめる
 	m_weakRefCameras.push_back(m_mainCamera);
 	m_weakRefCameras.push_back(m_playerCamera);
@@ -117,6 +120,19 @@ void CameraManager::Update(Vector3 pos, Vector3 pos2)
 		//タイトル画面では、他のカメラの優先度争い(LockOnCameraのPlayerCameraへの巻き戻しなど)を行わず、TitleCameraだけを使う
 		highestPriorityCamera = m_TitleCamera;
 		m_TitleCamera->Update(pos, pos2);
+
+		CameraData data;
+		data.pos = highestPriorityCamera->GetCameraPos();
+		data.target = highestPriorityCamera->GetCameraTarget();
+		m_mainCamera->Update(data);
+		return;
+	}
+
+	if (m_isResult)
+	{
+		//リザルト画面では、他のカメラの優先度争いを行わず、ResultCameraだけを使う
+		highestPriorityCamera = m_resultCamera;
+		m_resultCamera->Update(pos, pos2);
 
 		CameraData data;
 		data.pos = highestPriorityCamera->GetCameraPos();

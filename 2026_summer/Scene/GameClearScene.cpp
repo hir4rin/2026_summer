@@ -3,6 +3,8 @@
 #include "GameScene.h"
 #include "SceneController.h"
 #include "../Game.h"
+#include "Player.h"
+#include "../Camera/CameraManager.h"
 
 namespace
 {
@@ -29,6 +31,25 @@ GameClearScene::GameClearScene(SceneController& controller, const GameResult& re
 {
 	m_updateFunc = static_cast<UpdateFunc_t>(&GameClearScene::NormalUpdate);
 	m_drawFunc = static_cast<DrawFunc_t>(&GameClearScene::NormalDraw);
+
+	//プレイヤーの初期化
+	m_player = std::make_shared<Player>();
+	m_player->Init();
+	m_player->SetPos(Vector3(0, 0, 300));
+
+	//カメラの初期化(リザルト画面では定点でPlayerを映すResultCameraのみを使う)
+	m_cameraManager = std::make_shared<CameraManager>();
+	m_cameraManager->SetIsResult(true);
+	m_cameraManager->Init(std::weak_ptr<Player>(m_player));
+	m_cameraManager->Update(m_player->GetPos());
+	m_player->SetCameraManager(std::weak_ptr<CameraManager>(m_cameraManager));
+	m_player->SetResultUp();
+
+	//入力をrealじゃないと取らなくなる
+	InputRecord record;
+	record = { {1000000000,{}} };
+	Input::GetInstance().StartRecord(record);
+
 }
 
 GameClearScene::~GameClearScene()
@@ -47,6 +68,14 @@ void GameClearScene::FadeInUpdate()
 void GameClearScene::NormalUpdate()
 {
 	auto& input = Input::GetInstance();
+
+	m_cameraManager->Update(m_player->GetPos());
+	m_player->Update(*m_cameraManager->GetHighestPriorityCamera());
+
+	if (input.IsRealTriggered("X"))
+	{
+		m_player->ChangeResultMove();
+	}
 
 	switch (m_phase)
 	{
@@ -97,6 +126,7 @@ void GameClearScene::NormalUpdate()
 	case Phase::Done:
 		if (input.IsTriggered("A"))
 		{
+			Input::GetInstance().StopRecord();
 			//ゲームシーンに遷移する
 			m_controller.ChangeScene(std::make_shared<GameScene>(m_controller));
 			return;
@@ -123,6 +153,12 @@ void GameClearScene::FadeInDraw()
 
 void GameClearScene::NormalDraw()
 {
+	SetDrawScreen(DX_SCREEN_BACK); ClearDrawScreen();
+
+	//定点カメラでPlayerを映す
+	m_cameraManager->ApplyCameraSettings();
+	m_player->Draw();
+
 	DrawFormatString(Game::kScreenWidth / 2 - 100, 120, GetColor(255, 255, 255), "GAME CLEAR");
 
 	//カウントアップ中の項目までを表示する(まだ来ていない項目は表示しない)
