@@ -19,14 +19,22 @@ namespace
 	constexpr float kGroundCheckDistance = 800.0f;//プレイヤーの最高到達点//カメラのターゲットの割合注視点//Y軸
 	constexpr float kRatioCheckDistance = 800.0f;//プレイヤーの最高到達点//カメラのターゲットの割合注視点//XZ軸
 
+	constexpr float kTargetSwitchLerpFrame = 30.0f;//ロックオン対象切り替え時、注視点をlerpするフレーム数
+
+	constexpr float kRaticleMinDistance = 500.0f;//これ以下の距離ではレティクルを最大サイズにする
+	constexpr float kRaticleMaxDistance = 5000.0f;//これ以上の距離ではレティクルを最小サイズにする
+	constexpr float kRaticleMinScale = 0.05f;//最小サイズ(kRaticleMaxDistance以上離れたとき)
+	constexpr float kRaticleMaxScale = 0.15f;//最大サイズ(kRaticleMinDistance以下に近づいたとき)
 }
 
 LockOnCameraState::LockOnCameraState(std::weak_ptr<CameraManager> owner) : CameraStateBase(owner)
 {
+	m_raticleHandle = LoadGraph("data/UI/LockOnRaticle.png");
 }
 
 LockOnCameraState::~LockOnCameraState()
 {
+	DeleteGraph(m_raticleHandle);
 }
 
 void LockOnCameraState::Enter(CameraData data)
@@ -58,6 +66,13 @@ void LockOnCameraState::Update()
 		return;
 	}
 
+	//ロックオン対象が切り替わったら、注視点のlerpをやり直す
+	if (enemy != m_lastTargetEnemy.lock())
+	{
+		m_targetLerpStart = m_target;
+		m_targetLerpElapsed = 0.0f;
+		m_lastTargetEnemy = enemy;
+	}
 
 	//ロックオンカメラの時、常にPlayerCameraにアングルを渡し続ける
 	if (cameraManager->GetHighestPriorityCamera()->GetCameraType() == Camera::Type::LockOnCamera)
@@ -123,9 +138,13 @@ void LockOnCameraState::Update()
 	//Blend中ではない
 	else
 	{
-		//通常時:今まで通り、生の計算値をそのまま使う
+		//通常時:座標は今まで通り、生の計算値をそのまま使う
 		m_pos = m_goalPos;
-		m_target = m_goalTarget;
+
+		//注視点はロックオン対象切り替え時になめらかに補間する
+		m_targetLerpElapsed += 1.0f;
+		float lerpT = std::clamp(m_targetLerpElapsed / kTargetSwitchLerpFrame, 0.0f, 1.0f);
+		m_target = Vector3::Lerp(m_targetLerpStart, m_goalTarget, lerpT);
 	}
 }
 
@@ -136,6 +155,32 @@ void LockOnCameraState::Exit()
 	float horizontalDist = Vector3(toTarget.x, 0.0f, toTarget.z).Magnitude();
 	m_angleH = atan2f(toTarget.x, toTarget.z);
 	m_angleV = atan2f(toTarget.y, horizontalDist);
+}
+
+void LockOnCameraState::Draw()
+{
+	auto cameraManager = m_owner.lock();
+	if (!cameraManager)return;
+	auto lockOnManager = cameraManager->GetLockOnManager().lock();
+	std::shared_ptr<EnemyBase> enemy;
+	if (lockOnManager) enemy = lockOnManager->GetTarget().lock();
+	if (!enemy)return;
+
+	//敵の座標をスクリーン座標に変換する
+	Vector3 enemyPos = enemy->GetPos() + Vector3(0.0f, 100.0f, 0.0f);
+	VECTOR enemyPos2D = ConvWorldPosToScreenPos(enemyPos.ToDxLibVector());
+
+	//カメラの前方(画面内)にいるときだけ描画する
+	if (enemyPos2D.z < 0.0f || enemyPos2D.z > 1.0f)return;
+
+
+	//カメラからの敵との距離によって、レティクルの大きさを変える
+	float distance = (enemy->GetPos() - m_pos).Magnitude();
+	float t = (distance - kRaticleMinDistance) / (kRaticleMaxDistance - kRaticleMinDistance);
+	t = std::clamp(t, 0.0f, 1.0f);
+	float scale = kRaticleMaxScale + (kRaticleMinScale - kRaticleMaxScale) * t;//近いほど大きく、遠いほど小さく
+
+	DrawRotaGraph(static_cast<int>(enemyPos2D.x), static_cast<int>(enemyPos2D.y), scale, 0.0, m_raticleHandle, TRUE);
 }
 
 void LockOnCameraState::FixCameraPos()

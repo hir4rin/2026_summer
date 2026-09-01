@@ -164,12 +164,13 @@ void AttackCol::PlayerAttackOnCollision(Collider& other)
 				bool isLockOn = mainCamera->GetIsLockOn();
 				if (isLockOn)
 				{
+
 					//ロックオンしている敵がいて、そいつに当たったら攻撃の移動を止める
 					auto playerTarget = player->GetTargetEnemy();
 					auto targetEnemy = playerTarget.lock();
 					if (!targetEnemy)
 					{
-						assert(false && "PlayerAttackOnCollision:ターゲットしている敵がいません");
+						//assert(false && "PlayerAttackOnCollision:ターゲットしている敵がいません");
 					}
 					if (otherId == targetEnemy->GetId())
 					{

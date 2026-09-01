@@ -64,7 +64,6 @@ private:
 	enum class FadeOutDestination
 	{
 		None,
-		GameOver,
 		GameClear,
 	};
 private:
@@ -110,6 +109,8 @@ private:
 	int m_fadeCount = 0;//フェードイン・フェードアウトの経過フレーム
 	FadeOutDestination m_fadeOutDestination = FadeOutDestination::None;//フェードアウト完了後に遷移する先
 	GameResult m_pendingResult;//フェードアウト完了後、GameClearSceneに渡すリザルト
+
+	bool m_hasPushedGameOver = false;//GameOverPoPSceneを積んだかどうか(GameOverPoPScene経由でUpdateが呼ばれ続けても二重に積まないようにする)
 
 };
 

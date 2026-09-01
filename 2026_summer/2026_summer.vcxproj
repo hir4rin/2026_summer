@@ -184,6 +184,7 @@
     <ClCompile Include="Character\Player\Locomotion\PlayerStateResultMove.cpp" />
     <ClCompile Include="Scene\ResultScene.cpp" />
     <ClCompile Include="Scene\StageClearPoPScene.cpp" />
+    <ClCompile Include="Scene\GameOverPoPScene.cpp" />
     <ClCompile Include="Sound\SoundManager.cpp" />
     <ClCompile Include="SpeedLine2D.cpp" />
     <ClCompile Include="Character\Mascot\Titlemascot.cpp" />
@@ -282,6 +283,7 @@
     <ClInclude Include="Character\Player\Locomotion\PlayerStateResultMove.h" />
     <ClInclude Include="Scene\ResultScene.h" />
     <ClInclude Include="Scene\StageClearPoPScene.h" />
+    <ClInclude Include="Scene\GameOverPoPScene.h" />
     <ClInclude Include="Sound\SoundManager.h" />
     <ClInclude Include="SpeedLine2D.h" />
     <ClInclude Include="Character\Mascot\Titlemascot.h" />

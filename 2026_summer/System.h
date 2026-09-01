@@ -24,6 +24,9 @@ enum class AsyncData : int
 	EnemyHitEffectUlt,
 	//ボス
 	BossModel,
+	BossAttackHadouEffect,
+	BossAttackFireEffect,
+	BossSummonEffect,
 	//マスコット
 	MascotModel,
 	//ステージ
@@ -74,6 +77,7 @@ public:
 
 	void SetUltStart(int frames = -1) { m_ultCount = frames; m_isUltimating = true; };
 	bool GetIsUltimating() { return m_isUltimating; };
+	void SetUltEnd() { m_ultCount = -1; m_isUltimating = false; };
 
 	void SetPhotoMode(bool ans) { m_isPhotoMode = ans; }
 	bool GetPhotoMode() { return m_isPhotoMode; }

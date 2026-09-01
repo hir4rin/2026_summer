@@ -19,6 +19,11 @@ void System::SetTerminate()
 	MV1DeleteModel(m_asyncHandles[AsyncData::EnemyModel]);
 	DeleteEffekseerEffect(m_asyncHandles[AsyncData::EnemyHitEffect]);
 	DeleteEffekseerEffect(m_asyncHandles[AsyncData::EnemyHitEffectUlt]);
+	//ボス
+	MV1DeleteModel(m_asyncHandles[AsyncData::BossModel]);
+	DeleteEffekseerEffect(m_asyncHandles[AsyncData::BossAttackHadouEffect]);
+	DeleteEffekseerEffect(m_asyncHandles[AsyncData::BossAttackFireEffect]);
+	DeleteEffekseerEffect(m_asyncHandles[AsyncData::BossSummonEffect]);
 	//mascot
 	MV1DeleteModel(m_asyncHandles[AsyncData::MascotModel]);
 

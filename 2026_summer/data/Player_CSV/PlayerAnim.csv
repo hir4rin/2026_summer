@@ -13,3 +13,5 @@ DashAttack,Player|ChangeDirection
 JumpUp,Player|FrontJump
 JumpDown,Player|JumpDown
 UltAttack,Player|Ult1
+Hit,Player|Hit
+Death,Player|Death

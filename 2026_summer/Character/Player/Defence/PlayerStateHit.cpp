@@ -19,7 +19,7 @@ void PlayerStateHit::Enter()
 	auto player = m_owner.lock();
 	if (!player) return;
 	//animationの初期化
-	player->m_anim.ChangeAnim(player->GetAnimName("UltAttack"), true);
+	player->m_anim.ChangeAnim(player->GetAnimName("Hit"), true);
 }
 
 void PlayerStateHit::Update()

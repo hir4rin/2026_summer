@@ -8,6 +8,8 @@
 #include "../Managers/CollisionManager.h"
 #include "../EnemyManager.h"
 #include "Player.h"
+#include "../../../System.h"
+#include "EffekseerForDXLib.h"
 #include <memory>
 
 namespace
@@ -37,6 +39,7 @@ namespace
 BossStateAttack::BossStateAttack(std::weak_ptr<BossEnemy> boss) :
 	BossState(boss)
 {
+	m_summonEffectHandle = System::GetInstance().GetHandle(AsyncData::BossSummonEffect);
 }
 
 BossStateAttack::~BossStateAttack()
@@ -62,7 +65,7 @@ void BossStateAttack::Enter()
 		boss->m_anim.ChangeAnim(boss->GetAnimName("Hadou"), false, 0.7f);
 		AttackData data;
 		data = {
-			.attackPower = 40,
+			.attackPower = 20,
 			.knockBackPower = Vector3(0, 0,0),
 			//.knockBackPower = Vector3(0.0f,node.knockBackY,0.0f),//吹き飛ばない攻撃にする
 			.knockBackFrame = 0,
@@ -75,6 +78,11 @@ void BossStateAttack::Enter()
 
 		MeleeCol->ColInit(boss->m_pos, Vector3(0, 220, 0)+offset, 100.0f, ColliderType::Sphere, Tags::EnemyAttack, false, true);
 		boss->m_attackCol = MeleeCol;
+
+		//はどう攻撃のエフェクトを再生する
+		m_hadouEffectHandle = System::GetInstance().GetHandle(AsyncData::BossAttackHadouEffect);
+		m_hadouPlayingHandle = PlayEffekseer3DEffect(m_hadouEffectHandle);
+		SetPosPlayingEffekseer3DEffect(m_hadouPlayingHandle, boss->m_pos.x, boss->m_pos.y+200, boss->m_pos.z);
 	}
 		break;
 	case BossEnemy::AttackType::Langed:
@@ -83,7 +91,7 @@ void BossStateAttack::Enter()
 		//複数個fireToarchを生成
 		AttackData data;
 		data = {
-			.attackPower = 25,
+			.attackPower = 15,
 			.knockBackPower = Vector3(0, 0,0),
 			//.knockBackPower = Vector3(0.0f,node.knockBackY,0.0f),//吹き飛ばない攻撃にする
 			.knockBackFrame = 0,
@@ -152,7 +160,12 @@ void BossStateAttack::Update()
 			{
 				for (int i = 0; i < kSummonEnemyNum; i++)
 				{
-					enemyManager->SpawnEnemy(GetRandomSummonPos(boss->m_pos));
+					Vector3 summonPos = GetRandomSummonPos(boss->m_pos);
+					enemyManager->SpawnEnemy(summonPos);
+
+					//召喚位置にエフェクトを再生する
+					int playingHandle = PlayEffekseer3DEffect(m_summonEffectHandle);
+					SetPosPlayingEffekseer3DEffect(playingHandle, summonPos.x, summonPos.y, summonPos.z);
 				}
 			}
 		}
@@ -178,6 +191,13 @@ void BossStateAttack::Exit()
 	boss->m_attackCol->SetIsActive(false);
 	boss->m_attackCol->ClearHitIds();
 	isSpawned = false;
+
+	//はどう攻撃のエフェクトを止める
+	if (m_hadouPlayingHandle != -1)
+	{
+		StopEffekseer3DEffect(m_hadouPlayingHandle);
+		m_hadouPlayingHandle = -1;
+	}
 
 	//BossEnemy::AttackType::Langed
 }

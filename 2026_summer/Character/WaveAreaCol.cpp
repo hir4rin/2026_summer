@@ -44,6 +44,8 @@ void WaveAreaCol::ApplyPos()
 }
 void WaveAreaCol::Draw()
 {
+#ifdef _DEBUG
 	//デバッグ描画
 	DebugDraw();
+#endif
 }

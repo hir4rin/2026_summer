@@ -236,9 +236,8 @@ void Player::OnCollision(Collider& other)
 void Player::OnDamage(Collider& other, AttackData& data)
 {
 #ifdef _DEBUG
-	return;
+	//return;
 #endif
-	return;
 	//ダメージを受けたときの処理
 	//敵の攻撃データをもらい、ダメージを減らし、体力を減らす、場合によってはプレイヤーを吹き飛ばす
 	//DrawFormatString(0, 0, GetColor(255, 0, 0), "Player: OnDamage");

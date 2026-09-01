@@ -18,7 +18,7 @@
 #include "../UI/PlayerHUD.h"
 #include "../SubWindow/SubWindow.h"
 #include "SceneController.h"
-#include "GameOverScene.h"
+#include "GameOverPoPScene.h"
 #include "GameClearScene.h"
 #include "GameResult.h"
 #include "StageClearPoPScene.h"
@@ -163,7 +163,6 @@ void GameScene::NormalUpdate()
 {
 	//System::GetInstance().SetTimeScale(0.1f);
 
-
 	auto& input = Input::GetInstance();
 	if (input.IsTriggered("Start"))
 	{
@@ -223,15 +222,15 @@ void GameScene::NormalUpdate()
 
 	m_playFrameCount++;//リザルトのクリアタイム集計用
 
-	//playerが死んでいたら、フェードアウトしてからゲームオーバーシーンに遷移
-	if (m_player->GetIsDead())
+	//playerが死んでいたら、ゲームオーバーのポップアップシーンを積む
+	//(GameOverPoPSceneが自分のUpdate内でこのGameSceneのUpdateも呼び続けるため、二重に積まないようフラグで防ぐ)
+	if (!m_hasPushedGameOver && m_player->GetIsDead())
 	{
-		m_fadeCount = 0;
-		m_fadeOutDestination = FadeOutDestination::GameOver;
-		m_updateFunc = static_cast<UpdateFunc_t>(&GameScene::FadeOutUpdate);
-		m_drawFunc = static_cast<DrawFunc_t>(&GameScene::FadeOutDraw);
+		m_hasPushedGameOver = true;
+		m_controller.PushScene(std::make_shared<GameOverPoPScene>(m_controller, *this));
 		return;
 	}
+
 	//すべての敵を倒したら、フェードアウトしてからゲームクリアシーンに遷移
 	if (m_enemyManager->IsGetAllEnemiesDead(static_cast<int>(WaveNum::WaveSize) - 1))
 	{
@@ -335,9 +334,6 @@ void GameScene::FadeOutUpdate()
 	{
 		switch (m_fadeOutDestination)
 		{
-		case FadeOutDestination::GameOver:
-			m_controller.ChangeScene(std::make_shared<GameOverScene>(m_controller));
-			return;
 		case FadeOutDestination::GameClear:
 			m_controller.ChangeScene(std::make_shared<GameClearScene>(m_controller, m_pendingResult));
 			return;
@@ -365,6 +361,7 @@ void GameScene::FadeInDraw()
 
 void GameScene::NormalDraw()
 {
+
 	//UltDrawを作ったほうがいいかも
 	//UI描画や、必殺技時のエフェクトを白くするようにレンダーターゲットを使う
 	//map,effectにシェーダーをかける
@@ -384,7 +381,7 @@ void GameScene::NormalDraw()
 		SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0); // ← 必ずリセット！
 	}
 
-	DrawFormatString(300, 0, GetColor(255, 255, 255), "GameScene");
+	
 
 	//シェーダーのセット
 	MV1SetUseOrigShader(true);
@@ -434,6 +431,10 @@ void GameScene::NormalDraw()
 	{
 		boss->Draw();
 	}
+
+	//現在のカメラステートの描画(ロックオン中はLockOnCameraStateがレティクルを描画する)
+	m_cameraManager->GetActiveCamera()->Draw();
+
 #ifdef _DEBUG
 	CollisionManager::GetInstance().DebugDraw();
 	//PlayerのHpのデバッグ表示
@@ -470,12 +471,12 @@ void GameScene::NormalDraw()
 	}
 
 #endif
+	//エフェクトの描画
+	DrawEffekseer3D();
 	if (!System::GetInstance().GetPhotoMode() && !System::GetInstance().GetIsLastHitEventPlaying())
 	{
 		m_uiManager->Draw();
 	}
-	//エフェクトの描画
-	DrawEffekseer3D();
 
 	//フォトモードでスクリーンショットが要求されていたら、全描画完了後に保存する
 	if (m_requestScreenshot)
@@ -493,8 +494,6 @@ void GameScene::NormalDraw()
 		DrawBox(0, 0, Game::kScreenWidth, Game::kScreenHeight, GetColor(255, 255, 255), TRUE);
 		SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 		m_flashTimer--;
-
-
 	}
 
 	//フォトモード中は十字を表示する//保存画像に写り込まないよう、スクリーンショット保存より後に描画する

@@ -13,5 +13,7 @@ public:
 
 private:
 	float m_count = 0;
+	int m_effectHandle = -1;//ファイアトーチのエフェクトのハンドル
+	int m_playingHandle = -1;//再生中のファイアトーチエフェクトのハンドル
 };
 

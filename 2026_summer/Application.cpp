@@ -111,9 +111,9 @@ void Application::Run()
 
 #ifdef _DEBUG
 	//controller.ChangeScene(std::make_shared<GameScene>(controller));
-	controller.ChangeScene(std::make_shared<TitleScene>(controller));
+	//controller.ChangeScene(std::make_shared<TitleScene>(controller));
 	GameResult result;
-	//controller.ChangeScene(std::make_shared<GameClearScene>(controller,result));
+	controller.ChangeScene(std::make_shared<GameClearScene>(controller,result));
 #else
 	controller.ChangeScene(std::make_shared<TitleScene>(controller));
 #endif 
@@ -236,6 +236,9 @@ void Application::AsyncLoad()
 	handleData[AsyncData::EnemyHitEffectUlt] = LoadEffekseerEffect("data/Effect/EnemyHit_Ult.efk", 1.0f);
 	//boss
 	handleData[AsyncData::BossModel] = MV1LoadModel("data/Enemy/Boss/boss.mv1");
+	handleData[AsyncData::BossAttackHadouEffect] = LoadEffekseerEffect("data/Effect/Enemy/BossAttackHadou.efk", 1.0f);
+	handleData[AsyncData::BossAttackFireEffect] = LoadEffekseerEffect("data/Effect/Enemy/BossAttackFire.efk", 1.0f);
+	handleData[AsyncData::BossSummonEffect] = LoadEffekseerEffect("data/Effect/Enemy/BossSummon.efk", 1.0f);
 	//mascot
 	handleData[AsyncData::MascotModel] = MV1LoadModel("data/TitleMascot/mascot.mv1");
 

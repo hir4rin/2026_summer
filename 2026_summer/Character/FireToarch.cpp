@@ -1,5 +1,6 @@
 ﻿#include "FireToarch.h"
 #include "../../../System.h"
+#include "EffekseerForDXLib.h"
 
 
 namespace
@@ -14,11 +15,16 @@ FireToarch::FireToarch(std::weak_ptr<CharacterBase> owner, const AttackData& dat
 	m_lifeTime = 100;
 	SetIsActive(false);
 
-	//エフェクトの生成
+	//エフェクトのハンドルを取得(再生はApplyPosで座標が確定してから行う)
+	m_effectHandle = System::GetInstance().GetHandle(AsyncData::BossAttackFireEffect);
 }
 
 FireToarch::~FireToarch()
 {
+	if (m_playingHandle != -1)
+	{
+		StopEffekseer3DEffect(m_playingHandle);
+	}
 }
 
 void FireToarch::Update()
@@ -39,5 +45,11 @@ void FireToarch::OnCollision(Collider& other)
 
 void FireToarch::ApplyPos()
 {
-	
+	//エフェクトを再生し、位置を更新する
+	if (m_playingHandle == -1)
+	{
+		m_playingHandle = PlayEffekseer3DEffect(m_effectHandle);
+	}
+	Vector3 center = GetWorldCenter();
+	SetPosPlayingEffekseer3DEffect(m_playingHandle, center.x, center.y, center.z);
 }

@@ -1,6 +1,7 @@
 ﻿#include "StageClearPoPScene.h"
 #include "../Input.h"
 #include "GameScene.h"
+#include "TitleScene.h"
 #include "SceneController.h"
 #include "../Game.h"
 #include "../System.h"
@@ -36,6 +37,7 @@ StageClearPoPScene::StageClearPoPScene(SceneController& controller, const GameRe
 
 	//BGMを流す
 	System::GetInstance().GetSoundManager().PlayBgm("ResultBGM");
+	System::GetInstance().SetTimeScale(1.0f);//念のため、時間の流れを通常に戻す
 }
 
 StageClearPoPScene::~StageClearPoPScene()
@@ -130,14 +132,20 @@ void StageClearPoPScene::NormalUpdate()
 
 void StageClearPoPScene::FadeOutUpdate()
 {
+
 	// Effekseerにより再生中のエフェクトを更新する。
 	UpdateEffekseer3D();
 
 	m_fadeCount++;
 	if (m_fadeCount >= kFadeFrame)
 	{
+		//一応
+		System::GetInstance().SetIsEventPlaying(false);
+		System::GetInstance().SetIsLastHitEventPlaying(false);
+		System::GetInstance().SetUltEnd();
+
 		//画面が真っ暗になったタイミングで、ゲームシーンに初期化する(今積まれているシーンを全部破棄してから、新しいGameSceneを1つだけ作る)
-		m_controller.ResetScene<GameScene>();
+		m_controller.ResetScene<TitleScene>();
 		return;
 	}
 }

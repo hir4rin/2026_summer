@@ -51,7 +51,7 @@ void GameOverScene::FadeInDraw()
 
 void GameOverScene::NormalDraw()
 {
-	DrawFormatString(300, 300, GetColor(255, 255, 255), "GameOverScene");
+	//DrawFormatString(300, 300, GetColor(255, 255, 255), "GameOverScene");
 }
 
 void GameOverScene::FadeOutDraw()
