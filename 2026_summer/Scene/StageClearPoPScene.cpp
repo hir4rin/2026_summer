@@ -7,6 +7,7 @@
 #include "../System.h"
 #include "Player.h"
 #include "../Camera/CameraManager.h"
+#include "../Camera/CameraState/CameraStateBase.h"
 #ifdef _DEBUG
 #include "../imguiApp.h"
 #endif
@@ -57,6 +58,13 @@ StageClearPoPScene::StageClearPoPScene(SceneController& controller, const GameRe
 	m_cameraManager->Update(m_player->GetPos());
 	m_player->SetCameraManager(std::weak_ptr<CameraManager>(m_cameraManager));
 	m_player->SetResultUp();
+
+	//GameSceneのラストヒット演出用レコードが再生されたまま残っていると、
+	//その中の擬似入力(Xボタンなど)にPlayerStateIdleが反応して勝手に攻撃してしまうため、
+	//GameClearSceneと同じく「何も押されていない」空レコードで上書きしておく(実入力はIsRealTriggeredで別途取る)
+	InputRecord record;
+	record = { {1000000000,{}} };
+	Input::GetInstance().StartRecord(record);
 }
 
 StageClearPoPScene::~StageClearPoPScene()
@@ -230,8 +238,8 @@ void StageClearPoPScene::NormalDraw()
 	if (m_cameraManager)
 	{
 		imguiApp::GetInstance().DrawCameraDebugWindow(
-			m_cameraManager->GetHighestPriorityCamera()->GetCameraPos(),
-			m_cameraManager->GetHighestPriorityCamera()->GetCameraTarget());
+			m_cameraManager->GetActiveCamera()->GetPos(),
+			m_cameraManager->GetActiveCamera()->GetTarget());
 	}
 #endif
 }

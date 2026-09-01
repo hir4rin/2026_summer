@@ -25,7 +25,7 @@ void LockOnManager::SetTargetEnemy(int id)
 	auto enemyBase = std::dynamic_pointer_cast<EnemyBase>(enemy);
 	if (!enemyBase)
 	{
-		assert(false && "指定したidのEnemyはEnemyBaseではありません");
+		//assert(false && "指定したidのEnemyはEnemyBaseではありません");
 		return;
 	}
 
