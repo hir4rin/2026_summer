@@ -5,6 +5,11 @@
 #include "SceneController.h"
 #include "../Game.h"
 #include "../System.h"
+#include "Player.h"
+#include "../Camera/CameraManager.h"
+#ifdef _DEBUG
+#include "../imguiApp.h"
+#endif
 
 namespace
 {
@@ -38,6 +43,20 @@ StageClearPoPScene::StageClearPoPScene(SceneController& controller, const GameRe
 	//BGMを流す
 	System::GetInstance().GetSoundManager().PlayBgm("ResultBGM");
 	System::GetInstance().SetTimeScale(1.0f);//念のため、時間の流れを通常に戻す
+
+	//GameClearSceneと同じく、結果表示専用のプレイヤーとカメラを自前で用意する
+	m_player = std::make_shared<Player>();
+	m_player->Init();
+	m_player->SetPos(Vector3(0, 0, 300));
+
+	//カメラの初期化(定点でPlayerを映すResultCameraStateのみを使う)
+	m_cameraManager = std::make_shared<CameraManager>();
+	m_cameraManager->SetIsResult(true);
+	m_cameraManager->Init(std::weak_ptr<Player>(m_player));
+	m_cameraManager->ChangeStateFromScene(CameraManager::CameraStateName::ResultCamera);
+	m_cameraManager->Update(m_player->GetPos());
+	m_player->SetCameraManager(std::weak_ptr<CameraManager>(m_cameraManager));
+	m_player->SetResultUp();
 }
 
 StageClearPoPScene::~StageClearPoPScene()
@@ -67,6 +86,15 @@ void StageClearPoPScene::FadeInUpdate()
 void StageClearPoPScene::NormalUpdate()
 {
 	auto& input = Input::GetInstance();
+
+	//結果表示用プレイヤー・カメラの更新(GameClearSceneと同じ)
+	m_cameraManager->Update(m_player->GetPos());
+	m_player->Update(*m_cameraManager->GetHighestPriorityCamera());
+
+	if (input.IsRealTriggered("X"))
+	{
+		m_player->ChangeResultMove();
+	}
 
 	switch (m_phase)
 	{
@@ -173,7 +201,11 @@ void StageClearPoPScene::NormalDraw()
 	DrawBox(0, 0, Game::kScreenWidth, Game::kScreenHeight, GetColor(0, 0, 0), TRUE);
 	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0); // ← 必ずリセット！
 
-	//下に積まれたGameSceneはSceneController::Drawがscenes_を順番に描画することで自動的に映る//ここではリザルトのUIだけ描く
+	//下に積まれたGameSceneはSceneController::Drawがscenes_を順番に描画することで自動的に映る
+	//ここで、結果表示用のカメラ・プレイヤー(GameClearSceneと同じ、赤くしたもの)を前面に描画する
+	m_cameraManager->ApplyCameraSettings();
+	m_player->Draw();
+
 	DrawFormatString(Game::kScreenWidth / 2 - 100, 120, GetColor(255, 255, 255), "GAME CLEAR");
 
 	//カウントアップ中の項目までを表示する(まだ来ていない項目は表示しない)
@@ -192,6 +224,16 @@ void StageClearPoPScene::NormalDraw()
 	{
 		DrawFormatString(Game::kScreenWidth / 2 - 140, 620, GetColor(255, 255, 255), "Aボタンでゲームシーンに戻る");
 	}
+
+#ifdef _DEBUG
+	//PhotoModeと同じImGuiのカメラデバッグウィンドウを表示する(Override Cameraを有効にするとカメラをいじれる)
+	if (m_cameraManager)
+	{
+		imguiApp::GetInstance().DrawCameraDebugWindow(
+			m_cameraManager->GetHighestPriorityCamera()->GetCameraPos(),
+			m_cameraManager->GetHighestPriorityCamera()->GetCameraTarget());
+	}
+#endif
 }
 
 void StageClearPoPScene::FadeOutDraw()

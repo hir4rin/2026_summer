@@ -4,6 +4,7 @@
 #include <memory>
 
 class CameraManager;
+class Player;
 
 //ステージクリア結果を、PauseSceneのようにGameSceneの上に重ねて表示するポップアップシーン
 class StageClearPoPScene :
@@ -45,7 +46,8 @@ private:
 	char CalcRank()const;//クリアタイムからランクを算出する
 
 private:
-	std::shared_ptr<CameraManager> m_cameraManager;
+	std::shared_ptr<CameraManager> m_cameraManager;//結果画面表示用に自前で持つカメラ(ResultCameraのみ使用)
+	std::shared_ptr<Player> m_player;//結果画面表示用に自前で持つプレイヤー(GameSceneの実プレイヤーとは別、赤くして表示する)
 
 	GameResult m_result;//集計されたリザルト
 

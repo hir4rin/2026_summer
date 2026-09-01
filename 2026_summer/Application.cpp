@@ -8,6 +8,7 @@
 #include "Scene/SceneController.h"
 #include "Scene/GameScene.h"
 #include "Scene/GameClearScene.h"
+#include "Scene/StageClearPoPScene.h"
 #include "Scene/TitleScene.h"
 #include "DataLoader/DataManager.h"
 #include "Input.h"
@@ -111,9 +112,9 @@ void Application::Run()
 
 #ifdef _DEBUG
 	//controller.ChangeScene(std::make_shared<GameScene>(controller));
-	//controller.ChangeScene(std::make_shared<TitleScene>(controller));
+	controller.ChangeScene(std::make_shared<TitleScene>(controller));
 	GameResult result;
-	controller.ChangeScene(std::make_shared<GameClearScene>(controller,result));
+	//controller.ChangeScene(std::make_shared<StageClearPoPScene>(controller,result));
 #else
 	controller.ChangeScene(std::make_shared<TitleScene>(controller));
 #endif 
