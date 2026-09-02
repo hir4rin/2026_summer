@@ -29,6 +29,9 @@ public:
     void Init() override;
     void Update() override;
 	void Draw() const override;
+
+	void ToggleVisible() { m_isVisible = !m_isVisible; }//表示のオン/オフを切り替える
+	bool IsVisible() const { return m_isVisible; }
 private:
 	//設計解像度の座標を画面比率の座標に変換する(文字表示用)
 	int SX(int designX) const;
@@ -40,6 +43,7 @@ private:
     //モデルハンドル
 	std::vector<int> m_buttonHandles;
 
+	bool m_isVisible = true;//コンボUIを表示するかどうか
 
 };
 

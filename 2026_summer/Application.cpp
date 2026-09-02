@@ -312,6 +312,7 @@ void Application::AsyncLoad()
 	handleData[AsyncData::PlayerHitEffect] = LoadEffekseerEffect("data/Effect/HitEffect.efk", 1.0f);
 	handleData[AsyncData::PlayerSwordHitEffect] = LoadEffekseerEffect("data/Effect/Player/SwordHit.efk", 1.0f);
 	handleData[AsyncData::PlayerSwordHitEffect2] = LoadEffekseerEffect("data/Effect/Player/SwordHit2.efk", 1.0f);
+	handleData[AsyncData::PlayerDamageEffect] = LoadEffekseerEffect("data/Effect/Player/PlayerHit.efk", 1.0f);
 	handleData[AsyncData::JumpAttackFootEffect] = LoadEffekseerEffect("data/Effect/Texture/JumpAttackFootEffect.efk", 1.0f);
 	//enemy
 	handleData[AsyncData::EnemyModel] = MV1LoadModel("data/Enemy/sasakiPlayer.mv1");
@@ -331,6 +332,7 @@ void Application::AsyncLoad()
 	handleData[AsyncData::StageModelCollider] = MV1LoadModel("data/Stage_Graphic/coll.mv1");
 	handleData[AsyncData::AreaWallEffect] = LoadEffekseerEffect("data/Effect/System/AreaWall.efk", 1.0f);
 	handleData[AsyncData::WallBreakEffect] = LoadEffekseerEffect("data/Effect/System/WallBreak.efk", 1.0f);
+	handleData[AsyncData::Goal] = LoadEffekseerEffect("data/Effect/System/Goal.efk", 1.0f);
 
 
 	int totalNum = handleData.size();

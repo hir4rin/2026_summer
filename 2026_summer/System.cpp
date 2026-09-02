@@ -37,6 +37,9 @@ void System::SetTerminate()
 
 void System::Update()
 {
+	//サウンドのフェードなどを更新する
+	m_soundManager.Update();
+
 	//m_frameCountが-1(カウントダウンしていない)なら、timeScaleの自動リセットは行わない
 	//これをしないと、SetTimeScaleで直接セットしたtimeScaleが次フレームで1.0fに戻されてしまう
 	if (m_frameCount >= 0)

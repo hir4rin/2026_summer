@@ -4,8 +4,8 @@
 
 UIManager::UIManager()
 {
-	auto comboHUD = std::make_shared<ComboHUD>();
-	m_uiLists.push_back(comboHUD);
+	m_comboHUD = std::make_shared<ComboHUD>();
+	m_uiLists.push_back(m_comboHUD);
 }
 
 UIManager::~UIManager()
@@ -30,4 +30,10 @@ void UIManager::Draw()
 		ui->Draw();
 	}
 
+}
+
+void UIManager::ToggleComboUI()
+{
+	if (!m_comboHUD)return;
+	m_comboHUD->ToggleVisible();
 }

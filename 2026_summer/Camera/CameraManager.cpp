@@ -248,7 +248,7 @@ void CameraManager::ApplyCameraSettings()
 		return;
 	}
 
-	m_mainCamera->CameraSetting();
+	//m_mainCamera->CameraSetting();
 	SetCameraPositionAndTarget_UpVecY(m_renderPos.ToDxLibVector(), m_currentState->GetTarget().ToDxLibVector());
 	//カメラ変更を反映させる
 	Effekseer_Sync3DSetting();

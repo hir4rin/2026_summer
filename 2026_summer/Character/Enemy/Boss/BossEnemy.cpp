@@ -6,6 +6,7 @@
 #include "../System.h"
 #include "EffekseerForDXLib.h"
 #include "../../../DataLoader/DataManager.h"
+#include "../../Effect/EffectManager.h"
 
 namespace
 {
@@ -250,6 +251,14 @@ void BossEnemy::OnDamage(Collider& other, AttackData& data)
 
 					//イベントを発火させる
 					System::GetInstance().SetIsLastHitEventPlaying(true);
+
+					//ラストヒット直後、ボスの中心にGoalエフェクトを出す
+					EffectManager::GetInstance().Play(AsyncData::Goal, Vector3(m_pos.x, m_pos.y + kEnemyEfOffset, m_pos.z));
+					//ボスを倒した時のSEを鳴らす
+					System::GetInstance().GetSoundManager().PlaySE("GameClearSE");
+					//ラストヒットのボスボイスを鳴らす
+					System::GetInstance().GetSoundManager().PlaySE("BossLastVoice");
+
 					ChangeState(std::make_shared<BossStateDead>(GetWeakPtr()));
 					return;
 				}

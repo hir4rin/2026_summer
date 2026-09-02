@@ -1,6 +1,7 @@
 #key,animName
 Idle,Player|Idle
-Walk,Player|Walking
+Walk,Player|Walk
+Walking,Player|Walking
 Run,Player|FastRun.001
 ChangeDirection,Player|ChangeDirection
 DodgeForward,Player|DodgeForward

@@ -46,6 +46,8 @@ namespace
 
 	constexpr int kFadeFrame = 20;//フェードイン・フェードアウトにかけるフレーム数
 
+	constexpr int kGameClearSEFadeOutFrame = 90;//GameClearSEをフェードアウトさせるフレーム数
+
 	constexpr float kLastHitPlayerResetFrame = 300.0f;//ラストヒットイベント開始からplayerをセットし直すまでのフレーム数
 	constexpr float kLastHitEventEndFrame = 640.0f;//ラストヒットイベントの演出が終わるフレーム数
 	const Vector3 kLastHitPlayerPos = Vector3(328.66f, 0.0f, 6903.45f);//ラストヒットイベント演出開始時のplayer座標
@@ -153,6 +155,7 @@ GameScene::GameScene(SceneController& controller) :Scene(controller)
 
 	//BGMを流す
 	System::GetInstance().GetSoundManager().PlayBgm("BattleBGM");
+	m_cameraManager->Update(m_player->GetPos());//カメラの更新をplayerの前からCollisionManagerの後に変更//何かバグるかも
 }
 GameScene::~GameScene()
 {
@@ -193,6 +196,12 @@ void GameScene::NormalUpdate()
 		m_cameraManager->SetPhotoCamera();
 		m_controller.PushScene(std::make_shared<PauseScene>(m_controller));
 		return;
+	}
+
+	//Bボタンでコンボ一覧UIの表示をオン/オフ切り替える
+	if (input.IsTriggered("B"))
+	{
+		m_uiManager->ToggleComboUI();
 	}
 
 	//フォトモードだったら、カメラのみを動かせるようにする
@@ -319,6 +328,8 @@ void GameScene::NormalUpdate()
 			m_enemyManager->ResetBossToSpawnPos();
 			//カメラをセット
 			m_cameraManager->ChangeStateFromScene(CameraManager::CameraStateName::FinishingFirstCamera);
+			//カメラ演出に入ったら、ボスを倒した時のSEをだんだん下げながら止める
+			System::GetInstance().GetSoundManager().FadeOutSE("GameClearSE", kGameClearSEFadeOutFrame);
 		}
 
 		//最後のカメラかつ
@@ -445,7 +456,7 @@ void GameScene::NormalDraw()
 			DrawUltKessatsuUI();
 		}
 	}
-	
+
 	m_player->Draw();
 	//ボスは最終フェーズに到達するまで存在しないのでnullチェックする
 	if (auto boss = m_enemyManager->GetBoss())
@@ -1001,6 +1012,7 @@ void GameScene::DrawLastHitKessatsuUI()
 	//m_RT1は設計解像度(Game::kScreenWidth x kScreenHeight)固定のバッファなので、実解像度まで引き伸ばして合成する
 	DrawExtendGraph(0, 0, Game::GetScreenWidth(), Game::GetScreenHeight(), m_RT1, true);
 }
+
 void GameScene::Terminate()
 {
 	//Collisionをすべてクリア

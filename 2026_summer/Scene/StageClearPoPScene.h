@@ -61,4 +61,6 @@ private:
 
 	int m_fadeCount = 0;//フェードイン・フェードアウトの経過フレーム
 
+	int m_pressButtonBlinkFrame = 0;//"Press A Button"点滅演出の経過フレーム
+
 };

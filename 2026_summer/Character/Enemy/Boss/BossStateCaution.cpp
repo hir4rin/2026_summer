@@ -31,7 +31,7 @@ void BossStateCaution::Enter()
 	if (!player)return;
 
 	//右と左でアニメーションを変える
-	//boss->m_anim.ChangeAnim(boss->GetAnimName("CautionRightWalk"), true, 0.9f);
+	boss->m_anim.ChangeAnim(boss->GetAnimName("CautionRight"), true, 0.9f);
 	boss->m_targetPos = player->GetPos();
 	//Playerを見る
 	boss->ToPlayerLook();

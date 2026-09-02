@@ -656,6 +656,8 @@ void EnemySwordman::ChangeState(EnemyState newState)
 	case EnemyState::Dead:
 		//死亡アニメーションを流す
 		m_anim.ChangeAnim(kDie, false, 0.5f);
+		//deadに移行した瞬間、ボイスをどちらか確率で鳴らす
+		System::GetInstance().GetSoundManager().PlaySE(rand() % 2 == 0 ? "ZakoVoice1" : "ZakoVoice2");
 		break;
 	case EnemyState::KnockDown:
 		//knockDownフレームのリセット

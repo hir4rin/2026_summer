@@ -15,6 +15,7 @@
 #include "../../../Stage/Stage.h"
 #include "../../../Input.h"
 #include "EffekseerForDXLib.h"
+#include "../Effect/EffectManager.h"
 #include <cmath>
 #include <cassert>
 #include <string>
@@ -211,7 +212,7 @@ void Player::Draw()
 	//コンボチェーンの描画
 	for (int i = 0; i < m_comboChain.size(); ++i)
 	{
-		std::string text = std::to_string(i) + ": " + m_comboChain[i].animName;
+		//std::string text = std::to_string(i) + ": " + m_comboChain[i].animName;
 		//SubWindow::AddText(text);
 	}
 #ifdef _DEBUG
@@ -255,6 +256,9 @@ void Player::OnDamage(Collider& other, AttackData& data)
 	{
 		//体力を減らす
 		m_hp -= static_cast<int>(data.attackPower);
+		//ダメージが入った瞬間にSEとエフェクトを出す
+		System::GetInstance().GetSoundManager().PlaySE("PlayerHit");
+		EffectManager::GetInstance().Play(AsyncData::PlayerDamageEffect, m_pos + Vector3(0, kPlayerCenter, 0));
 		//無敵時間を設定する
 		m_damageInfo.damageTimer = m_damageInfo.kDamageTime;
 		//リザルト集計用//被弾回数を加算する
@@ -273,6 +277,14 @@ void Player::OnDamage(Collider& other, AttackData& data)
 	}
 	//被ダメdataを更新する
 	m_attackData = data;
+
+	//スキル攻撃中、必殺技中は被弾アニメーションに遷移しない(ダメージ自体は通常通り受ける)
+	bool isSkillAttacking = m_comboInfo.currentComboIndex == ComboIndex::SkillAttack1 ||
+		m_comboInfo.currentComboIndex == ComboIndex::SkillAttack2 ||
+		m_comboInfo.currentComboIndex == ComboIndex::SkillAttack3;
+	bool isUltAttacking = std::dynamic_pointer_cast<PlayerStateUlt>(m_currentState) != nullptr;
+	if (isSkillAttacking || isUltAttacking)return;
+
 	//stateをhitStateにする
 	ChangeState(std::make_shared<PlayerStateHit>(GetWeakPtr(), data));
 }

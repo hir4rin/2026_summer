@@ -36,6 +36,8 @@ namespace
 	constexpr float kAngleVUpperMultiplier = 0.5f;//垂直角度上限の倍率
 	constexpr float kAngleVLowerMultiplier = 0.4f;//垂直角度下限の倍率
 	constexpr float kAngleVLimitOffset = 0.6f;//垂直角度上下限のオフセット
+
+	constexpr float kWallMargin = 20.0f;//カメラを壁の手前に押し戻す時の余白
 }
 
 PlayerFollowCamera::PlayerFollowCamera(std::weak_ptr<CameraManager> owner):CameraStateBase(owner)
@@ -194,6 +196,20 @@ void PlayerFollowCamera::FixCameraPos()
 	auto pos = VAdd(RotCtoP, m_goalTarget.ToDxLibVector());//プレイヤーの座標に足す
 
 	m_goalPos = Vector3::FromDxLibVector(pos);
+
+	//カメラとオブジェクトの押し戻し判定(注視点→カメラの線分とステージポリゴンの当たり判定)
+	auto stage = m_stage.lock();
+	if (stage)
+	{
+		auto hitPoly = MV1CollCheck_Line(stage->GetStageModelHandle(), -1, m_goalTarget.ToDxLibVector(), m_goalPos.ToDxLibVector());
+		if (hitPoly.HitFlag)
+		{
+			//当たった位置から、壁にめり込まないよう少し手前に戻す
+			Vector3 hitPos = Vector3::FromDxLibVector(hitPoly.HitPosition);
+			Vector3 dir = (m_goalPos - m_goalTarget).Normalize();
+			m_goalPos = hitPos - dir * kWallMargin;
+		}
+	}
 }
 
 void PlayerFollowCamera::CameraSetting()

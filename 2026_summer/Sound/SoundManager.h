@@ -16,6 +16,14 @@ struct SeSlot
 	int handle;
 };
 
+struct SeFade
+{
+	int handle = -1;//フェード対象の再生ハンドル
+	int startVolume = 0;//フェード開始時点の音量
+	int elapsedFrame = 0;//フェード開始からの経過フレーム
+	int totalFrame = 1;//フェードにかけるフレーム数
+};
+
 class SoundManager
 {
 public:
@@ -29,6 +37,8 @@ public:
 
 	void StopBgm();
 	void StopSE(const std::string& name);
+	void FadeOutSE(const std::string& name, int frames);//指定フレームかけて音量を0にしながら止める
+	void FadeOutBgm(int frames);//再生中のBGMを指定フレームかけて音量を0にしながら止める(呼んだ直後からPlayBgmで別のBGMを重ねて再生できる)
 	//セット
 	void SetBgmVolume(int volume);//0～255
 	void SetSEVolume(int volume);//0～255
@@ -54,6 +64,9 @@ private:
 	
 	//3重再生用スロット
 	std::vector<SeSlot> m_seSlots;
+
+	//フェードアウト中のSEの一覧
+	std::vector<SeFade> m_seFades;
 };
 
 

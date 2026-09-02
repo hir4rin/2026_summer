@@ -3,7 +3,7 @@
 
 namespace
 {
-	constexpr float kResultMoveAnimSpeed = 0.7f;//リザルト演出時のアニメーション再生速度
+	constexpr float kResultMoveAnimSpeed = 0.4f;//リザルト演出時のアニメーション再生速度
 	constexpr float kResultMoveStopRate = 0.6f;//アニメーションを止める進行率
 }
 
@@ -23,7 +23,7 @@ void PlayerStateResultMove::Enter()
 	auto player = m_owner.lock();
 	if (!player) return;
 	//アニメーションを流す
-	player->m_anim.ChangeAnim("Player|AirAttack3", false, kResultMoveAnimSpeed);
+	player->m_anim.ChangeAnim(player->GetAnimName("Walking"), true, kResultMoveAnimSpeed);
 
 }
 
@@ -33,14 +33,15 @@ void PlayerStateResultMove::Update()
 	if (!player) return;
 
 	//アニメーションが5割を超えたらアニメーションを止める
-	if (player->m_anim.GetAnimRate() > kResultMoveStopRate)
-	{
-		//player->m_anim.
-	}
-	else
-	{
-		player->m_anim.Update();
-	}
+	//if (player->m_anim.GetAnimRate() > kResultMoveStopRate)
+	//{
+	//	//player->m_anim.
+	//}
+	//else
+	//{
+	//	
+	//}
+	player->m_anim.Update();
 }
 
 void PlayerStateResultMove::Exit()

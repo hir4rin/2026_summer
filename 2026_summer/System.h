@@ -17,6 +17,7 @@ enum class AsyncData : int
 	PlayerHitEffect,
 	PlayerSwordHitEffect,
 	PlayerSwordHitEffect2,
+	PlayerDamageEffect,
 	JumpAttackFootEffect,
 	//敵
 	EnemyModel,
@@ -35,6 +36,7 @@ enum class AsyncData : int
 	StageModelCollider,
 	AreaWallEffect,
 	WallBreakEffect,
+	Goal,
 };
 
 class System

@@ -3,6 +3,7 @@
 #include "../LockOnManager.h"
 #include "PlayerFollowCamera.h"
 #include "../Character/Enemy/EnemyBase.h"
+#include "../Character/Enemy/Boss/BossEnemy.h"
 #include "Player.h"
 #include "../MainCamera.h"
 #include "../Stage/Stage.h"
@@ -32,6 +33,9 @@ namespace
 	constexpr float kRotateAngle = DX_PI_F / 6;//カメラを回転させる角度
 	constexpr float kCameraPosOffsetY = 160.0f;//カメラ座標のY方向オフセット
 	constexpr float kEnemyScreenPosOffsetY = 100.0f;//敵のスクリーン座標変換時のY方向オフセット
+
+	constexpr float kWallMargin = 20.0f;//カメラを壁の手前に押し戻す時の余白
+	constexpr float kBossReticleExtraOffsetY = 100.0f;//ボスをロックオンしている時、レティクルをさらに上げる量
 }
 
 LockOnCameraState::LockOnCameraState(std::weak_ptr<CameraManager> owner) : CameraStateBase(owner)
@@ -173,8 +177,13 @@ void LockOnCameraState::Draw()
 	if (lockOnManager) enemy = lockOnManager->GetTarget().lock();
 	if (!enemy)return;
 
-	//敵の座標をスクリーン座標に変換する
-	Vector3 enemyPos = enemy->GetPos() + Vector3(0.0f, kEnemyScreenPosOffsetY, 0.0f);
+	//敵の座標をスクリーン座標に変換する//ボスをロックオンしている時は、レティクルをさらに上げる
+	float reticleOffsetY = kEnemyScreenPosOffsetY;
+	if (std::dynamic_pointer_cast<BossEnemy>(enemy))
+	{
+		reticleOffsetY += kBossReticleExtraOffsetY;
+	}
+	Vector3 enemyPos = enemy->GetPos() + Vector3(0.0f, reticleOffsetY, 0.0f);
 	VECTOR enemyPos2D = ConvWorldPosToScreenPos(enemyPos.ToDxLibVector());
 
 	//カメラの前方(画面内)にいるときだけ描画する
@@ -265,6 +274,21 @@ void LockOnCameraState::FixCameraPos()
 	auto pos = VAdd(RotPtoC, player->GetPos().ToDxLibVector());//プレイヤーの座標に足す
 
 	m_goalPos = Vector3::FromDxLibVector(pos);
+
+	//カメラとオブジェクトの押し戻し判定(プレイヤー→カメラの線分とステージポリゴンの当たり判定)
+	auto stage = m_stage.lock();
+	if (stage)
+	{
+		Vector3 lineStart = player->GetPos() + kCameraHeight;//playerPosはこの関数内でy=0にされているため使わない
+		auto hitPoly = MV1CollCheck_Line(stage->GetStageModelHandle(), -1, lineStart.ToDxLibVector(), m_goalPos.ToDxLibVector());
+		if (hitPoly.HitFlag)
+		{
+			//当たった位置から、壁にめり込まないよう少し手前に戻す
+			Vector3 hitPos = Vector3::FromDxLibVector(hitPoly.HitPosition);
+			Vector3 dir = (m_goalPos - lineStart).Normalize();
+			m_goalPos = hitPos - dir * kWallMargin;
+		}
+	}
 }
 
 void LockOnCameraState::CameraSetting()

@@ -23,7 +23,6 @@ namespace
 	constexpr int kItemStartY = 260;
 	constexpr int kItemDistanceY = 50;
 
-	constexpr int kRankX = 640;
 	constexpr int kRankY = 500;
 
 	//クリアタイムでランクを決める(秒)//短いほど高ランク//適当
@@ -34,14 +33,23 @@ namespace
 
 	constexpr int kFadeFrame = 20;//フェードイン・フェードアウトにかけるフレーム数
 
-	const Vector3 kPlayerStartPos = Vector3(0, 0, 300);//結果表示用プレイヤーの初期座標
+	const Vector3 kPlayerStartPos = Vector3(0, 0, 200);//結果表示用プレイヤーの初期座標
 
 	constexpr int kDarkenAlpha = 164;//画面を少し黒くするアルファ値
 
 	constexpr int kTitleY = 120;//"GAME CLEAR"の表示Y座標
-	constexpr int kTitleXOffset = 100;//"GAME CLEAR"を画面中央からずらすX方向のオフセット
 
 	constexpr int kReturnMessageY = 620;//"Press A Button"メッセージの表示Y座標
+	constexpr float kPressButtonBlinkSpeed = 0.06f;//点滅の速さ//小さいほどゆっくり(TitleSceneと同じ)
+
+	constexpr double kResultTextScale = 2.0;//"GAME CLEAR"の文字の拡大率
+	constexpr double kRankTextScale = 2.0;//"RANK "の文字の拡大率
+	constexpr double kRankLetterScale = 4.0;//ランクの文字(S/A/B/C)の拡大率
+
+	constexpr int kBattleBgmFadeOutFrame = 60;//GameSceneのBGMをフェードアウトさせるフレーム数
+	//リザルト終了時のBGMフェードは、このシーンが破棄されるとSoundManager::Update()が呼ばれなくなり
+	//フェードが完了しなくなるため、画面が暗転しきるkFadeFrameと同じ長さにして必ずシーン内で完了させる
+	constexpr int kResultBgmFadeOutFrame = kFadeFrame;
 }
 
 StageClearPoPScene::StageClearPoPScene(SceneController& controller, const GameResult& result) :Scene(controller), m_result(result)
@@ -50,7 +58,8 @@ StageClearPoPScene::StageClearPoPScene(SceneController& controller, const GameRe
 	m_updateFunc = static_cast<UpdateFunc_t>(&StageClearPoPScene::FadeInUpdate);
 	m_drawFunc = static_cast<DrawFunc_t>(&StageClearPoPScene::FadeInDraw);
 
-	//BGMを流す
+	//BGMを流す(GameSceneのBGMはフェードアウトさせながら消す)
+	System::GetInstance().GetSoundManager().FadeOutBgm(kBattleBgmFadeOutFrame);
 	System::GetInstance().GetSoundManager().PlayBgm("ResultBGM");
 	System::GetInstance().SetTimeScale(1.0f);//念のため、時間の流れを通常に戻す
 
@@ -67,6 +76,8 @@ StageClearPoPScene::StageClearPoPScene(SceneController& controller, const GameRe
 	m_cameraManager->Update(m_player->GetPos());
 	m_player->SetCameraManager(std::weak_ptr<CameraManager>(m_cameraManager));
 	m_player->SetResultUp();
+
+	m_player->ChangeResultMove();
 }
 
 StageClearPoPScene::~StageClearPoPScene()
@@ -82,6 +93,8 @@ void StageClearPoPScene::FadeInUpdate()
 {
 	// Effekseerにより再生中のエフェクトを更新する。
 	UpdateEffekseer3D();
+	//BGM/SEのフェードを進める(このシーンが最前面にいる間はGameSceneのUpdateが呼ばれないため、ここで呼ぶ)
+	System::GetInstance().GetSoundManager().Update();
 
 	m_fadeCount++;
 	if (m_fadeCount >= kFadeFrame)
@@ -100,10 +113,12 @@ void StageClearPoPScene::NormalUpdate()
 	//結果表示用プレイヤー・カメラの更新(GameClearSceneと同じ)
 	m_cameraManager->Update(m_player->GetPos());
 	m_player->Update(*m_cameraManager->GetHighestPriorityCamera());
+	//BGM/SEのフェードを進める(このシーンが最前面にいる間はGameSceneのUpdateが呼ばれないため、ここで呼ぶ)
+	System::GetInstance().GetSoundManager().Update();
 
 	if (input.IsRealTriggered("X"))
 	{
-		m_player->ChangeResultMove();
+		//m_player->ChangeResultMove();
 	}
 
 	switch (m_phase)
@@ -153,8 +168,12 @@ void StageClearPoPScene::NormalUpdate()
 		}
 		break;
 	case Phase::Done:
+		m_pressButtonBlinkFrame++;
 		if (input.IsRealTriggered("A"))
 		{
+			//リザルトが終わるので、BGMをフェードアウトさせながら消す
+			System::GetInstance().GetSoundManager().FadeOutBgm(kResultBgmFadeOutFrame);
+
 			//フェードアウトしてからゲームシーンに初期化する
 			m_fadeCount = 0;
 			m_updateFunc = static_cast<UpdateFunc_t>(&StageClearPoPScene::FadeOutUpdate);
@@ -173,6 +192,8 @@ void StageClearPoPScene::FadeOutUpdate()
 
 	// Effekseerにより再生中のエフェクトを更新する。
 	UpdateEffekseer3D();
+	//BGM/SEのフェードを進める(このシーンが最前面にいる間はGameSceneのUpdateが呼ばれないため、ここで呼ぶ)
+	System::GetInstance().GetSoundManager().Update();
 
 	m_fadeCount++;
 	if (m_fadeCount >= kFadeFrame)
@@ -218,7 +239,11 @@ void StageClearPoPScene::NormalDraw()
 
 	//"GAME CLEAR"は英字のみの文字列なのでYDWgagagagaフォントを使う
 	int ydwFontHandle = System::GetInstance().GetYdwGagagagaFontHandle();
-	DrawFormatStringToHandle(Game::GetScreenWidth() / 2 - static_cast<int>(Game::ScaleX(kTitleXOffset)), static_cast<int>(Game::ScaleY(kTitleY)), GetColor(255, 255, 255), ydwFontHandle, "GAME CLEAR");
+	{
+		//拡大後の見た目の幅から、画面中央に来るX座標を計算する
+		int titleWidth = static_cast<int>(GetDrawStringWidthToHandle("GAME CLEAR", -1, ydwFontHandle) * kResultTextScale);
+		DrawExtendFormatStringToHandle(Game::GetScreenWidth() / 2 - titleWidth / 2, static_cast<int>(Game::ScaleY(kTitleY)), kResultTextScale, kResultTextScale, GetColor(255, 255, 255), ydwFontHandle, "GAME CLEAR");
+	}
 
 	//カウントアップ中の項目までを表示する(まだ来ていない項目は表示しない)
 	int visibleCount = (m_phase == Phase::Counting) ? m_itemIndex + 1 : static_cast<int>(ResultItem::Size);
@@ -229,16 +254,36 @@ void StageClearPoPScene::NormalDraw()
 
 	if (m_phase == Phase::Rank || m_phase == Phase::Done)
 	{
-		//"RANK"は英字のみの文字列なのでYDWgagagagaフォントを使う
-		DrawFormatStringToHandle(static_cast<int>(Game::ScaleX(kRankX)), static_cast<int>(Game::ScaleY(kRankY)), GetColor(255, 220, 80), ydwFontHandle, "RANK %c", m_rank);
+		//"RANK "は2.0倍、続くランクの文字(S/A/B/C)は4.0倍で描画する
+		const char* rankLabel = "RANK ";
+		char rankLetter[2] = { m_rank, '\0' };
+
+		int rankLabelWidth = static_cast<int>(GetDrawStringWidthToHandle(rankLabel, -1, ydwFontHandle) * kRankTextScale);
+		int rankLetterWidth = static_cast<int>(GetDrawStringWidthToHandle(rankLetter, -1, ydwFontHandle) * kRankLetterScale);
+
+		//2つ合わせた見た目の幅から、画面中央に来る開始X座標を計算する
+		int startX = Game::GetScreenWidth() / 2 - (rankLabelWidth + rankLetterWidth) / 2;
+		int rankY = static_cast<int>(Game::ScaleY(kRankY));
+
+		//拡大率が違うと文字の高さも変わるので、"RANK "の下端にランクの文字の下端を合わせる
+		int fontSize = GetFontSizeToHandle(ydwFontHandle);
+		int rankLabelBottom = rankY + static_cast<int>(fontSize * kRankTextScale);
+		int rankLetterY = rankLabelBottom - static_cast<int>(fontSize * kRankLetterScale);
+
+		DrawExtendStringToHandle(startX, rankY, kRankTextScale, kRankTextScale, rankLabel, GetColor(255, 220, 80), ydwFontHandle);
+		DrawExtendStringToHandle(startX + rankLabelWidth, rankLetterY, kRankLetterScale, kRankLetterScale, rankLetter, GetColor(255, 220, 80), ydwFontHandle);
 	}
 
 	if (m_phase == Phase::Done)
 	{
-		//"Press A Button"は英字のみの文字列なのでYDWgagagagaフォントを使う
+		//"Press A Button"をゆっくり点滅させる(sinカーブでアルファ値を滑らかに増減させる、TitleSceneと同じやり方)
 		const char* pressButtonText = "Press A Button";
+		float blink = (sinf(static_cast<float>(m_pressButtonBlinkFrame) * kPressButtonBlinkSpeed) + 1.0f) / 2.0f;//0.0～1.0
+		int alpha = static_cast<int>(blink * 255);
 		int textWidth = GetDrawStringWidthToHandle(pressButtonText, -1, ydwFontHandle);
+		SetDrawBlendMode(DX_BLENDMODE_ALPHA, alpha);
 		DrawStringToHandle(Game::GetScreenWidth() / 2 - textWidth / 2, static_cast<int>(Game::ScaleY(kReturnMessageY)), pressButtonText, GetColor(255, 255, 255), ydwFontHandle);
+		SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 	}
 
 #ifdef _DEBUG
@@ -246,8 +291,8 @@ void StageClearPoPScene::NormalDraw()
 	if (m_cameraManager)
 	{
 		imguiApp::GetInstance().DrawCameraDebugWindow(
-			m_cameraManager->GetHighestPriorityCamera()->GetCameraPos(),
-			m_cameraManager->GetHighestPriorityCamera()->GetCameraTarget());
+			m_cameraManager->GetActiveCamera()->GetPos(),
+			m_cameraManager->GetActiveCamera()->GetTarget());
 	}
 #endif
 }

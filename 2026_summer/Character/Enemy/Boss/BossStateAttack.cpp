@@ -80,6 +80,7 @@ void BossStateAttack::Enter()
 	case BossEnemy::AttackType::Melee:
 	{
 		boss->m_anim.ChangeAnim(boss->GetAnimName("Hadou"), false, 0.7f);
+		System::GetInstance().GetSoundManager().PlaySE("BossHadouVoice");
 		AttackData data;
 		data = {
 			.attackPower = kMeleeAttackPower,
@@ -105,6 +106,7 @@ void BossStateAttack::Enter()
 	case BossEnemy::AttackType::Langed:
 	{
 		boss->m_anim.ChangeAnim(boss->GetAnimName("LangedAttack"), false, 0.6f);
+		System::GetInstance().GetSoundManager().PlaySE("BossFireToarchVoice");
 		//複数個fireToarchを生成
 		AttackData data;
 		data = {
@@ -134,6 +136,7 @@ void BossStateAttack::Enter()
 		break;
 	case BossEnemy::AttackType::Summon:
 		boss->m_anim.ChangeAnim(boss->GetAnimName("LangedAttack"), false, 0.9f);
+		System::GetInstance().GetSoundManager().PlaySE("BossSummonVoice");
 		break;
 	default:
 		break;

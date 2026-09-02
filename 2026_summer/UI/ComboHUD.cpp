@@ -10,6 +10,13 @@ namespace
 
 	constexpr int kHoldSrcWidth = 450;//hold.pngの元の横幅
 	constexpr int kHoldSrcHeight = 400;//hold.pngの元の縦幅
+
+	//コンボUI全体を覆う、薄暗い背景の範囲(見やすくするため)
+	constexpr int kBackgroundLeft = ComboUI::kComboUIStartX - 40;
+	constexpr int kBackgroundTop = ComboUI::kComboUIStartY - ComboUI::kStringDistanceY + 50;
+	constexpr int kBackgroundRight = Game::kScreenWidth - 10;
+	constexpr int kBackgroundBottom = ComboUI::kLockOnChangeStartY + kButtonHeight / 2 + 20;
+	constexpr int kBackgroundAlpha = 120;//背景の暗さ(0～255)
 }
 
 ComboHUD::ComboHUD()
@@ -66,6 +73,13 @@ void ComboHUD::DrawComboButton(int x, int y, int buttonIndex, int handle, double
 
 void ComboHUD::Draw() const
 {
+	if (!m_isVisible)return;//非表示に切り替えられている場合は何も描画しない
+
+	//コンボUIが見づらいので、後ろに薄暗い背景を敷く
+	SetDrawBlendMode(DX_BLENDMODE_ALPHA, kBackgroundAlpha);
+	DrawBox(SX(kBackgroundLeft), SY(kBackgroundTop), SX(kBackgroundRight), SY(kBackgroundBottom), GetColor(0, 0, 0), TRUE);
+	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
+
 	//ここで、コンボのボタンを描画する処理を実装する
 	//ボタン画像はGame::GetScale()で拡大率を掛けて、位置と一緒に画面比率で表示する
 	double buttonScale = ComboUI::kButtonScale * Game::GetScale();
