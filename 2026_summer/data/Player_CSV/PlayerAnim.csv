@@ -1,6 +1,6 @@
 #key,animName
 Idle,Player|Idle
-Walk,Player|Walk
+Walk,Player|Walking
 Run,Player|FastRun.001
 ChangeDirection,Player|ChangeDirection
 DodgeForward,Player|DodgeForward
@@ -15,3 +15,6 @@ JumpDown,Player|JumpDown
 UltAttack,Player|Ult1
 Hit,Player|Hit
 Death,Player|Death
+HouseDance,Player|HouseDance
+SillyDance,Player|SillyDance
+TwistDance,Player|TwistDance
