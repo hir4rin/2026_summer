@@ -4,6 +4,11 @@
 #include "../../../Input.h"
 #include "../../../System.h"
 
+namespace
+{
+	constexpr float kFallMoveSpeedMultiplier = 0.8f;//落下中の移動速度倍率(通常の0.8倍)
+}
+
 PlayerStateFall::PlayerStateFall(std::weak_ptr<Player> player) : PlayerState(player)
 {
 	//playerが既に破棄されていたら早期リターンする
@@ -150,7 +155,7 @@ void PlayerStateFall::Move(Input& input)
 	{
 		dimention += player->left;
 	}
-	dimention = dimention.Normalize() * Game::kMoveSpeed * 0.8f;//移動速度は通常の0.5倍
+	dimention = dimention.Normalize() * Game::kMoveSpeed * kFallMoveSpeedMultiplier;//移動速度は通常の0.5倍
 	Vector3 velY = Vector3(0, player->m_vel.y, 0);//y成分だけを取り出す
 	player->m_vel = m_baseVel + dimention + velY;
 	//速度制限

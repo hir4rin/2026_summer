@@ -23,6 +23,23 @@ namespace
 	constexpr float kAttackMoveSpeed1 = 10.0f;//攻撃モーション前半の移動速度
 	constexpr float kAttackMoveSpeed2 = 16.0f;//攻撃モーション後半の移動速度
 
+	constexpr float kAttackHitStopTime = 0.1f;//攻撃が当たったときのヒットストップの時間
+	constexpr float kAttackColOffsetDistance = 30.0f;//攻撃判定を前に出す距離
+	constexpr int kAttackTypeCount = 3;//抽選する攻撃タイプの数(Melee/Langed/Summon)
+
+	constexpr float kMeleeAttackPower = 20.0f;//近接攻撃の攻撃力
+	constexpr float kMeleeAttackForwardOffset = 100.0f;//近接攻撃判定を前方に出すオフセット距離
+	const Vector3 kMeleeAttackColHeightOffset = Vector3(0, 220, 0);//近接攻撃判定の高さオフセット
+	constexpr float kMeleeAttackColRadius = 100.0f;//近接攻撃判定の半径
+	constexpr float kHadouEffectYOffset = 200.0f;//はどうエフェクトの高さオフセット
+
+	constexpr float kLangedAttackPower = 15.0f;//遠隔攻撃の攻撃力
+	constexpr int kFireToarchSpawnOffsetRange = 1000;//炎の生成位置のばらつき範囲(全幅)
+	constexpr int kFireToarchSpawnOffsetHalf = 500;//炎の生成位置のばらつき範囲の半分
+	constexpr float kFireToarchRadius = 25.0f;//炎の当たり判定の半径
+	const Vector3 kFireToarchBoxHalfExtent = Vector3(60, 200, 60);//炎の当たり判定のBOXの半径
+	constexpr float kFireToarchLifeTime = 250.0f;//炎の当たり判定の生存時間
+
 	constexpr float kSummonAnimRate = 0.5f;//召喚攻撃:敵を出現させるrate
 	constexpr float kSummonSpawnRange = 300.0f;//召喚攻撃:ボスからの出現範囲(半径)
 	constexpr int kSummonEnemyNum = 2;//召喚攻撃で出現させる敵の数
@@ -65,24 +82,24 @@ void BossStateAttack::Enter()
 		boss->m_anim.ChangeAnim(boss->GetAnimName("Hadou"), false, 0.7f);
 		AttackData data;
 		data = {
-			.attackPower = 20,
+			.attackPower = kMeleeAttackPower,
 			.knockBackPower = Vector3(0, 0,0),
 			//.knockBackPower = Vector3(0.0f,node.knockBackY,0.0f),//吹き飛ばない攻撃にする
 			.knockBackFrame = 0,
-			.hitStopTime = 0.1f,
-			.kAttackColOffset = 30.0f,
+			.hitStopTime = kAttackHitStopTime,
+			.kAttackColOffset = kAttackColOffsetDistance,
 			.isKirimomi = false
 		};
 		auto MeleeCol = std::make_shared<AttackCol>(m_owner,data);
-		Vector3 offset = boss->m_targetVec * 100;
+		Vector3 offset = boss->m_targetVec * kMeleeAttackForwardOffset;
 
-		MeleeCol->ColInit(boss->m_pos, Vector3(0, 220, 0)+offset, 100.0f, ColliderType::Sphere, Tags::EnemyAttack, false, true);
+		MeleeCol->ColInit(boss->m_pos, kMeleeAttackColHeightOffset+offset, kMeleeAttackColRadius, ColliderType::Sphere, Tags::EnemyAttack, false, true);
 		boss->m_attackCol = MeleeCol;
 
 		//はどう攻撃のエフェクトを再生する
 		m_hadouEffectHandle = System::GetInstance().GetHandle(AsyncData::BossAttackHadouEffect);
 		m_hadouPlayingHandle = PlayEffekseer3DEffect(m_hadouEffectHandle);
-		SetPosPlayingEffekseer3DEffect(m_hadouPlayingHandle, boss->m_pos.x, boss->m_pos.y+200, boss->m_pos.z);
+		SetPosPlayingEffekseer3DEffect(m_hadouPlayingHandle, boss->m_pos.x, boss->m_pos.y+kHadouEffectYOffset, boss->m_pos.z);
 	}
 		break;
 	case BossEnemy::AttackType::Langed:
@@ -91,25 +108,25 @@ void BossStateAttack::Enter()
 		//複数個fireToarchを生成
 		AttackData data;
 		data = {
-			.attackPower = 15,
+			.attackPower = kLangedAttackPower,
 			.knockBackPower = Vector3(0, 0,0),
 			//.knockBackPower = Vector3(0.0f,node.knockBackY,0.0f),//吹き飛ばない攻撃にする
 			.knockBackFrame = 0,
-			.hitStopTime = 0.1f,
-			.kAttackColOffset = 30.0f,
+			.hitStopTime = kAttackHitStopTime,
+			.kAttackColOffset = kAttackColOffsetDistance,
 			.isKirimomi = false
 		};
 		auto player = boss->m_enemyManager.lock()->GetPlayer().lock();
 
 		for (int i = 0; i < 10; i++)
 		{
-			float x = rand() % 1000 -500;
-			float z = rand() % 1000 -500;
+			float x = rand() % kFireToarchSpawnOffsetRange - kFireToarchSpawnOffsetHalf;
+			float z = rand() % kFireToarchSpawnOffsetRange - kFireToarchSpawnOffsetHalf;
 
 
 			auto fireToarchCol = std::make_shared<FireToarch>(m_owner, data);
-			fireToarchCol->ColInit(Vector3(player->GetPos().x + x, 0, player->GetPos().z + z), Vector3(), 25, ColliderType::Box, Tags::EnemyAttack, false, true, 250);
-			fireToarchCol->SetBoxHalfExtents(Vector3(60,200,60));
+			fireToarchCol->ColInit(Vector3(player->GetPos().x + x, 0, player->GetPos().z + z), Vector3(), kFireToarchRadius, ColliderType::Box, Tags::EnemyAttack, false, true, kFireToarchLifeTime);
+			fireToarchCol->SetBoxHalfExtents(kFireToarchBoxHalfExtent);
 			fireToarchCol->SetID();
 			boss->m_attackCols.push_back(fireToarchCol);
 		}
@@ -213,7 +230,7 @@ void BossStateAttack::DetermineAttackType()
 	auto boss = m_owner.lock();
 	if (!boss)return;
 	//確率で決める
-	int rate = rand() % 3;
+	int rate = rand() % kAttackTypeCount;
 
 	switch (rate)
 	{

@@ -9,6 +9,12 @@
 namespace
 {
 	constexpr int kFadeFrame = 20;//フェードイン・フェードアウトにかけるフレーム数
+
+	constexpr int kDarkenAlpha = 164;//画面を少し黒くするアルファ値
+
+	constexpr float kDeathTextScale = 0.3f;//死亡テキストの拡大率
+
+	constexpr int kReturnMessageY = 620;//"Press A Button"メッセージの表示Y座標
 }
 
 GameOverPoPScene::GameOverPoPScene(SceneController& controller, GameScene& gameScene) :Scene(controller), m_gameScene(gameScene)
@@ -100,22 +106,26 @@ void GameOverPoPScene::FadeInDraw()
 	//だんだん透明にしていく
 	int alpha = 255 * (kFadeFrame - m_fadeCount) / kFadeFrame;
 	SetDrawBlendMode(DX_BLENDMODE_ALPHA, alpha);
-	DrawBox(0, 0, Game::kScreenWidth, Game::kScreenHeight, GetColor(0, 0, 0), TRUE);
+	DrawBox(0, 0, Game::GetScreenWidth(), Game::GetScreenHeight(), GetColor(0, 0, 0), TRUE);
 	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 }
 
 void GameOverPoPScene::NormalDraw()
 {
 	//画面を少し黒くする(PauseSceneと同じやり方)
-	SetDrawBlendMode(DX_BLENDMODE_ALPHA, 164);
-	DrawBox(0, 0, Game::kScreenWidth, Game::kScreenHeight, GetColor(0, 0, 0), TRUE);
+	SetDrawBlendMode(DX_BLENDMODE_ALPHA, kDarkenAlpha);
+	DrawBox(0, 0, Game::GetScreenWidth(), Game::GetScreenHeight(), GetColor(0, 0, 0), TRUE);
 	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0); // ← 必ずリセット！
 
 	//下に積まれたGameSceneはSceneController::Drawがscenes_を順番に描画することで自動的に映る//ここではゲームオーバーのUIだけ描く
 	//死亡テキストを画面中央に表示する
-	DrawRotaGraph(Game::kScreenWidth / 2, Game::kScreenHeight / 2, 0.3f, 0.0, m_deathTextHandle, TRUE);
+	DrawRotaGraph(Game::GetScreenWidth() / 2, Game::GetScreenHeight() / 2, kDeathTextScale * Game::GetScale(), 0.0, m_deathTextHandle, TRUE);
 
-	DrawFormatString(Game::kScreenWidth / 2 - 140, 620, GetColor(255, 255, 255), "Aボタンでタイトルに戻る");
+	//"Press A Button"は英字のみの文字列なのでYDWgagagagaフォントを使う
+	int ydwFontHandle = System::GetInstance().GetYdwGagagagaFontHandle();
+	const char* pressButtonText = "Press A Button";
+	int textWidth = GetDrawStringWidthToHandle(pressButtonText, -1, ydwFontHandle);
+	DrawStringToHandle(Game::GetScreenWidth() / 2 - textWidth / 2, static_cast<int>(Game::ScaleY(kReturnMessageY)), pressButtonText, GetColor(255, 255, 255), ydwFontHandle);
 }
 
 void GameOverPoPScene::FadeOutDraw()
@@ -125,6 +135,6 @@ void GameOverPoPScene::FadeOutDraw()
 	//だんだん暗くしていく
 	int alpha = 255 * m_fadeCount / kFadeFrame;
 	SetDrawBlendMode(DX_BLENDMODE_ALPHA, alpha);
-	DrawBox(0, 0, Game::kScreenWidth, Game::kScreenHeight, GetColor(0, 0, 0), TRUE);
+	DrawBox(0, 0, Game::GetScreenWidth(), Game::GetScreenHeight(), GetColor(0, 0, 0), TRUE);
 	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 }

@@ -35,14 +35,23 @@ namespace
 
 	constexpr float kCameraShakePower = 2.5f;//カメラの揺れの強さ
 	constexpr float kCameraShakeTime = 5.0f;//カメラの揺れの時間
+
+	constexpr float kWingScale = 0.35f;//鴉の羽モデルのスケール
+	const Vector3 kWingOffset = Vector3(0.0f, -10.0f, -40.0f);//鴉の羽モデルのオフセット
+
+	constexpr float kRotationLerpFactor = 0.1f;//モデルの向きを目標角度に近づける割合(ほぼlerp)
+
+	constexpr float kGroundCheckCapsuleTopOffset = 100.0f;//地面判定用カプセルの上端のy軸オフセット
+	constexpr float kGroundCheckCapsuleBottomOffset = -20.0f;//地面判定用カプセルの下端のy軸オフセット
+	constexpr float kGroundCheckCapsuleRadius = 40.0f;//地面判定用カプセルの半径
 }
 
 
 Player::Player()
 {
-	m_hp = 100;
-	m_comboInfo.SkillGauge = 100;
-	m_comboInfo.UltGauge = 100;
+	m_hp = kInitialHp;
+	m_comboInfo.SkillGauge = kMaxGaugeValue;
+	m_comboInfo.UltGauge = kMaxGaugeValue;
 	//m_modelHandle = MV1LoadModel("data/Player/Player.mv1");
 	m_modelHandle = MV1DuplicateModel(System::GetInstance().GetHandle(AsyncData::PlayerModel));
 	//m_modelHandle = MV1LoadModel("data/Player/Player_true.mv1");
@@ -324,11 +333,13 @@ void Player::SetResultUp()
 	}
 
 	int matNum = MV1GetMaterialNum(m_modelHandle);
+	const COLOR_F kResultMatColorOff = GetColorF(0.0f, 0.0f, 0.0f, 1.0f);//反射・環境光を消す色
+	const COLOR_F kResultEmissiveColor = GetColorF(1.0f, 0.0f, 0.0f, 1.0f);//発光色(赤)
 	for (int i = 0; i < matNum; i++) {
-		MV1SetMaterialDifColor(m_modelHandle, i, GetColorF(0.0f, 0.0f, 0.0f, 1.0f)); // 拡散反射は消す
-		MV1SetMaterialSpcColor(m_modelHandle, i, GetColorF(0.0f, 0.0f, 0.0f, 1.0f)); // 鏡面ハイライトも消す
-		MV1SetMaterialAmbColor(m_modelHandle, i, GetColorF(0.0f, 0.0f, 0.0f, 1.0f)); // 環境光も消す
-		MV1SetMaterialEmiColor(m_modelHandle, i, GetColorF(1.0f, 0.0f, 0.0f, 1.0f)); // 発光色だけ赤に
+		MV1SetMaterialDifColor(m_modelHandle, i, kResultMatColorOff); // 拡散反射は消す
+		MV1SetMaterialSpcColor(m_modelHandle, i, kResultMatColorOff); // 鏡面ハイライトも消す
+		MV1SetMaterialAmbColor(m_modelHandle, i, kResultMatColorOff); // 環境光も消す
+		MV1SetMaterialEmiColor(m_modelHandle, i, kResultEmissiveColor); // 発光色だけ赤に
 	}
 }
 
@@ -372,18 +383,18 @@ void Player::ChangeState(std::shared_ptr<PlayerState> newState)
 void Player::AddSkillGauge(int value)
 {
 	m_comboInfo.SkillGauge += value;
-	if (m_comboInfo.SkillGauge > 100)
+	if (m_comboInfo.SkillGauge > kMaxGaugeValue)
 	{
-		m_comboInfo.SkillGauge = 100;
+		m_comboInfo.SkillGauge = kMaxGaugeValue;
 	}
 }
 
 void Player::AddUltGauge(int value)
 {
 	m_comboInfo.UltGauge += value;
-	if (m_comboInfo.UltGauge > 100)
+	if (m_comboInfo.UltGauge > kMaxGaugeValue)
 	{
-		m_comboInfo.UltGauge = 100;
+		m_comboInfo.UltGauge = kMaxGaugeValue;
 	}
 }
 
@@ -501,12 +512,12 @@ void Player::WingUpdate()
 	rotmat = MMult(rotZmat, rotmat);//回転行列を掛ける//90度回転させる
 	mat = MMult(rotmat, mat);//回転行列を掛ける//90度回転させる
 
-	MATRIX scale = MGetScale(VGet(0.35f, 0.35f, 0.35f));//スケーリング行列を作成する//モデルの大きさを半分にする
+	MATRIX scale = MGetScale(VGet(kWingScale, kWingScale, kWingScale));//スケーリング行列を作成する//モデルの大きさを半分にする
 
 	mat = MMult(scale, mat);//スケーリング行列を掛ける//モデルの大きさを半分にする
 
 	//オフセット
-	MATRIX transmat = MGetTranslate(VGet(0.0f, -10.0f, -40.0f)); // -Z が後ろ
+	MATRIX transmat = MGetTranslate(kWingOffset.ToDxLibVector()); // -Z が後ろ
 	//これを先に掛けることで、ローカル空間でのオフセットを適用する
 	mat = MMult(transmat, mat);
 
@@ -632,14 +643,14 @@ void Player::ApplyPos()
 	//}
 
 	//下方向とのレイキャストで、地面から空中に遷移したかを判定する
-	Vector3 causuleTop = m_pos + Vector3(0, 100, 0);//カプセルの上端の座標//レイキャストの始点
-	Vector3 causuleBottom = m_pos + Vector3(0, -20, 0);//カプセルの下端の座標//レイキャストの終点
+	Vector3 causuleTop = m_pos + Vector3(0, kGroundCheckCapsuleTopOffset, 0);//カプセルの上端の座標//レイキャストの始点
+	Vector3 causuleBottom = m_pos + Vector3(0, kGroundCheckCapsuleBottomOffset, 0);//カプセルの下端の座標//レイキャストの終点
 
 	Vector3 rayCastSphere = m_pos;
 	auto stage = m_stage.lock();
 	if (stage)
 	{
-		auto hitDim = MV1CollCheck_Capsule(stage->GetStageModelHandle(), -1, causuleTop.ToDxLibVector(), causuleBottom.ToDxLibVector(), 40);
+		auto hitDim = MV1CollCheck_Capsule(stage->GetStageModelHandle(), -1, causuleTop.ToDxLibVector(), causuleBottom.ToDxLibVector(), kGroundCheckCapsuleRadius);
 		//地面にいる判定はCollisionMangerの押し戻し処理の際にしているのでしない
 		if (hitDim.HitNum > 0)
 		{
@@ -688,7 +699,7 @@ void Player::ApplyPosWithAttackModel()
 		while (difference > DX_PI_F) difference -= 2.0f * DX_PI_F;
 		while (difference < -DX_PI_F) difference += 2.0f * DX_PI_F;
 		//targetAngle + DX_PI_F
-		m_rotAngleY += difference * 0.1f;//回転角度を少しずつ目標の角度に近づける//ほぼlerp
+		m_rotAngleY += difference * kRotationLerpFactor;//回転角度を少しずつ目標の角度に近づける//ほぼlerp
 	}
 	//モデルは、座標の位置のcenter分下で表示
 
@@ -702,11 +713,11 @@ void Player::ApplyPosWithAttackModel()
 
 bool Player::CanSkillAttack(bool changeGauge)
 {
-	bool canSkill = m_comboInfo.SkillGauge >= 20;
+	bool canSkill = m_comboInfo.SkillGauge >= kSkillAttackGaugeCost;
 
 	if (canSkill)
 	{
-		if (changeGauge)m_comboInfo.SkillGauge -= 20;
+		if (changeGauge)m_comboInfo.SkillGauge -= kSkillAttackGaugeCost;
 		return true;
 	}
 
@@ -715,11 +726,11 @@ bool Player::CanSkillAttack(bool changeGauge)
 
 bool Player::CanUltAttack()
 {
-	bool canUlt = m_comboInfo.UltGauge >= 100;
+	bool canUlt = m_comboInfo.UltGauge >= kMaxGaugeValue;
 
 	if (canUlt)
 	{
-		m_comboInfo.UltGauge -= 100;
+		m_comboInfo.UltGauge -= kMaxGaugeValue;
 		return true;
 	}
 

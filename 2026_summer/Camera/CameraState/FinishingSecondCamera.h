@@ -19,8 +19,8 @@ public:
 	{
 		return BlendSetting{
 			.mode = BlendSetting::Mode::Lerp,
-			.duration = 40.0f,
-			.easingPower = 0.4f,
+			.duration = kBlendDuration,
+			.easingPower = kBlendEasingPower,
 			.pivot = Vector3()
 		};
 	}
@@ -28,12 +28,18 @@ public:
 	{
 		return BlendSetting{
 		.mode = BlendSetting::Mode::Lerp,
-		.duration = 30.0f,
-		.easingPower = 1.0f,
+		.duration = kOverrideBlendDuration,
+		.easingPower = kOverrideBlendEasingPower,
 		.pivot = Vector3()
 
 		};
 	}
 private:
+	static constexpr float kBlendDuration = 40.0f;//ブレンドにかけるフレーム数
+	static constexpr float kBlendEasingPower = 0.4f;//ブレンドのイージング指数
+
+	static constexpr float kOverrideBlendDuration = 30.0f;//上書き用ブレンドにかけるフレーム数
+	static constexpr float kOverrideBlendEasingPower = 1.0f;//上書き用ブレンドのイージング指数
+
 	float m_timer = 0.0f;//演出開始からの経過フレーム//一定フレームで元のStateに戻すのに使う
 };

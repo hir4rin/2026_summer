@@ -30,6 +30,13 @@ public:
     void Update() override;
 	void Draw() const override;
 private:
+	//設計解像度の座標を画面比率の座標に変換する(文字表示用)
+	int SX(int designX) const;
+	int SY(int designY) const;
+
+	//コンボボタンを描画する(hold.pngは450x400と他のボタン画像より大きいため、実寸法をソース矩形にして、他のボタンと同じくらいの大きさに縮小する)
+	void DrawComboButton(int x, int y, int buttonIndex, int handle, double scale) const;
+
     //モデルハンドル
 	std::vector<int> m_buttonHandles;
 

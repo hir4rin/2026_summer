@@ -6,13 +6,14 @@
 namespace
 {
 	constexpr float kDeppertureTime = 70.0f;
+	constexpr float kLifeTime = 100.0f;//寿命
 }
 
 FireToarch::FireToarch(std::weak_ptr<CharacterBase> owner, const AttackData& data):AttackCol(owner,data)
 {
 	//m_lifeTimeで寿命を設定
 	//数フレーム後に当たり判定をtrueにする
-	m_lifeTime = 100;
+	m_lifeTime = kLifeTime;
 	SetIsActive(false);
 
 	//エフェクトのハンドルを取得(再生はApplyPosで座標が確定してから行う)

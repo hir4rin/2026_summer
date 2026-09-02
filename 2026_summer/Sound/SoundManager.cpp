@@ -32,6 +32,9 @@ namespace
     constexpr float kMascotHitSEVolumeRate = 1.5f;
     constexpr float kAwayMascotSEVolumeRate = 1.5f;
     constexpr float kWallBreakSEVolumeRate = 1.5f;
+
+    //3重再生用スロットの数(連打されやすい攻撃音を割り当てる)
+    constexpr int kAttackSwordSESlotCount = 3;
 }
 
 void SoundManager::Init()
@@ -124,7 +127,7 @@ void SoundManager::Init()
 		ChangeVolumeSoundMem(m_seVolumes[key], m_sounds[key]);
 	}
 	//3重再生用スロットの初期化(連打されやすい攻撃音を割り当てる)
-	for (int i = 0; i < 3; ++i)
+	for (int i = 0; i < kAttackSwordSESlotCount; ++i)
 	{
 		int h = LoadSoundMem("data/Sound/SE/Player/AttackSwordSE.mp3");
 		m_seSlots.push_back({ h });

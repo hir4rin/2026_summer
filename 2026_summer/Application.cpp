@@ -20,6 +20,30 @@ constexpr int kWindowSizeW = 1920;	// デフォルトウィンドウ幅
 constexpr int kWindowSizeH = 1080;	// デフォルトウィンドウ高
 constexpr int kColorBit = 32;	// デフォルトカラービット
 
+constexpr int kEffekseerMaxParticleNum = 8000;//画面に表示する最大パーティクル数
+constexpr float kDefaultEffectScale = 1.0f;//非同期ロードするエフェクトのデフォルトスケール
+constexpr LONGLONG kFrameTimeMicroSec = 16667;//fpsを60に固定するための1フレームの時間(マイクロ秒)
+
+constexpr int kSubWindowX = 1300;//サブウィンドウの表示位置X
+constexpr int kSubWindowY = 0;//サブウィンドウの表示位置Y
+constexpr int kSubWindowW = 600;//サブウィンドウの幅
+constexpr int kSubWindowH = 400;//サブウィンドウの高さ
+
+const char* const kGagagagaFontFilePath = "data/Font/GAGAGAGA-FREE.otf";//フォントのファイルパス
+const char* const kGagagagaFontName = "GAGAGAGA FREE";//kGagagagaFontFilePathのフォント内部の名前(AddFontResourceExで登録した後、この名前で参照する)
+
+const char* const kYdwGagagagaFontFilePath = "data/Font/YDWgagagaga.otf";//フォントのファイルパス
+const char* const kYdwGagagagaFontName = "YDW GAGAGAGA FUTOI";//kYdwGagagagaFontFilePathのフォント内部の名前(AddFontResourceExで登録した後、この名前で参照する)
+
+const char* const kTamanegiFontFilePath = "data/Font/玉ねぎ楷書激無料版v7改.ttf";//フォントのファイルパス
+const char* const kTamanegiFontName = "Tamanegi Kaisho Geki FreeVer 7";//kTamanegiFontFilePathのフォント内部の名前(AddFontResourceExで登録した後、この名前で参照する)
+
+const char* const kCorporateMinchoFontFilePath = "data/Font/Corporate-Mincho-ver3.otf";//フォントのファイルパス
+const char* const kCorporateMinchoFontName = "コーポレート明朝 ver3 Medium";//kCorporateMinchoFontFilePathのフォント内部の名前(AddFontResourceExで登録した後、この名前で参照する)
+
+constexpr int kUIFontSize = 32;//UIフォントのサイズ
+constexpr int kUIFontThick = 4;//UIフォントの太さ
+
 Application::Application() :
 	m_windowSize{ kWindowSizeW,kWindowSizeH }
 {
@@ -56,7 +80,7 @@ bool Application::Init()
 	}
 	// Effekseerを初期化する。
 	// 引数には画面に表示する最大パーティクル数を設定する。
-	if (Effekseer_Init(8000) == -1)
+	if (Effekseer_Init(kEffekseerMaxParticleNum) == -1)
 	{
 		DxLib_End();
 		return -1;
@@ -68,6 +92,24 @@ bool Application::Init()
 	// DX11使用時、Effekseerのガンマカラーをリニア空間で維持するよう設定する
 	// これがないとテクスチャが白飛びして見える
 	//GetEffekseer3DRenderer()->SetMaintainGammaColorInLinearColorSpace(true);
+
+	//PlayerHUD・リザルト画面用のフォントを読み込む
+	//AddFontResourceExはOSにインストールせず、このプロセスだけで使えるようにフォントファイルを登録する(FR_PRIVATE)
+	AddFontResourceEx(kGagagagaFontFilePath, FR_PRIVATE, NULL);
+	int gagagagaFontHandle = CreateFontToHandle(kGagagagaFontName, kUIFontSize, kUIFontThick, DX_FONTTYPE_ANTIALIASING_EDGE);
+	System::GetInstance().SetGagagagaFontHandle(gagagagaFontHandle);
+
+	AddFontResourceEx(kYdwGagagagaFontFilePath, FR_PRIVATE, NULL);
+	int ydwGagagagaFontHandle = CreateFontToHandle(kYdwGagagagaFontName, kUIFontSize, kUIFontThick, DX_FONTTYPE_ANTIALIASING_EDGE);
+	System::GetInstance().SetYdwGagagagaFontHandle(ydwGagagagaFontHandle);
+
+	AddFontResourceEx(kTamanegiFontFilePath, FR_PRIVATE, NULL);
+	int tamanegiFontHandle = CreateFontToHandle(kTamanegiFontName, kUIFontSize, kUIFontThick, DX_FONTTYPE_ANTIALIASING_EDGE);
+	System::GetInstance().SetTamanegiFontHandle(tamanegiFontHandle);
+
+	AddFontResourceEx(kCorporateMinchoFontFilePath, FR_PRIVATE, NULL);
+	int corporateMinchoFontHandle = CreateFontToHandle(kCorporateMinchoFontName, kUIFontSize, kUIFontThick, DX_FONTTYPE_ANTIALIASING_EDGE);
+	System::GetInstance().SetCorporateMinchoFontHandle(corporateMinchoFontHandle);
 
 	//データの読み込み
 	DataManager::GetInstance().LoadAll();
@@ -171,7 +213,7 @@ void Application::Run()
 		}
 
 		//fpsを60に固定
-		while (GetNowHiPerformanceCount() - time < 16667)
+		while (GetNowHiPerformanceCount() - time < kFrameTimeMicroSec)
 		{
 
 		}
@@ -182,6 +224,19 @@ void Application::Terminate()
 {
 	//非同期ロードのハンドルを削除する
 	System::GetInstance().SetTerminate();
+
+	//Init()で読み込んだUIフォントを解放する
+	DeleteFontToHandle(System::GetInstance().GetGagagagaFontHandle());
+	RemoveFontResourceEx(kGagagagaFontFilePath, FR_PRIVATE, NULL);
+
+	DeleteFontToHandle(System::GetInstance().GetYdwGagagagaFontHandle());
+	RemoveFontResourceEx(kYdwGagagagaFontFilePath, FR_PRIVATE, NULL);
+
+	DeleteFontToHandle(System::GetInstance().GetTamanegiFontHandle());
+	RemoveFontResourceEx(kTamanegiFontFilePath, FR_PRIVATE, NULL);
+
+	DeleteFontToHandle(System::GetInstance().GetCorporateMinchoFontHandle());
+	RemoveFontResourceEx(kCorporateMinchoFontFilePath, FR_PRIVATE, NULL);
 
 #ifdef _DEBUG
 	//Init()で確保したImGuiのリソースを解放する(DxLib_End()より前に呼ぶ)
@@ -205,11 +260,38 @@ void Application::RequestExit()
 	m_requestedExit = true;
 }
 
+void Application::SetFullScreen(bool fullScreen)
+{
+	if (m_isFullScreen == fullScreen)return;
+	m_isFullScreen = fullScreen;
+
+	if (fullScreen)
+	{
+		//デスクトップのネイティブ解像度を取得して、その解像度でフルスクリーンにする
+		int width = GetSystemMetrics(SM_CXSCREEN);
+		int height = GetSystemMetrics(SM_CYSCREEN);
+		ChangeWindowMode(FALSE);
+		SetGraphMode(width, height, Game::kColorBitNum);
+		Game::SetScreenSize(width, height);
+	}
+	else
+	{
+		ChangeWindowMode(TRUE);
+		SetGraphMode(Game::kScreenWidth, Game::kScreenHeight, Game::kColorBitNum);
+		Game::SetScreenSize(Game::kScreenWidth, Game::kScreenHeight);
+	}
+}
+
+bool Application::IsFullScreen() const
+{
+	return m_isFullScreen;
+}
+
 void Application::CreateSubWindow(HINSTANCE hInstance)
 {
 	//サブウィンドウの作成//引数で位置とサイズを指定できるようにする
 #ifdef _DEBUG
-	SubWindow::Create(hInstance, 1300, 0, 600, 400);
+	SubWindow::Create(hInstance, kSubWindowX, kSubWindowY, kSubWindowW, kSubWindowH);
 #endif
 }
 

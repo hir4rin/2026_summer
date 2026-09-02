@@ -34,6 +34,15 @@ namespace
 	constexpr float kAttackColActivateRate = 0.5f;//攻撃モーション:攻撃判定を有効にするrateの上限
 	constexpr float kAttackMoveSpeed1 = 10.0f;//攻撃モーション前半の移動速度
 	constexpr float kAttackMoveSpeed2 = 16.0f;//攻撃モーション後半の移動速度
+
+	const Vector3 kEnemyModelScale = Vector3(2.0f, 2.0f, 2.0f);//モデルの拡大率
+
+	constexpr float kStunStackMax = 100.0f;//スタン状態に移行するスタック値の上限
+	constexpr float kLastHitEventTimeScale = 0.05f;//ラストヒットイベント開始時のタイムスケール
+	constexpr float kDeathHitTimeScale = 0.1f;//死亡ヒット時に一時的に遅くするタイムスケール
+	constexpr int kDeathHitSlowFrames = 120;//死亡ヒット時にタイムスケールを遅くするフレーム数
+
+	constexpr float kRotLerpRate = 0.1f;//回転角度を少しずつ目標の角度に近づけるレート//ほぼlerp
 }
 
 BossEnemy::BossEnemy(std::weak_ptr<Player> player, Vector3 pos, int modelHandle) : EnemyBase(player)
@@ -53,7 +62,7 @@ BossEnemy::BossEnemy(std::weak_ptr<Player> player, Vector3 pos, int modelHandle)
 	//MATRIX scale = MGetScale(VGet(2.0f, 2.0f, 2.0f));
 	Matrix4x4 mtx = trans * rotY;
 	MV1SetMatrix(m_modelHandle, Matrix4x4::ToDxLibMatrix(mtx));
-	MV1SetScale(m_modelHandle, VGet(2.0f, 2.0f, 2.0f));
+	MV1SetScale(m_modelHandle, kEnemyModelScale.ToDxLibVector());
 	m_anim.Init(m_modelHandle, kIdle, true);
 
 	m_hitEfHandle = System::GetInstance().GetHandle(AsyncData::EnemyHitEffect);
@@ -205,7 +214,7 @@ void BossEnemy::OnDamage(Collider& other, AttackData& data)
 	//Playerの攻撃データをもとに被ダメ処理をする
 	m_hp -= static_cast<int>(data.attackPower);
 	m_stunStack += static_cast<int>(data.attackPower);
-	if (m_stunStack >= 100.0f)
+	if (m_stunStack >= kStunStackMax)
 	{
 		//スタン状態に移行
 	}
@@ -237,8 +246,8 @@ void BossEnemy::OnDamage(Collider& other, AttackData& data)
 			
 				if (!System::GetInstance().GetIsLastHitEventPlaying())
 				{
-					System::GetInstance().SetTimeScale(0.05f);
-				
+					System::GetInstance().SetTimeScale(kLastHitEventTimeScale);
+
 					//イベントを発火させる
 					System::GetInstance().SetIsLastHitEventPlaying(true);
 					ChangeState(std::make_shared<BossStateDead>(GetWeakPtr()));
@@ -247,7 +256,7 @@ void BossEnemy::OnDamage(Collider& other, AttackData& data)
 				//実行中の時
 				else
 				{
-					System::GetInstance().SetTimeScaleForFrames(0.1f, 120);//時間を遅くする//60フレームで元に戻す
+					System::GetInstance().SetTimeScaleForFrames(kDeathHitTimeScale, kDeathHitSlowFrames);//時間を遅くする//60フレームで元に戻す
 					//モデルのテクスチャを黒一色にする
 					SetTextureBlack();
 				}
@@ -396,7 +405,7 @@ void BossEnemy::ApplyPos()
 		while (difference > DX_PI_F) difference -= 2.0f * DX_PI_F;
 		while (difference < -DX_PI_F) difference += 2.0f * DX_PI_F;
 		//targetAngle + DX_PI_F
-		m_rotAngleY += difference * 0.1f;//回転角度を少しずつ目標の角度に近づける//ほぼlerp
+		m_rotAngleY += difference * kRotLerpRate;//回転角度を少しずつ目標の角度に近づける//ほぼlerp
 	}
 	//モデルは、座標の位置のcenter分下で表示
 
@@ -404,7 +413,7 @@ void BossEnemy::ApplyPos()
 	MATRIX transmat = MGetTranslate(m_pos.ToDxLibVector());
 	Matrix4x4 trans = Matrix4x4::FromDxLibMatrix(transmat);
 
-	MATRIX scale = MGetScale(Vector3(2.0f,2.0f,2.0f).ToDxLibVector());
+	MATRIX scale = MGetScale(kEnemyModelScale.ToDxLibVector());
 	Matrix4x4 scalemat = Matrix4x4::FromDxLibMatrix(scale);
 
 	Matrix4x4 mtx = trans * rotY * scalemat;

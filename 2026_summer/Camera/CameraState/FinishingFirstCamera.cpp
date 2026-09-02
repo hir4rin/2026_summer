@@ -11,6 +11,8 @@ namespace
 	const Vector3 kGoalPos = Vector3(317.0f, 230.049f, 7290.884f);
 	const Vector3 kGoalTarget = Vector3(319.362f, 196.337f, 6922.121f);
 
+	constexpr float kCameraNear = 0.0f;//ニアクリップ
+	constexpr float kCameraFar = 2500.0f;//ファークリップ
 }
 
 FinishingFirstCamera::FinishingFirstCamera(std::weak_ptr<CameraManager> owner) :CameraStateBase(owner)
@@ -33,7 +35,7 @@ void FinishingFirstCamera::Enter(CameraData data)
 	m_goalTarget = kGoalTarget;
 
 	//ニアファーの調整
-	SetCameraNearFar(0.0f, 2500.0f);
+	SetCameraNearFar(kCameraNear, kCameraFar);
 }
 
 void FinishingFirstCamera::Update()

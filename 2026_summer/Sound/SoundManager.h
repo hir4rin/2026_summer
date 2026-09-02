@@ -2,6 +2,14 @@
 #include <string>
 #include <unordered_map>
 
+namespace
+{
+	//マスター音量の初期値(255が最大)
+	constexpr int kDebugBgmMasterVolumeDefault = 80;
+	constexpr int kDebugSEMasterVolumeDefault = 100;
+	constexpr int kBgmMasterVolumeDefault = 90;
+	constexpr int kSEMasterVolumeDefault = 100;
+}
 
 struct SeSlot
 {
@@ -35,11 +43,11 @@ private:
 	std::unordered_map<std::string, int>m_seVolumes;//名前と音量を紐づける
 	//内部的なもの
 #ifdef _DEBUG
-	int m_masterVolume = 80;//255が最大
-	int m_masterVolume2 = 100;//255が最大
+	int m_masterVolume = kDebugBgmMasterVolumeDefault;//255が最大
+	int m_masterVolume2 = kDebugSEMasterVolumeDefault;//255が最大
 #else
-	int m_masterVolume = 90;//255が最大
-	int m_masterVolume2 = 100;//255が最大
+	int m_masterVolume = kBgmMasterVolumeDefault;//255が最大
+	int m_masterVolume2 = kSEMasterVolumeDefault;//255が最大
 #endif
 	//見た目用
 	int m_currentBgm = -1;

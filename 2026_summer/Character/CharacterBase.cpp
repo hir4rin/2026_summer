@@ -4,6 +4,11 @@
 #include "../System.h"
 #include "../Managers/CollisionManager.h"
 
+namespace
+{
+	constexpr float kRotationLerpRate = 0.1f;//モデルの向きを目標角度に近づける速さ//ほぼlerp
+}
+
 CharacterBase::CharacterBase()
 {
 
@@ -57,7 +62,7 @@ void CharacterBase::UpdateAngleAndPos()
 		while (difference > DX_PI_F) difference -= 2.0f * DX_PI_F;
 		while (difference < -DX_PI_F) difference += 2.0f * DX_PI_F;
 		//targetAngle + DX_PI_F
-		m_rotAngleY += difference * 0.1f;//回転角度を少しずつ目標の角度に近づける//ほぼlerp
+		m_rotAngleY += difference * kRotationLerpRate;//回転角度を少しずつ目標の角度に近づける//ほぼlerp
 	}
 	//モデルは、座標の位置のcenter分下で表示
 

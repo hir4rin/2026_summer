@@ -1,6 +1,12 @@
 ﻿#include "PlayerStateResultMove.h"
 #include "Player.h"
 
+namespace
+{
+	constexpr float kResultMoveAnimSpeed = 0.7f;//リザルト演出時のアニメーション再生速度
+	constexpr float kResultMoveStopRate = 0.6f;//アニメーションを止める進行率
+}
+
 PlayerStateResultMove::PlayerStateResultMove(std::weak_ptr<Player> player):
 	PlayerState(player)
 {
@@ -17,7 +23,7 @@ void PlayerStateResultMove::Enter()
 	auto player = m_owner.lock();
 	if (!player) return;
 	//アニメーションを流す
-	player->m_anim.ChangeAnim("Player|AirAttack3", false, 0.7f);
+	player->m_anim.ChangeAnim("Player|AirAttack3", false, kResultMoveAnimSpeed);
 
 }
 
@@ -27,7 +33,7 @@ void PlayerStateResultMove::Update()
 	if (!player) return;
 
 	//アニメーションが5割を超えたらアニメーションを止める
-	if (player->m_anim.GetAnimRate() > 0.6f)
+	if (player->m_anim.GetAnimRate() > kResultMoveStopRate)
 	{
 		//player->m_anim.
 	}

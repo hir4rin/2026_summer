@@ -26,6 +26,16 @@ namespace
 	constexpr float kRockOnMaxDistance = 10000.0f;//ロックオンの最大距離
 
 	constexpr float kGroundCheckDistance = 800.0f;//プレイヤーの最高到達点//カメラのターゲットの割合注視点
+
+	constexpr float kToPlayerLengthScale = 0.5f;//プレイヤーからカメラまでの距離にかける倍率
+	constexpr float kCameraLerpFactor = 0.5f;//カメラの位置・注視点のラープ係数
+	constexpr float kGroundCheckRayStartHeight = 250.0f;//地面判定のレイを飛ばす開始位置の高さ
+
+	constexpr float kAngleFullTurn = DX_PI_F * 2.0f;//水平角度の一周分
+	constexpr float kVerticalAngleSpeedDivisor = 3.0f;//垂直方向の回転速度にかける除数
+	constexpr float kAngleVUpperMultiplier = 0.5f;//垂直角度上限の倍率
+	constexpr float kAngleVLowerMultiplier = 0.4f;//垂直角度下限の倍率
+	constexpr float kAngleVLimitOffset = 0.6f;//垂直角度上下限のオフセット
 }
 
 PlayerFollowCamera::PlayerFollowCamera(std::weak_ptr<CameraManager> owner):CameraStateBase(owner)
@@ -90,7 +100,7 @@ void PlayerFollowCamera::Update()
 	if (stage)
 	{
 		//ちょっと上から判定
-		Vector3 startPos = playerPos + Vector3(0, 250, 0);
+		Vector3 startPos = playerPos + Vector3(0, kGroundCheckRayStartHeight, 0);
 		//stage地面とプレイヤーの距離を取得する
 		auto hitPoly = MV1CollCheck_Line(stage->GetStageModelHandle(), -1, startPos.ToDxLibVector(), endPos.ToDxLibVector());
 		if (hitPoly.HitFlag)
@@ -116,7 +126,7 @@ void PlayerFollowCamera::Update()
 
 	//playerPos.y = 0.0f;//プレイヤーのy座標は0にする
 	m_goalTarget = playerPos + kCameraHeight;
-	m_target = Vector3::Lerp(m_target, m_goalTarget, 0.5f);
+	m_target = Vector3::Lerp(m_target, m_goalTarget, kCameraLerpFactor);
 
 	//カメラの位置を調整する
 	FixCameraPos();
@@ -143,8 +153,8 @@ void PlayerFollowCamera::Update()
 		if(System::GetInstance().GetIsEventPlaying())System::GetInstance().SetIsEventPlaying(false);
 
 		//通常時:今まで通りの追従Lerp(ジャンプなどの滑らかな追従はここで維持)
-		m_pos = Vector3::Lerp(m_pos, m_goalPos, 0.5f);
-		m_target = Vector3::Lerp(m_target, m_goalTarget, 0.5f);
+		m_pos = Vector3::Lerp(m_pos, m_goalPos, kCameraLerpFactor);
+		m_target = Vector3::Lerp(m_target, m_goalTarget, kCameraLerpFactor);
 	}
 
 
@@ -169,7 +179,7 @@ void PlayerFollowCamera::FixCameraPos()
 	auto rotX = Matrix4x4::MakeRotationX(m_angleV);
 
 	//本当はこの回転行列はベクトルの量、角度が固定なのでOKだが、変わると回転量が変わるので危ないあぶない
-	float cameraToPlayerLength = kToPlayerLength * 0.5f;
+	float cameraToPlayerLength = kToPlayerLength * kToPlayerLengthScale;
 
 	//カメラの座標を算出
 	auto CtoP = Vector3(0.0f, 0.0f, -cameraToPlayerLength);//プレイヤーからカメラへのベクトル
@@ -217,36 +227,36 @@ void PlayerFollowCamera::InputRightStick()
 		if (rx > 0)//右に傾いている
 		{
 			m_angleH += kCameraAngleSpeed;
-			if (m_angleH > DX_PI_F * 2.0f)
+			if (m_angleH > kAngleFullTurn)
 			{
-				m_angleH -= DX_PI_F * 2.0f;
+				m_angleH -= kAngleFullTurn;
 			}
 		}
 		else if (rx < 0)//左に傾いている
 		{
 			m_angleH -= kCameraAngleSpeed;
-			if (m_angleH < -DX_PI_F * 2.0f)
+			if (m_angleH < -kAngleFullTurn)
 			{
-				m_angleH += DX_PI_F * 2.0f;
+				m_angleH += kAngleFullTurn;
 			}
 		}
 		if (ry < 0)//下に傾いている
 		{
-			m_angleV += kCameraAngleSpeed * 1 / 3;
+			m_angleV += kCameraAngleSpeed * 1 / kVerticalAngleSpeedDivisor;
 			// ある一定角度以上にはならないようにする
-			if (m_angleV > DX_PI_F * 0.5f - 0.6f)
+			if (m_angleV > DX_PI_F * kAngleVUpperMultiplier - kAngleVLimitOffset)
 			{
-				m_angleV = DX_PI_F * 0.5f - 0.6f;
+				m_angleV = DX_PI_F * kAngleVUpperMultiplier - kAngleVLimitOffset;
 			}
 
 		}
 		else if (ry > 0)//上に傾いている
 		{
-			m_angleV -= kCameraAngleSpeed * 1 / 3;
+			m_angleV -= kCameraAngleSpeed * 1 / kVerticalAngleSpeedDivisor;
 			// ある一定角度以下にはならないようにする
-			if (m_angleV < -DX_PI_F * 0.4f + 0.6f)
+			if (m_angleV < -DX_PI_F * kAngleVLowerMultiplier + kAngleVLimitOffset)
 			{
-				m_angleV = -DX_PI_F * 0.4f + 0.6f;
+				m_angleV = -DX_PI_F * kAngleVLowerMultiplier + kAngleVLimitOffset;
 			}
 
 		}

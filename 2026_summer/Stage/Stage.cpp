@@ -8,6 +8,9 @@ namespace
 	constexpr float kStageColOffsetY = 20.0f;
 
 	const Vector3 kTitleStagePos = Vector3(27, -345.3f, -99);
+
+	const Vector3 kTitleStageGraphicPos = Vector3(4800, -890, 0);//タイトルステージの描画位置オフセット
+	constexpr float kTitleStageScale = 0.5f;//タイトルステージの描画スケール
 }
 
 
@@ -25,12 +28,12 @@ void Stage::TitleInit()
 	//モデルを別のもの
 	m_stageViewHandle = MV1DuplicateModel(System::GetInstance().GetHandle(AsyncData::TitleStageModel));
 	m_pos = Vector3(0, 0, 0);
-	m_pos_graphic = Vector3(4800, -890, 0);
+	m_pos_graphic = kTitleStageGraphicPos;
 
 	MATRIX transmat_graphic = MGetTranslate(m_pos_graphic.ToDxLibVector());
 
 	MV1SetMatrix(m_stageViewHandle, transmat_graphic);
-	MV1SetScale(m_stageViewHandle, VGet(0.5f, 0.5f, 0.5f));
+	MV1SetScale(m_stageViewHandle, VGet(kTitleStageScale, kTitleStageScale, kTitleStageScale));
 }
 
 void Stage::GameInit()

@@ -15,6 +15,20 @@ namespace
 	constexpr float kPi = 3.14159265358979323846f;
 	constexpr float kDegToRad = DX_PI_F / 180.0f;//度→ラジアン変換用(sinf/cosfはラジアン単位でしか計算できないため)
 	constexpr float kRadToDeg = 180.0f / DX_PI_F;//ラジアン→度変換用(画面表示は度のほうが人間に分かりやすいため)
+
+	const ImVec2 kCameraDebugItemSpacing = ImVec2(8.0f, 16.0f);//カメラデバッグウィンドウ内の項目間隔(横,縦)
+
+	constexpr float kPosDragSpeed = 1.0f;//座標(Position/Target)のドラッグ感度
+	constexpr float kAngleDragSpeed = 0.5f;//角度(Angle H/V)のドラッグ感度
+	constexpr float kAngleHDegMin = -180.0f;//水平角度の最小値(度)
+	constexpr float kAngleHDegMax = 180.0f;//水平角度の最大値(度)
+	constexpr float kAngleVDegMin = -89.0f;//垂直角度の最小値(度)
+	constexpr float kAngleVDegMax = 89.0f;//垂直角度の最大値(度)
+	constexpr float kDistanceDragSpeed = 1.0f;//距離のドラッグ感度
+	constexpr float kDistanceMin = 10.0f;//注視点までの距離の最小値
+	constexpr float kDistanceMax = 5000.0f;//注視点までの距離の最大値
+
+	constexpr float kMinDistanceEpsilon = 0.0001f;//距離がこれ以下だと0割りに近くなり不安定になるため計算を中断する閾値
 }
 
 //ImGuiを使えるようにする初期化処理。ここで「ImGuiの入れ物を作る」→「入力と描画の係(バックエンド)を登録する」→
@@ -83,7 +97,7 @@ void imguiApp::DrawCameraDebugWindow(const Vector3& currentPos, const Vector3& c
 	if (!m_initialized)return;
 
 	//このBeginからEndの間だけ、項目間の縦の間隔を広げる(x=横の間隔, y=縦の間隔)
-	ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(8.0f, 16.0f));
+	ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, kCameraDebugItemSpacing);
 
 	ImGui::Begin("Camera Debug");//"Camera Debug"という名前のウィンドウを開始する(ここから下がウィンドウの中身)
 
@@ -113,8 +127,8 @@ void imguiApp::DrawCameraDebugWindow(const Vector3& currentPos, const Vector3& c
 	// changed = changed || ImGui::DragFloat3("Target", &m_camTarget.x, 1.0f);
 	//左側がtrueなら右側の関数が呼ばれなくなるー＞から困る
 	//ので、この式にして、trueでもよばれるようにする
-	changed |= ImGui::DragFloat3("Position", &m_camPos.x, 1.0f);
-	changed |= ImGui::DragFloat3("Target", &m_camTarget.x, 1.0f);
+	changed |= ImGui::DragFloat3("Position", &m_camPos.x, kPosDragSpeed);
+	changed |= ImGui::DragFloat3("Target", &m_camTarget.x, kPosDragSpeed);
 	if (changed)
 	{
 		//座標側を直接いじったので、角度・距離の表示もズレないように計算し直す
@@ -125,9 +139,9 @@ void imguiApp::DrawCameraDebugWindow(const Vector3& currentPos, const Vector3& c
 	bool changedByAngle = false;
 	// |= は論理和(OR)を計算して代入する演算子
 	//詳しくは上↑を見ること
-	changedByAngle |= ImGui::DragFloat("Angle H (deg)", &m_angleHDeg, 0.5f, -180.0f, 180.0f);
-	changedByAngle |= ImGui::DragFloat("Angle V (deg)", &m_angleVDeg, 0.5f, -89.0f, 89.0f);
-	changedByAngle |= ImGui::DragFloat("Distance", &m_distance, 1.0f, 10.0f, 5000.0f);
+	changedByAngle |= ImGui::DragFloat("Angle H (deg)", &m_angleHDeg, kAngleDragSpeed, kAngleHDegMin, kAngleHDegMax);
+	changedByAngle |= ImGui::DragFloat("Angle V (deg)", &m_angleVDeg, kAngleDragSpeed, kAngleVDegMin, kAngleVDegMax);
+	changedByAngle |= ImGui::DragFloat("Distance", &m_distance, kDistanceDragSpeed, kDistanceMin, kDistanceMax);
 	if (changedByAngle)
 	{
 		//角度か距離を直接いじったので、座標側もそれに合わせて計算し直す
@@ -160,7 +174,7 @@ void imguiApp::RecalcAngleDistanceFromPos()
 {
 	Vector3 diff = m_camPos - m_camTarget;//注視点から見た、カメラの相対的な位置(ベクトル)
 	m_distance = diff.Magnitude();//そのベクトルの長さ = 注視点までの距離
-	if (m_distance <= 0.0001f)return;//距離がほぼ0だと下の計算で0割りに近くなり不安定になるので中断する
+	if (m_distance <= kMinDistanceEpsilon)return;//距離がほぼ0だと下の計算で0割りに近くなり不安定になるので中断する
 
 	//asinf/atan2fで、ベクトルの向きから角度(ラジアン)を求め、kRadToDegを掛けて度に変換している
 	m_angleVDeg = asinf(std::clamp(diff.y / m_distance, -1.0f, 1.0f)) * kRadToDeg;

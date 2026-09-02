@@ -25,6 +25,13 @@ namespace
 	constexpr float kRaticleMaxDistance = 5000.0f;//これ以上の距離ではレティクルを最小サイズにする
 	constexpr float kRaticleMinScale = 0.05f;//最小サイズ(kRaticleMaxDistance以上離れたとき)
 	constexpr float kRaticleMaxScale = 0.15f;//最大サイズ(kRaticleMinDistance以下に近づいたとき)
+
+	constexpr float kTargetRatioMin = 0.1f;//注視点の割合の最小値
+	constexpr float kTargetRatioMax = 0.5f;//注視点の割合の最大値
+
+	constexpr float kRotateAngle = DX_PI_F / 6;//カメラを回転させる角度
+	constexpr float kCameraPosOffsetY = 160.0f;//カメラ座標のY方向オフセット
+	constexpr float kEnemyScreenPosOffsetY = 100.0f;//敵のスクリーン座標変換時のY方向オフセット
 }
 
 LockOnCameraState::LockOnCameraState(std::weak_ptr<CameraManager> owner) : CameraStateBase(owner)
@@ -104,7 +111,7 @@ void LockOnCameraState::Update()
 	float dis = (enemyPos - playerPos).Magnitude();
 	//割合を決める
 	float ratio = (dis - kRatioCheckDistance) / kRatioCheckDistance;
-	ratio = std::clamp(ratio, 0.1f, 0.5f);
+	ratio = std::clamp(ratio, kTargetRatioMin, kTargetRatioMax);
 	targetPos = playerPos + (enemyPos - playerPos) * ratio;
 
 	auto stage = m_stage.lock();
@@ -167,7 +174,7 @@ void LockOnCameraState::Draw()
 	if (!enemy)return;
 
 	//敵の座標をスクリーン座標に変換する
-	Vector3 enemyPos = enemy->GetPos() + Vector3(0.0f, 100.0f, 0.0f);
+	Vector3 enemyPos = enemy->GetPos() + Vector3(0.0f, kEnemyScreenPosOffsetY, 0.0f);
 	VECTOR enemyPos2D = ConvWorldPosToScreenPos(enemyPos.ToDxLibVector());
 
 	//カメラの前方(画面内)にいるときだけ描画する
@@ -221,15 +228,15 @@ void LockOnCameraState::FixCameraPos()
 	if (dot >= 0.0f)
 	{
 		//正の時、rotateBaseの方向に回転させる
-		rotY = Matrix4x4::MakeRotationY(-DX_PI_F / 6);
+		rotY = Matrix4x4::MakeRotationY(-kRotateAngle);
 	}
 	else
 	{
 		//負の時、rotateBaseの逆方向に回転させる
-		rotY = Matrix4x4::MakeRotationY(DX_PI_F / 6);
+		rotY = Matrix4x4::MakeRotationY(kRotateAngle);
 	}
 	//やり方がわからないので、一旦これで
-	rotY = Matrix4x4::MakeRotationY(DX_PI_F / 6);
+	rotY = Matrix4x4::MakeRotationY(kRotateAngle);
 
 	//auto CtoP = Vector3(0.0f, 0.0f, -cameraToPlayerLength);//プレイヤーからカメラへのベクトル
 
@@ -243,7 +250,7 @@ void LockOnCameraState::FixCameraPos()
 	//カメラからプレイヤーVec
 	auto RotPtoC = VTransform(EtoPVecDx, rotYMat);//回転させる
 	//RotPtoC = VTransform(RotPtoC, rotXMat);//回転させる
-	RotPtoC = VAdd(RotPtoC, VGet(0.0f, 160.0f, 0.0f));
+	RotPtoC = VAdd(RotPtoC, VGet(0.0f, kCameraPosOffsetY, 0.0f));
 
 	//水平方向はその向き、垂直は初期化で角度を更新し、プレイヤーカメラに渡す
 	//atan2f(cross,dot)で二つのベクトルの角度が出る//理解済み

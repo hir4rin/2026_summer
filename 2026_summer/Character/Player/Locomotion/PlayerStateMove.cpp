@@ -5,7 +5,10 @@
 #include "../../../Game.h"
 #include "../../../System.h"
 
-
+namespace
+{
+	constexpr float kTitleModeWalkAnimSpeed = 1.15f;//タイトル画面での歩きアニメーションの再生速度
+}
 
 PlayerStateMove::PlayerStateMove(std::weak_ptr<Player> player):
 	PlayerState(player)
@@ -25,7 +28,7 @@ void PlayerStateMove::Enter()
 	//animationの初期化
 	if (player->m_isTitleMode)
 	{
-		player->m_anim.ChangeAnimWithModelHandle(player->m_modelHandle, player->GetAnimName("Walk"), true, 1.15f);
+		player->m_anim.ChangeAnimWithModelHandle(player->m_modelHandle, player->GetAnimName("Walk"), true, kTitleModeWalkAnimSpeed);
 	}
 	else
 	{

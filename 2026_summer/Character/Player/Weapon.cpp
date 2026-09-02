@@ -5,6 +5,15 @@
 #include "../Math/Matrix4x4.h"
 #include "../System.h"
 
+namespace
+{
+	constexpr float kWeaponOffsetX = 45.0f;//武器のX軸方向のオフセット
+	constexpr float kWeaponScale = 0.3f;//武器モデルのスケール
+
+	constexpr float kTitleWeaponOffsetY = 50.0f;//タイトル演出時の武器のY軸方向のオフセット
+	constexpr float kTitleWeaponZ = -5000.0f;//タイトル演出時の武器のZ座標
+}
+
 Weapon::Weapon(std::weak_ptr<Player> owner)
 	: m_owner(owner)
 {
@@ -52,12 +61,12 @@ void Weapon::Update()
 	rotmat = MMult(rotXmat, rotmat);//回転行列を掛ける//90度回転させる
 
 	//下方向に移動
-	MATRIX transmat = MGetTranslate(VGet(45.0f, 0.0f, 0.0f));//移動行列を作成する//下方向に移動
+	MATRIX transmat = MGetTranslate(VGet(kWeaponOffsetX, 0.0f, 0.0f));//移動行列を作成する//下方向に移動
 	rotmat = MMult(transmat, rotmat);//移動行列を掛ける//下方向に移動
 	mat = MMult(rotmat, mat);//回転行列を掛ける//90度回転させる
 
 
-	MATRIX scale = MGetScale(VGet(0.3f, 0.3f, 0.3f));//スケーリング行列を作成する//モデルの大きさを半分にする
+	MATRIX scale = MGetScale(VGet(kWeaponScale, kWeaponScale, kWeaponScale));//スケーリング行列を作成する//モデルの大きさを半分にする
 
 	mat = MMult(scale, mat);//スケーリング行列を掛ける//モデルの大きさを半分にする
 
@@ -86,12 +95,12 @@ void Weapon::TitleUpdate()
 	rotmat = MMult(rotXmat, rotmat);//回転行列を掛ける//90度回転させる
 	rotmat = MMult(rotZmat, rotmat);//回転行列を掛ける//90度回転させる
 	//下方向に移動
-	MATRIX transmat = MGetTranslate(VGet(0.0f, 50.0f, -5000.0f));//移動行列を作成する//下方向に移動
+	MATRIX transmat = MGetTranslate(VGet(0.0f, kTitleWeaponOffsetY, kTitleWeaponZ));//移動行列を作成する//下方向に移動
 	rotmat = MMult(rotmat, transmat);//移動行列を掛ける//下方向に移動
 	mat = MMult(rotmat, mat);//回転行列を掛ける//90度回転させる
 
 
-	MATRIX scale = MGetScale(VGet(0.3f, 0.3f, 0.3f));//スケーリング行列を作成する//モデルの大きさを半分にする
+	MATRIX scale = MGetScale(VGet(kWeaponScale, kWeaponScale, kWeaponScale));//スケーリング行列を作成する//モデルの大きさを半分にする
 
 	mat = MMult(scale, mat);//スケーリング行列を掛ける//モデルの大きさを半分にする
 
@@ -110,7 +119,7 @@ void Weapon::Draw()
 	//タイトル時
 	if (player->m_isTitleMode)
 	{
-		if (player->GetPos().z <= -5000.0f)
+		if (player->GetPos().z <= kTitleWeaponZ)
 		{
 			MV1DrawModel(m_modelHandle);
 		}
@@ -131,7 +140,7 @@ void Weapon::TitleDraw()
 	auto player = m_owner.lock();
 	if (!player)return;
 
-	if (player->GetPos().z >= -5000.0f)
+	if (player->GetPos().z >= kTitleWeaponZ)
 	{
 		MV1DrawModel(m_modelHandle);
 	}

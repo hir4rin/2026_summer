@@ -3,6 +3,12 @@
 #include "System.h"
 #include <algorithm>
 
+namespace
+{
+	constexpr int kRightStickDeadZone = 8000;//スティックの傾きがこの値以下の場合は、傾いていないとみなす
+	constexpr float kRightStickMaxValue = 32767.0f;//右スティックの入力値の最大値(-1.0〜1.0の割合に変換するのに使う)
+}
+
 Input::Input()
 {
 
@@ -196,14 +202,13 @@ void Input::InputRightStick()
 	short rawY = m_xi.ThumbRY;
 
 	//デッドゾーンの設定
-	const int DeadZone = 8000;//スティックの傾きがこの値以下の場合は、傾いていないとみなす
-	if (abs(rawX) < DeadZone)rawX = 0;
-	if (abs(rawY) < DeadZone)rawY = 0;
+	if (abs(rawX) < kRightStickDeadZone)rawX = 0;
+	if (abs(rawY) < kRightStickDeadZone)rawY = 0;
 
 
 	//-1.0から1.0の範囲の割合に変える
-	x = rawX / 32767.0f;
-	y = rawY / 32767.0f;
+	x = rawX / kRightStickMaxValue;
+	y = rawY / kRightStickMaxValue;
 	x = std::clamp(x, -1.0f, 1.0f);
 	y = std::clamp(y, -1.0f, 1.0f);
 

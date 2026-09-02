@@ -10,6 +10,7 @@ namespace
 {
 
 	constexpr float kJumpInitVel = 20.0f;//ジャンプの初速//この数値を変えることで、ジャンプの高さを調整できる
+	constexpr float kJumpMoveSpeedMultiplier = 0.5f;//ジャンプ中の移動速度倍率(通常の0.5倍)
 }
 
 
@@ -134,7 +135,7 @@ void PlayerStateJump::Move(Input& input)
 	{
 		dimention += player->left;
 	}
-	dimention = dimention.Normalize() * Game::kMoveSpeed * 0.5f;//移動速度は通常の0.5倍
+	dimention = dimention.Normalize() * Game::kMoveSpeed * kJumpMoveSpeedMultiplier;//移動速度は通常の0.5倍
 	Vector3 velY = Vector3(0, player->m_vel.y, 0);//y成分だけを取り出す
 	player->m_vel = m_baseVel + dimention + velY;
 	//速度制限

@@ -2,6 +2,12 @@
 #include "Player.h"
 #include "../../Game.h"
 
+namespace
+{
+	constexpr float kCautionMoveSpeedRate = 0.5f;//警戒移動時の速度倍率
+	constexpr float kCautionBackVecRate = 0.2f;//半径を維持するためのベクトルの倍率
+}
+
 EnemyBase::EnemyBase(std::weak_ptr<Player> player)
 	: m_player(player)
 {
@@ -86,12 +92,12 @@ void EnemyBase::CautionMove(Vector3 target,float distance)
 	toEnemy.y = 0.0f;
 	//接線の求め方はベクトルを90度回転させるので成分を入れ替えて、xを符号反転　
 	Vector3 tangentLine = Vector3(-toEnemy.z, 0.0f, toEnemy.x).Normalize();
-	m_vel = tangentLine * Game::kEnemyMoveSpeed * 0.5f;
+	m_vel = tangentLine * Game::kEnemyMoveSpeed * kCautionMoveSpeedRate;
 	//半径を維持するために後ろ側にもベクトルを加える
 	float dist = toEnemy.Magnitude();
 	if (dist < distance)
 	{
-		Vector3 backVec = toEnemy.Normalize() * (distance - dist) * 0.2f;//半径を維持するためのベクトル//
+		Vector3 backVec = toEnemy.Normalize() * (distance - dist) * kCautionBackVecRate;//半径を維持するためのベクトル//
 		m_vel += backVec;
 	}
 }

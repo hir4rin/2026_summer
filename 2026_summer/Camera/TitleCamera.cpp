@@ -26,6 +26,13 @@ namespace
 	constexpr float kTargetMoveDisX = 1300.0f;
 	constexpr float kTargetMoveDisY = 1050.0f;
 	constexpr float kTargetMoveDisZ = 1000.0f;
+
+	constexpr float kCameraViewAngle = DX_PI_F / 3.0f;//カメラの視野角
+	constexpr float kCameraNear = 0.0f;//ニアクリップ
+	constexpr float kCameraFar = 1500.0f;//ファークリップ
+
+	constexpr float kFixedShotDepth = 5050.0f;//定点カット(Fixed)のZ座標の深さ
+	constexpr float kOpeningLerpFactor = 0.8f;//オープニング演出のカメラ位置ラープ係数
 }
 
 TitleCamera::TitleCamera()
@@ -44,8 +51,8 @@ void TitleCamera::Init()
 {
 	//カメラの設定
 	SetCameraPositionAndTarget_UpVecY(m_pos.ToDxLibVector(), m_target.ToDxLibVector());
-	SetupCamera_Perspective(DX_PI_F / 3.0f);
-	SetCameraNearFar(0.0f, 1500.0f);
+	SetupCamera_Perspective(kCameraViewAngle);
+	SetCameraNearFar(kCameraNear, kCameraFar);
 }
 
 void TitleCamera::Draw()
@@ -61,8 +68,8 @@ void TitleCamera::Update(Vector3 pos, Vector3 pos2)
 	{
 	case Shot::Fixed:
 		//定点で映すだけなので、座標・注視点は固定で更新の必要はない
-		m_pos = Vector3(-kToOriginLength, kCameraHeight, -5050.0f);
-		m_target = Vector3(0.0f, 100.0f, -5050.0f);//原点を見る
+		m_pos = Vector3(-kToOriginLength, kCameraHeight, -kFixedShotDepth);
+		m_target = Vector3(0.0f, 100.0f, -kFixedShotDepth);//原点を見る
 
 	/*	m_pos = pos + kFollowCameraOffset + Vector3(0,100,-100.0f);
 		m_target = pos + kFollowTargetOffset+Vector3(0,100,0);*/
@@ -94,7 +101,7 @@ void TitleCamera::Update(Vector3 pos, Vector3 pos2)
 	}
 		break;
 	case Shot::Opening:
-		m_pos = Vector3::Lerp(m_pos, pos + kFollowCameraOffset, 0.8f);
+		m_pos = Vector3::Lerp(m_pos, pos + kFollowCameraOffset, kOpeningLerpFactor);
 
 		m_target.x += kTargetMoveDisX / kTargetMoveFrame;
 		m_target.y += kTargetMoveDisY / kTargetMoveFrame;

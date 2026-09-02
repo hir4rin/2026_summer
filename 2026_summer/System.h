@@ -94,6 +94,22 @@ public:
 
 	SoundManager& GetSoundManager() { return m_soundManager; }
 
+	//PlayerHUD・リザルト画面などで使う専用フォントのハンドル(Applicationの初期化時に設定される)
+	//いずれも漢字は含まれていないフォントなので、漢字を含む文字列には使わないこと
+	void SetGagagagaFontHandle(int handle) { m_gagagagaFontHandle = handle; }
+	int GetGagagagaFontHandle() const { return m_gagagagaFontHandle; }
+
+	void SetYdwGagagagaFontHandle(int handle) { m_ydwGagagagaFontHandle = handle; }
+	int GetYdwGagagagaFontHandle() const { return m_ydwGagagagaFontHandle; }
+
+	//漢字も含めて使える専用フォント(ComboHUD等で使用)
+	void SetTamanegiFontHandle(int handle) { m_tamanegiFontHandle = handle; }
+	int GetTamanegiFontHandle() const { return m_tamanegiFontHandle; }
+
+	//漢字も含めて使える専用フォント(ComboHUD等で使用)
+	void SetCorporateMinchoFontHandle(int handle) { m_corporateMinchoFontHandle = handle; }
+	int GetCorporateMinchoFontHandle() const { return m_corporateMinchoFontHandle; }
+
 private:
 	//時間の管理
 	float timeScale = 1.0f;//時間のスケール//1.0fなら通常の時間の流れ//0.5fなら半分の速さ//2.0fなら2倍の速さ
@@ -115,6 +131,11 @@ private:
 
 
 	SoundManager m_soundManager;//サウンドマネージャー//GetSoundManager()経由でPlayBgm等を呼ぶ
+
+	int m_gagagagaFontHandle = -1;//GAGAGAGA-FREE.otfのフォントハンドル
+	int m_ydwGagagagaFontHandle = -1;//YDWgagagaga.otfのフォントハンドル
+	int m_tamanegiFontHandle = -1;//玉ねぎ楷書激無料版v7改.ttfのフォントハンドル
+	int m_corporateMinchoFontHandle = -1;//Corporate-Mincho-ver3.otfのフォントハンドル
 
 };
 

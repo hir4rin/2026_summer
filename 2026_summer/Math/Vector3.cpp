@@ -2,6 +2,11 @@
 #include <cmath>
 #include <algorithm>
 
+namespace
+{
+	constexpr float kSlerpEpsilon = 0.0001f;//Slerpでのゼロ除算を防ぐための許容誤差
+}
+
 Vector3::Vector3() :
 	x(0.0f),
 	y(0.0f),
@@ -105,10 +110,10 @@ Vector3 Vector3::Slerp(const Vector3& start, const Vector3& end, float t)
 	float rad = acos(dot);
 	
 	//ゼロ除算を除く
-	if (rad <= 0.0001f)return start;
+	if (rad <= kSlerpEpsilon)return start;
 	float sinRad = sinf(rad);
 
-	if (fabsf(sinRad) < 0.0001f)
+	if (fabsf(sinRad) < kSlerpEpsilon)
 	{
 		return start;
 	}

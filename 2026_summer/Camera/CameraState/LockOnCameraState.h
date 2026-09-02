@@ -22,13 +22,16 @@ public:
 	{
 		return BlendSetting{
 			.mode = BlendSetting::Mode::Lerp,
-			.duration = 25.0f,
-			.easingPower = 0.3f,
+			.duration = kBlendDuration,
+			.easingPower = kBlendEasingPower,
 			.pivot = Vector3()
 		};
 	}
 
 private:
+	static constexpr float kBlendDuration = 25.0f;//ブレンドにかけるフレーム数
+	static constexpr float kBlendEasingPower = 0.3f;//ブレンドのイージング指数
+
 	std::weak_ptr<EnemyBase> m_lastTargetEnemy;//前フレームでロックオンしていた敵(切り替え検知用)
 	Vector3 m_targetLerpStart;//注視点lerpの開始位置
 	float m_targetLerpElapsed = 0.0f;//注視点lerpの経過フレーム

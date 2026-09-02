@@ -20,6 +20,15 @@ namespace
 	const float kUltDistance = kToPlayerLength / 2.0f;
 	//const float kUltDistance = kToPlayerLength   * 2.0f;
 	constexpr float kRatioCheckDistance = 800.0f;//プレイヤーの最高到達点//カメラのターゲットの割合注視点//XZ軸
+
+	constexpr float kTargetRatioMin = 0.5f;//注視点の割合の最小値
+	constexpr float kTargetRatioMax = 0.6f;//注視点の割合の最大値
+
+	constexpr float kEtoPVecLength = 300.0f;//敵→プレイヤーベクトルの長さ
+	constexpr float kRotateAngle = DX_PI_F / 2.0f;//カメラを回転させる角度
+
+	constexpr float kBlendDuration = 15.0f;//ブレンドにかけるフレーム数
+	constexpr float kBlendEasingPower = 0.5f;//ブレンドのイージング指数
 }
 
 UltCameraState::UltCameraState(std::weak_ptr<CameraManager> owner):CameraStateBase(owner)
@@ -94,7 +103,7 @@ void UltCameraState::Update()
 	float dis = (enemyPos - playerPos).Magnitude();
 	//割合を決める
 	float ratio = (dis - kRatioCheckDistance) / kRatioCheckDistance;
-	ratio = std::clamp(ratio, 0.5f, 0.6f);
+	ratio = std::clamp(ratio, kTargetRatioMin, kTargetRatioMax);
 	m_goalTarget = playerPos + (enemyPos - playerPos) * ratio + kCameraHeight;
 
 	//Blend中はBlendのほうのlerp
@@ -171,7 +180,7 @@ void UltCameraState::FixCameraPos()
 	playerPos.y = enemyPos.y = 0.0f;
 
 	Vector3 EtoPVec = (playerPos - enemyPos).Normalize();
-	EtoPVec *= 300.0f;
+	EtoPVec *= kEtoPVecLength;
 	//EtoPVecを90度回転させたベクトルとMainCtoPVecの内積が正か負かでどちらに回転させるかを決める
 	Vector3 upVec = Vector3(0.0f, 1.0f, 0.0f);
 	Vector3 rotateBase = EtoPVec.Cross(upVec).Normalize();
@@ -180,11 +189,11 @@ void UltCameraState::FixCameraPos()
 	float angle = 0.0f;
 	if (dot >= 0.0f)
 	{
-		angle = -DX_PI_F / 2.0f;
+		angle = -kRotateAngle;
 	}
 	else
 	{
-		angle = DX_PI_F / 2.0f;
+		angle = kRotateAngle;
 	}
 
 	//水平方向の回転//敵との距離によってこの角度を帰る
@@ -225,8 +234,8 @@ BlendSetting UltCameraState::GetBlendSetting() const
 
 	return BlendSetting{
 		.mode = BlendSetting::Mode::Slerp,
-		.duration = 15.0f,
-		.easingPower = 0.5f,
+		.duration = kBlendDuration,
+		.easingPower = kBlendEasingPower,
 		.pivot = (enemy) ? enemy->GetPos() : Vector3()
 	};
 }

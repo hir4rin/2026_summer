@@ -19,7 +19,7 @@ public:
 	{
 		return BlendSetting{
 			.mode = BlendSetting::Mode::None,
-			.duration = 30.0f,
+			.duration = kBlendDuration,
 			.easingPower = 1.0f,
 			.pivot = Vector3()
 		};
@@ -28,12 +28,14 @@ public:
 	{
 		return BlendSetting{
 		.mode = BlendSetting::Mode::None,
-		.duration = 30.0f,
+		.duration = kBlendDuration,
 		.easingPower = 1.0f,
 		.pivot = Vector3()
 
 		};
 	}
 private:
+	static constexpr float kBlendDuration = 30.0f;//ブレンドにかけるフレーム数
+
 	float m_timer = 0.0f;//演出開始からの経過フレーム//一定フレームで元のStateに戻すのに使う
 };

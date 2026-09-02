@@ -6,12 +6,14 @@ namespace
 {
 	constexpr float kMascotCenter = 50.0f;//当たり判定の中心点までのy軸の距離
 	constexpr float kMascotRadius = 40.0f;//当たり判定の半径
+	constexpr float kInitialRotAngleY = 90.0f;//初期の向き(Y軸回転)
+	const Vector3 kKirimomiVel = Vector3(0, 3, -5);//きりもみ状態の速度
 }
 
 Titlemascot::Titlemascot(Vector3 pos)
 {
 	m_pos = pos;
-	m_rotAngleY = 90.0f;
+	m_rotAngleY = kInitialRotAngleY;
 	m_modelHandle = MV1DuplicateModel(System::GetInstance().GetHandle(AsyncData::MascotModel));
 
 
@@ -45,7 +47,7 @@ void Titlemascot::Update()
 
 		break;
 	case State::Kirimomi:
-		m_vel += Vector3(0, 3, -5);
+		m_vel += kKirimomiVel;
 		break;
 	}
 	m_anim.Update();

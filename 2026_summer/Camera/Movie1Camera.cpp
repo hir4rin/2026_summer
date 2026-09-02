@@ -12,6 +12,15 @@ namespace
 	const Vector3 kCameraHeight = Vector3(0.0f, 150.0f, 0.0f);//カメラの高さ(Vector3)
 
 	constexpr float kInvisibleFrame = 50.0f;//ムービーカメラを優先するフレーム数//2秒間はムービーカメラを優先するようにするためのもの//60fpsの場合
+
+	constexpr float kCameraViewAngle = DX_PI_F / 3.0f;//カメラの視野角
+	constexpr float kCameraNear = 0.0f;//ニアクリップ
+	constexpr float kCameraFar = 1500.0f;//ファークリップ
+
+	constexpr float kFixedAngleV = 0.06f;//垂直方向の回転角度(固定)
+	constexpr float kToPlayerLengthScale = 0.5f;//プレイヤーからカメラまでの距離にかける倍率
+	constexpr float kNextPosDistance = 10.0f;//カメラ到達地点を少し先に設定するための距離
+	constexpr float kPosLerpFactor = 0.4f;//カメラの位置を滑らかに移動させるラープ係数
 }
 
 
@@ -33,8 +42,8 @@ void Movie1Camera::Init()
 {
 	// カメラの設定
 	SetCameraPositionAndTarget_UpVecY(m_pos.ToDxLibVector(), m_target.ToDxLibVector());
-	SetupCamera_Perspective(DX_PI_F / 3.0f);
-	SetCameraNearFar(0.0f, 1500.0f);
+	SetupCamera_Perspective(kCameraViewAngle);
+	SetCameraNearFar(kCameraNear, kCameraFar);
 }
 
 void Movie1Camera::Update(Vector3 pos, Vector3 pos2)
@@ -56,10 +65,10 @@ void Movie1Camera::FixCameraPos()
 {
 	//水平方向の回転
 	auto rotY = Matrix4x4::MakeRotationY(m_angleH);
-	m_angleV = 0.06f;//垂直方向の回転角度は固定する
+	m_angleV = kFixedAngleV;//垂直方向の回転角度は固定する
 	auto rotX = Matrix4x4::MakeRotationX(m_angleV);
 
-	float cameraToPlayerLength = kToPlayerLength * 0.5f;
+	float cameraToPlayerLength = kToPlayerLength * kToPlayerLengthScale;
 
 	//カメラの座標を算出
 	auto CtoP = Vector3(0.0f, 0.0f, -cameraToPlayerLength);//プレイヤーからカメラへのベクトル
@@ -79,11 +88,11 @@ void Movie1Camera::FixCameraPos()
 	auto toTarget = m_target - m_pos;
 	toTarget = toTarget.Normalize();
 	//少し先にカメラ到達地点を設定する
-	m_nextpos = m_pos + toTarget * 10.0f;
+	m_nextpos = m_pos + toTarget * kNextPosDistance;
 	//カメラの位置を補完
-	m_pos.x = std::lerp(m_pos.ToDxLibVector().x, m_nextpos.ToDxLibVector().x, 0.4f);//カメラの位置を滑らかに移動させる
-	m_pos.y = std::lerp(m_pos.ToDxLibVector().y, m_nextpos.ToDxLibVector().y, 0.4f);//カメラの位置を滑らかに移動させる
-	m_pos.z = std::lerp(m_pos.ToDxLibVector().z, m_nextpos.ToDxLibVector().z, 0.4f);//カメラの位置を滑らかに移動させる
+	m_pos.x = std::lerp(m_pos.ToDxLibVector().x, m_nextpos.ToDxLibVector().x, kPosLerpFactor);//カメラの位置を滑らかに移動させる
+	m_pos.y = std::lerp(m_pos.ToDxLibVector().y, m_nextpos.ToDxLibVector().y, kPosLerpFactor);//カメラの位置を滑らかに移動させる
+	m_pos.z = std::lerp(m_pos.ToDxLibVector().z, m_nextpos.ToDxLibVector().z, kPosLerpFactor);//カメラの位置を滑らかに移動させる
 
 }
 

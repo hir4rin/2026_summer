@@ -24,7 +24,7 @@ void PlayerStateDie::Enter()
 
 
 	//アニメーションを流す
-	player->m_anim.ChangeAnim(player->GetAnimName("Death"), false, 1.0f);
+	player->m_anim.ChangeAnim(player->GetAnimName("Death"), false, 0.6f);
 	//やられ判定を消す
 	CollisionManager::GetInstance().ReleaseCollider(player->GetHitCol());
 

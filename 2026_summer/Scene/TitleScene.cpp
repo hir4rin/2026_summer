@@ -15,12 +15,16 @@
 #include "../SpeedLine2D.h"
 #include "../Stage/Stage.h"
 #include "../Character/Mascot/Titlemascot.h"
+#include <cmath>
 
 namespace
 {
 
 	constexpr int kTitleLogoX = 707;
 	constexpr int kTitleLogoY = 275;
+
+	constexpr int kPressButtonY = 550;//"Press A Button"の表示Y座標
+	constexpr float kPressButtonBlinkSpeed = 0.06f;//点滅の速さ//小さいほどゆっくり
 
 	constexpr int kCameraSetUp = 1000;
 
@@ -34,6 +38,14 @@ namespace
 	//スキップ後のプレイヤー座標
 	//InputRecordの最初の入力(kCameraSetUpフレーム分のDown=ワールド-Z方向移動)で実際に進む距離と合わせる
 	const Vector3 kSkipPlayerPos = kPlayerStartPos + Vector3(0.0f, 0.0f, -1.0f) * Game::kMoveSpeed * kCameraSetUp;
+
+	constexpr int kIntroPauseFrames = 8000;//前振り演出:プレイヤー移動後の待機フレーム数
+
+	//前振り演出中のカメラショット切り替えタイミング(m_count)
+	constexpr int kCameraFixedShot1Frame = 100;//Fixedショットに切り替える
+	constexpr int kCameraFollowShotFrame = 300;//FollowPlayerショットに切り替える
+	constexpr int kCameraFixedShot2Frame = 400;//再びFixedショットに切り替える
+	constexpr int kCameraZoomOutShotFrame = 600;//ZoomOutショットに切り替える・タイトルBGMを流し始める
 }
 
 
@@ -188,7 +200,7 @@ void TitleScene::FadeInDraw()
 	//だんだん透明にしていく
 	int alpha = 255 * (kSkipFadeFrame - m_fadeCount) / kSkipFadeFrame;
 	SetDrawBlendMode(DX_BLENDMODE_ALPHA, alpha);
-	DrawBox(0, 0, Game::kScreenWidth, Game::kScreenHeight, GetColor(0, 0, 0), TRUE);
+	DrawBox(0, 0, Game::GetScreenWidth(), Game::GetScreenHeight(), GetColor(0, 0, 0), TRUE);
 	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 }
 
@@ -217,8 +229,19 @@ void TitleScene::NormalDraw()
 #endif
 	if (m_count >= kCameraSetUp)
 	{
-		DrawRectRotaGraph(Game::kScreenWidth / 2, Game::kScreenHeight / 4, 0, 0, kTitleLogoX, kTitleLogoY,
-		1.0, 0.0, m_titleLogoHandle, TRUE);
+		//画面比率でロゴの表示位置・大きさを計算する
+		DrawRectRotaGraph(Game::GetScreenWidth() / 2, Game::GetScreenHeight() / 4, 0, 0, kTitleLogoX, kTitleLogoY,
+		Game::GetScale(), 0.0, m_titleLogoHandle, TRUE);
+
+		//"Press A Button"をゆっくり点滅させる(sinカーブでアルファ値を滑らかに増減させる)
+		const char* pressButtonText = "Press A Button";
+		int ydwFontHandle = System::GetInstance().GetYdwGagagagaFontHandle();
+		float blink = (sinf(static_cast<float>(m_count) * kPressButtonBlinkSpeed) + 1.0f) / 2.0f;//0.0〜1.0
+		int alpha = static_cast<int>(blink * 255);
+		int textWidth = GetDrawStringWidthToHandle(pressButtonText, -1, ydwFontHandle);
+		SetDrawBlendMode(DX_BLENDMODE_ALPHA, alpha);
+		DrawStringToHandle(Game::GetScreenWidth() / 2 - textWidth / 2, static_cast<int>(Game::ScaleY(kPressButtonY)), pressButtonText, GetColor(255, 255, 255), ydwFontHandle);
+		SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 	}
 }
 
@@ -229,7 +252,7 @@ void TitleScene::FadeOutDraw()
 	//だんだん暗くしていく
 	int alpha = 255 * m_fadeCount / kSkipFadeFrame;
 	SetDrawBlendMode(DX_BLENDMODE_ALPHA, alpha);
-	DrawBox(0, 0, Game::kScreenWidth, Game::kScreenHeight, GetColor(0, 0, 0), TRUE);
+	DrawBox(0, 0, Game::GetScreenWidth(), Game::GetScreenHeight(), GetColor(0, 0, 0), TRUE);
 	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 }
 
@@ -241,7 +264,7 @@ void TitleScene::InputInitialize()
 	//外部読み込みを後でしとく
 	record = {
 		{kCameraSetUp,{"Down"}},
-		{8000,{}},
+		{kIntroPauseFrames,{}},
 		{2,{"Down"}},
 		{button,{"X"}},
 		{space,{}},
@@ -265,25 +288,25 @@ void TitleScene::InputInitialize()
 void TitleScene::CameraSetUpdate()
 {
 	//カウントの進み具合によってカメラのステートを更新する
-	if (m_count == 100)
+	if (m_count == kCameraFixedShot1Frame)
 	{
 		std::shared_ptr<TitleCameraState>  titleCamera = std::dynamic_pointer_cast<TitleCameraState>(m_cameraManager->GetActiveCamera());
 		TitleCameraState::Shot shot = TitleCameraState::Shot::Fixed;
 		titleCamera->SetShot(shot);
 	}
-	if (m_count == 300)
+	if (m_count == kCameraFollowShotFrame)
 	{
 		std::shared_ptr<TitleCameraState>  titleCamera = std::dynamic_pointer_cast<TitleCameraState>(m_cameraManager->GetActiveCamera());
 		TitleCameraState::Shot shot = TitleCameraState::Shot::FollowPlayer;
 		titleCamera->SetShot(shot);
 	}
-	if (m_count == 400)
+	if (m_count == kCameraFixedShot2Frame)
 	{
 		std::shared_ptr<TitleCameraState>  titleCamera = std::dynamic_pointer_cast<TitleCameraState>(m_cameraManager->GetActiveCamera());
 		TitleCameraState::Shot shot = TitleCameraState::Shot::Fixed;
 		titleCamera->SetShot(shot);
 	}
-	if (m_count == 600)
+	if (m_count == kCameraZoomOutShotFrame)
 	{
 		std::shared_ptr<TitleCameraState>  titleCamera = std::dynamic_pointer_cast<TitleCameraState>(m_cameraManager->GetActiveCamera());
 		TitleCameraState::Shot shot = TitleCameraState::Shot::ZoomOut;
@@ -311,7 +334,7 @@ void TitleScene::UpdateWorld()
 
 	m_player->Update(*m_cameraManager->GetHighestPriorityCamera());
 
-	if (m_player->GetPos().z <= -5050.0f)
+	if (m_player->GetPos().z <= kMascotPos.z)//マスコットの位置(kMascotPos)まで到達したかどうか
 	{
 		Titlemascot::State state = Titlemascot::State::Kirimomi;
 		m_mascot->SetState(state);
@@ -333,7 +356,7 @@ void TitleScene::UpdateWorld()
 	m_skyBox->Update();
 
 	//最後の画面(ロゴが出る状態)になったタイミングでBGMを流す
-	if (!m_hasStartedBgm && m_count >= 600)
+	if (!m_hasStartedBgm && m_count >= kCameraZoomOutShotFrame)
 	{
 		System::GetInstance().GetSoundManager().PlayBgm("TitleBGM");
 		m_hasStartedBgm = true;
@@ -347,6 +370,10 @@ void TitleScene::SkipToFinalState()
 
 	//プレイヤーを剣・マスコットの位置まで進めておく
 	m_player->SetPos(kSkipPlayerPos);
+
+	//スキップでプレイヤーがマスコットの位置を一気に通り過ぎるため、
+	//次のUpdateWorld()で「マスコットにぶつかった」判定になっても、ぶつかる音・吹き飛ぶ音を鳴らさないようにする
+	m_hasPlayedMascotHitSE = true;
 
 	m_count = kCameraSetUp;
 	std::shared_ptr<TitleCameraState>  titleCamera = std::dynamic_pointer_cast<TitleCameraState>(m_cameraManager->GetActiveCamera());

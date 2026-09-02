@@ -33,6 +33,15 @@ namespace
 	//これを超えたらランクC
 
 	constexpr int kFadeFrame = 20;//フェードイン・フェードアウトにかけるフレーム数
+
+	const Vector3 kPlayerStartPos = Vector3(0, 0, 300);//結果表示用プレイヤーの初期座標
+
+	constexpr int kDarkenAlpha = 164;//画面を少し黒くするアルファ値
+
+	constexpr int kTitleY = 120;//"GAME CLEAR"の表示Y座標
+	constexpr int kTitleXOffset = 100;//"GAME CLEAR"を画面中央からずらすX方向のオフセット
+
+	constexpr int kReturnMessageY = 620;//"Press A Button"メッセージの表示Y座標
 }
 
 StageClearPoPScene::StageClearPoPScene(SceneController& controller, const GameResult& result) :Scene(controller), m_result(result)
@@ -48,7 +57,7 @@ StageClearPoPScene::StageClearPoPScene(SceneController& controller, const GameRe
 	//GameClearSceneと同じく、結果表示専用のプレイヤーとカメラを自前で用意する
 	m_player = std::make_shared<Player>();
 	m_player->Init();
-	m_player->SetPos(Vector3(0, 0, 300));
+	m_player->SetPos(kPlayerStartPos);
 
 	//カメラの初期化(定点でPlayerを映すResultCameraStateのみを使う)
 	m_cameraManager = std::make_shared<CameraManager>();
@@ -58,13 +67,6 @@ StageClearPoPScene::StageClearPoPScene(SceneController& controller, const GameRe
 	m_cameraManager->Update(m_player->GetPos());
 	m_player->SetCameraManager(std::weak_ptr<CameraManager>(m_cameraManager));
 	m_player->SetResultUp();
-
-	//GameSceneのラストヒット演出用レコードが再生されたまま残っていると、
-	//その中の擬似入力(Xボタンなど)にPlayerStateIdleが反応して勝手に攻撃してしまうため、
-	//GameClearSceneと同じく「何も押されていない」空レコードで上書きしておく(実入力はIsRealTriggeredで別途取る)
-	InputRecord record;
-	record = { {1000000000,{}} };
-	Input::GetInstance().StartRecord(record);
 }
 
 StageClearPoPScene::~StageClearPoPScene()
@@ -128,7 +130,7 @@ void StageClearPoPScene::NormalUpdate()
 			}
 		}
 		//ボタン入力で一気に表示する
-		if (input.IsTriggered("A"))
+		if (input.IsRealTriggered("A"))
 		{
 			for (int i = 0; i < static_cast<int>(ResultItem::Size); i++)
 			{
@@ -151,7 +153,7 @@ void StageClearPoPScene::NormalUpdate()
 		}
 		break;
 	case Phase::Done:
-		if (input.IsTriggered("A"))
+		if (input.IsRealTriggered("A"))
 		{
 			//フェードアウトしてからゲームシーンに初期化する
 			m_fadeCount = 0;
@@ -198,15 +200,15 @@ void StageClearPoPScene::FadeInDraw()
 	//だんだん透明にしていく
 	int alpha = 255 * (kFadeFrame - m_fadeCount) / kFadeFrame;
 	SetDrawBlendMode(DX_BLENDMODE_ALPHA, alpha);
-	DrawBox(0, 0, Game::kScreenWidth, Game::kScreenHeight, GetColor(0, 0, 0), TRUE);
+	DrawBox(0, 0, Game::GetScreenWidth(), Game::GetScreenHeight(), GetColor(0, 0, 0), TRUE);
 	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 }
 
 void StageClearPoPScene::NormalDraw()
 {
 	//画面を少し黒くする(PauseSceneと同じやり方)
-	SetDrawBlendMode(DX_BLENDMODE_ALPHA, 164);
-	DrawBox(0, 0, Game::kScreenWidth, Game::kScreenHeight, GetColor(0, 0, 0), TRUE);
+	SetDrawBlendMode(DX_BLENDMODE_ALPHA, kDarkenAlpha);
+	DrawBox(0, 0, Game::GetScreenWidth(), Game::GetScreenHeight(), GetColor(0, 0, 0), TRUE);
 	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0); // ← 必ずリセット！
 
 	//下に積まれたGameSceneはSceneController::Drawがscenes_を順番に描画することで自動的に映る
@@ -214,7 +216,9 @@ void StageClearPoPScene::NormalDraw()
 	m_cameraManager->ApplyCameraSettings();
 	m_player->Draw();
 
-	DrawFormatString(Game::kScreenWidth / 2 - 100, 120, GetColor(255, 255, 255), "GAME CLEAR");
+	//"GAME CLEAR"は英字のみの文字列なのでYDWgagagagaフォントを使う
+	int ydwFontHandle = System::GetInstance().GetYdwGagagagaFontHandle();
+	DrawFormatStringToHandle(Game::GetScreenWidth() / 2 - static_cast<int>(Game::ScaleX(kTitleXOffset)), static_cast<int>(Game::ScaleY(kTitleY)), GetColor(255, 255, 255), ydwFontHandle, "GAME CLEAR");
 
 	//カウントアップ中の項目までを表示する(まだ来ていない項目は表示しない)
 	int visibleCount = (m_phase == Phase::Counting) ? m_itemIndex + 1 : static_cast<int>(ResultItem::Size);
@@ -225,12 +229,16 @@ void StageClearPoPScene::NormalDraw()
 
 	if (m_phase == Phase::Rank || m_phase == Phase::Done)
 	{
-		DrawFormatString(kRankX, kRankY, GetColor(255, 220, 80), "RANK %c", m_rank);
+		//"RANK"は英字のみの文字列なのでYDWgagagagaフォントを使う
+		DrawFormatStringToHandle(static_cast<int>(Game::ScaleX(kRankX)), static_cast<int>(Game::ScaleY(kRankY)), GetColor(255, 220, 80), ydwFontHandle, "RANK %c", m_rank);
 	}
 
 	if (m_phase == Phase::Done)
 	{
-		DrawFormatString(Game::kScreenWidth / 2 - 140, 620, GetColor(255, 255, 255), "Aボタンでゲームシーンに戻る");
+		//"Press A Button"は英字のみの文字列なのでYDWgagagagaフォントを使う
+		const char* pressButtonText = "Press A Button";
+		int textWidth = GetDrawStringWidthToHandle(pressButtonText, -1, ydwFontHandle);
+		DrawStringToHandle(Game::GetScreenWidth() / 2 - textWidth / 2, static_cast<int>(Game::ScaleY(kReturnMessageY)), pressButtonText, GetColor(255, 255, 255), ydwFontHandle);
 	}
 
 #ifdef _DEBUG
@@ -238,8 +246,8 @@ void StageClearPoPScene::NormalDraw()
 	if (m_cameraManager)
 	{
 		imguiApp::GetInstance().DrawCameraDebugWindow(
-			m_cameraManager->GetActiveCamera()->GetPos(),
-			m_cameraManager->GetActiveCamera()->GetTarget());
+			m_cameraManager->GetHighestPriorityCamera()->GetCameraPos(),
+			m_cameraManager->GetHighestPriorityCamera()->GetCameraTarget());
 	}
 #endif
 }
@@ -251,7 +259,7 @@ void StageClearPoPScene::FadeOutDraw()
 	//だんだん暗くしていく
 	int alpha = 255 * m_fadeCount / kFadeFrame;
 	SetDrawBlendMode(DX_BLENDMODE_ALPHA, alpha);
-	DrawBox(0, 0, Game::kScreenWidth, Game::kScreenHeight, GetColor(0, 0, 0), TRUE);
+	DrawBox(0, 0, Game::GetScreenWidth(), Game::GetScreenHeight(), GetColor(0, 0, 0), TRUE);
 	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 }
 
@@ -275,19 +283,23 @@ float StageClearPoPScene::GetItemTarget(ResultItem item) const
 void StageClearPoPScene::DrawItem(ResultItem item, int y) const
 {
 	float value = m_displayValues[static_cast<int>(item)];
+	int x = static_cast<int>(Game::ScaleX(kItemStartX));
+	y = static_cast<int>(Game::ScaleY(y));
+	//漢字を含まない文字列に揃えたので、YDWgagagagaフォントを使う
+	int ydwFontHandle = System::GetInstance().GetYdwGagagagaFontHandle();
 	switch (item)
 	{
 	case ResultItem::ClearTime:
-		DrawFormatString(kItemStartX, y, GetColor(255, 255, 255), "クリアタイム : %.1f 秒", value);
+		DrawFormatStringToHandle(x, y, GetColor(255, 255, 255), ydwFontHandle, "クリアタイム : %.1f", value);
 		break;
 	case ResultItem::Damage:
-		DrawFormatString(kItemStartX, y, GetColor(255, 255, 255), "与えたダメージ : %d", static_cast<int>(value));
+		DrawFormatStringToHandle(x, y, GetColor(255, 255, 255), ydwFontHandle, "ダメージ : %d", static_cast<int>(value));
 		break;
 	case ResultItem::Combo:
-		DrawFormatString(kItemStartX, y, GetColor(255, 255, 255), "コンボ数 : %d", static_cast<int>(value));
+		DrawFormatStringToHandle(x, y, GetColor(255, 255, 255), ydwFontHandle, "コンボスウ : %d", static_cast<int>(value));
 		break;
 	case ResultItem::DamageTaken:
-		DrawFormatString(kItemStartX, y, GetColor(255, 255, 255), "被弾回数 : %d", static_cast<int>(value));
+		DrawFormatStringToHandle(x, y, GetColor(255, 255, 255), ydwFontHandle, "ヒットダメージ : %d", static_cast<int>(value));
 		break;
 	default:
 		break;

@@ -17,6 +17,17 @@ namespace
 	constexpr float kCameraShakeTime = 5.0f;//カメラの揺れの時間
 
 	constexpr float kEfOffset = 80.0f;//エフェクトの座標のオフセット
+
+	constexpr int kUltStartFrame = 120;//必殺技の演出の開始フレーム数
+	constexpr float kUltTimeScaleRate = 0.1f;//必殺技演出中の時間スケール
+
+	constexpr int kSkillGaugeGainPerHit = 20;//攻撃ヒット時のスキルゲージ上昇量
+	constexpr int kUltGaugeGainPerHitNormal = 10;//通常時の攻撃ヒット時の必殺技ゲージ上昇量
+	constexpr int kUltGaugeGainPerHitRaven = 20;//raven状態時の攻撃ヒット時の必殺技ゲージ上昇量
+
+	constexpr float kUltHitEffectOffsetMultiplier = 1.2f;//必殺技被ダメエフェクトのオフセット倍率
+	constexpr float kUltHitEffectScale = 0.9f;//必殺技被ダメエフェクトのスケール
+	constexpr float kUltHitEffectRotationOffset = DX_PI_F * 0.5f;//必殺技被ダメエフェクトのZ軸傾き分の回転オフセット
 }
 
 AttackCol::AttackCol(std::weak_ptr<CharacterBase> owner,const AttackData& data)
@@ -197,10 +208,10 @@ void AttackCol::PlayerAttackOnCollision(Collider& other)
 				bool isUltStart = System::GetInstance().GetIsUltimating();
 				if (!isUltStart)
 				{
-					System::GetInstance().SetUltStart(120);//必殺技の演出をスタートする
+					System::GetInstance().SetUltStart(kUltStartFrame);//必殺技の演出をスタートする
 					if (!System::GetInstance().GetIsLastHitEventPlaying())
 					{
-						System::GetInstance().SetTimeScaleForFrames(0.1f, 120);//時間を遅くする//60フレームで元に戻す
+						System::GetInstance().SetTimeScaleForFrames(kUltTimeScaleRate, kUltStartFrame);//時間を遅くする//60フレームで元に戻す
 						//カメラを移行
 						cameraManager->ChangeStateFromScene(CameraManager::CameraStateName::UltCamera);
 					}
@@ -213,7 +224,7 @@ void AttackCol::PlayerAttackOnCollision(Collider& other)
 
 				//必殺技の被ダメエフェクト
 				m_hitEfPlayingHandle = EffectManager::GetInstance().Play(AsyncData::EnemyHitEffectUlt,
-					Vector3(other.GetPos().x, other.GetPos().y + kEfOffset*1.2f, other.GetPos().z),0.0f,0.9f);
+					Vector3(other.GetPos().x, other.GetPos().y + kEfOffset*kUltHitEffectOffsetMultiplier, other.GetPos().z),0.0f,kUltHitEffectScale);
 
 				//カメラの水平角度をY軸回転に加え、Z軸の傾き(45度)がカメラから見て常に一定になるようにする
 				float camAngleH = 0.0f;
@@ -226,7 +237,7 @@ void AttackCol::PlayerAttackOnCollision(Collider& other)
 						camAngleH = camera->GetCameraAngleH();
 					}
 				}
-				SetRotationPlayingEffekseer3DEffect(m_hitEfPlayingHandle, 0.0f, camAngleH - DX_PI_F * 0.5f, 0.0f);
+				SetRotationPlayingEffekseer3DEffect(m_hitEfPlayingHandle, 0.0f, camAngleH - kUltHitEffectRotationOffset, 0.0f);
 			}
 			//もしプレイヤーの通常攻撃だったら
 			else
@@ -294,9 +305,9 @@ void AttackCol::PlayerGaugeUp(Collider& other)
 	if (!player->GetIsRaven())
 	{
 		//スキルゲージの上昇
-		player->AddSkillGauge(20);
+		player->AddSkillGauge(kSkillGaugeGainPerHit);
 		//必殺技ゲージの上昇
-		player->AddUltGauge(10);
+		player->AddUltGauge(kUltGaugeGainPerHitNormal);
 	}
 	//raven状態なら
 	else
@@ -305,7 +316,7 @@ void AttackCol::PlayerGaugeUp(Collider& other)
 		if (GetTag() != Tags::PlayerUltAttack)
 		{
 			//必殺技ゲージの上昇
-			player->AddUltGauge(20);
+			player->AddUltGauge(kUltGaugeGainPerHitRaven);
 		}
 
 	}

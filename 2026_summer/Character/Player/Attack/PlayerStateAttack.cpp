@@ -22,6 +22,21 @@ namespace
 
 	constexpr float kEffectTriggerTime = 0.2f;//エフェクトを出すタイミング
 	constexpr float kEffect2TriggerTime = 0.4f;//エフェクトを出すタイミング
+
+	constexpr float kHitStopTime = 0.1f;//攻撃ヒット時のヒットストップ時間
+	constexpr float kAttackColOffset = 30.0f;//攻撃の当たり判定を前に出す距離
+	constexpr float kAttackColRadius = 150.0f;//攻撃の当たり判定の半径
+
+	const Vector3 kDropAttackKnockBack = Vector3(20.0f, 20.0f, 0.0f);//ドロップ攻撃着地時のノックバック量
+	const Vector3 kDropAttackColOffset = Vector3(0.0f, 50.0f, 0.0f);//ドロップ攻撃着地時の当たり判定オフセット
+	constexpr float kDropAttackColLifeTime = 10.0f;//ドロップ攻撃着地時の当たり判定の生存時間
+
+	const Vector3 kSkillEffectOffset = Vector3(0.0f, 100.0f, 0.0f);//スキル攻撃エフェクトのオフセット
+
+	constexpr float kEnemyTargetConeAngle = DX_PI_F / 3.0f;//入力方向にいる敵をターゲットにする角度範囲(60度)
+	constexpr float kNearbyEnemyRangeMultiplier = 2.0f;//近くの敵を集める範囲(ロックオン範囲の倍率)
+
+	constexpr int kSkillAttackGaugeCost = 20;//スキル攻撃に移行/コンボする際に消費するスキルゲージ量
 }
 
 
@@ -85,8 +100,8 @@ void PlayerStateAttack::Enter()
 	.knockBackPower = Vector3(node.knockBackXZ, node.knockBackY,0),
 	//.knockBackPower = Vector3(0.0f,node.knockBackY,0.0f),//吹き飛ばない攻撃にする
 	.knockBackFrame = totalAnimFrame,
-	.hitStopTime = 0.1f,
-	.kAttackColOffset = 30.0f,
+	.hitStopTime = kHitStopTime,
+	.kAttackColOffset = kAttackColOffset,
 	.isKirimomi = node.isKirimomi
 	};
 
@@ -94,7 +109,7 @@ void PlayerStateAttack::Enter()
 	Vector3 offset = player->m_targetVec * player->m_attackData.kAttackColOffset
 		+ Vector3(0, kPlayerCenter, 0);//プレイヤーの前方に50.0f、y軸方向にkPlayerCenterだけオフセットする
 
-	m_attackCol->ColInit(player->m_pos, offset, 150.0f,
+	m_attackCol->ColInit(player->m_pos, offset, kAttackColRadius,
 							ColliderType::Sphere, Tags::PlayerAttack, false, true);//攻撃の当たり判定を初期化する//最初は無効にしておく
 	m_attackCol->ResetID(player->GetId());
 	m_attackCol->SetIsActive(false);//最初は当たり判定を無効にしておく
@@ -140,7 +155,7 @@ void PlayerStateAttack::Update()
 			m_isSkillAttackReserved = false;//スキル攻撃の予約を解除する
 			AttackFinishProcess();//攻撃の段数を初期化するなどの処理
 			//スキルゲージを減らす
-			player->AddSkillGauge(-20);
+			player->AddSkillGauge(-kSkillAttackGaugeCost);
 
 			//スキル攻撃に移行する
 			player->ChangeState(std::make_shared<PlayerStateAttack>(m_owner, AttackType::SkillAttack));
@@ -462,7 +477,7 @@ void PlayerStateAttack::CheckNoLockOnTargetEnemy()
 		Vector3 enemyPos = enemy->GetPos();
 		float distance = (enemyPos - player->m_pos).Magnitude();
 
-		if(distance < player->GetCameraRockOnRange() * 2)
+		if(distance < player->GetCameraRockOnRange() * kNearbyEnemyRangeMultiplier)
 		{
 			nearbyEnemies.push_back(enemy);
 		}
@@ -473,7 +488,7 @@ void PlayerStateAttack::CheckNoLockOnTargetEnemy()
 	//入力方向にベクトルを飛ばし、そこと、cosΘで比較
 	//30度以内の敵がいたら、そいつをターゲットにする
 	Vector3 inputDir = Vector3(0, 0, 0);
-	float cosTheta = cosf(DX_PI_F / 3);//角度以内の敵をターゲットにする//cosでの判定に使う
+	float cosTheta = cosf(kEnemyTargetConeAngle);//角度以内の敵をターゲットにする//cosでの判定に使う
 
 	if (input.IsPressed("Up")) inputDir += player->forward;
 	if (input.IsPressed("Down")) inputDir += player->down;
@@ -496,7 +511,7 @@ void PlayerStateAttack::CheckNoLockOnTargetEnemy()
 				cameraPos.y = playerPos.y = 0;//y軸方向は無視する//XZ平面での角度を計算する
 				inputDir = (playerPos - cameraPos).Normalize();
 				//cosを広げる
-				cosTheta = cosf(DX_PI_F / 3);//60度以内の敵をターゲットにする//cosでの判定に使う
+				cosTheta = cosf(kEnemyTargetConeAngle);//60度以内の敵をターゲットにする//cosでの判定に使う
 			}
 		}
 		else
@@ -690,7 +705,7 @@ void PlayerStateAttack::StartCombo(int comboIndex)
 
 	if (isSkillAttack2or3)
 	{
-		player->AddSkillGauge(-20);
+		player->AddSkillGauge(-kSkillAttackGaugeCost);
 	}
 }
 
@@ -792,16 +807,16 @@ void PlayerStateAttack::InpuctAttackSetUp()
 	{
 		AttackData dropAttackData = {
 			.attackPower = 0.0f,
-			.knockBackPower = Vector3(20, 20, 0),
+			.knockBackPower = kDropAttackKnockBack,
 			.knockBackFrame = totalAnimFrame,
-			.hitStopTime = 0.1f,
-			.kAttackColOffset = 30.0f,
+			.hitStopTime = kHitStopTime,
+			.kAttackColOffset = kAttackColOffset,
 			.isKirimomi = true
 		};
 		//AttackColを生成
 		auto m_attackColForDrop = std::make_shared<AttackCol>(m_owner, dropAttackData);
-		m_attackColForDrop->ColInit(player->m_pos, Vector3(0, 50, 0), 150.0f,
-			ColliderType::Sphere, Tags::PlayerAttack, true, true, 10.0f);//攻撃の当たり判定を初期化する//最初は無効にしておく
+		m_attackColForDrop->ColInit(player->m_pos, kDropAttackColOffset, kAttackColRadius,
+			ColliderType::Sphere, Tags::PlayerAttack, true, true, kDropAttackColLifeTime);//攻撃の当たり判定を初期化する//最初は無効にしておく
 		m_attackColForDrop->ResetID(player->GetId());
 		m_attackColForDrop->SetIsActive(true);//攻撃の当たり判定を有効にする
 	}
@@ -822,13 +837,13 @@ void PlayerStateAttack::EffectCheck()
 			SetPosPlayingEffekseer3DEffect(player->m_efPlayingHandle, player->m_pos.x, player->m_pos.y+100, player->m_pos.z);
 			SetRotationPlayingEffekseer3DEffect(player->m_efPlayingHandle, 0.0f, player->m_rotAngleY + DX_PI_F, 0.0f);*/
 			player->m_efPlayingHandle = EffectManager::GetInstance().Play(AsyncData::PlayerEffectSkill, 
-				player->m_pos + Vector3(0, 100, 0), player->m_rotAngleY + DX_PI_F);
+				player->m_pos + kSkillEffectOffset, player->m_rotAngleY + DX_PI_F);
 		}
 		//エフェクトが出ているとき
 		else
 		{
 			//座標の更新
-			EffectManager::GetInstance().SetPos(player->m_efPlayingHandle, player->m_pos + Vector3(0, 100, 0));
+			EffectManager::GetInstance().SetPos(player->m_efPlayingHandle, player->m_pos + kSkillEffectOffset);
 			EffectManager::GetInstance().SetRot(player->m_efPlayingHandle, player->m_rotAngleY + DX_PI_F);
 		}
 	}
@@ -838,13 +853,13 @@ void PlayerStateAttack::EffectCheck()
 		{
 		
 			player->m_efPlayingHandle = EffectManager::GetInstance().Play(AsyncData::PlayerEffectSkill2, 
-				player->m_pos + Vector3(0, 100, 0), player->m_rotAngleY + DX_PI_F);
+				player->m_pos + kSkillEffectOffset, player->m_rotAngleY + DX_PI_F);
 		}
 		//エフェクトが出ているとき
 		else
 		{
 			//座標の更新
-			EffectManager::GetInstance().SetPos(player->m_efPlayingHandle, player->m_pos + Vector3(0, 100, 0));
+			EffectManager::GetInstance().SetPos(player->m_efPlayingHandle, player->m_pos + kSkillEffectOffset);
 			EffectManager::GetInstance().SetRot(player->m_efPlayingHandle, player->m_rotAngleY + DX_PI_F);
 		}
 	}
@@ -854,13 +869,13 @@ void PlayerStateAttack::EffectCheck()
 		{
 		
 			player->m_efPlayingHandle = EffectManager::GetInstance().Play(AsyncData::PlayerEffectSkill3, 
-				player->m_pos + Vector3(0, 100, 0), player->m_rotAngleY + DX_PI_F);
+				player->m_pos + kSkillEffectOffset, player->m_rotAngleY + DX_PI_F);
 		}
 		//エフェクトが出ているとき
 		else
 		{
 			//座標の更新
-			EffectManager::GetInstance().SetPos(player->m_efPlayingHandle, player->m_pos + Vector3(0, 100, 0));
+			EffectManager::GetInstance().SetPos(player->m_efPlayingHandle, player->m_pos + kSkillEffectOffset);
 			EffectManager::GetInstance().SetRot(player->m_efPlayingHandle, player->m_rotAngleY + DX_PI_F);
 		}
 	}

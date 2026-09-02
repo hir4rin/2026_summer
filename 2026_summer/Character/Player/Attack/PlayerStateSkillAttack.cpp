@@ -10,6 +10,10 @@ namespace
 	constexpr float kComboInputEnd = 0.8f;//コンボ入力受付終了のアニメーションの進行率
 
 	constexpr float kPlayerCenter = 100.0f;//プレイヤーの当たり判定の中心点までのy軸の距離
+
+	constexpr float kHitStopTime = 0.1f;//攻撃ヒット時のヒットストップ時間
+	constexpr float kAttackColOffset = 30.0f;//攻撃の当たり判定を前に出す距離
+	constexpr float kAttackColRadius = 150.0f;//攻撃の当たり判定の半径
 }
 
 PlayerStateSkillAttack::PlayerStateSkillAttack(std::weak_ptr<Player> player):
@@ -50,14 +54,14 @@ void PlayerStateSkillAttack::Enter()
 	//.knockBackPower = Vector3(node.knockBackXZ, node.knockBackY,0),
 	.knockBackPower = Vector3(0.0f,node.knockBackY,0.0f),//吹き飛ばない攻撃にする
 	.knockBackFrame = totalAnimFrame,
-	.hitStopTime = 0.1f,
-	.kAttackColOffset = 30.0f,
+	.hitStopTime = kHitStopTime,
+	.kAttackColOffset = kAttackColOffset,
 	.isKirimomi = node.isKirimomi
 	};
 	m_attackCol = std::make_shared<AttackCol>(m_owner, player->m_attackData);
 	Vector3 offset = player->m_targetVec * player->m_attackData.kAttackColOffset
 		+ Vector3(0, kPlayerCenter, 0);//プレイヤーの前方に50.0f、y軸方向にkPlayerCenterだけオフセットする
-	m_attackCol->ColInit(player->m_pos, offset, 150.0f,
+	m_attackCol->ColInit(player->m_pos, offset, kAttackColRadius,
 							ColliderType::Sphere, Tags::PlayerAttack, true, true);//攻撃の当たり判定を初期化する//最初は無効にしておく
 	m_attackCol->SetIsActive(false);//最初は当たり判定を無効にしておく
 

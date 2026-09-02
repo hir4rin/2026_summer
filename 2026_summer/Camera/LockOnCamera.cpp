@@ -17,6 +17,21 @@ namespace
 	constexpr float kGroundCheckDistance = 800.0f;//プレイヤーの最高到達点//カメラのターゲットの割合注視点//Y軸
 	constexpr float kRatioCheckDistance = 800.0f;//プレイヤーの最高到達点//カメラのターゲットの割合注視点//XZ軸
 
+	constexpr float kTargetRatioMin = 0.1f;//注視点の割合の最小値
+	constexpr float kTargetRatioMax = 0.5f;//注視点の割合の最大値
+
+	constexpr float kRotateAngle = DX_PI_F / 6;//カメラを回転させる角度
+	constexpr float kCameraPosOffsetY = 160.0f;//カメラ座標のY方向オフセット
+
+	constexpr float kDebugSphereRadius = 10.0f;//デバッグ球の半径
+	constexpr int kDebugSphereDivNum = 16;//デバッグ球の分割数
+	constexpr int kDebugColorRedR = 255;//デバッグ表示色(赤)のR成分
+	constexpr int kDebugColorRedG = 0;//デバッグ表示色(赤)のG成分
+	constexpr int kDebugColorRedB = 0;//デバッグ表示色(赤)のB成分
+	constexpr int kDebugColorBlueR = 0;//デバッグ表示色(青)のR成分
+	constexpr int kDebugColorBlueG = 0;//デバッグ表示色(青)のG成分
+	constexpr int kDebugColorBlueB = 255;//デバッグ表示色(青)のB成分
+	constexpr float kDebugLineOffsetY = 100.0f;//デバッグ線のY方向オフセット
 }
 
 LockOnCamera::LockOnCamera()
@@ -92,7 +107,7 @@ void LockOnCamera::Update(Vector3 pos, Vector3 pos2)
 	float dis = (enemyPos - playerPos).Magnitude();
 	//割合を決める
 	float ratio = (dis - kRatioCheckDistance) / kRatioCheckDistance;
-	ratio = std::clamp(ratio, 0.1f, 0.5f);
+	ratio = std::clamp(ratio, kTargetRatioMin, kTargetRatioMax);
 	targetPos = playerPos + (enemyPos - playerPos) * ratio;
 
 	auto stage = m_stage.lock();
@@ -161,15 +176,15 @@ void LockOnCamera::FixCameraPos()
 	if (dot >= 0.0f)
 	{
 		//正の時、rotateBaseの方向に回転させる
-		rotY = Matrix4x4::MakeRotationY(-DX_PI_F / 6);
+		rotY = Matrix4x4::MakeRotationY(-kRotateAngle);
 	}
 	else
 	{
 		//負の時、rotateBaseの逆方向に回転させる
-		rotY = Matrix4x4::MakeRotationY(DX_PI_F / 6);
+		rotY = Matrix4x4::MakeRotationY(kRotateAngle);
 	}
 	//やり方がわからないので、一旦これで
-	rotY = Matrix4x4::MakeRotationY(DX_PI_F / 6);
+	rotY = Matrix4x4::MakeRotationY(kRotateAngle);
 
 	//auto CtoP = Vector3(0.0f, 0.0f, -cameraToPlayerLength);//プレイヤーからカメラへのベクトル
 
@@ -183,7 +198,7 @@ void LockOnCamera::FixCameraPos()
 	//カメラからプレイヤーVec
 	auto RotPtoC = VTransform(EtoPVecDx, rotYMat);//回転させる
 	//RotPtoC = VTransform(RotPtoC, rotXMat);//回転させる
-	RotPtoC = VAdd(RotPtoC, VGet(0.0f, 160.0f, 0.0f));
+	RotPtoC = VAdd(RotPtoC, VGet(0.0f, kCameraPosOffsetY, 0.0f));
 
 	//水平方向はその向き、垂直は初期化で角度を更新し、プレイヤーカメラに渡す
 	//atan2f(cross,dot)で二つのベクトルの角度が出る//理解済み
@@ -215,12 +230,12 @@ void LockOnCamera::Draw()
 	if (!enemy)return;
 	if (!player)return;
 
-	DrawSphere3D(m_pos.ToDxLibVector(), 10.0f, 16, GetColor(255, 0, 0), GetColor(255, 0, 0), true);
+	DrawSphere3D(m_pos.ToDxLibVector(), kDebugSphereRadius, kDebugSphereDivNum, GetColor(kDebugColorRedR, kDebugColorRedG, kDebugColorRedB), GetColor(kDebugColorRedR, kDebugColorRedG, kDebugColorRedB), true);
 	//このカメラがメインカメラの時、デバッグ
 	if (cameraManager->GetHighestPriorityCamera()->GetCameraType() == Camera::Type::LockOnCamera)
 	{
-		Vector3 startPos = player->GetPos() + Vector3(0, 100, 0);
-		Vector3 endPos = enemy->GetPos() + Vector3(0, 100, 0);
-		DrawLine3D(startPos.ToDxLibVector(), endPos.ToDxLibVector(), GetColor(0, 0, 255));
+		Vector3 startPos = player->GetPos() + Vector3(0, kDebugLineOffsetY, 0);
+		Vector3 endPos = enemy->GetPos() + Vector3(0, kDebugLineOffsetY, 0);
+		DrawLine3D(startPos.ToDxLibVector(), endPos.ToDxLibVector(), GetColor(kDebugColorBlueR, kDebugColorBlueG, kDebugColorBlueB));
 	}
 }

@@ -1,5 +1,13 @@
 ﻿#include "SubWindow.h"
 
+namespace
+{
+	constexpr int kLabelOffsetX = 10;//ラベルのX方向オフセット
+	constexpr int kLabelMargin = 20;//ラベルのY方向オフセット、および右端・下端のマージン
+	constexpr COLORREF kTextBackgroundColor = RGB(0, 0, 0);//背景色(黒)
+	constexpr COLORREF kTextColor = RGB(0, 255, 0);//文字色(緑)
+}
+
 //staticメンバ変数の定義
 HWND SubWindow::m_hWnd = nullptr;//Window本体
 HWND SubWindow::m_hLabel = nullptr;//テキストを表示するためのラベル
@@ -28,7 +36,7 @@ void SubWindow::Create(HINSTANCE hInstance, int x, int y, int width, int height)
 	m_hLabel = CreateWindowExA(
 		0, "STATIC", "",
 		WS_CHILD | WS_VISIBLE | SS_LEFT,
-		10, 20, width - 20, height - 20,
+		kLabelOffsetX, kLabelMargin, width - kLabelMargin, height - kLabelMargin,
 		m_hWnd, NULL, hInstance, NULL
 	);
 
@@ -66,8 +74,8 @@ void SubWindow::SetText(const std::string& text)
 		HDC hdc = GetDC(m_hWnd);
 		RECT rect;
 		GetClientRect(m_hWnd, &rect);
-		SetBkColor(hdc, RGB(0, 0, 0));    // 背景：黒
-		SetTextColor(hdc, RGB(0, 255, 0)); // 文字：緑
+		SetBkColor(hdc, kTextBackgroundColor);    // 背景：黒
+		SetTextColor(hdc, kTextColor); // 文字：緑
 		FillRect(hdc, &rect, (HBRUSH)GetStockObject(BLACK_BRUSH));
 		DrawTextA(hdc, text.c_str(), -1, &rect, DT_LEFT | DT_TOP);
 		ReleaseDC(m_hWnd, hdc);
@@ -101,8 +109,8 @@ void SubWindow::Draw()
 	HDC hdc = GetDC(m_hWnd);
 	RECT rect;
 	GetClientRect(m_hWnd, &rect);
-	SetBkColor(hdc, RGB(0, 0, 0));
-	SetTextColor(hdc, RGB(0, 255, 0));
+	SetBkColor(hdc, kTextBackgroundColor);
+	SetTextColor(hdc, kTextColor);
 	FillRect(hdc, &rect, (HBRUSH)GetStockObject(BLACK_BRUSH));
 	DrawTextA(hdc, m_buffer.c_str(), -1, &rect, DT_LEFT | DT_TOP);
 	ReleaseDC(m_hWnd, hdc);

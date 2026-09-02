@@ -144,6 +144,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Application.cpp" />
+    <ClCompile Include="Game.cpp" />
     <ClCompile Include="Camera\CameraState\CameraStateBase.cpp" />
     <ClCompile Include="Character\Enemy\Boss\BossEnemy.cpp" />
     <ClCompile Include="Character\Enemy\Boss\BossState.cpp" />

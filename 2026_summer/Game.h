@@ -3,10 +3,22 @@
 //ゲーム全体で使用する定数
 namespace Game
 {
-	//画面情報
+	//画面情報(設計解像度、UI座標の比率計算の基準にする)
 	constexpr int kScreenWidth = 1280;
 	constexpr int kScreenHeight = 720;
 	constexpr int kColorBitNum = 32;
+
+	//現在の実解像度を取得する(ウィンドウ/フルスクリーンの切り替えで変わる)
+	int GetScreenWidth();
+	int GetScreenHeight();
+	//実解像度を変更する(フルスクリーン切り替え時にApplicationから呼ぶ)
+	void SetScreenSize(int width, int height);
+
+	//設計解像度(kScreenWidth/kScreenHeight)を基準にした画面比率で座標・サイズを変換する
+	float ScaleX(float designX);
+	float ScaleY(float designY);
+	//縦横共通の拡大率(横方向を基準にする、アスペクト比が同じ前提)
+	float GetScale();
 
 	//重力
 	constexpr float kGravity = 1.0f;//重力の加速度//この数値を変えることで、ジャンプの高さや落ちる速さを調整できる
@@ -64,49 +76,53 @@ namespace ComboUI
 	constexpr float kButtonScale = 1.0f;//ボタンの大きさ//倍率
 
 	constexpr int ButtonToButtonDistanceX = 50;//ボタンとボタンの間の距離//横
-	constexpr int ButtonToButtonDistanceY = 60;//ボタンとボタンの間の距離//縦
+	constexpr int ButtonToButtonDistanceY = 75;//ボタンとボタンの間の距離//縦(ボタンの高さ64pxに対して、文字と重ならないよう余白を広めにとっている)
 
-	constexpr int kStringDistanceY = 35;//文字とボタンの間の距離//縦
+	constexpr int kStringDistanceY = 45;//文字とボタンの間の距離//縦(ボタンの高さ64px(半分32px)より広くとって重ならないようにする)
+
+	//コンボ一覧UIの基準位置(すべての項目で共通)
+	const int kComboUIStartX = Game::kScreenWidth * 8 / 10;//横位置(画面幅の8割の位置)
+	constexpr int kComboUIStartY = 100;//縦位置の基準(ここにButtonToButtonDistanceY*段数を足していく)
 
 	//弱5ボタン
 	constexpr ComboChainButton kCombo1[] = { ComboChainButton::X, ComboChainButton::X, ComboChainButton::X,ComboChainButton::X,ComboChainButton::X };
 	//開始位置
-	const int kCombo1StartX = Game::kScreenWidth* 8 /10;
-	const int kCombo1StartY = 100 + ButtonToButtonDistanceY * 1;
+	const int kCombo1StartX = kComboUIStartX;
+	const int kCombo1StartY = kComboUIStartY + ButtonToButtonDistanceY * 1;
 
 	//強2ボタン
 	constexpr ComboChainButton kCombo2[] = { ComboChainButton::Y, ComboChainButton::Y };
 	//開始位置
-	const int kCombo2StartX = Game::kScreenWidth *8 / 10;
-	const int kCombo2StartY = 100+ ButtonToButtonDistanceY * 2;
+	const int kCombo2StartX = kComboUIStartX;
+	const int kCombo2StartY = kComboUIStartY + ButtonToButtonDistanceY * 2;
 	//打ち上げコンボ
 	constexpr ComboChainButton kAirCombo[] = { ComboChainButton::X, ComboChainButton::Y,};
 	//開始位置
-	const int kAirComboStartX = Game::kScreenWidth * 8 / 10;
-	const int kAirComboStartY = 100 + ButtonToButtonDistanceY * 3;
+	const int kAirComboStartX = kComboUIStartX;
+	const int kAirComboStartY = kComboUIStartY + ButtonToButtonDistanceY * 3;
 
 	//スキル3コンボボタン
 	constexpr ComboChainButton kSkillCombo[] = {ComboChainButton::Hold,ComboChainButton::LB, ComboChainButton::X, ComboChainButton::X, ComboChainButton::X };
 	//開始位置
-	const int kSkillStartX = Game::kScreenWidth * 8 / 10;
-	const int kSkillStartY = 100 + ButtonToButtonDistanceY * 4;
+	const int kSkillStartX = kComboUIStartX;
+	const int kSkillStartY = kComboUIStartY + ButtonToButtonDistanceY * 4;
 
 	//必殺技ボタン
 	constexpr ComboChainButton kUlt[] = { ComboChainButton::Hold,ComboChainButton::LB, ComboChainButton::Y };
 	//開始位置
-	const int kUltStartX = Game::kScreenWidth * 8 / 10;
-	const int kUltStartY = 100 + ButtonToButtonDistanceY * 5;
+	const int kUltStartX = kComboUIStartX;
+	const int kUltStartY = kComboUIStartY + ButtonToButtonDistanceY * 5;
 
 	//ロックオン
 	constexpr ComboChainButton kLockOn = ComboChainButton::RB;
 	//開始位置
-	const int kLockOnStartX = Game::kScreenWidth * 8 / 10;
-	const int kLockOnStartY = 100 + ButtonToButtonDistanceY * 6;
+	const int kLockOnStartX = kComboUIStartX;
+	const int kLockOnStartY = kComboUIStartY + ButtonToButtonDistanceY * 6;
 	//ロックオン切換え
 	constexpr ComboChainButton kLockOnChange = ComboChainButton::RStickLR;
 	//開始位置
-	const int kLockOnChangeStartX = Game::kScreenWidth * 8 /10;
-	const int kLockOnChangeStartY = 100 + ButtonToButtonDistanceY * 7;
+	const int kLockOnChangeStartX = kComboUIStartX;
+	const int kLockOnChangeStartY = kComboUIStartY + ButtonToButtonDistanceY * 7;
 
 	
 }

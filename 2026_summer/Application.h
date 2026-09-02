@@ -20,6 +20,7 @@ private:
 	void operator=(const Application& app) = delete; //=deleteをつけると
 	                                               //何をしてもこれを使えなくなる
 	bool m_requestedExit = false;//ゲームの終了をがリクエスト
+	bool m_isFullScreen = false;//現在フルスクリーンかどうか
 
 public:
 	~Application();
@@ -59,6 +60,16 @@ public:
 	/// 非同期ロード
 	/// </summary>
 	void AsyncLoad();
+
+	/// <summary>
+	/// ウィンドウ/フルスクリーンを切り替える
+	/// </summary>
+	/// <param name="fullScreen">true:フルスクリーン / false:ウィンドウ</param>
+	void SetFullScreen(bool fullScreen);
+	/// <summary>
+	/// 現在フルスクリーンかどうかを返す
+	/// </summary>
+	bool IsFullScreen() const;
 };
 
 

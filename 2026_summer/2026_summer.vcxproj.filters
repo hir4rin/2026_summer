@@ -48,6 +48,9 @@
     <ClCompile Include="Application.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
+    <ClCompile Include="Game.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
     <ClCompile Include="Character\Collider.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>

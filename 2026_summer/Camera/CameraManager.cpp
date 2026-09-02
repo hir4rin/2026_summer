@@ -32,6 +32,10 @@ namespace
 	constexpr float kPhotoCamSpeed = 20.0f;//フォトモード中のカメラ移動速度
 	constexpr float kPhotoAngleSpeed = 0.03f;//フォトモード中のカメラ回転速度
 	//constexpr float kPhotoLookDistance = 500.0f;//注視点までの距離
+	constexpr float kPhotoAngleVClamp = 0.49f;//フォトモード中の垂直角度の可動範囲(DX_PI_Fに対する倍率)
+
+	constexpr int kShakeRandMax = 200;//カメラ揺れのランダム値の最大
+	constexpr float kShakeRandNormalize = 100.0f;//ランダム値を-1.0~1.0の範囲に正規化するための除数
 }
 
 CameraManager::CameraManager()
@@ -258,7 +262,7 @@ void CameraManager::UpdatePhotoCamera()
 	auto rightStick = input.GetRightStickInput();
 	m_photoAngleH += rightStick.x * kPhotoAngleSpeed;
 	m_photoAngleV -= rightStick.y * kPhotoAngleSpeed;
-	m_photoAngleV = std::clamp(m_photoAngleV, -DX_PI_F * 0.49f, DX_PI_F * 0.49f);
+	m_photoAngleV = std::clamp(m_photoAngleV, -DX_PI_F * kPhotoAngleVClamp, DX_PI_F * kPhotoAngleVClamp);
 
 	//向きから前方向・右方向のベクトルを作る(atan2f(x,z)の対応の逆)
 	Vector3 forward = Vector3(sinf(m_photoAngleH), 0.0f, cosf(m_photoAngleH));
@@ -418,8 +422,8 @@ Vector3 CameraManager::CameraShakeUpdate()
 	float progress = m_shakeTimer / m_shakeTimerMax;//揺れの進行度合いを0から1の範囲で表す
 	float currentPower = m_shakePower * progress;//現在の揺れの強さを計算する
 
-	float magX = (GetRand(200) / 100.0f - 1.0f) * currentPower;
-	float magY = (GetRand(200) / 100.0f - 1.0f) * currentPower;
+	float magX = (GetRand(kShakeRandMax) / kShakeRandNormalize - 1.0f) * currentPower;
+	float magY = (GetRand(kShakeRandMax) / kShakeRandNormalize - 1.0f) * currentPower;
 	Vector3 mag = Vector3(magX, magY, 0.0f);
 
 	return mag;

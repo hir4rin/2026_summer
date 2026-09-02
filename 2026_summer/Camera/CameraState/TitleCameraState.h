@@ -29,7 +29,7 @@ public:
 	{
 		return BlendSetting{
 			.mode = BlendSetting::Mode::Lerp,
-			.duration = 5.0f,
+			.duration = kBlendDuration,
 			.easingPower = 1.0f,
 			.pivot = Vector3()
 		};
@@ -46,6 +46,8 @@ public:
 	/// <param name="playerPos">スキップ後のプレイヤー座標</param>
 	void SkipToOpening(const Vector3& playerPos);
 private:
+	static constexpr float kBlendDuration = 5.0f;//ブレンドにかけるフレーム数
+
 	Shot m_shot = Shot::Fixed;
 	int m_count = 0;
 	int m_count_zoom = 0;

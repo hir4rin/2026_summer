@@ -16,6 +16,8 @@ namespace
 	constexpr float kAreaBottom = 130.0f;	// 発生エリアの下端(この範囲内にランダムで出す)
 
 	constexpr int kScreenWidth = Game::kScreenWidth;
+
+	constexpr int kSpawnXJitterRange = 200;//画面外右からの発生位置のランダムな幅
 }
 
 SpeedLine2D::SpeedLine2D()
@@ -45,7 +47,7 @@ void SpeedLine2D::TryGenerate(bool isMoving)
 		LineData data;
 
 		// 画面右側(奥)からランダムな位置で発生させる
-		data.x = kScreenWidth + (rand() % 200); // 画面外右から出発
+		data.x = kScreenWidth + (rand() % kSpawnXJitterRange); // 画面外右から出発
 		data.y = kAreaTop + (rand() % static_cast<int>(kAreaBottom - kAreaTop));
 		data.length = kLineMinLength + (rand() % static_cast<int>(kLineMaxLength - kLineMinLength));
 		data.speed = kLineMinSpeed + (rand() % static_cast<int>(kLineMaxSpeed - kLineMinSpeed));
@@ -60,7 +62,7 @@ void SpeedLine2D::TryGenerate(bool isMoving)
 		LineData data;
 
 		// 画面右側(奥)からランダムな位置で発生させる
-		data.x = kScreenWidth + (rand() % 200); // 画面外右から出発
+		data.x = kScreenWidth + (rand() % kSpawnXJitterRange); // 画面外右から出発
 		data.y = (Game::kScreenHeight -( kAreaBottom - kAreaTop)) + (rand() % static_cast<int>(kAreaBottom - kAreaTop));
 		data.length = kLineMinLength + (rand() % static_cast<int>(kLineMaxLength - kLineMinLength));
 		data.speed = kLineMinSpeed + (rand() % static_cast<int>(kLineMaxSpeed - kLineMinSpeed));

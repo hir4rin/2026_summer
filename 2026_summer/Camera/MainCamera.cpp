@@ -16,6 +16,8 @@ namespace
 	constexpr float kPosLerpMin = 0.05f;//ラープの最小値
 	constexpr float kPosLerpMax = 0.08f;//ラープの最大値
 
+	constexpr float kTargetLerpFactor = 0.3f;//注視点ラープの係数
+
 }
 
 MainCamera::MainCamera()
@@ -65,7 +67,7 @@ void MainCamera::Update(const CameraData& data)
 		{
 			//デッドゾーンからフルラープまでの割合(0~1)で割合を変える
 			float t = std::clamp((dist - kDeadZoneRadius) / (kFullLerpRadius - kDeadZoneRadius), 0.0f, 1.0f);
-			m_target = Vector3::Lerp(m_pos, data.target, 0.3f * t);
+			m_target = Vector3::Lerp(m_pos, data.target, kTargetLerpFactor * t);
 		}
 
 		//m_target = Vector3::Lerp(m_pos,data.target,0.3f);
@@ -84,7 +86,7 @@ void MainCamera::Update(const CameraData& data)
 		{
 			//デッドゾーンからフルラープまでの割合(0~1)で割合を変える
 			float t = std::clamp((dist - kDeadZoneRadius) / (kFullLerpRadius - kDeadZoneRadius), 0.0f, 1.0f);
-			m_target = Vector3::Lerp(m_pos, data.target, 0.3f * t);
+			m_target = Vector3::Lerp(m_pos, data.target, kTargetLerpFactor * t);
 
 		}
 		//m_target = Vector3::Lerp(m_pos, data.target, 0.3f);

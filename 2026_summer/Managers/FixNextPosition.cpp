@@ -11,6 +11,8 @@ namespace
 	constexpr float kCheckUnder = -800.0f;
 	constexpr float kCheckTop = 800.0f;
 	constexpr float kWallThreshold = 0.5f;//境界線
+	constexpr float kPushBackSplitRatio = 0.5f;//押し戻しを両者で分け合う割合(0.5倍にして両方が半分ずつ退く)
+	constexpr float kStepClearanceHeight = 1.0f;//段差で突っかかるのを防ぐための壁ポリゴン判定の高さ余裕
 }
 
 
@@ -126,8 +128,8 @@ void FixNextPosition::FixNextPosSS(Collider& colA, Collider& colB)
 
 	if (overlap > 0)
 	{
-		colA.m_vel += AToBVec.Normalize() * overlap * 0.5f * -1;// 重なった分だけ押し戻す（0.5倍にして両方が半分ずつ退く） 
-		colB.m_vel +=  AToBVec.Normalize() * overlap * 0.5f;// 重なった分だけ押し戻す（0.5倍にして両方が半分ずつ退く）
+		colA.m_vel += AToBVec.Normalize() * overlap * kPushBackSplitRatio * -1;// 重なった分だけ押し戻す（0.5倍にして両方が半分ずつ退く）
+		colB.m_vel +=  AToBVec.Normalize() * overlap * kPushBackSplitRatio;// 重なった分だけ押し戻す（0.5倍にして両方が半分ずつ退く）
 		return;
 	}
 	//重なっていない場合は、押し戻さない
@@ -237,9 +239,9 @@ void FixNextPosition::AnalyzeWallAndFloor(MV1_COLL_RESULT_POLY_DIM hitDim, const
 		{
 			//壁ポリゴンと判断された場合でも、プレイヤーのY座標+1.0fより高いポリゴンのみ当たり判定を行う
 			//段差で突っかかるのを防ぐため//?あまりわからない
-			if(hitDim.Dim[i].Position[0].y > nextPos.y + 1.0f || 
-			   hitDim.Dim[i].Position[1].y > nextPos.y + 1.0f ||
-			   hitDim.Dim[i].Position[2].y > nextPos.y + 1.0f)
+			if(hitDim.Dim[i].Position[0].y > nextPos.y + kStepClearanceHeight ||
+			   hitDim.Dim[i].Position[1].y > nextPos.y + kStepClearanceHeight ||
+			   hitDim.Dim[i].Position[2].y > nextPos.y + kStepClearanceHeight)
 			{
 				//ポリゴンの数が列挙できる限界数に達していなかったらポリゴンを配列に保存する
 				if (m_wall.size() < kMaxHitPolygon)

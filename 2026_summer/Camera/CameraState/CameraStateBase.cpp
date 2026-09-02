@@ -2,6 +2,11 @@
 #include <algorithm>
 #include <cmath>
 
+namespace
+{
+	constexpr int kShakeRandMax = 200;//カメラ揺れのランダム値の最大
+	constexpr float kShakeRandNormalize = 100.0f;//ランダム値を-1.0~1.0の範囲に正規化するための除数
+}
 
 CameraStateBase::CameraStateBase(std::weak_ptr<CameraManager> owner) :
 	m_owner(owner)
@@ -41,8 +46,8 @@ Vector3 CameraStateBase::CameraShakeUpdate()
 	float progress = m_shakeTimer / m_shakeTimerMax;//揺れの進行度合いを0から1の範囲で表す
 	float currentPower = m_shakePower * progress;//現在の揺れの強さを計算する
 
-	float magX = (GetRand(200) / 100.0f - 1.0f) * currentPower;
-	float magY = (GetRand(200) / 100.0f - 1.0f) * currentPower;
+	float magX = (GetRand(kShakeRandMax) / kShakeRandNormalize - 1.0f) * currentPower;
+	float magY = (GetRand(kShakeRandMax) / kShakeRandNormalize - 1.0f) * currentPower;
 	Vector3 mag = Vector3(magX, magY, 0.0f);
 
 	return mag;

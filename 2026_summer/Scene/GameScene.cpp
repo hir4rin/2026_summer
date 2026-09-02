@@ -45,6 +45,27 @@ namespace
 	constexpr float kFlashDuration = 12.0f;
 
 	constexpr int kFadeFrame = 20;//フェードイン・フェードアウトにかけるフレーム数
+
+	constexpr float kLastHitPlayerResetFrame = 300.0f;//ラストヒットイベント開始からplayerをセットし直すまでのフレーム数
+	constexpr float kLastHitEventEndFrame = 640.0f;//ラストヒットイベントの演出が終わるフレーム数
+	const Vector3 kLastHitPlayerPos = Vector3(328.66f, 0.0f, 6903.45f);//ラストヒットイベント演出開始時のplayer座標
+
+	constexpr int kUltRedOverlayAlpha = 128;//必殺技中に画面を赤くするアルファ値
+
+	constexpr int kLockOnRangeExpandMultiplier = 3;//ロックオン対象の切り替え・再取得時に範囲を広げる倍率
+
+	constexpr int kEnemyDebugLabelOffsetY = 200;//ロックオン中の敵デバッグ表示用の縦オフセット
+	constexpr int kLockOnDebugCircleRadius = 20;//ロックオンサークルのデバッグ描画半径
+
+	//ラストヒットイベント用入力レコードのフレーム数(仮なので、あとで調整する)
+	constexpr int kLastHitRecordStartDelay = 10;
+	constexpr int kLastHitRecordIdleFrames = 190;
+	constexpr int kLastHitRecordTailFrames = 999;
+
+	constexpr float kBloodUIScale = 0.8f;//血UIの拡大率
+	constexpr float kBloodUIRotation = -DX_PI_F / 12;//血UIの回転角度
+	constexpr float kSatsuUIScale = 0.5f;//殺UIの拡大率
+	constexpr float kSplashUIRotation = DX_PI_F / 4;//液体UIの回転角度
 }
 
 
@@ -279,13 +300,13 @@ void GameScene::NormalUpdate()
 	if (System::GetInstance().GetIsLastHitEventPlaying())
 	{
 		m_lasthitEventDuration++;
-		if (m_lasthitEventDuration == 300)
+		if (m_lasthitEventDuration == kLastHitPlayerResetFrame)
 		{
 			//もとに戻す
 			System::GetInstance().SetTimeScale(1.0f);
 
 			//playerをセット
-			m_player->SetPos(Vector3(328.66f, 0.0f, 6903.45f));
+			m_player->SetPos(kLastHitPlayerPos);
 			m_player->ForceIdleState();
 			m_player->SetRotY(0.0f);//TODO: 演出に合わせて向きを調整する
 
@@ -304,7 +325,7 @@ void GameScene::NormalUpdate()
 		//if (m_cameraManager->GetActiveCamera()->GetCameraType() == CameraStateBase::Type::FinishingSecondCamera)
 		{
 			//playerの血殺のアニメーションが終わるタイミング
-			if (m_lasthitEventDuration == 640)
+			if (m_lasthitEventDuration == kLastHitEventEndFrame)
 			{
 				input.StopRecord();
 				System::GetInstance().SetIsLastHitEventPlaying(false);
@@ -355,7 +376,7 @@ void GameScene::FadeInDraw()
 	//だんだん透明にしていく
 	int alpha = 255 * (kFadeFrame - m_fadeCount) / kFadeFrame;
 	SetDrawBlendMode(DX_BLENDMODE_ALPHA, alpha);
-	DrawBox(0, 0, Game::kScreenWidth, Game::kScreenHeight, GetColor(0, 0, 0), TRUE);
+	DrawBox(0, 0, Game::GetScreenWidth(), Game::GetScreenHeight(), GetColor(0, 0, 0), TRUE);
 	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 }
 
@@ -376,8 +397,8 @@ void GameScene::NormalDraw()
 	//赤くする
 	if (isUlt)
 	{
-		SetDrawBlendMode(DX_BLENDMODE_ALPHA, 128);
-		DrawBox(0, 0, Game::kScreenWidth, Game::kScreenHeight, GetColor(255, 0, 0), TRUE);
+		SetDrawBlendMode(DX_BLENDMODE_ALPHA, kUltRedOverlayAlpha);
+		DrawBox(0, 0, Game::GetScreenWidth(), Game::GetScreenHeight(), GetColor(255, 0, 0), TRUE);
 		SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0); // ← 必ずリセット！
 	}
 
@@ -443,7 +464,7 @@ void GameScene::NormalDraw()
 	auto targetEnemy = m_cameraManager->GetTargetEnemy();
 	if (targetEnemy)
 	{
-		Vector3 enemyPos = targetEnemy->GetPos() + Vector3(0, 200, 0);
+		Vector3 enemyPos = targetEnemy->GetPos() + Vector3(0, kEnemyDebugLabelOffsetY, 0);
 
 		VECTOR enemyPos2D;;
 
@@ -454,7 +475,7 @@ void GameScene::NormalDraw()
 		if (enemyPos2D.z >= 0.0f && enemyPos2D.z <= 1.0f)
 		{
 			// ロックオンサークル
-			DrawCircle(static_cast<int>(enemyPos2D.x), static_cast<int>(enemyPos2D.y), 20, GetColor(255, 255, 0), true);
+			DrawCircle(static_cast<int>(enemyPos2D.x), static_cast<int>(enemyPos2D.y), kLockOnDebugCircleRadius, GetColor(255, 255, 0), true);
 		}
 	}
 
@@ -481,7 +502,7 @@ void GameScene::NormalDraw()
 	//フォトモードでスクリーンショットが要求されていたら、全描画完了後に保存する
 	if (m_requestScreenshot)
 	{
-		SaveDrawScreenToPNG(0, 0, Game::kScreenWidth, Game::kScreenHeight, "data/SaveData/screenShot.png");
+		SaveDrawScreenToPNG(0, 0, Game::GetScreenWidth(), Game::GetScreenHeight(), "data/SaveData/screenShot.png");
 		m_requestScreenshot = false;
 		m_flashTimer = kFlashDuration;
 		System::GetInstance().GetSoundManager().PlaySE("CameraSyatterSE");
@@ -491,7 +512,7 @@ void GameScene::NormalDraw()
 	{
 		int alpha = 255 * m_flashTimer / kFlashDuration; //残り時間に比例して薄くなる
 		SetDrawBlendMode(DX_BLENDMODE_ALPHA, alpha);
-		DrawBox(0, 0, Game::kScreenWidth, Game::kScreenHeight, GetColor(255, 255, 255), TRUE);
+		DrawBox(0, 0, Game::GetScreenWidth(), Game::GetScreenHeight(), GetColor(255, 255, 255), TRUE);
 		SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 		m_flashTimer--;
 	}
@@ -510,7 +531,7 @@ void GameScene::FadeOutDraw()
 	//だんだん暗くしていく
 	int alpha = 255 * m_fadeCount / kFadeFrame;
 	SetDrawBlendMode(DX_BLENDMODE_ALPHA, alpha);
-	DrawBox(0, 0, Game::kScreenWidth, Game::kScreenHeight, GetColor(0, 0, 0), TRUE);
+	DrawBox(0, 0, Game::GetScreenWidth(), Game::GetScreenHeight(), GetColor(0, 0, 0), TRUE);
 	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 }
 
@@ -693,7 +714,7 @@ void GameScene::LockOnCameraInput()
 			Vector3 playerPos = m_player->GetPos();
 			float toEnemyVecMag = (enemyPos - playerPos).Magnitude();
 			//範囲内にいる敵を取得
-			if (toEnemyVecMag < (m_player->GetCameraRockOnRange() * 3))//3倍の範囲で取得
+			if (toEnemyVecMag < (m_player->GetCameraRockOnRange() * kLockOnRangeExpandMultiplier))//倍の範囲で取得
 			{
 				enemiesInRange.push_back(enemy);
 			}
@@ -818,7 +839,7 @@ void GameScene::CheckLockOnCameraEnemyDead()
 			Vector3 playerPos = m_player->GetPos();
 			float toEnemyVecMag = (enemyPos - playerPos).Magnitude();
 			//範囲内にいる敵を取得
-			if (toEnemyVecMag < (m_player->GetCameraRockOnRange() * 3))//3倍の範囲で取得
+			if (toEnemyVecMag < (m_player->GetCameraRockOnRange() * kLockOnRangeExpandMultiplier))//倍の範囲で取得
 			{
 				enemiesInRange.push_back(enemy);
 			}
@@ -921,11 +942,11 @@ InputRecord GameScene::CreateLastHitEventInputRecord()
 	//ラストヒットイベント中、プレイヤーを仮想操作するための入力データ
 	//中の数値(durationFramesやpressedButtons)は仮なので、あとで調整する
 	InputRecord record;
-	record.push_back({ 10,{} });
+	record.push_back({ kLastHitRecordStartDelay,{} });
 	record.push_back({ 1, {"X"} });//1F目だけXボタンを押したことにする
-	record.push_back({ 190, {} });//そのあとは空入力(何も押していない)にする
+	record.push_back({ kLastHitRecordIdleFrames, {} });//そのあとは空入力(何も押していない)にする
 	record.push_back({ 1, {"LB","Y"}});
-	record.push_back({ 999,{} });
+	record.push_back({ kLastHitRecordTailFrames,{} });
 	return record;
 }
 
@@ -934,13 +955,14 @@ void GameScene::DrawUltKessatsuUI()
 	//必殺技UIの表示//レンダーターゲット
 	SetDrawScreen(m_RT1); ClearDrawScreen();
 	m_cameraManager->ApplyCameraSettings();
-	DrawRectRotaGraph(Game::kScreenWidth - 200, Game::kScreenHeight / 4, 0, 0, kGHX, kGHY, 0.8f, -DX_PI_F / 12, m_gHandle1, TRUE);
-	DrawRectRotaGraph(Game::kScreenWidth / 15, Game::kScreenHeight - 150, 0, 0, kGH2X, kGH2Y, 1.0f, DX_PI_F / 4, m_gHandle2, TRUE);
-	DrawRectRotaGraph(Game::kScreenWidth * 3 / 5, Game::kScreenHeight - 200, 0, 0, kGH3X, kGH3Y, 0.5f, 0.0f, m_gHandle3, TRUE);
+	DrawRectRotaGraph(Game::kScreenWidth - 200, Game::kScreenHeight / 4, 0, 0, kGHX, kGHY, kBloodUIScale, kBloodUIRotation, m_gHandle1, TRUE);
+	DrawRectRotaGraph(Game::kScreenWidth / 15, Game::kScreenHeight - 150, 0, 0, kGH2X, kGH2Y, 1.0f, kSplashUIRotation, m_gHandle2, TRUE);
+	DrawRectRotaGraph(Game::kScreenWidth * 3 / 5, Game::kScreenHeight - 200, 0, 0, kGH3X, kGH3Y, kSatsuUIScale, 0.0f, m_gHandle3, TRUE);
 
 	SetDrawScreen(DX_SCREEN_BACK);
 	m_cameraManager->ApplyCameraSettings();
-	DrawGraph(0, 0, m_RT1, true);
+	//m_RT1は設計解像度(Game::kScreenWidth x kScreenHeight)固定のバッファなので、実解像度まで引き伸ばして合成する
+	DrawExtendGraph(0, 0, Game::GetScreenWidth(), Game::GetScreenHeight(), m_RT1, true);
 }
 
 void GameScene::DrawPhotoModeCrosshair()
@@ -948,8 +970,8 @@ void GameScene::DrawPhotoModeCrosshair()
 	constexpr int kCrosshairLength = 12;//十字1本あたりの長さ
 	constexpr int kCrosshairGap = 4;//中心のすきま
 	int color = GetColor(255, 255, 255);
-	int centerX = Game::kScreenWidth / 2;
-	int centerY = Game::kScreenHeight / 2;
+	int centerX = Game::GetScreenWidth() / 2;
+	int centerY = Game::GetScreenHeight() / 2;
 
 	//横線(中心にすきまをあけて2本)
 	DrawLine(centerX - kCrosshairGap - kCrosshairLength, centerY, centerX - kCrosshairGap, centerY, color);
@@ -968,15 +990,16 @@ void GameScene::DrawLastHitKessatsuUI()
 	SetDrawScreen(m_RT1); ClearDrawScreen();
 	m_cameraManager->ApplyCameraSettings();
 	//血:左上
-	DrawRectRotaGraph(kChiX, kChiY, 0, 0, kGHX, kGHY, 0.8f, -DX_PI_F / 12, m_gHandle1, TRUE);
+	DrawRectRotaGraph(kChiX, kChiY, 0, 0, kGHX, kGHY, kBloodUIScale, kBloodUIRotation, m_gHandle1, TRUE);
 	//殺:血の少し右下
-	DrawRectRotaGraph(kChiX + 200, kChiY + 170, 0, 0, kGH3X, kGH3Y, 0.5f, 0.0f, m_gHandle3, TRUE);
+	DrawRectRotaGraph(kChiX + 200, kChiY + 170, 0, 0, kGH3X, kGH3Y, kSatsuUIScale, 0.0f, m_gHandle3, TRUE);
 	//血の液体:右下寄り
-	DrawRectRotaGraph(Game::kScreenWidth - Game::kScreenWidth / 15, Game::kScreenHeight - 150, 0, 0, kGH2X, kGH2Y, 1.0f, DX_PI_F / 4, m_gHandle2, TRUE);
+	DrawRectRotaGraph(Game::kScreenWidth - Game::kScreenWidth / 15, Game::kScreenHeight - 150, 0, 0, kGH2X, kGH2Y, 1.0f, kSplashUIRotation, m_gHandle2, TRUE);
 
 	SetDrawScreen(DX_SCREEN_BACK);
 	m_cameraManager->ApplyCameraSettings();
-	DrawGraph(0, 0, m_RT1, true);
+	//m_RT1は設計解像度(Game::kScreenWidth x kScreenHeight)固定のバッファなので、実解像度まで引き伸ばして合成する
+	DrawExtendGraph(0, 0, Game::GetScreenWidth(), Game::GetScreenHeight(), m_RT1, true);
 }
 void GameScene::Terminate()
 {

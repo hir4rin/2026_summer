@@ -16,6 +16,7 @@ namespace
 
 	constexpr float kRadius = 500.0f;
 	constexpr float kAttackColOffset = 30.0f;
+	constexpr float kHitStopTime = 0.1f;//攻撃ヒット時のヒットストップ時間
 
 
 	constexpr float kColStartRate = 0.7f;
@@ -51,7 +52,7 @@ void PlayerStateUlt::Enter()
 	.knockBackPower = Vector3(0, 0,0),
 	//.knockBackPower = Vector3(0.0f,node.knockBackY,0.0f),//吹き飛ばない攻撃にする
 	.knockBackFrame = 0,
-	.hitStopTime = 0.1f,
+	.hitStopTime = kHitStopTime,
 	.kAttackColOffset = kAttackColOffset,
 	.isKirimomi = false
 	};

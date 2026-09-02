@@ -9,17 +9,28 @@ namespace
 	constexpr float kCameraHeightFloat = 300.0f;//カメラの高さ
 	constexpr float kCameraAngleSpeed = 0.03f;//カメラの回転速度
 	const Vector3 kCameraHeight = Vector3(0.0f, 150.0f, 0.0f);//カメラの高さ(Vector3)
+
+	constexpr float kLightDifColorValue = 1.0f;//ディフューズカラー(白)の明るさ
+	constexpr float kLightSpcColorValue = 0.5f;//スペキュラカラー(グレー)の明るさ
+	constexpr float kLightAmbColorValue = 0.3f;//アンビエントカラー(暗めのグレー)の明るさ
+
+	constexpr float kCameraViewAngle = DX_PI_F / 3.0f;//カメラの視野角
+	constexpr float kCameraNear = 100.0f;//ニアクリップ
+	constexpr float kCameraFar = 1500.0f;//ファークリップ
+
+	constexpr int kShakeRandMax = 200;//カメラ揺れのランダム値の最大
+	constexpr float kShakeRandNormalize = 100.0f;//ランダム値を-1.0~1.0の範囲に正規化するための除数
 }
 
 Camera::Camera():
 	m_target(0.0f, 0.0f, 0.0f),
-	m_pos(0.0f, 300.0f, -700.0f)
+	m_pos(0.0f, kCameraHeightFloat, -kToPlayerLength)
 {
 	// ライトの初期化（ディレクショナルライト）
-	m_lightHandle = CreateDirLightHandle(VGet(0.0f, -1.0f, 1.0f));	
-	SetLightDifColorHandle(m_lightHandle, GetColorF(1.0f, 1.0f, 1.0f, 1.0f));//ディフューズカラーを白に設定
-	SetLightSpcColorHandle(m_lightHandle, GetColorF(0.5f, 0.5f, 0.5f, 1.0f));//スペキュラカラーをグレーに設定
-	SetLightAmbColorHandle(m_lightHandle, GetColorF(0.3f, 0.3f, 0.3f, 1.0f));//アンビエントカラーを暗めのグレーに設定
+	m_lightHandle = CreateDirLightHandle(VGet(0.0f, -1.0f, 1.0f));
+	SetLightDifColorHandle(m_lightHandle, GetColorF(kLightDifColorValue, kLightDifColorValue, kLightDifColorValue, 1.0f));//ディフューズカラーを白に設定
+	SetLightSpcColorHandle(m_lightHandle, GetColorF(kLightSpcColorValue, kLightSpcColorValue, kLightSpcColorValue, 1.0f));//スペキュラカラーをグレーに設定
+	SetLightAmbColorHandle(m_lightHandle, GetColorF(kLightAmbColorValue, kLightAmbColorValue, kLightAmbColorValue, 1.0f));//アンビエントカラーを暗めのグレーに設定
 }
 
 Camera::~Camera()
@@ -37,8 +48,8 @@ void Camera::Init()
 {
 	// カメラの設定
 	SetCameraPositionAndTarget_UpVecY(m_pos.ToDxLibVector(), m_target.ToDxLibVector());
-	SetupCamera_Perspective(DX_PI_F / 3.0f);
-	SetCameraNearFar(100.0f, 1500.0f);
+	SetupCamera_Perspective(kCameraViewAngle);
+	SetCameraNearFar(kCameraNear, kCameraFar);
 }
 
 void Camera::Update(Vector3 pos,Vector3 pos2)
@@ -75,8 +86,8 @@ Vector3 Camera::CameraShakeUpdate()
 	float progress = m_shakeTimer / m_shakeTimerMax;//揺れの進行度合いを0から1の範囲で表す
 	float currentPower = m_shakePower * progress;//現在の揺れの強さを計算する
 
-	float magX = (GetRand(200) / 100.0f - 1.0f) * currentPower;
-	float magY = (GetRand(200) / 100.0f - 1.0f) * currentPower;
+	float magX = (GetRand(kShakeRandMax) / kShakeRandNormalize - 1.0f) * currentPower;
+	float magY = (GetRand(kShakeRandMax) / kShakeRandNormalize - 1.0f) * currentPower;
 	Vector3 mag = Vector3(magX, magY, 0.0f);
 
 	return mag;

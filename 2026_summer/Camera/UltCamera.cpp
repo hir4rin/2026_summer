@@ -17,6 +17,15 @@ namespace
 	const float kUltDistance = kToPlayerLength   / 2.0f;
 	//const float kUltDistance = kToPlayerLength   * 2.0f;
 	constexpr float kRatioCheckDistance = 800.0f;//プレイヤーの最高到達点//カメラのターゲットの割合注視点//XZ軸
+
+	constexpr float kTargetRatioMin = 0.5f;//注視点の割合の最小値
+	constexpr float kTargetRatioMax = 0.6f;//注視点の割合の最大値
+
+	constexpr float kEtoPVecLength = 300.0f;//敵→プレイヤーベクトルの長さ
+	constexpr float kRotateAngle = DX_PI_F / 2.0f;//カメラを回転させる角度
+
+	constexpr float kDebugSphereRadius = 10.0f;//デバッグ球の半径
+	constexpr int kDebugSphereDivNum = 16;//デバッグ球の分割数
 }
 
 UltCamera::UltCamera()
@@ -114,7 +123,7 @@ void UltCamera::Update(Vector3 pos, Vector3 pos2)
 	float dis = (enemyPos - playerPos).Magnitude();
 	//割合を決める
 	float ratio = (dis - kRatioCheckDistance) / kRatioCheckDistance;
-	ratio = std::clamp(ratio, 0.5f, 0.6f);
+	ratio = std::clamp(ratio, kTargetRatioMin, kTargetRatioMax);
 	m_target = playerPos + (enemyPos - playerPos) * ratio + kCameraHeight;
 
 	//カメラの位置と注視点を反映する
@@ -170,7 +179,7 @@ void UltCamera::FixCameraPos()
 	playerPos.y = enemyPos.y = 0.0f;
 
 	Vector3 EtoPVec = (playerPos - enemyPos).Normalize();
-	EtoPVec *= 300.0f;
+	EtoPVec *= kEtoPVecLength;
 	//EtoPVecを90度回転させたベクトルとMainCtoPVecの内積が正か負かでどちらに回転させるかを決める
 	Vector3 upVec = Vector3(0.0f, 1.0f, 0.0f );
 	Vector3 rotateBase = EtoPVec.Cross(upVec).Normalize();
@@ -179,11 +188,11 @@ void UltCamera::FixCameraPos()
 	float angle = 0.0f;
 	if (dot >= 0.0f)
 	{
-		angle = -DX_PI_F / 2.0f;
+		angle = -kRotateAngle;
 	}
 	else
 	{
-		angle = DX_PI_F / 2.0f;
+		angle = kRotateAngle;
 	}
 
 	//水平方向の回転//敵との距離によってこの角度を帰る
@@ -219,7 +228,7 @@ void UltCamera::CameraSetting()
 
 void UltCamera::Draw()
 {
-	DrawSphere3D(m_pos.ToDxLibVector(), 10.0f,16, GetColor(255, 255, 255),GetColor(0, 0, 0), true);
+	DrawSphere3D(m_pos.ToDxLibVector(), kDebugSphereRadius,kDebugSphereDivNum, GetColor(255, 255, 255),GetColor(0, 0, 0), true);
 
 	std::string posText = "UltCameraPos:(" + std::to_string(m_pos.x) + "," + std::to_string(m_pos.y) + "," + std::to_string(m_pos.z) + ")";
 	std::string targetText = "UltCameraTarget:(" + std::to_string(m_target.x) + "," + std::to_string(m_target.y) + "," + std::to_string(m_target.z) + ")";
