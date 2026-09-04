@@ -77,7 +77,7 @@ void ComboHUD::Draw() const
 
 	//コンボUIが見づらいので、後ろに薄暗い背景を敷く
 	SetDrawBlendMode(DX_BLENDMODE_ALPHA, kBackgroundAlpha);
-	DrawBox(SX(kBackgroundLeft), SY(kBackgroundTop), SX(kBackgroundRight), SY(kBackgroundBottom), GetColor(0, 0, 0), TRUE);
+	DrawBox(SX(kBackgroundLeft), SY(kBackgroundTop), SX(kBackgroundRight), SY(kBackgroundBottom), GetColor(255, 255, 255), TRUE);
 	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);
 
 	//ここで、コンボのボタンを描画する処理を実装する
