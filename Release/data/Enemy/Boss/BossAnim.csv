@@ -1,0 +1,12 @@
+#name,animname
+CautionLeft,Armature|CautionLeftWalk
+CautionRight,Armature|CautionRightWalk
+Death,Armature|Death
+Hadou,Armature|Hadou
+Hit,Armature|Hit
+Idle,Armature|Idle
+Injured,Armature|Injured
+LangedAttack,Armature|LangedAttack
+Summon,Armature|Summon
+WalkBack,Armature|WalkBack
+WalkFront,Armature|WalkFront
