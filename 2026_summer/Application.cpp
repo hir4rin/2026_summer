@@ -10,6 +10,7 @@
 #include "Scene/GameClearScene.h"
 #include "Scene/StageClearPoPScene.h"
 #include "Scene/TitleScene.h"
+#include "Scene/StageEditScene.h"
 #include "DataLoader/DataManager.h"
 #include "Input.h"
 #include "SubWindow/SubWindow.h"
@@ -192,6 +193,15 @@ void Application::Run()
 				pSceneMain->Init();
 			}*/
 		}
+
+#ifdef _DEBUG
+		if (CheckHitKey(KEY_INPUT_F1) && !m_wasF1Pressed)
+		{
+			//F1キーでステージ制作モード(StageEditScene)に入る
+			controller.ResetScene<StageEditScene>();
+		}
+		m_wasF1Pressed = CheckHitKey(KEY_INPUT_F1) != 0;
+#endif
 
 		Input::GetInstance().Update();
 		controller.Update();

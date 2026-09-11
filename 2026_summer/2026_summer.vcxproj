@@ -224,6 +224,9 @@
     <ClCompile Include="Scene\SceneController.cpp" />
     <ClCompile Include="Stage\SkyBox.cpp" />
     <ClCompile Include="Stage\Stage.cpp" />
+    <ClCompile Include="Stage\StageObject.cpp" />
+    <ClCompile Include="Stage\StageCsvIO.cpp" />
+    <ClCompile Include="Scene\StageEditScene.cpp" />
     <ClCompile Include="SubWindow\SubWindow.cpp" />
     <ClCompile Include="System.cpp" />
     <ClCompile Include="Camera\UltCamera.cpp" />
@@ -327,6 +330,10 @@
     <ClInclude Include="Scene\SceneController.h" />
     <ClInclude Include="Stage\SkyBox.h" />
     <ClInclude Include="Stage\Stage.h" />
+    <ClInclude Include="Stage\StageObject.h" />
+    <ClInclude Include="Stage\StageObjectData.h" />
+    <ClInclude Include="Stage\StageCsvIO.h" />
+    <ClInclude Include="Scene\StageEditScene.h" />
     <ClInclude Include="SubWindow\SubWindow.h" />
     <ClInclude Include="System.h" />
     <ClInclude Include="Camera\UltCamera.h" />

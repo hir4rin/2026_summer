@@ -68,6 +68,7 @@ void ComboHUD::DrawComboButton(int x, int y, int buttonIndex, int handle, double
 		DrawRectRotaGraph(x, y, 0, 0, kHoldSrcWidth, kHoldSrcHeight, scale * normalize, 0.0f, handle, true);
 		return;
 	}
+
 	DrawRectRotaGraph(x, y, 0, 0, kButtonWidth, kButtonHeight, scale, 0.0f, handle, true);
 }
 

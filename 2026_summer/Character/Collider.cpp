@@ -150,6 +150,9 @@ void Collider::DebugDraw() const
 		case Tags::Enemy:
 			color = GetColor(128, 128, 128);//敵は灰色
 			break;
+		case Tags::StaticObject:
+			color = GetColor(255, 255, 0);//静的オブジェクト(ステージ制作モードのBOXなど)は黄色
+			break;
 		case Tags::PlayerAttack:
 			color = GetColor(0, 0, 255);//プレイヤーの攻撃は青
 			break;

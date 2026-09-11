@@ -21,6 +21,9 @@ private:
 	                                               //何をしてもこれを使えなくなる
 	bool m_requestedExit = false;//ゲームの終了をがリクエスト
 	bool m_isFullScreen = false;//現在フルスクリーンかどうか
+#ifdef _DEBUG
+	bool m_wasF1Pressed = false;//前フレームでF1キーが押されていたか(StageEditSceneへの切り替えをトリガー式にするため)
+#endif
 
 public:
 	~Application();
